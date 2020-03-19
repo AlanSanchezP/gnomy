@@ -1,4 +1,4 @@
-package gnomy.alansanchezp.github.io.gnomy;
+package io.github.alansanchezp.gnomy;
 
 import org.junit.Test;
 

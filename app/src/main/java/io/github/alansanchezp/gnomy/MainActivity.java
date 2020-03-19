@@ -1,4 +1,4 @@
-package gnomy.alansanchezp.github.io.gnomy;
+package io.github.alansanchezp.gnomy;
 
 import android.os.Bundle;
 import androidx.annotation.NonNull;
