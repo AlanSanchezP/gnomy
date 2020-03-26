@@ -1,9 +1,13 @@
-package gnomy.alansanchezp.github.io.gnomy;
+package io.github.alansanchezp.gnomy;
 
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.jakewharton.threetenabp.AndroidThreeTen;
+
 import androidx.appcompat.app.AppCompatActivity;
+import io.github.alansanchezp.gnomy.database.GnomyDatabase;
+
 import android.view.MenuItem;
 import android.widget.TextView;
 
@@ -34,8 +38,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
+        AndroidThreeTen.init(this);
+
+        // Empty passphrase for development until
+        // I can figure out how to properly store
+        // and handle it
+        // TODO Handle Passphrase
+        GnomyDatabase db = GnomyDatabase
+                .getInstance(this, "");
+
+        setContentView(R.layout.activity_main);
         mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);

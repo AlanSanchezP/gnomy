@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 29
     defaultConfig {
-        applicationId "gnomy.alansanchezp.github.io.gnomy"
+        applicationId "io.github.alansanchezp.gnomy"
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
@@ -24,7 +24,19 @@ dependencies {
     implementation 'com.google.android.material:material:1.2.0-alpha05'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta4'
 
+    implementation 'net.zetetic:android-database-sqlcipher:4.3.0'
+    implementation "androidx.sqlite:sqlite:2.1.0"
+
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.2.2'
+    testImplementation ('org.threeten:threetenbp:1.4.2'){
+        exclude group:'com.jakewharton.threetenabp', module:'threetenabp'
+    }
+
+    implementation "androidx.room:room-runtime:2.2.5"
+    annotationProcessor "androidx.room:room-compiler:2.2.5"
+
     testImplementation 'junit:junit:4.12'
+    testImplementation 'org.hamcrest:hamcrest-library:2.1'
 
     // Core library
     androidTestImplementation 'androidx.test:core:1.2.0'

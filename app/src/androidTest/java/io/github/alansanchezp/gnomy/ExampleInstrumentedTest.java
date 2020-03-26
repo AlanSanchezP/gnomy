@@ -1,4 +1,4 @@
-package gnomy.alansanchezp.github.io.gnomy;
+package io.github.alansanchezp.gnomy;
 
 import android.content.Context;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        assertEquals("gnomy.alansanchezp.github.io.gnomy", appContext.getPackageName());
+        assertEquals("io.github.alansanchezp.gnomy", appContext.getPackageName());
     }
 }
