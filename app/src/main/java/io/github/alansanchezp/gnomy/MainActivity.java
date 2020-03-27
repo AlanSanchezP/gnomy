@@ -2,14 +2,20 @@ package io.github.alansanchezp.gnomy;
 
 import android.os.Bundle;
 import androidx.annotation.NonNull;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import androidx.appcompat.app.AppCompatActivity;
-import io.github.alansanchezp.gnomy.database.GnomyDatabase;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
-import android.view.MenuItem;
 import android.widget.TextView;
+import android.view.MenuItem;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import io.github.alansanchezp.gnomy.database.GnomyDatabase;
+import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,21 +26,21 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            Fragment fragment;
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    mTextMessage.setText(R.string.title_home);
                     return true;
                 case R.id.navigation_transactions:
-                    mTextMessage.setText(R.string.title_transactions);
                     return true;
                 case R.id.navigation_accounts:
-                    mTextMessage.setText(R.string.title_accounts);
-                    return true;
+                    fragment = new AccountsFragment();
+                    break;
                 case R.id.navigation_notifications:
-                    mTextMessage.setText(R.string.title_notifications);
                     return true;
+                default:
+                    return false;
             }
-            return false;
+            return switchToFragment(fragment);
         }
     };
 
@@ -52,9 +58,19 @@ public class MainActivity extends AppCompatActivity {
                 .getInstance(this, "");
 
         setContentView(R.layout.activity_main);
-        mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
+    public boolean switchToFragment(Fragment fragment) {
+        if (fragment == null) return false;
+
+        FragmentManager manager = getSupportFragmentManager();
+
+        manager.beginTransaction()
+                .replace(R.id.main_container, fragment)
+                .commit();
+
+        return true;
+    }
 }
