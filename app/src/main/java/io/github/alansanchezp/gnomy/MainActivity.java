@@ -6,10 +6,11 @@ import androidx.annotation.NonNull;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import android.widget.TextView;
+import android.view.View;
 import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -18,8 +19,6 @@ import io.github.alansanchezp.gnomy.database.GnomyDatabase;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 
 public class MainActivity extends AppCompatActivity {
-
-    private TextView mTextMessage;
 
     private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -58,6 +57,11 @@ public class MainActivity extends AppCompatActivity {
                 .getInstance(this, "");
 
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        // Remove default title text
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
@@ -72,5 +76,8 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
 
         return true;
+    }
+
+    public void onFABClick(View v) {
     }
 }
