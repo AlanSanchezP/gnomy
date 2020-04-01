@@ -28,8 +28,10 @@ dependencies {
     implementation "androidx.sqlite:sqlite:2.1.0"
 
     implementation 'com.jakewharton.threetenabp:threetenabp:1.2.2'
-    testImplementation ('org.threeten:threetenbp:1.4.2'){
-        exclude group:'com.jakewharton.threetenabp', module:'threetenabp'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    testImplementation('org.threeten:threetenbp:1.4.2') {
+        exclude group: 'com.jakewharton.threetenabp', module: 'threetenabp'
     }
 
     implementation "androidx.room:room-runtime:2.2.5"
