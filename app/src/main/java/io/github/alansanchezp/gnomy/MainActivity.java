@@ -15,11 +15,15 @@ import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import io.github.alansanchezp.gnomy.database.GnomyDatabase;
+import org.threeten.bp.OffsetDateTime;
+
+import java.math.BigDecimal;
+
+import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 
 public class MainActivity extends AppCompatActivity {
-
     private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -49,13 +53,6 @@ public class MainActivity extends AppCompatActivity {
 
         AndroidThreeTen.init(this);
 
-        // Empty passphrase for development until
-        // I can figure out how to properly store
-        // and handle it
-        // TODO Handle Passphrase
-        GnomyDatabase db = GnomyDatabase
-                .getInstance(this, "");
-
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -79,5 +76,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onFABClick(View v) {
+        // TODO Open NewAccountActivity and remove this hardcoded insert
+        AccountRepository repository = new AccountRepository(getApplicationContext());
+        Account account = new Account();
+        account.setName("Test account");
+        account.setCreatedAt(OffsetDateTime.now());
+        account.setInitialValue(new BigDecimal("100"));
+        account.setShowInDashboard(true);
+        account.setType(Account.INFORMAL);
+        account.setDefaultCurrency("MXN");
+        account.setBackgroundColor(0);
+        repository.insert(account);
     }
 }
