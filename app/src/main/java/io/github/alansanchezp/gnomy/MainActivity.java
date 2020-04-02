@@ -23,7 +23,7 @@ import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AccountsFragment.OnListFragmentInteractionListener {
     private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.navigation_transactions:
                     return true;
                 case R.id.navigation_accounts:
-                    fragment = new AccountsFragment();
+                    fragment = AccountsFragment.newInstance(1);
                     break;
                 case R.id.navigation_notifications:
                     return true;
@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
     public void onFABClick(View v) {
         // TODO Open NewAccountActivity and remove this hardcoded insert
         AccountRepository repository = new AccountRepository(getApplicationContext());
+        // TODO shortcut for initialValue (receive string only) and createdAt (default to now())
         Account account = new Account();
         account.setName("Test account");
         account.setCreatedAt(OffsetDateTime.now());
@@ -87,5 +88,9 @@ public class MainActivity extends AppCompatActivity {
         account.setDefaultCurrency("MXN");
         account.setBackgroundColor(0);
         repository.insert(account);
+    }
+
+    public void onListFragmentInteraction(Account account) {
+
     }
 }
