@@ -30,7 +30,7 @@ public class MainNavigationInstrumentedTest {
         onView(withId(R.id.navigation_accounts))
                 .perform(click());
 
-        onView(withText("Hello blank fragment"))
+        onView(withText(R.string.accounts_test_month))
                 .check(matches(isDisplayed()));
     }
 }
