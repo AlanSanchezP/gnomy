@@ -1,6 +1,6 @@
 package io.github.alansanchezp.gnomy.database.account;
 
-import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.YearMonth;
 
 import java.math.BigDecimal;
 
@@ -8,7 +8,6 @@ import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
-import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
@@ -31,7 +30,7 @@ public class MonthlyBalance {
 
     @ColumnInfo(name = "balance_date")
     @NonNull
-    private OffsetDateTime date = OffsetDateTime.now();
+    private YearMonth date = YearMonth.now();
 
     @ColumnInfo(name = "total_incomes")
     @NonNull
@@ -62,11 +61,11 @@ public class MonthlyBalance {
     }
 
     @NonNull
-    public OffsetDateTime getDate() {
+    public YearMonth getDate() {
         return date;
     }
 
-    public void setDate(@NonNull OffsetDateTime date) {
+    public void setDate(@NonNull YearMonth date) {
         this.date = date;
     }
 

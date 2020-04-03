@@ -1,7 +1,9 @@
 package io.github.alansanchezp.gnomy.database;
 
+import org.threeten.bp.DateTimeException;
 import org.threeten.bp.Instant;
 import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.YearMonth;
 import org.threeten.bp.ZoneId;
 
 import java.math.BigDecimal;
@@ -44,5 +46,29 @@ public class GnomyTypeConverters {
                     .longValue();
         }
         return null;
+    }
+
+
+
+    @TypeConverter
+    public static int yearMonthToInt(YearMonth yearMonth) {
+        if (yearMonth == null) return 0;
+        return Integer.parseInt(yearMonth.toString()
+                .replace("-", ""));
+    }
+
+    @TypeConverter
+    public static YearMonth intToYearMonth(int stamp) {
+        if (stamp < 101) return null;
+
+        try {
+            String tmp = Integer.toString(stamp);
+            int year = Integer.parseInt(tmp.substring(0, tmp.length() - 2));
+            int month = Integer.parseInt(tmp.substring(tmp.length() - 2));
+
+            return YearMonth.of(year, month);
+        } catch (DateTimeException e) {
+            return null;
+        }
     }
 }

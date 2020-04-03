@@ -9,6 +9,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.comparesEqualTo;
 
 import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.YearMonth;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.format.DateTimeFormatter;
 
@@ -94,6 +95,41 @@ public class TypeConvertersTest {
                 GnomyTypeConverters.decimalToLong(expectedDecimal_1980_9));
 
         assertNull(GnomyTypeConverters.decimalToLong(null));
+    }
+
+    @Test
+    public void toYearMonth_isCorrect() {
+        YearMonth testObj = GnomyTypeConverters.intToYearMonth(10);
+        assertNull(testObj);
+
+        testObj = GnomyTypeConverters.intToYearMonth(101);
+        assertEquals("0001-01", testObj.toString());
+
+        testObj = GnomyTypeConverters.intToYearMonth(199712);
+        assertEquals("1997-12", testObj.toString());
+
+        testObj = GnomyTypeConverters.intToYearMonth(202001);
+        assertEquals("2020-01", testObj.toString());
+
+        testObj = GnomyTypeConverters.intToYearMonth(202015);
+        assertNull(testObj);
+
+        testObj = GnomyTypeConverters.intToYearMonth(100);
+        assertNull(testObj);
+    }
+
+    @Test
+    public void toInt_isCorrect() {
+        assertEquals(0, GnomyTypeConverters.yearMonthToInt(null));
+
+        YearMonth testObj = YearMonth.of(1, 1);
+        assertEquals(101, GnomyTypeConverters.yearMonthToInt(testObj));
+
+        testObj = YearMonth.of(1997, 12);
+        assertEquals(199712, GnomyTypeConverters.yearMonthToInt(testObj));
+
+        testObj = YearMonth.of(2020, 1);
+        assertEquals(202001, GnomyTypeConverters.yearMonthToInt(testObj));
     }
 
     @AfterClass
