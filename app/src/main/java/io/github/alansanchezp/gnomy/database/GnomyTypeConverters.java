@@ -10,7 +10,7 @@ import androidx.room.TypeConverter;
 
 public class GnomyTypeConverters {
     @TypeConverter
-    public static OffsetDateTime toDate(Long timestamp) {
+    public static OffsetDateTime timestampToDate(Long timestamp) {
         if (timestamp != null) {
             return OffsetDateTime.ofInstant(
                     Instant.ofEpochMilli(timestamp),
@@ -20,7 +20,7 @@ public class GnomyTypeConverters {
     }
 
     @TypeConverter
-    public static Long toTimestamp(OffsetDateTime date) {
+    public static Long dateToTimestamp(OffsetDateTime date) {
         if (date != null) {
             return date.toInstant().toEpochMilli();
         }
@@ -28,7 +28,7 @@ public class GnomyTypeConverters {
     }
 
     @TypeConverter
-    public static BigDecimal toDecimal(Long longNumber) {
+    public static BigDecimal longToDecimal(Long longNumber) {
         if (longNumber != null) {
             return new BigDecimal(longNumber.toString())
                     .divide(new BigDecimal(10000));
@@ -37,7 +37,7 @@ public class GnomyTypeConverters {
     }
 
     @TypeConverter
-    public static Long toLong(BigDecimal decimalNumber) {
+    public static Long decimalToLong(BigDecimal decimalNumber) {
         if (decimalNumber != null) {
             return decimalNumber
                     .multiply(new BigDecimal(10000))
