@@ -8,20 +8,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|enterAlways" />
-    </com.google.android.material.appbar.AppBarLayout>
+    <include layout="@layout/layout_appbar" />
 
     <FrameLayout
         android:id="@+id/main_container"
@@ -52,8 +39,7 @@
         android:clickable="true"
         android:focusable="true"
         android:onClick="onFABClick"
-        app:layout_anchor="@+id/main_container"
-        app:layout_anchorGravity="bottom|end"
+        android:layout_gravity="end|bottom"
         app:srcCompat="@drawable/ic_add_black_24dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
