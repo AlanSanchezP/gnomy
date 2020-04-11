@@ -1,5 +1,6 @@
 package io.github.alansanchezp.gnomy;
 
+import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 
@@ -16,8 +17,8 @@ import android.view.MenuItem;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
+import io.github.alansanchezp.gnomy.ui.account.NewAccountActivity;
 
 public class MainActivity extends AppCompatActivity implements AccountsFragment.OnListFragmentInteractionListener {
     private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -72,18 +73,9 @@ public class MainActivity extends AppCompatActivity implements AccountsFragment.
     }
 
     public void onFABClick(View v) {
-        // TODO Open NewAccountActivity and remove this hardcoded insert
-        AccountRepository repository = new AccountRepository(getApplicationContext());
-        // TODO shortcut for initialValue (receive string only) and createdAt (default to now())
-        Account account = new Account();
-        account.setName("Test account");
-        account.setCreatedAt();
-        account.setInitialValue("100");
-        account.setShowInDashboard(true);
-        account.setType(Account.INFORMAL);
-        account.setDefaultCurrency("MXN");
-        account.setBackgroundColor(0);
-        repository.insert(account);
+        // TODO: Handle different actions depending on active fragment
+        Intent myIntent = new Intent(MainActivity.this, NewAccountActivity.class);
+        MainActivity.this.startActivity(myIntent);
     }
 
     public void onListFragmentInteraction(Account account) {
