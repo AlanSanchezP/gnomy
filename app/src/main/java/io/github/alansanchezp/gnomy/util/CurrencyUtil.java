@@ -24,6 +24,21 @@ public class CurrencyUtil {
         return formatter.format(number);
     }
 
+    public static String[] getDisplayArray() throws GnomyCurrencyException {
+        String[] displayArray = new String[CURRENCIES.length];
+
+        for (int i = 0; i < CURRENCIES.length; i++) {
+            Currency currency = getCurrency(CURRENCIES[i]);
+            String currencyName = currency.getDisplayName();
+            currencyName = currencyName.substring(0, 1).toUpperCase()
+                    + currencyName.substring(1);
+
+            displayArray[i] = String.format("%s - %s", CURRENCIES[i], currencyName);
+        }
+
+        return displayArray;
+    }
+
     private static Currency getCurrency(String currencyCode)
             throws GnomyCurrencyException {
        if (Arrays.asList(CURRENCIES).contains(currencyCode)) {
