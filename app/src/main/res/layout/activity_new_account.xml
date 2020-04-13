@@ -38,7 +38,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:backgroundTint="@android:color/transparent"
-                    android:hint="@string/name" />
+                    android:hint="@string/name"
+                    android:maxLength="55"
+                    android:singleLine="true" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <androidx.cardview.widget.CardView
