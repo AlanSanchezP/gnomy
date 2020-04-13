@@ -2,11 +2,14 @@ package io.github.alansanchezp.gnomy.ui.account;
 
 import androidx.appcompat.app.AppCompatActivity;
 import io.github.alansanchezp.gnomy.R;
+import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.filter.InputFilterMinMax;
 import io.github.alansanchezp.gnomy.util.GraphicUtil;
 
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Switch;
@@ -27,6 +30,9 @@ public class NewAccountActivity extends AppCompatActivity {
         bgColor = GraphicUtil.getRandomColor();
         textColor = GraphicUtil.getTextColor(bgColor);
         setColors();
+
+        TextInputEditText valueTIET = (TextInputEditText) findViewById(R.id.new_account_initial_value_input);
+        valueTIET.setFilters(new InputFilter[]{new InputFilterMinMax(Account.MIN_INITIAL, Account.MAX_INITIAL)});
     }
 
     protected void setColors() {

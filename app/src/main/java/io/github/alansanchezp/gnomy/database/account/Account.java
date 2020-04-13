@@ -25,6 +25,10 @@ public class Account {
     public static final int CREDIT_CARD = 5;
     @Ignore
     public static final int OTHER = 6;
+    @Ignore
+    public static final BigDecimal MIN_INITIAL = new BigDecimal("0");
+    @Ignore
+    public static final BigDecimal MAX_INITIAL = new BigDecimal("900000000000000");
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name="account_id")
