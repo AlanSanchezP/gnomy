@@ -9,11 +9,19 @@ import java.util.Locale;
 public class CurrencyUtil {
     // TODO generate complete set of currencies
     // consider limitations of free services for conversion rates
-    public static final String[] CURRENCIES = {
+    private static final String[] CURRENCIES = {
         "USD",
         "MXN",
         "EUR"
     };
+
+    public static String[] getCurrencies() {
+        return CURRENCIES;
+    }
+
+    public static String getCurrencyCode(int index) {
+        return CURRENCIES[index];
+    }
 
     public static String format(BigDecimal number, String currencyCode) throws GnomyCurrencyException {
         Currency currency = getCurrency(currencyCode);
