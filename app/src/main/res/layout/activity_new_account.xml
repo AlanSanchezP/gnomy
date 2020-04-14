@@ -30,8 +30,7 @@
                 android:layout_marginStart="36dp"
                 android:layout_marginTop="15dp"
                 android:layout_marginEnd="36dp"
-                android:textDirection="locale"
-                app:errorEnabled="false" >
+                android:textDirection="locale" >
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/new_account_name_input"
@@ -66,7 +65,6 @@
                         android:id="@+id/new_account_initial_value"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        app:errorEnabled="false"
                         app:startIconTint="#000000"
                         app:startIconDrawable="@drawable/ic_account_balance_wallet_black_24dp">
 

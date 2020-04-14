@@ -12,7 +12,9 @@ import io.github.alansanchezp.gnomy.util.GraphicUtil;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.InputFilter;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -39,6 +41,38 @@ public class NewAccountActivity extends AppCompatActivity {
         setColors();
         setLists();
         setFilters();
+
+        TextInputLayout nameTIL = (TextInputLayout) findViewById(R.id.new_account_name);
+        TextInputLayout valueTIL = (TextInputLayout) findViewById(R.id.new_account_initial_value);
+
+        nameTIL.getEditText().addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                boolean isValid = validateName();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+        valueTIL.getEditText().addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                boolean isValid = validateValueString();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
     }
 
     protected void setColors() {
@@ -68,6 +102,16 @@ public class NewAccountActivity extends AppCompatActivity {
         valueTIL.setBoxStrokeColor(bgColor);
         valueTIL.setHintTextColor(ColorStateList.valueOf(bgColor));
 
+        if (textColor == 0XFF000000) {
+            nameTIL.setErrorTextColor(ColorStateList.valueOf(0XFFFF0000));
+            nameTIL.setErrorIconTintList(ColorStateList.valueOf(0XFFFF0000));
+            nameTIL.setBoxStrokeErrorColor(ColorStateList.valueOf(0XFFFF0000));
+        } else {
+            nameTIL.setErrorTextColor(ColorStateList.valueOf(textColor));
+            nameTIL.setErrorIconTintList(ColorStateList.valueOf(textColor));
+            nameTIL.setBoxStrokeErrorColor(ColorStateList.valueOf(textColor));
+        }
+
         includeInSwitch.getThumbDrawable().setTintList(switchCSL);
         includeInSwitch.getTrackDrawable().setTintList(switchCSL);
 
@@ -78,6 +122,7 @@ public class NewAccountActivity extends AppCompatActivity {
     protected void setLists() {
         MaterialSpinner currencySpinner = (MaterialSpinner) findViewById(R.id.new_account_currency);
         MaterialSpinner typeSpinner = (MaterialSpinner) findViewById(R.id.new_account_type);
+
         try {
             String[] currencies = CurrencyUtil.getDisplayArray();
             String[] accountTypes = getResources().getStringArray(R.array.account_types);
@@ -145,5 +190,39 @@ public class NewAccountActivity extends AppCompatActivity {
                         }
                     }
                 }).build().show(getSupportFragmentManager(),"dialog");
+    }
+
+    protected boolean validateName() {
+        TextInputLayout nameTIL = (TextInputLayout) findViewById(R.id.new_account_name);
+        try {
+            String name = nameTIL.getEditText().getText().toString();
+
+            if (name.trim().length() == 0) {
+                nameTIL.setError("Account name can't be empty");
+                return false;
+            }
+            nameTIL.setError(null);
+            return true;
+        } catch (NullPointerException npe) {
+            Log.e("NewAccountActivity", "validateName: ", npe);
+            return false;
+        }
+    }
+
+    protected boolean validateValueString() {
+        TextInputLayout valueTIL = (TextInputLayout) findViewById(R.id.new_account_initial_value);
+        try {
+            String initialValueString = valueTIL.getEditText().getText().toString();
+
+            if (initialValueString.length() == 0) {
+                valueTIL.setError("Initial value is not a valid number.");
+                return false;
+            }
+            valueTIL.setError(null);
+            return true;
+        } catch (NullPointerException npe) {
+            Log.e("NewAccountActivity", "validateValueString: ", npe);
+            return false;
+        }
     }
 }
