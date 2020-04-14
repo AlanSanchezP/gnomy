@@ -4,12 +4,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.filter.InputFilterMinMax;
+import io.github.alansanchezp.gnomy.util.CurrencyUtil;
+import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.util.GraphicUtil;
 
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.InputFilter;
+import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Switch;
@@ -17,6 +20,7 @@ import android.widget.Switch;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.jaredrummler.materialspinner.MaterialSpinner;
 
 public class NewAccountActivity extends AppCompatActivity {
     protected int bgColor;
@@ -29,10 +33,10 @@ public class NewAccountActivity extends AppCompatActivity {
 
         bgColor = GraphicUtil.getRandomColor();
         textColor = GraphicUtil.getTextColor(bgColor);
-        setColors();
 
-        TextInputEditText valueTIET = (TextInputEditText) findViewById(R.id.new_account_initial_value_input);
-        valueTIET.setFilters(new InputFilter[]{new InputFilterMinMax(Account.MIN_INITIAL, Account.MAX_INITIAL)});
+        setColors();
+        setLists();
+        setFilters();
     }
 
     protected void setColors() {
@@ -66,6 +70,26 @@ public class NewAccountActivity extends AppCompatActivity {
 
         palette.setBackgroundTintList(ColorStateList.valueOf(bgColor));
         palette.getDrawable().mutate().setTint(textColor);
+    }
+
+    protected void setLists() {
+        MaterialSpinner currencySpinner = (MaterialSpinner) findViewById(R.id.new_account_currency);
+        MaterialSpinner typeSpinner = (MaterialSpinner) findViewById(R.id.new_account_type);
+        try {
+            String[] currencies = CurrencyUtil.getDisplayArray();
+            String[] accountTypes = getResources().getStringArray(R.array.account_types);
+
+            currencySpinner.setItems(currencies);
+            typeSpinner.setItems(accountTypes);
+        } catch (GnomyCurrencyException e) {
+            // This shoudln't happen
+            Log.wtf("NewAccountActivity", "setLists: CURRENCIES array triggers error", e);
+        }
+    }
+
+    protected void setFilters() {
+        TextInputEditText valueTIET = (TextInputEditText) findViewById(R.id.new_account_initial_value_input);
+        valueTIET.setFilters(new InputFilter[]{new InputFilterMinMax(Account.MIN_INITIAL, Account.MAX_INITIAL)});
     }
 
     protected ColorStateList getSwitchColorStateList(int color) {
