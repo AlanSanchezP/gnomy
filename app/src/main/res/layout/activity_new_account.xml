@@ -136,12 +136,13 @@
 
                         <ImageButton
                             android:id="@+id/new_account_color_button"
+                            style="@style/Widget.AppCompat.ImageButton"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
+                            android:contentDescription="@string/color_picker"
                             android:cropToPadding="false"
                             android:isScrollContainer="false"
-                            android:contentDescription="@string/color_picker"
-                            style="@style/Widget.AppCompat.ImageButton"
+                            android:onClick="showColorPicker"
                             app:srcCompat="@drawable/ic_color_lens_black_24dp" />
 
                         <TextView

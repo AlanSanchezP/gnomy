@@ -1,5 +1,6 @@
 package io.github.alansanchezp.gnomy.ui.account;
 
+import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
@@ -13,6 +14,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Switch;
@@ -21,6 +23,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.jaredrummler.materialspinner.MaterialSpinner;
+import com.thebluealliance.spectrum.SpectrumDialog;
 
 public class NewAccountActivity extends AppCompatActivity {
     protected int bgColor;
@@ -32,7 +35,6 @@ public class NewAccountActivity extends AppCompatActivity {
         setContentView(R.layout.activity_new_account);
 
         bgColor = GraphicUtil.getRandomColor();
-        textColor = GraphicUtil.getTextColor(bgColor);
 
         setColors();
         setLists();
@@ -40,6 +42,7 @@ public class NewAccountActivity extends AppCompatActivity {
     }
 
     protected void setColors() {
+        textColor = GraphicUtil.getTextColor(bgColor);
         LinearLayout container = (LinearLayout) findViewById(R.id.new_account_container);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.new_account_ok);
         TextInputLayout nameTIL = (TextInputLayout) findViewById(R.id.new_account_name);
@@ -125,5 +128,22 @@ public class NewAccountActivity extends AppCompatActivity {
                 color,
             }
         );
+    }
+
+    public void showColorPicker(View v) {
+        new SpectrumDialog.Builder(this)
+                .setColors(GraphicUtil.getColors())
+                .setSelectedColor(bgColor)
+                .setDismissOnColorSelected(true)
+                .setOutlineWidth(0)
+                .setFixedColumnCount(5)
+                .setOnColorSelectedListener(new SpectrumDialog.OnColorSelectedListener() {
+                    @Override public void onColorSelected(boolean positiveResult, @ColorInt int color) {
+                        if (positiveResult) {
+                            bgColor = color;
+                            setColors();
+                        }
+                    }
+                }).build().show(getSupportFragmentManager(),"dialog");
     }
 }
