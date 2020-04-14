@@ -43,15 +43,29 @@ public class CurrencyUtilTest {
     }
 
     @Test
-    public void display_list_is_correct() {
+    public void display_name_is_correct() {
         try {
+            String code = "USD";
+
             Locale.setDefault(new Locale("es", "es"));
-            String[] displayArray = CurrencyUtil.getDisplayArray();
-            assertEquals("USD - Dólar estadounidense", displayArray[0]);
+            String displayName = CurrencyUtil.getDisplayName(code);
+            assertEquals("USD - Dólar estadounidense", displayName);
 
             Locale.setDefault(new Locale("en", "uk"));
-            displayArray = CurrencyUtil.getDisplayArray();
-            assertEquals("USD - US Dollar", displayArray[0]);
+            displayName = CurrencyUtil.getDisplayName(code);
+            assertEquals("USD - US Dollar",displayName);
+        } catch(GnomyCurrencyException e) {
+            System.out.println(e);
+        }
+    }
+
+    @Test
+    public void display_array_is_correct() {
+        try {
+            String[] codesArray = CurrencyUtil.getCurrencies();
+            String[] displayArray = CurrencyUtil.getDisplayArray();
+
+            assertEquals(codesArray.length, displayArray.length);
         } catch(GnomyCurrencyException e) {
             System.out.println(e);
         }
