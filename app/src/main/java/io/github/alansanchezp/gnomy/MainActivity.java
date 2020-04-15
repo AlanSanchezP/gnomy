@@ -29,20 +29,25 @@ public class MainActivity extends AppCompatActivity implements AccountsFragment.
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             Fragment fragment;
+            String title = "";
             switch (item.getItemId()) {
                 case R.id.navigation_home:
+                    title = getString(R.string.title_home);
                     return true;
                 case R.id.navigation_transactions:
+                    title = getString(R.string.title_transactions);
                     return true;
                 case R.id.navigation_accounts:
+                    title = getString(R.string.title_accounts);
                     fragment = AccountsFragment.newInstance(1);
                     break;
                 case R.id.navigation_notifications:
+                    title = getString(R.string.title_notifications);
                     return true;
                 default:
                     return false;
             }
-            return switchToFragment(fragment);
+            return switchToFragment(fragment, title);
         }
     };
 
@@ -56,13 +61,13 @@ public class MainActivity extends AppCompatActivity implements AccountsFragment.
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         // Remove default title text
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        setTitle(getString(R.string.title_home));
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
-    public boolean switchToFragment(Fragment fragment) {
+    public boolean switchToFragment(Fragment fragment, String title) {
         if (fragment == null) return false;
 
         FragmentManager manager = getSupportFragmentManager();
@@ -70,8 +75,13 @@ public class MainActivity extends AppCompatActivity implements AccountsFragment.
         manager.beginTransaction()
                 .replace(R.id.main_container, fragment, FRAGMENT_TAG)
                 .commit();
+        setTitle(title);
 
         return true;
+    }
+
+    public void setTitle(String title) {
+        getSupportActionBar().setTitle(title);
     }
 
     public void onFABClick(View v) {
