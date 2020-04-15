@@ -17,6 +17,7 @@
     <string name="accounts_test_month">September 2020</string>
 
     <!-- Accounts Create -->
+    <string name="account_new">New account</string>
     <string name="account_type_bank">Bank account</string>
     <string name="account_type_informal">Informal (cash)</string>
     <string name="account_type_savings">Savings</string>

@@ -2,6 +2,7 @@ package io.github.alansanchezp.gnomy.ui.account;
 
 import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
@@ -37,6 +38,7 @@ public class NewAccountActivity extends AppCompatActivity {
     protected int textColor;
     protected boolean nameInputIsPristine = true;
     protected boolean valueInputIsPristine = true;
+    protected Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +46,9 @@ public class NewAccountActivity extends AppCompatActivity {
         setContentView(R.layout.activity_new_account);
 
         bgColor = GraphicUtil.getRandomColor();
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle(getString(R.string.account_new));
+        setSupportActionBar(toolbar);
 
         setColors();
         setLists();
@@ -115,6 +120,9 @@ public class NewAccountActivity extends AppCompatActivity {
 
     protected void setColors() {
         textColor = GraphicUtil.getTextColor(bgColor);
+        toolbar.setBackgroundColor(bgColor);
+        toolbar.setTitleTextColor(textColor);
+        getWindow().setStatusBarColor(GraphicUtil.getDarkVariant(bgColor));
         LinearLayout container = (LinearLayout) findViewById(R.id.new_account_container);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.new_account_ok);
         TextInputLayout nameTIL = (TextInputLayout) findViewById(R.id.new_account_name);
