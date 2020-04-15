@@ -23,12 +23,33 @@ public class GraphicUtil {
     }
 
     public static int getTextColor(int bgColor) {
-        int red = (bgColor >> 16) & 0xFF;
-        int green = (bgColor >> 8) & 0xFF;
-        int blue = bgColor & 0xFF;
+        int[] rgb = getRGB(bgColor);
 
-        double luminance = ( 0.299 * red + 0.587 * green + 0.114 * blue)/255;
+        double luminance = ( 0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2])/255;
 
         return luminance > 0.5 ? 0xff000000 : 0xffffffff;
+    }
+
+    public static int getDarkVariant(int color) {
+        return getVariantByFactor(color, 0.8f);
+    }
+
+    public static int getVariantByFactor(int color, float ratio) {
+        int[] rgb = getRGB(color);
+
+        int a = (color >> 24) & 0xFF;
+        int newRed = (int) (rgb[0] * ratio);
+        int newGreen = (int) (rgb[1] * ratio);
+        int newBlue = (int) (rgb[2] * ratio);
+
+        newRed = Math.max(Math.min(newRed, 0XFF), 0X00);
+        newGreen = Math.max(Math.min(newGreen, 0XFF), 0X00);
+        newBlue = Math.max(Math.min(newBlue, 0XFF), 0X00);
+
+        return a << 24 | newRed << 16 | newGreen << 8 | newBlue;
+    }
+
+    public static int[] getRGB(int color) {
+        return new int[]{(color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF};
     }
 }

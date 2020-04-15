@@ -40,4 +40,53 @@ public class GraphicUtilTest {
         assertEquals(0XFFFFFFFF,GraphicUtil.getTextColor(bgColor7));
         assertEquals(0XFFFFFFFF,GraphicUtil.getTextColor(bgColor8));
     }
+
+    @Test
+    public void dark_variant_is_correct() {
+        int color = 0XFF00bfff;
+        int darkColor = GraphicUtil.getDarkVariant(color);
+
+        assertEquals(0XFF0098cc, darkColor);
+    }
+
+    @Test
+    public void variant_is_correct() {
+        // Black should be the same
+        int color = 0XFF000000;
+
+        int newColor = GraphicUtil.getVariantByFactor(color, 1);
+        assertEquals(color, newColor);
+
+        newColor = GraphicUtil.getVariantByFactor(color, 0);
+        assertEquals(color, newColor);
+
+        color = 0XFFe7e9ec;
+        newColor = GraphicUtil.getVariantByFactor(color, 2);
+        assertEquals(0XFFFFFFFF, newColor);
+
+
+        newColor = GraphicUtil.getVariantByFactor(color, -5);
+        assertEquals(0XFF000000, newColor);
+    }
+
+    @Test
+    public void rgb_is_correct() {
+        int color = 0XFF000000;
+        int[] rgb = GraphicUtil.getRGB(color);
+        assertEquals(0X00, rgb[0]);
+        assertEquals(0X00, rgb[1]);
+        assertEquals(0X00, rgb[2]);
+
+        color = 0XFFFFFFFF;
+        rgb = GraphicUtil.getRGB(color);
+        assertEquals(0XFF, rgb[0]);
+        assertEquals(0XFF, rgb[1]);
+        assertEquals(0XFF, rgb[2]);
+
+        color = 0XFFFF0000;
+        rgb = GraphicUtil.getRGB(color);
+        assertEquals(0XFF, rgb[0]);
+        assertEquals(0X00, rgb[1]);
+        assertEquals(0X00, rgb[2]);
+    }
 }
