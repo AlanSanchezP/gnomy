@@ -1,6 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
+    <color name="colorPrimary">#2196F3</color>
+    <color name="colorPrimaryLight">#6EC6FF</color>
+    <color name="colorPrimaryDark">#0069C0</color>
+    <color name="colorAccent">@color/colorPrimaryDark</color>
+
+    <color name="colorSuccess">#009B01</color>
+    <color name="colorError">#EC4530</color>
+    <color name="colorTransfers">#BEB596</color>
+    <color name="colorIncomes">@color/colorSuccess</color>
+    <color name="colorExpenses">@color/colorError</color>
+    <color name="colorIncomesDark">#008700</color>
+    <color name="colorExpensesDark">#C90101</color>
+    <color name="colorTransfersDark">#8D8568</color>
+
+    <color name="colorSurface">#FFFFFF</color>
+    <color name="colorText">#555555</color>
+    <color name="colorTextInverse">#FFFFFF</color>
+    <color name="colorTextHighlight">#222222</color>
+    <color name="colorTextSecondary">#9E9E9E</color>
+
+    <color name="colorCardBackground">#FAFAFA</color>
+
+    <color name="colorCouchA">@color/colorSuccess</color>
+    <color name="colorCouchB">#CCC018</color>
+    <color name="colorCouchC">#F2AF33</color>
+    <color name="colorCouchD">#FF8133</color>
+    <color name="colorCouchE">@color/colorError</color>
+    <color name="colorCouchF">@color/colorExpensesDark</color>
+
+    <color name="mtrl_fab_bg_color_selector">@color/colorPrimaryDark</color>
+    <color name="mtrl_bottom_nav_item_tint">@color/colorPrimary</color>
 </resources>

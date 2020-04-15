@@ -2,6 +2,7 @@ package io.github.alansanchezp.gnomy.ui.account;
 
 import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
@@ -125,33 +126,36 @@ public class NewAccountActivity extends AppCompatActivity {
         // Custom ColorStateLists
         ColorStateList switchCSL = getSwitchColorStateList(bgColor);
         ColorStateList nameCSL = getStrokeColorStateList(textColor);
+        ColorStateList textCSL = ColorStateList.valueOf(textColor);
+        ColorStateList bgCSL = ColorStateList.valueOf(bgColor);
 
         container.setBackgroundColor(bgColor);
-        fab.setBackgroundTintList(ColorStateList.valueOf(bgColor));
+        fab.setBackgroundTintList(bgCSL);
         fab.getDrawable().mutate().setTint(textColor);
         fab.setRippleColor(textColor);
 
         nameTIL.setBoxStrokeColorStateList(nameCSL);
-        nameTIL.setDefaultHintTextColor(ColorStateList.valueOf(textColor));
+        nameTIL.setDefaultHintTextColor(textCSL);
         nameTIET.setTextColor(textColor);
 
         valueTIL.setBoxStrokeColor(bgColor);
-        valueTIL.setHintTextColor(ColorStateList.valueOf(bgColor));
+        valueTIL.setHintTextColor(bgCSL);
 
         if (textColor == 0XFF000000) {
-            nameTIL.setErrorTextColor(ColorStateList.valueOf(0XFFFF0000));
-            nameTIL.setErrorIconTintList(ColorStateList.valueOf(0XFFFF0000));
-            nameTIL.setBoxStrokeErrorColor(ColorStateList.valueOf(0XFFFF0000));
+            ColorStateList csl = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorError));
+            nameTIL.setErrorTextColor(csl);
+            nameTIL.setErrorIconTintList(csl);
+            nameTIL.setBoxStrokeErrorColor(csl);
         } else {
-            nameTIL.setErrorTextColor(ColorStateList.valueOf(textColor));
-            nameTIL.setErrorIconTintList(ColorStateList.valueOf(textColor));
-            nameTIL.setBoxStrokeErrorColor(ColorStateList.valueOf(textColor));
+            nameTIL.setErrorTextColor(textCSL);
+            nameTIL.setErrorIconTintList(textCSL);
+            nameTIL.setBoxStrokeErrorColor(textCSL);
         }
 
         includeInSwitch.getThumbDrawable().setTintList(switchCSL);
         includeInSwitch.getTrackDrawable().setTintList(switchCSL);
 
-        palette.setBackgroundTintList(ColorStateList.valueOf(bgColor));
+        palette.setBackgroundTintList(bgCSL);
         palette.getDrawable().mutate().setTint(textColor);
     }
 
