@@ -20,7 +20,7 @@
     <color name="colorTextHighlight">#222222</color>
     <color name="colorTextSecondary">#9E9E9E</color>
 
-    <color name="colorCardBackground">#FAFAFA</color>
+    <color name="colorCardBackground">#F5F5F5</color>
 
     <color name="colorCouchA">@color/colorSuccess</color>
     <color name="colorCouchB">#CCC018</color>
