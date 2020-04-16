@@ -52,6 +52,9 @@ public class Account {
     @ColumnInfo(name="show_in_dashboard")
     private boolean showInDashboard;
 
+    @ColumnInfo(name="is_archived")
+    private boolean isArchived = false;
+
     @ColumnInfo(name="bg_color")
     // TODO Apply color conversion logic for this field too
     private int backgroundColor;
@@ -106,6 +109,14 @@ public class Account {
 
     public void setShowInDashboard(boolean showInDashboard) {
         this.showInDashboard = showInDashboard;
+    }
+
+    public boolean isArchived() {
+        return isArchived;
+    }
+
+    public void setArchived(boolean archived) {
+        isArchived = archived;
     }
 
     public int getBackgroundColor() {
