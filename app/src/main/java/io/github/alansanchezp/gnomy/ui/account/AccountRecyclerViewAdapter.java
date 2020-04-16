@@ -11,9 +11,12 @@ import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import io.github.alansanchezp.gnomy.database.account.Account;
@@ -79,17 +82,6 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
                 ColorDrawable colorDrawable = (ColorDrawable) background;
                 colorDrawable.setColor(Color.parseColor(colorString));
             }
-
-            holder.mView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (null != mListener) {
-                        // Notify the active callbacks interface (the activity, if the
-                        // fragment is attached to one) that an item has been selected.
-                        mListener.onListFragmentInteraction(holder.mItem);
-                    }
-                }
-            });
         }
     }
 
@@ -101,12 +93,16 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
+
         public final View mView;
         public final TextView mNameView;
         public final TextView mCurrentView;
         public final TextView mProjectedView;
         public final ImageView mIconView;
+        public final ImageButton mButton;
         public Account mItem;
+        public PopupMenu popup;
+
 
         public ViewHolder(View view) {
             super(view);
@@ -114,7 +110,24 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
             mNameView = (TextView) view.findViewById(R.id.account_card_name);
             mCurrentView = (TextView) view.findViewById(R.id.account_card_current);
             mProjectedView = (TextView) view.findViewById(R.id.account_card_projected);
+            mButton = (ImageButton) view.findViewById(R.id.account_card_button);
             mIconView = (ImageView) view.findViewById(R.id.account_card_icon);
+
+            popup = new PopupMenu(mView.getContext(), mButton);
+            popup.inflate(R.menu.account_card);
+
+            popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    return mListener.onListFragmentMenuItemInteraction(mItem, item);
+                }
+            });
+            mButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    popup.show();
+                }
+            });
         }
 
         @Override

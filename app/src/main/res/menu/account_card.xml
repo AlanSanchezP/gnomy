@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item
+        android:id="@+id/account_card_details"
+        android:title="@string/account_card_details" />
+    <item
+        android:id="@+id/account_card_modify"
+        android:title="@string/account_card_modify" />
+
+    <item
+        android:id="@+id/account_card_transactions"
+        android:title="@string/account_card_transactions" />
+
+    <item
+        android:id="@+id/account_card_archive"
+        android:title="@string/account_card_archive" />
+
+    <item
+        android:id="@+id/account_card_delete"
+        android:title="@string/account_card_delete" />
+</menu>

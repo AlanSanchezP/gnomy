@@ -67,4 +67,10 @@
     <string name="account_accumulated_balance">Accumulated balance</string>
     <string name="account_card_options">Account options</string>
     <string name="account_icon">Account icon</string>
+
+    <string name="account_card_details">Details</string>
+    <string name="account_card_modify">Modify account</string>
+    <string name="account_card_transactions">See transactions</string>
+    <string name="account_card_archive">Archive account</string>
+    <string name="account_card_delete">Delete account</string>
 </resources>

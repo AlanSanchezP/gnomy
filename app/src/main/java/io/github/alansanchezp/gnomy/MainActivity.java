@@ -139,7 +139,11 @@ public class MainActivity extends AppCompatActivity implements AccountsFragment.
         }
     }
 
-    public void onListFragmentInteraction(Account account) {
 
+    public void onListFragmentInteraction(Account account) {
+    }
+
+    public boolean onListFragmentMenuItemInteraction(Account account, MenuItem menuItem) {
+        return true;
     }
 }
