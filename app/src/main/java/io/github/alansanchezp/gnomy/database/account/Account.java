@@ -21,6 +21,7 @@ import io.github.alansanchezp.gnomy.database.currency.Currency;
         )
 )
 public class Account {
+    // TODO Icon handling
     @Ignore
     public static final int BANK = 1;
     @Ignore
@@ -50,11 +51,14 @@ public class Account {
     @NonNull
     private BigDecimal initialValue = new BigDecimal(0);
 
+    @ColumnInfo(name="account_type")
+    private int type;
+
     @ColumnInfo(name="default_currency_id")
     private int defaultCurrency;
 
-    @ColumnInfo(name="include_in_total")
-    private boolean includeInTotal;
+    @ColumnInfo(name="show_in_dashboard")
+    private boolean showInDashboard;
 
     @ColumnInfo(name="bg_color")
     // TODO Apply color conversion logic for this field too
@@ -103,12 +107,12 @@ public class Account {
         this.defaultCurrency = defaultCurrency;
     }
 
-    public boolean isIncludeInTotal() {
-        return includeInTotal;
+    public boolean isShowInDashboard() {
+        return showInDashboard;
     }
 
-    public void setIncludeInTotal(boolean includeInTotal) {
-        this.includeInTotal = includeInTotal;
+    public void setShowInDashboard(boolean showInDashboard) {
+        this.showInDashboard = showInDashboard;
     }
 
     public int getBackgroundColor() {
@@ -117,5 +121,13 @@ public class Account {
 
     public void setBackgroundColor(int backgroundColor) {
         this.backgroundColor = backgroundColor;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 }
