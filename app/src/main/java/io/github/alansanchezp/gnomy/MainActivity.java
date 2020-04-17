@@ -58,15 +58,21 @@ public class MainActivity extends AppCompatActivity implements AccountsFragment.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        System.out.println("aa");
         AndroidThreeTen.init(this);
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        currentTitle = getResources().getString(R.string.title_home);
-        setTitle();
+       Fragment initialFragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+       if (initialFragment instanceof AccountsFragment) {
+           currentTitle = getResources().getString(R.string.title_accounts);
+       } else {
+           currentTitle = getResources().getString(R.string.title_home);
+       }
+
+       setTitle();
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
