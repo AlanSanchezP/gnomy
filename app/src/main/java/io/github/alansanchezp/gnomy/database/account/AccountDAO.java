@@ -11,7 +11,7 @@ import androidx.room.Transaction;
 public interface AccountDAO {
     @Transaction
     @Query("SELECT * from accounts")
-    List<AccountWithCurrency> getAllAccountsWithCurrency();
+    List<Account> getAll();
 
     @Insert
     void insertAll(Account... accounts);

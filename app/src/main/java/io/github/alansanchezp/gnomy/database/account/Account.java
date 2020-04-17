@@ -7,19 +7,10 @@ import java.math.BigDecimal;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
-import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
-import io.github.alansanchezp.gnomy.database.currency.Currency;
 
-@Entity(tableName = "accounts",
-        foreignKeys = @ForeignKey(
-            entity = Currency.class,
-            parentColumns = "currency_id",
-            childColumns = "default_currency_id",
-            onDelete = ForeignKey.RESTRICT
-        )
-)
+@Entity(tableName = "accounts")
 public class Account {
     // TODO Icon handling
     @Ignore
@@ -54,8 +45,9 @@ public class Account {
     @ColumnInfo(name="account_type")
     private int type;
 
-    @ColumnInfo(name="default_currency_id")
-    private int defaultCurrency;
+    @ColumnInfo(name="default_currency_code")
+    @NonNull
+    private String defaultCurrency = "USD";
 
     @ColumnInfo(name="show_in_dashboard")
     private boolean showInDashboard;
@@ -99,11 +91,12 @@ public class Account {
         this.initialValue = initialValue;
     }
 
-    public int getDefaultCurrency() {
+    @NonNull
+    public String getDefaultCurrency() {
         return defaultCurrency;
     }
 
-    public void setDefaultCurrency(int defaultCurrency) {
+    public void setDefaultCurrency(@NonNull String defaultCurrency) {
         this.defaultCurrency = defaultCurrency;
     }
 

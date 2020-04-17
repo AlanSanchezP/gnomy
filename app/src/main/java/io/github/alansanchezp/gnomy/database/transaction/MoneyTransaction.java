@@ -11,16 +11,9 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.category.Category;
-import io.github.alansanchezp.gnomy.database.currency.Currency;
 
 @Entity(tableName = "transactions",
         foreignKeys = {
-            @ForeignKey(
-                entity = Currency.class,
-                parentColumns = "currency_id",
-                childColumns = "currency_id",
-                onDelete = ForeignKey.RESTRICT
-            ),
             @ForeignKey(
                 entity = Account.class,
                 parentColumns = "account_id",
@@ -53,8 +46,9 @@ public class MoneyTransaction {
     @ColumnInfo(name="transaction_id")
     private int id;
 
-    @ColumnInfo(name="currency_id")
-    private int currency;
+    @ColumnInfo(name="transaction_currency")
+    @NonNull
+    private String currency = "USD";
 
     @ColumnInfo(name="account_id")
     private int account;
@@ -96,11 +90,12 @@ public class MoneyTransaction {
         this.id = id;
     }
 
-    public int getCurrency() {
+    @NonNull
+    public String getCurrency() {
         return currency;
     }
 
-    public void setCurrency(int currency) {
+    public void setCurrency(@NonNull String currency) {
         this.currency = currency;
     }
 

@@ -10,8 +10,6 @@ import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
 import io.github.alansanchezp.gnomy.database.account.MonthlyBalanceDAO;
 import io.github.alansanchezp.gnomy.database.category.Category;
 import io.github.alansanchezp.gnomy.database.category.CategoryDAO;
-import io.github.alansanchezp.gnomy.database.currency.Currency;
-import io.github.alansanchezp.gnomy.database.currency.CurrencyDAO;
 import io.github.alansanchezp.gnomy.database.recurrentTransaction.RecurrentTransaction;
 import io.github.alansanchezp.gnomy.database.recurrentTransaction.RecurrentTransactionDAO;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
@@ -25,7 +23,6 @@ import net.sqlcipher.database.SupportFactory;
 import net.sqlcipher.database.SQLiteDatabase;
 
 @Database(entities = {
-    Currency.class,
     Category.class,
     Account.class,
     MoneyTransaction.class,
@@ -53,15 +50,10 @@ public abstract class GnomyDatabase extends RoomDatabase {
                 "gnomy.db")
                 .allowMainThreadQueries()
                 .openHelperFactory(factory)
-                // TODO generate complete set of currencies
-                // consider limitations of free services for conversion rates
-                .createFromAsset("gnomy.db")
                 .build();
     }
 
     // DAO declarations
-    public abstract CurrencyDAO currencyDAO();
-
     public abstract CategoryDAO categoryDAO();
 
     public abstract AccountDAO accountDAO();
