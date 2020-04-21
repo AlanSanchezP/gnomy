@@ -8,10 +8,14 @@ import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Ignore;
 import androidx.room.Index;
-import androidx.room.PrimaryKey;
 
 @Entity(tableName = "monthly_balances",
+        primaryKeys = {
+            "account_id",
+            "balance_date"
+        },
         foreignKeys = @ForeignKey(
             entity = Account.class,
             parentColumns = "account_id",
@@ -21,10 +25,6 @@ import androidx.room.PrimaryKey;
         indices = @Index("account_id")
 )
 public class MonthlyBalance {
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "balance_id")
-    private int id;
-
     @ColumnInfo(name = "account_id")
     private int accountId;
 
@@ -44,13 +44,12 @@ public class MonthlyBalance {
     @NonNull
     private BigDecimal accumulatedBefore = new BigDecimal(0);
 
-    public int getId() {
-        return id;
+    @Ignore
+    public MonthlyBalance(Account account) {
+        this.setAccountId(account.getId());
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public MonthlyBalance() { }
 
     public int getAccountId() {
         return accountId;
