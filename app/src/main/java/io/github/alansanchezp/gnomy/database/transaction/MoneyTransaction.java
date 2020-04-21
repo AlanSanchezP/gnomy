@@ -73,10 +73,10 @@ public class MoneyTransaction {
     private String description = "";
 
     @ColumnInfo(name="is_confirmed")
-    private boolean isConfirmed;
+    private boolean isConfirmed = true;
 
     @ColumnInfo(name="transaction_type")
-    private int type;
+    private int type = EXPENSE;
 
     @ColumnInfo(name="transaction_notes")
     @NonNull

@@ -32,7 +32,7 @@ import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 )
 public class Transfer {
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "transference_id")
+    @ColumnInfo(name = "transfer_id")
     private int id;
 
     @ColumnInfo(name = "origin_transaction_id")
@@ -41,7 +41,7 @@ public class Transfer {
     @ColumnInfo(name = "destination_transaction_id")
     private int destinationTransactionId;
 
-    @ColumnInfo(name = "transference_date")
+    @ColumnInfo(name = "transfer_date")
     @NonNull
     private OffsetDateTime date = OffsetDateTime.now();
 
