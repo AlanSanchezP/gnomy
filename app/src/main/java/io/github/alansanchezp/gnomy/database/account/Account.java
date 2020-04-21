@@ -43,14 +43,14 @@ public class Account {
     private BigDecimal initialValue = new BigDecimal(0);
 
     @ColumnInfo(name="account_type")
-    private int type;
+    private int type = BANK;
 
     @ColumnInfo(name="default_currency_code")
     @NonNull
     private String defaultCurrency = "USD";
 
     @ColumnInfo(name="show_in_dashboard")
-    private boolean showInDashboard;
+    private boolean showInDashboard = true;
 
     @ColumnInfo(name="is_archived")
     private boolean isArchived = false;
