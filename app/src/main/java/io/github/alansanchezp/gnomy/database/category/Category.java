@@ -8,6 +8,13 @@ import androidx.room.PrimaryKey;
 
 @Entity(tableName = "categories")
 public class Category {
+    @Ignore
+    public static int EXPENSE_CATEGORY = 1;
+    @Ignore
+    public static int INCOME_CATEGORY = 2;
+    @Ignore
+    public static int BOTH_CATEGORY = 3;
+
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name="category_id")
     private int id;
@@ -20,10 +27,13 @@ public class Category {
     @NonNull
     private String icon = "";
 
+    @ColumnInfo(name="category_type")
+    private int type = EXPENSE_CATEGORY;
+
     // TODO Handle color conversion
+
     @ColumnInfo(name="bg_color")
     private int backgroundColor;
-
     public int getId() {
         return id;
     }
@@ -48,6 +58,14 @@ public class Category {
 
     public void setIcon(@NonNull String icon) {
         this.icon = icon;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 
     public int getBackgroundColor() {
