@@ -32,13 +32,17 @@ import net.sqlcipher.database.SQLiteDatabase;
 }, version = 1)
 @TypeConverters({GnomyTypeConverters.class})
 public abstract class GnomyDatabase extends RoomDatabase {
-    private static GnomyDatabase gnomyDB;
+    private static GnomyDatabase INSTANCE;
 
     public static GnomyDatabase getInstance(Context context, String userEnteredPassphrase) {
-        if (null == gnomyDB) {
-            gnomyDB = buildDatabaseInstance(context, userEnteredPassphrase);
+        if (INSTANCE == null) {
+            synchronized (GnomyDatabase.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = buildDatabaseInstance(context, userEnteredPassphrase);
+                }
+            }
         }
-        return gnomyDB;
+        return INSTANCE;
     }
 
     private static GnomyDatabase buildDatabaseInstance(Context context, String userEnteredPassphrase) {
@@ -48,8 +52,9 @@ public abstract class GnomyDatabase extends RoomDatabase {
         return Room.databaseBuilder(context,
                 GnomyDatabase.class,
                 "gnomy.db")
-                .allowMainThreadQueries()
                 .openHelperFactory(factory)
+                // TODO: create migrations
+                .fallbackToDestructiveMigration()
                 .build();
     }
 
@@ -67,6 +72,6 @@ public abstract class GnomyDatabase extends RoomDatabase {
     public abstract TransferDAO transferDAO();
 
     public static void cleanUp(){
-        gnomyDB = null;
+        INSTANCE = null;
     }
 }
