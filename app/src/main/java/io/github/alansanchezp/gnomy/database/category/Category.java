@@ -30,8 +30,6 @@ public class Category {
     @ColumnInfo(name="category_type")
     private int type = EXPENSE_CATEGORY;
 
-    // TODO Handle color conversion
-
     @ColumnInfo(name="bg_color")
     private int backgroundColor;
     public int getId() {

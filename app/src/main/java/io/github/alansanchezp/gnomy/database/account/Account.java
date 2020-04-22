@@ -60,7 +60,6 @@ public class Account {
     private boolean isArchived = false;
 
     @ColumnInfo(name="bg_color")
-    // TODO Apply color conversion logic for this field too
     private int backgroundColor;
 
     public int getId() {
