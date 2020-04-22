@@ -21,6 +21,8 @@ import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 import io.github.alansanchezp.gnomy.ui.account.NewAccountActivity;
 
 public class MainActivity extends AppCompatActivity implements AccountsFragment.OnListFragmentInteractionListener {
+    private static final String FRAGMENT_TAG = "GNOMY_MAIN_FRAGMENT";
+
     private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -66,16 +68,20 @@ public class MainActivity extends AppCompatActivity implements AccountsFragment.
         FragmentManager manager = getSupportFragmentManager();
 
         manager.beginTransaction()
-                .replace(R.id.main_container, fragment)
+                .replace(R.id.main_container, fragment, FRAGMENT_TAG)
                 .commit();
 
         return true;
     }
 
     public void onFABClick(View v) {
-        // TODO: Handle different actions depending on active fragment
-        Intent myIntent = new Intent(MainActivity.this, NewAccountActivity.class);
-        MainActivity.this.startActivity(myIntent);
+        Fragment currentFragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+        if (currentFragment == null) return;
+
+        if (currentFragment instanceof AccountsFragment) {
+            Intent newAccountIntent = new Intent(MainActivity.this, NewAccountActivity.class);
+            MainActivity.this.startActivity(newAccountIntent);
+        }
     }
 
     public void onListFragmentInteraction(Account account) {
