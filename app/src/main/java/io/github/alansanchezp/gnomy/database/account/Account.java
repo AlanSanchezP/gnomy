@@ -132,6 +132,26 @@ public class Account {
     }
 
     public void setType(int type) {
-        this.type = type;
+        switch (type) {
+            case BANK:
+            case INFORMAL:
+            case SAVINGS:
+            case INVERSIONS:
+            case CREDIT_CARD:
+                this.type = type;
+                break;
+            case OTHER:
+            default:
+                this.type = OTHER;
+        }
+    }
+
+    // Custom Getters and setters
+    public void setInitialValue(String stringValue) {
+        this.initialValue = new BigDecimal(stringValue);
+    }
+
+    public void setCreatedAt() {
+        this.createdAt = OffsetDateTime.now();
     }
 }
