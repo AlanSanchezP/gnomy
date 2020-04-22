@@ -10,7 +10,7 @@ import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.filter.InputFilterMinMax;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
-import io.github.alansanchezp.gnomy.util.GraphicUtil;
+import io.github.alansanchezp.gnomy.util.ColorUtil;
 
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -45,7 +45,8 @@ public class NewAccountActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_account);
 
-        bgColor = GraphicUtil.getRandomColor();
+        bgColor = ColorUtil.getRandomColor();
+
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(getString(R.string.account_new));
         setSupportActionBar(toolbar);
@@ -119,10 +120,10 @@ public class NewAccountActivity extends AppCompatActivity {
     }
 
     protected void setColors() {
-        textColor = GraphicUtil.getTextColor(bgColor);
+        textColor = ColorUtil.getTextColor(bgColor);
         toolbar.setBackgroundColor(bgColor);
         toolbar.setTitleTextColor(textColor);
-        getWindow().setStatusBarColor(GraphicUtil.getDarkVariant(bgColor));
+        getWindow().setStatusBarColor(ColorUtil.getDarkVariant(bgColor));
         LinearLayout container = (LinearLayout) findViewById(R.id.new_account_container);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.new_account_ok);
         TextInputLayout nameTIL = (TextInputLayout) findViewById(R.id.new_account_name);
@@ -178,7 +179,7 @@ public class NewAccountActivity extends AppCompatActivity {
             currencySpinner.setItems(currencies);
             typeSpinner.setItems(accountTypes);
         } catch (GnomyCurrencyException e) {
-            // This shoudln't happen
+            // This shouldn't happen
             Log.wtf("NewAccountActivity", "setLists: CURRENCIES array triggers error", e);
         }
     }
@@ -225,7 +226,7 @@ public class NewAccountActivity extends AppCompatActivity {
 
     public void showColorPicker(View v) {
         new SpectrumDialog.Builder(this)
-                .setColors(GraphicUtil.getColors())
+                .setColors(ColorUtil.getColors())
                 .setSelectedColor(bgColor)
                 .setDismissOnColorSelected(true)
                 .setOutlineWidth(0)
@@ -251,6 +252,7 @@ public class NewAccountActivity extends AppCompatActivity {
             MaterialSpinner typeSpinner = (MaterialSpinner) findViewById(R.id.new_account_type);
 
             int currencyIndex = currencySpinner.getSelectedIndex();
+
             String initialValueString = valueTIET.getText().toString();
 
             try {

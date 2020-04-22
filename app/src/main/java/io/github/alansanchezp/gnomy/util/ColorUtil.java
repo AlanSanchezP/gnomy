@@ -1,6 +1,6 @@
 package io.github.alansanchezp.gnomy.util;
 
-public class GraphicUtil {
+public class ColorUtil {
     // DO NOT INCLUDE # SYMBOL HERE
     private static final int[] COLORS = {
         0XFFC0F291,0XFF63EB6E,0XFF33CC00,0XFF009900,0XFF006300,

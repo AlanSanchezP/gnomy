@@ -62,11 +62,9 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
             }
             Drawable background = holder.mIconView.getBackground();
 
-
-            // TODO Logic for icon color
-            // check https://stackoverflow.com/questions/1855884/determine-font-color-based-on-background-color
-
-            // TODO make this an util or integrate it on Account class
+            // TODO: Handle icon according to account type
+            // TODO: Use ColorUtil
+            // TODO: Stop using string and use just the color value
             String colorString = String.format("#%06X", (0xFFFFFF & mValues.get(position).getBackgroundColor()));
             if (background instanceof ShapeDrawable) {
                 // cast to 'ShapeDrawable'
