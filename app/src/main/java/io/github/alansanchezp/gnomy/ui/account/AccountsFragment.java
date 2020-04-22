@@ -31,7 +31,9 @@ import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 public class AccountsFragment extends Fragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 1;
+    private RecyclerView recyclerView;
     private OnListFragmentInteractionListener mListener;
+    private AccountRecyclerViewAdapter mAdapter;
     private LiveData<List<Account>> accounts;
 
     public AccountsFragment() {
@@ -56,6 +58,7 @@ public class AccountsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        updateDataSet();
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
@@ -65,28 +68,16 @@ public class AccountsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_accounts, container, false);
-
         Context context = view.getContext();
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.items_list);
+        recyclerView = (RecyclerView) view.findViewById(R.id.items_list);
+
         if (mColumnCount <= 1) {
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
         } else {
             recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
         }
 
-        AccountRepository repository = new AccountRepository(getContext());
-        final AccountRecyclerViewAdapter adapter = new AccountRecyclerViewAdapter(mListener);
-
-        accounts = repository.getAll();
-        accounts.observe(this, new Observer<List<Account>>() {
-            @Override
-            public void onChanged(@Nullable final List<Account> accounts) {
-                // Update the cached copy of the words in the adapter.
-                adapter.setValues(accounts);
-            }
-        });
-        recyclerView.setAdapter(adapter);
-
+        setItems();
         return view;
     }
 
@@ -95,6 +86,7 @@ public class AccountsFragment extends Fragment {
         super.onAttach(context);
         if (context instanceof OnListFragmentInteractionListener) {
             mListener = (OnListFragmentInteractionListener) context;
+            mAdapter = new AccountRecyclerViewAdapter(mListener);
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnListFragmentInteractionListener");
@@ -105,6 +97,28 @@ public class AccountsFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    private void updateDataSet() {
+        // TODO: Implement filters here
+       accounts = new AccountRepository(getContext()).getAll();
+    }
+
+    private void setItems() {
+        final AccountRecyclerViewAdapter adapter = mAdapter;
+        accounts.observe(this, new Observer<List<Account>>() {
+            @Override
+            public void onChanged(@Nullable final List<Account> accounts) {
+                adapter.setValues(accounts);
+            }
+        });
+
+        recyclerView.setAdapter(adapter);
+    }
+
+    public void refreshData() {
+        updateDataSet();
+        setItems();
     }
 
     /**
