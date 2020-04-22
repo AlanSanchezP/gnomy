@@ -38,7 +38,7 @@ public class CurrencyUtilTest {
             currency = "MXN";
             assertEquals("20,15 MXN", CurrencyUtil.format(number, currency));
         } catch(GnomyCurrencyException e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -55,7 +55,7 @@ public class CurrencyUtilTest {
             displayName = CurrencyUtil.getDisplayName(code);
             assertEquals("USD - US Dollar",displayName);
         } catch(GnomyCurrencyException e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -67,7 +67,7 @@ public class CurrencyUtilTest {
 
             assertEquals(codesArray.length, displayArray.length);
         } catch(GnomyCurrencyException e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 }
