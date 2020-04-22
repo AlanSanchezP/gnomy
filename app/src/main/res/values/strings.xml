@@ -11,6 +11,7 @@
     <string name="select_month">Select month</string>
     <string name="name">Name</string>
     <string name="color_picker">Color picker</string>
+    <string name="form_error">Your data has some errors.</string>
 
     <!--  Accounts fragment  -->
     <string name="accounts_test_month">September 2020</string>
@@ -37,6 +38,10 @@
     <string name="account_type">Account type</string>
     <string name="account_include_in_sum">Include in homepage sum</string>
     <string name="account_pick_color">Pick a color to identify this account</string>
+
+    <string name="account_error_name">Account name can\'t be empty</string>
+    <string name="account_error_initial_value">Initial value is not a valid number.</string>
+    <string name="account_message_saved">Your account was saved correctly.</string>
 
     <!--  Account card  -->
     <string name="account_current_balance">Current balance</string>

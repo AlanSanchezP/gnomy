@@ -4,6 +4,7 @@ import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.filter.InputFilterMinMax;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
@@ -20,12 +21,15 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.thebluealliance.spectrum.SpectrumDialog;
+
+import java.math.BigDecimal;
 
 public class NewAccountActivity extends AppCompatActivity {
     protected int bgColor;
@@ -82,7 +86,6 @@ public class NewAccountActivity extends AppCompatActivity {
         TextInputLayout nameTIL = (TextInputLayout) findViewById(R.id.new_account_name);
         TextInputEditText nameTIET = (TextInputEditText) findViewById(R.id.new_account_name_input);
         TextInputLayout valueTIL = (TextInputLayout) findViewById(R.id.new_account_initial_value);
-        TextInputEditText valueTIET = (TextInputEditText) findViewById(R.id.new_account_initial_value_input);
         Switch includeInSwitch = (Switch) findViewById(R.id.new_account_show_in_home);
         ImageButton palette = (ImageButton) findViewById(R.id.new_account_color_button);
 
@@ -192,13 +195,43 @@ public class NewAccountActivity extends AppCompatActivity {
                 }).build().show(getSupportFragmentManager(),"dialog");
     }
 
+    public void processData(View v) {
+        boolean isValid = validateData();
+
+        if (isValid) {
+            TextInputEditText nameTIET = (TextInputEditText) findViewById(R.id.new_account_name_input);
+            TextInputEditText valueTIET = (TextInputEditText) findViewById(R.id.new_account_initial_value_input);
+            Switch includeInSwitch = (Switch) findViewById(R.id.new_account_show_in_home);
+            MaterialSpinner currencySpinner = (MaterialSpinner) findViewById(R.id.new_account_currency);
+            MaterialSpinner typeSpinner = (MaterialSpinner) findViewById(R.id.new_account_type);
+
+            int currencyIndex = currencySpinner.getSelectedIndex();
+            String initialValueString = valueTIET.getText().toString();
+
+            try {
+                String name = nameTIET.getText().toString();
+                BigDecimal initialValue = new BigDecimal(initialValueString)
+                        .setScale(4, BigDecimal.ROUND_HALF_EVEN);
+                int accountType = typeSpinner.getSelectedIndex() + 1;
+                String currencyCode = CurrencyUtil.getCurrencyCode(currencyIndex);
+                boolean includeInHomepage = includeInSwitch.isChecked();
+
+                saveData(name, initialValue, currencyCode, accountType, includeInHomepage);
+            } catch (NumberFormatException nfe) {
+                Log.wtf("NewAccountActivity", "processData: Initial Value validation failed", nfe);
+            }
+        } else {
+            Toast.makeText(this, getResources().getString(R.string.form_error), Toast.LENGTH_LONG).show();
+        }
+    }
+
     protected boolean validateName() {
         TextInputLayout nameTIL = (TextInputLayout) findViewById(R.id.new_account_name);
         try {
             String name = nameTIL.getEditText().getText().toString();
 
             if (name.trim().length() == 0) {
-                nameTIL.setError("Account name can't be empty");
+                nameTIL.setError(getResources().getString(R.string.account_error_name));
                 return false;
             }
             nameTIL.setError(null);
@@ -215,7 +248,7 @@ public class NewAccountActivity extends AppCompatActivity {
             String initialValueString = valueTIL.getEditText().getText().toString();
 
             if (initialValueString.length() == 0) {
-                valueTIL.setError("Initial value is not a valid number.");
+                valueTIL.setError(getResources().getString(R.string.account_error_initial_value));
                 return false;
             }
             valueTIL.setError(null);
@@ -224,5 +257,26 @@ public class NewAccountActivity extends AppCompatActivity {
             Log.e("NewAccountActivity", "validateValueString: ", npe);
             return false;
         }
+    }
+
+    protected boolean validateData() {
+        return validateName() && validateValueString();
+    }
+
+    protected void saveData(String name, BigDecimal initialValue, String currencyCode, int accountType, boolean includeInHomepage) {
+        AccountRepository repository = new AccountRepository(getApplicationContext());
+        Account account = new Account();
+
+        account.setName(name);
+        account.setInitialValue(initialValue);
+        account.setShowInDashboard(includeInHomepage);
+        account.setType(accountType);
+        account.setDefaultCurrency(currencyCode);
+        account.setBackgroundColor(bgColor);
+        account.setCreatedAt();
+
+        repository.insert(account);
+        Toast.makeText(this, getResources().getString(R.string.account_message_saved), Toast.LENGTH_LONG).show();
+        finish();
     }
 }
