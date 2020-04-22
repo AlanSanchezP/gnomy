@@ -34,6 +34,8 @@ import java.math.BigDecimal;
 public class NewAccountActivity extends AppCompatActivity {
     protected int bgColor;
     protected int textColor;
+    protected boolean nameInputIsPristine = true;
+    protected boolean valueInputIsPristine = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +59,7 @@ public class NewAccountActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 boolean isValid = validateName();
+                nameInputIsPristine = false;
             }
 
             @Override
@@ -71,12 +74,42 @@ public class NewAccountActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 boolean isValid = validateValueString();
+                valueInputIsPristine = false;
             }
 
             @Override
             public void afterTextChanged(Editable s) {
             }
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putInt("bgcolor", bgColor);
+        savedInstanceState.putBoolean("nameIsPristine", nameInputIsPristine);
+        savedInstanceState.putBoolean("valueIsPristine", valueInputIsPristine);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        boolean nameIsPristine = savedInstanceState.getBoolean("nameIsPristine");
+        boolean valueIsPristine = savedInstanceState.getBoolean("valueIsPristine");
+        bgColor = savedInstanceState.getInt("bgcolor");
+
+        if (nameIsPristine) {
+            nameInputIsPristine = true;
+            TextInputLayout nameTIL = (TextInputLayout) findViewById(R.id.new_account_name);
+            nameTIL.setErrorEnabled(false);
+        }
+        if (valueIsPristine) {
+            valueInputIsPristine = true;
+            TextInputLayout valueTIL = (TextInputLayout) findViewById(R.id.new_account_initial_value);
+            valueTIL.setErrorEnabled(false);
+        }
+
+        setColors();
     }
 
     protected void setColors() {
@@ -234,7 +267,7 @@ public class NewAccountActivity extends AppCompatActivity {
                 nameTIL.setError(getResources().getString(R.string.account_error_name));
                 return false;
             }
-            nameTIL.setError(null);
+            nameTIL.setErrorEnabled(false);
             return true;
         } catch (NullPointerException npe) {
             Log.e("NewAccountActivity", "validateName: ", npe);
@@ -251,7 +284,7 @@ public class NewAccountActivity extends AppCompatActivity {
                 valueTIL.setError(getResources().getString(R.string.account_error_initial_value));
                 return false;
             }
-            valueTIL.setError(null);
+            valueTIL.setErrorEnabled(false);
             return true;
         } catch (NullPointerException npe) {
             Log.e("NewAccountActivity", "validateValueString: ", npe);
