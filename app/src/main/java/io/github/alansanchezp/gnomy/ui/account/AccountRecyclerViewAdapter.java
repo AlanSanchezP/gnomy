@@ -4,11 +4,9 @@ import io.github.alansanchezp.gnomy.R;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.ShapeDrawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -21,6 +19,7 @@ import android.widget.TextView;
 
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment.OnListFragmentInteractionListener;
+import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 
@@ -34,6 +33,7 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
 
     private List<Account> mValues;
     private final OnListFragmentInteractionListener mListener;
+    private Resources resources;
 
     public AccountRecyclerViewAdapter(OnListFragmentInteractionListener listener) {
         mListener = listener;
@@ -46,6 +46,7 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        resources = parent.getResources();
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.fragment_account_card, parent, false);
         return new ViewHolder(view);
@@ -54,7 +55,6 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         if (mValues != null) {
-            // TODO handle currency symbol and decimal separator
             holder.mItem = mValues.get(position);
             holder.mNameView.setText(holder.mItem.getName());
             try {
@@ -63,25 +63,37 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
             } catch (GnomyCurrencyException e) {
                 Log.wtf("AccountRecyclerViewA...", "onBindViewHolder: You somehow managed to store an invalid currency", e);
             }
-            Drawable background = holder.mIconView.getBackground();
 
-            // TODO: Handle icon according to account type
-            // TODO: Use ColorUtil
-            // TODO: Stop using string and use just the color value
-            String colorString = String.format("#%06X", (0xFFFFFF & mValues.get(position).getBackgroundColor()));
-            if (background instanceof ShapeDrawable) {
-                // cast to 'ShapeDrawable'
-                ShapeDrawable shapeDrawable = (ShapeDrawable) background;
-                shapeDrawable.getPaint().setColor(Color.parseColor(colorString));
-            } else if (background instanceof GradientDrawable) {
-                // cast to 'GradientDrawable'
-                GradientDrawable gradientDrawable = (GradientDrawable) background;
-                gradientDrawable.setColor(Color.parseColor(colorString));
-            } else if (background instanceof ColorDrawable) {
-                // alpha value may need to be set again after this call
-                ColorDrawable colorDrawable = (ColorDrawable) background;
-                colorDrawable.setColor(Color.parseColor(colorString));
+            GradientDrawable accountIconContainer = (GradientDrawable) holder.mIconView.getBackground();
+            int accountColor = holder.mItem.getBackgroundColor();
+            int iconColor = ColorUtil.getTextColor(accountColor);
+            Drawable icon;
+
+            switch (holder.mItem.getType()) {
+                case Account.INFORMAL:
+                    icon = (Drawable) resources.getDrawable(R.drawable.ic_account_balance_piggy_black_24dp);
+                    break;
+                case Account.SAVINGS:
+                    icon = (Drawable) resources.getDrawable(R.drawable.ic_account_balance_savings_black_24dp);
+                    break;
+                case Account.INVERSIONS:
+                    icon = (Drawable) resources.getDrawable(R.drawable.ic_account_balance_inversion_black_24dp);
+                    break;
+                case Account.CREDIT_CARD:
+                    icon = (Drawable) resources.getDrawable(R.drawable.ic_account_balance_credit_card_black_24dp);
+                    break;
+                case Account.OTHER:
+                    icon = (Drawable) resources.getDrawable(R.drawable.ic_account_balance_wallet_black_24dp);
+                    break;
+                case Account.BANK:
+                default:
+                    icon = (Drawable) holder.mIconView.getDrawable();
+                    break;
             }
+
+            accountIconContainer.setColor(accountColor);
+            icon.setTint(iconColor);
+            holder.mIconView.setImageDrawable(icon);
         }
     }
 

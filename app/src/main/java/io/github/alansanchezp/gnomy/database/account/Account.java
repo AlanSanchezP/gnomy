@@ -12,7 +12,6 @@ import androidx.room.PrimaryKey;
 
 @Entity(tableName = "accounts")
 public class Account {
-    // TODO Icon handling
     @Ignore
     public static final int BANK = 1;
     @Ignore
