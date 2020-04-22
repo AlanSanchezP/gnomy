@@ -31,8 +31,6 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.thebluealliance.spectrum.SpectrumDialog;
 
-import java.math.BigDecimal;
-
 public class NewAccountActivity extends AppCompatActivity {
     protected int bgColor;
     protected int textColor;
@@ -254,19 +252,12 @@ public class NewAccountActivity extends AppCompatActivity {
             int currencyIndex = currencySpinner.getSelectedIndex();
 
             String initialValueString = valueTIET.getText().toString();
+            String name = nameTIET.getText().toString();
+            int accountType = typeSpinner.getSelectedIndex() + 1;
+            String currencyCode = CurrencyUtil.getCurrencyCode(currencyIndex);
+            boolean includeInHomepage = includeInSwitch.isChecked();
 
-            try {
-                String name = nameTIET.getText().toString();
-                BigDecimal initialValue = new BigDecimal(initialValueString)
-                        .setScale(4, BigDecimal.ROUND_HALF_EVEN);
-                int accountType = typeSpinner.getSelectedIndex() + 1;
-                String currencyCode = CurrencyUtil.getCurrencyCode(currencyIndex);
-                boolean includeInHomepage = includeInSwitch.isChecked();
-
-                saveData(name, initialValue, currencyCode, accountType, includeInHomepage);
-            } catch (NumberFormatException nfe) {
-                Log.wtf("NewAccountActivity", "processData: Initial Value validation failed", nfe);
-            }
+            saveData(name, initialValueString, currencyCode, accountType, includeInHomepage);
         } else {
             Toast.makeText(this, getResources().getString(R.string.form_error), Toast.LENGTH_LONG).show();
         }
@@ -310,20 +301,25 @@ public class NewAccountActivity extends AppCompatActivity {
         return validateName() && validateValueString();
     }
 
-    protected void saveData(String name, BigDecimal initialValue, String currencyCode, int accountType, boolean includeInHomepage) {
-        AccountRepository repository = new AccountRepository(getApplicationContext());
-        Account account = new Account();
+    protected void saveData(String name, String initialValueString, String currencyCode, int accountType, boolean includeInHomepage) {
+        try {
+            AccountRepository repository = new AccountRepository(getApplicationContext());
+            Account account = new Account();
 
-        account.setName(name);
-        account.setInitialValue(initialValue);
-        account.setShowInDashboard(includeInHomepage);
-        account.setType(accountType);
-        account.setDefaultCurrency(currencyCode);
-        account.setBackgroundColor(bgColor);
-        account.setCreatedAt();
+            account.setName(name);
+            account.setInitialValue(initialValueString);
+            account.setShowInDashboard(includeInHomepage);
+            account.setType(accountType);
+            account.setDefaultCurrency(currencyCode);
+            account.setBackgroundColor(bgColor);
+            account.setCreatedAt();
 
-        repository.insert(account);
-        Toast.makeText(this, getResources().getString(R.string.account_message_saved), Toast.LENGTH_LONG).show();
-        finish();
+            repository.insert(account);
+
+            Toast.makeText(this, getResources().getString(R.string.account_message_saved), Toast.LENGTH_LONG).show();
+            finish();
+        } catch(NumberFormatException nfe) {
+            Log.wtf("NewAccountActivity", "saveData: Initial value validation failed", nfe);
+        }
     }
 }

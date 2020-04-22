@@ -29,6 +29,8 @@ public class Account {
     public static final BigDecimal MIN_INITIAL = new BigDecimal("0");
     @Ignore
     public static final BigDecimal MAX_INITIAL = new BigDecimal("900000000000000");
+    @Ignore
+    public static final int DECIMAL_SCALE = 4;
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name="account_id")
@@ -150,8 +152,9 @@ public class Account {
     }
 
     // Custom Getters and setters
-    public void setInitialValue(String stringValue) {
-        this.initialValue = new BigDecimal(stringValue);
+    public void setInitialValue(String stringValue) throws NumberFormatException {
+        this.initialValue = new BigDecimal(stringValue)
+                .setScale(DECIMAL_SCALE, BigDecimal.ROUND_HALF_EVEN);
     }
 
     public void setCreatedAt() {
