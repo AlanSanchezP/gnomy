@@ -12,7 +12,7 @@
     app:cardElevation="6dp"
     app:cardUseCompatPadding="true">
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
@@ -21,16 +21,18 @@
 
         <ImageButton
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="-7dp"
-            android:layout_marginEnd="-10dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:padding="2dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
+            android:contentDescription="@string/account_card_options"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:tint="#666666"
             android:src="@drawable/ic_more_vert_black_24dp"/>
 
         <ImageView
@@ -40,6 +42,10 @@
             android:layout_centerVertical="true"
             android:background="@drawable/shape_circle"
             android:padding="15dp"
+            android:contentDescription="@string/account_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             android:src="@drawable/ic_account_balance_black_24dp"
             app:tint="#FFFFFF" />
 
@@ -50,14 +56,16 @@
             android:layout_marginStart="15dp"
             android:layout_toEndOf="@+id/account_card_icon"
             android:textSize="17sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/account_card_icon" />
 
         <TextView
             android:id="@+id/account_card_current_lable"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/account_card_name"
-            android:layout_alignStart="@id/account_card_name"
+            app:layout_constraintTop_toBottomOf="@id/account_card_name"
+            app:layout_constraintStart_toStartOf="@id/account_card_name"
             android:layout_marginTop="15dp"
             android:text="@string/account_current_balance"
             android:textColor="#666666"
@@ -67,8 +75,8 @@
             android:id="@+id/account_card_projected_lable"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/account_card_current_lable"
-            android:layout_alignStart="@id/account_card_name"
+            app:layout_constraintTop_toBottomOf="@id/account_card_current_lable"
+            app:layout_constraintStart_toStartOf="@id/account_card_name"
             android:layout_marginTop="8dp"
             android:text="@string/account_projected_balance"
             android:textColor="#c0c0c0"
@@ -78,8 +86,8 @@
             android:id="@+id/account_card_current"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@id/account_card_current_lable"
-            android:layout_alignParentEnd="true"
+            app:layout_constraintTop_toTopOf="@id/account_card_current_lable"
+            app:layout_constraintEnd_toEndOf="parent"
             android:textColor="@android:color/holo_green_dark"
             android:textSize="15sp" />
 
@@ -87,11 +95,11 @@
             android:id="@+id/account_card_projected"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@id/account_card_projected_lable"
-            android:layout_alignParentEnd="true"
+            app:layout_constraintTop_toTopOf="@id/account_card_projected_lable"
+            app:layout_constraintEnd_toEndOf="parent"
             android:textColor="#c0c0c0"
             android:textSize="12sp" />
-    </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.cardview.widget.CardView>
 

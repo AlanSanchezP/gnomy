@@ -5,6 +5,11 @@
     <string name="title_accounts">Accounts</string>
     <string name="title_notifications">Notifications</string>
 
+    <!--  Shared strings  -->
+    <string name="prev_month">See previous month</string>
+    <string name="next_month">See next month</string>
+    <string name="select_month">Select month</string>
+
     <!--  Accounts fragment  -->
     <string name="accounts_test_month">September 2020</string>
 
@@ -12,6 +17,8 @@
     <string name="account_current_balance">Current balance</string>
     <string name="account_projected_balance">Projected balance</string>
     <string name="account_accumulated_balance">Accumulated balance</string>
+    <string name="account_card_options">Account icon</string>
+    <string name="account_icon">Account icon</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
