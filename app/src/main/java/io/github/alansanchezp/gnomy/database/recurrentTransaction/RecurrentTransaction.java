@@ -1,7 +1,5 @@
 package io.github.alansanchezp.gnomy.database.recurrentTransaction;
 
-import android.content.ReceiverCallNotAllowedException;
-
 import org.threeten.bp.OffsetDateTime;
 
 import androidx.annotation.NonNull;
