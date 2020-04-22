@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity implements AccountsFragment.
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             Fragment fragment;
-            String title = "";
+            String title;
             switch (item.getItemId()) {
                 case R.id.navigation_home:
                     title = getString(R.string.title_home);
