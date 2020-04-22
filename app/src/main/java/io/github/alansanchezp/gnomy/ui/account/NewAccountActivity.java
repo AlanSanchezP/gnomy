@@ -7,7 +7,7 @@ import androidx.core.content.ContextCompat;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
-import io.github.alansanchezp.gnomy.filter.InputFilterMinMax;
+import io.github.alansanchezp.gnomy.util.android.InputFilterMinMax;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.util.ColorUtil;

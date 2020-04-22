@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.filter;
+package io.github.alansanchezp.gnomy.util.android;
 
 import android.text.InputFilter;
 import android.text.Spanned;
