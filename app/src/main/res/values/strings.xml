@@ -12,6 +12,10 @@
     <string name="name">Name</string>
     <string name="color_picker">Color picker</string>
     <string name="form_error">Your data has some errors.</string>
+    <string name="confirmation_dialog_title">Closing Activity</string>
+    <string name="confirmation_dialog_description">Are you sure you want to do this? Your changes will be discarded.</string>
+    <string name="confirmation_dialog_yes">Yes</string>
+    <string name="confirmation_dialog_no">No</string>
 
     <!--  Accounts fragment  -->
     <string name="accounts_test_month">September 2020</string>

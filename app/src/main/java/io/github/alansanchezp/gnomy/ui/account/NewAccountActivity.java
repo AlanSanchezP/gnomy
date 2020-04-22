@@ -1,6 +1,7 @@
 package io.github.alansanchezp.gnomy.ui.account;
 
 import androidx.annotation.ColorInt;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
@@ -12,8 +13,11 @@ import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 
+import android.content.DialogInterface;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -37,6 +41,7 @@ public class NewAccountActivity extends AppCompatActivity {
     protected boolean nameInputIsPristine = true;
     protected boolean valueInputIsPristine = true;
     protected Toolbar toolbar;
+    protected Drawable upArrow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +53,10 @@ public class NewAccountActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(getString(R.string.account_new));
         setSupportActionBar(toolbar);
+        upArrow = getResources().getDrawable(R.drawable.abc_vector_test);
+
+        getSupportActionBar().setHomeAsUpIndicator(upArrow);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         setColors();
         setLists();
@@ -117,10 +126,35 @@ public class NewAccountActivity extends AppCompatActivity {
         setColors();
     }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.confirmation_dialog_title))
+                .setMessage(getString(R.string.confirmation_dialog_description))
+                .setPositiveButton(getString(R.string.confirmation_dialog_yes), new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setNegativeButton(getString(R.string.confirmation_dialog_no), null)
+                .show();
+    }
+
     protected void setColors() {
         textColor = ColorUtil.getTextColor(bgColor);
         toolbar.setBackgroundColor(bgColor);
         toolbar.setTitleTextColor(textColor);
+        upArrow.setColorFilter(textColor, PorterDuff.Mode.SRC_ATOP);
+
+        getSupportActionBar().setHomeAsUpIndicator(upArrow);
         getWindow().setStatusBarColor(ColorUtil.getDarkVariant(bgColor));
         LinearLayout container = (LinearLayout) findViewById(R.id.new_account_container);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.new_account_ok);
