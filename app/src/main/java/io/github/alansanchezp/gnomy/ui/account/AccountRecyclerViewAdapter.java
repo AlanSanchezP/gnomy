@@ -9,6 +9,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,8 @@ import android.widget.TextView;
 
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment.OnListFragmentInteractionListener;
+import io.github.alansanchezp.gnomy.util.CurrencyUtil;
+import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 
 import java.util.List;
 
@@ -51,8 +54,12 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
             // TODO handle currency symbol and decimal separator
             holder.mItem = mValues.get(position);
             holder.mNameView.setText(holder.mItem.getName());
-            holder.mCurrentView.setText(holder.mItem.getInitialValue().toString());
-            holder.mProjectedView.setText(holder.mItem.getInitialValue().toString());
+            try {
+                holder.mCurrentView.setText(CurrencyUtil.format(holder.mItem.getInitialValue(), holder.mItem.getDefaultCurrency()));
+                holder.mProjectedView.setText(CurrencyUtil.format(holder.mItem.getInitialValue(), holder.mItem.getDefaultCurrency()));
+            } catch (GnomyCurrencyException e) {
+                Log.wtf("AccountRecyclerViewA...", "onBindViewHolder: You somehow managed to store an invalid currency", e);
+            }
             Drawable background = holder.mIconView.getBackground();
 
 
