@@ -27,8 +27,8 @@ public class AccountRepository {
         return allAccounts;
     }
 
-    public LiveData<Account> find(Account account) {
-        return accountDAO.find(account.getId());
+    public LiveData<Account> find(int accountId) {
+        return accountDAO.find(accountId);
     }
 
     public void insert(Account account) {
@@ -45,7 +45,6 @@ public class AccountRepository {
         UpdateAsyncTask task = new UpdateAsyncTask(accountDAO);
         task.execute(account);
     }
-
 
     // Monthly balance methods
 
@@ -133,5 +132,4 @@ public class AccountRepository {
             return null;
         }
     }
-
 }
