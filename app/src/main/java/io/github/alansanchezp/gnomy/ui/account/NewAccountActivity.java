@@ -182,16 +182,9 @@ public class NewAccountActivity extends AppCompatActivity {
         valueTIL.setBoxStrokeColor(bgColor);
         valueTIL.setHintTextColor(bgCSL);
 
-        if (textColor == 0XFF000000) {
-            ColorStateList csl = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.colorError));
-            nameTIL.setErrorTextColor(csl);
-            nameTIL.setErrorIconTintList(csl);
-            nameTIL.setBoxStrokeErrorColor(csl);
-        } else {
-            nameTIL.setErrorTextColor(textCSL);
-            nameTIL.setErrorIconTintList(textCSL);
-            nameTIL.setBoxStrokeErrorColor(textCSL);
-        }
+        nameTIL.setErrorTextColor(textCSL);
+        nameTIL.setErrorIconTintList(textCSL);
+        nameTIL.setBoxStrokeErrorColor(textCSL);
 
         includeInSwitch.getThumbDrawable().setTintList(switchCSL);
         includeInSwitch.getTrackDrawable().setTintList(switchCSL);
