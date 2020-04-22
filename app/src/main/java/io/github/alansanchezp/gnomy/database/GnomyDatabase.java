@@ -55,6 +55,8 @@ public abstract class GnomyDatabase extends RoomDatabase {
                 .openHelperFactory(factory)
                 // TODO: create migrations
                 .fallbackToDestructiveMigration()
+                // TODO: prepopulate categories
+                // TODO: evaluate if balance adjustment should be done using triggers or as part of repository code
                 .build();
     }
 
