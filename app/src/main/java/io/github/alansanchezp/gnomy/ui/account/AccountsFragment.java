@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,9 +20,8 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.database.GnomyDatabase;
 import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.account.AccountRepository;
+import io.github.alansanchezp.gnomy.viewmodel.AccountViewModel;
 
 
 /**
@@ -32,10 +32,11 @@ import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 public class AccountsFragment extends Fragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 1;
-    private RecyclerView recyclerView;
+    private RecyclerView mRecyclerView;
     private OnListFragmentInteractionListener mListener;
     private AccountRecyclerViewAdapter mAdapter;
     private LiveData<List<Account>> accounts;
+    private AccountViewModel mAccountViewModel;
 
     public AccountsFragment() {
         // Required empty public constructor
@@ -59,10 +60,13 @@ public class AccountsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        updateDataSet();
+
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
+
+        mAccountViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getActivity().getApplication())).get(AccountViewModel.class);
+        updateDataSet();
     }
 
     @Override
@@ -70,15 +74,17 @@ public class AccountsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_accounts, container, false);
         Context context = view.getContext();
-        recyclerView = (RecyclerView) view.findViewById(R.id.items_list);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.items_list);
 
         if (mColumnCount <= 1) {
-            recyclerView.setLayoutManager(new LinearLayoutManager(context));
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
         } else {
-            recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
+            mRecyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
         }
 
-        setItems();
+        mRecyclerView.setAdapter(mAdapter);
+        setObserver();
+
         return view;
     }
 
@@ -100,26 +106,18 @@ public class AccountsFragment extends Fragment {
         mListener = null;
     }
 
-    private void updateDataSet() {
+    public void updateDataSet() {
         // TODO: Implement filters here
-       accounts = new AccountRepository(getContext()).getAll();
+        accounts = mAccountViewModel.getAll();
     }
 
-    private void setItems() {
-        final AccountRecyclerViewAdapter adapter = mAdapter;
+    private void setObserver() {
         accounts.observe(this, new Observer<List<Account>>() {
             @Override
             public void onChanged(@Nullable final List<Account> accounts) {
-                adapter.setValues(accounts);
+                mAdapter.setValues(accounts);
             }
         });
-
-        recyclerView.setAdapter(adapter);
-    }
-
-    public void refreshData() {
-        updateDataSet();
-        setItems();
     }
 
     /**
