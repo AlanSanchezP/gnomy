@@ -13,6 +13,7 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.os.Handler;
 import android.view.Menu;
 import android.view.View;
 import android.view.MenuItem;
@@ -33,46 +34,43 @@ public class MainActivity extends AppCompatActivity implements AccountsFragment.
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            Fragment fragment = null;
+            String newTitle;
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    currentTitle = getString(R.string.title_home);
+                    newTitle = getString(R.string.title_home);
                     break;
                 case R.id.navigation_transactions:
-                    currentTitle = getString(R.string.title_transactions);
+                    newTitle = getString(R.string.title_transactions);
                     break;
                 case R.id.navigation_accounts:
-                    currentTitle = getString(R.string.title_accounts);
+                    newTitle = getString(R.string.title_accounts);
                     break;
                 case R.id.navigation_notifications:
-                    currentTitle = getString(R.string.title_notifications);
+                    newTitle = getString(R.string.title_notifications);
                     break;
                 default:
-                    currentTitle = "";
+                    newTitle = "";
                     return false;
             }
-            return switchFragment();
+            return switchFragment(newTitle);
         }
     };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        System.out.println("aa");
         AndroidThreeTen.init(this);
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-       Fragment initialFragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
-       if (initialFragment instanceof AccountsFragment) {
-           currentTitle = getResources().getString(R.string.title_accounts);
-       } else {
-           currentTitle = getResources().getString(R.string.title_home);
-       }
-
-       setTitle();
+        Fragment initialFragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+        if (initialFragment instanceof AccountsFragment) {
+            setTitle(getResources().getString(R.string.title_accounts));
+        } else {
+            setTitle(currentTitle = getResources().getString(R.string.title_home));
+        }
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -110,12 +108,14 @@ public class MainActivity extends AppCompatActivity implements AccountsFragment.
         DrawableCompat.setTint(wrapDrawable, this.getResources().getColor(R.color.colorTextInverse));
     }
 
-    public boolean switchFragment() {
-        FragmentManager manager = getSupportFragmentManager();
-        Fragment fragment;
+    public boolean switchFragment(String newTitle) {
+        final FragmentManager manager = getSupportFragmentManager();
+        final Fragment fragment;
+
+        if (newTitle.equals(currentTitle)) return true;
 
         // TODO: Move this two lines right before return statement when all fragments are handled
-        setTitle();
+        setTitle(newTitle);
         toggleTransactionActions();
 
         if (currentTitle.equals(getResources().getString(R.string.title_accounts))) {
@@ -124,14 +124,20 @@ public class MainActivity extends AppCompatActivity implements AccountsFragment.
             return true;
         }
 
-        manager.beginTransaction()
-                .replace(R.id.main_container, fragment, FRAGMENT_TAG)
-                .commit();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                manager.beginTransaction()
+                        .replace(R.id.main_container, fragment, FRAGMENT_TAG)
+                        .commit();
+            }
+        }, 260);
 
         return true;
     }
 
-    private void setTitle() {
+    private void setTitle(String title) {
+        currentTitle = title;
         getSupportActionBar().setTitle(currentTitle);
     }
 
