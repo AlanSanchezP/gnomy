@@ -11,7 +11,7 @@ import androidx.room.Update;
 
 @Dao
 public interface AccountDAO  {
-    @Query("SELECT * FROM accounts")
+    @Query("SELECT * FROM accounts WHERE is_archived = 0")
     LiveData<List<Account>> getAll();
 
     @Query("SELECT * FROM accounts WHERE account_id = :id")
@@ -25,4 +25,7 @@ public interface AccountDAO  {
 
     @Update
     void update(Account account);
+
+    @Query("UPDATE OR ABORT accounts SET is_archived = 1 WHERE account_id = :id")
+    void archive(int id);
 }

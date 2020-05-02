@@ -46,6 +46,11 @@ public class AccountRepository {
         task.execute(newAccount);
     }
 
+    public void archive(Account account) {
+        ArchiveAsyncTask task = new ArchiveAsyncTask(accountDAO);
+        task.execute(account);
+    }
+
     // Monthly balance methods
 
     public LiveData<List<MonthlyBalance>> getAllFromMonth(YearMonth month) {
@@ -129,6 +134,21 @@ public class AccountRepository {
         @Override
         protected Void doInBackground(final MonthlyBalance... params) {
             asyncTaskDao.insert(params[0]);
+            return null;
+        }
+    }
+
+    private static class ArchiveAsyncTask extends AsyncTask<Account, Void, Void> {
+
+        private AccountDAO asyncTaskDao;
+
+        ArchiveAsyncTask(AccountDAO dao) {
+            asyncTaskDao = dao;
+        }
+
+        @Override
+        protected Void doInBackground(final Account... accounts) {
+            asyncTaskDao.archive(accounts[0].getId());
             return null;
         }
     }

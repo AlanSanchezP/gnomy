@@ -37,4 +37,12 @@ public class AccountViewModel extends AndroidViewModel {
     public void update(Account oldAccount, Account newAccount) {
         mRepository.update(oldAccount, newAccount);
     }
+
+    public void delete(Account account) {
+        mRepository.delete(account);
+    }
+
+    public void archive(Account account) {
+        mRepository.archive(account);
+    }
 }
