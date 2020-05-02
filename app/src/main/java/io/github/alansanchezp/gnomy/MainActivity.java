@@ -22,6 +22,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
+import io.github.alansanchezp.gnomy.ui.account.ModifyAccountActivity;
 import io.github.alansanchezp.gnomy.ui.account.NewAccountActivity;
 
 public class MainActivity extends AppCompatActivity implements AccountsFragment.OnListFragmentInteractionListener {
@@ -156,6 +157,9 @@ public class MainActivity extends AppCompatActivity implements AccountsFragment.
     }
 
     public boolean onListFragmentMenuItemInteraction(Account account, MenuItem menuItem) {
+        Intent modifyAccountIntent = new Intent(MainActivity.this, ModifyAccountActivity.class);
+        modifyAccountIntent.putExtra("accountId", account.getId());
+        MainActivity.this.startActivity(modifyAccountIntent);
         return true;
     }
 }
