@@ -63,6 +63,21 @@ public class Account {
     @ColumnInfo(name="bg_color")
     private int backgroundColor;
 
+    public Account() {}
+
+    @Ignore
+    public Account(Account original) {
+        this.id = original.getId();
+        this.name = original.getName();
+        this.createdAt = original.getCreatedAt();
+        this.initialValue = original.getInitialValue();
+        this.type = original.getType();
+        this.defaultCurrency = original.getDefaultCurrency();
+        this.showInDashboard = original.isShowInDashboard();
+        this.isArchived = original.isArchived();
+        this.backgroundColor = original.getBackgroundColor();
+    }
+
     public int getId() {
         return id;
     }

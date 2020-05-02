@@ -41,9 +41,9 @@ public class AccountRepository {
         task.execute(account);
     }
 
-    public void update(Account account) {
+    public void update(Account oldAccount, Account newAccount) {
         UpdateAsyncTask task = new UpdateAsyncTask(accountDAO);
-        task.execute(account);
+        task.execute(newAccount);
     }
 
     // Monthly balance methods

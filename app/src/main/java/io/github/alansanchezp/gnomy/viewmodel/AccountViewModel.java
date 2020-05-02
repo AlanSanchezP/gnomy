@@ -17,10 +17,24 @@ public class AccountViewModel extends AndroidViewModel {
     public AccountViewModel (Application application) {
         super(application);
         mRepository = new AccountRepository(application);
-        mAllAccounts = mRepository.getAll();
     }
 
-    public LiveData<List<Account>> getAll() { return mAllAccounts; }
+    public LiveData<List<Account>> getAll() {
+        if (mAllAccounts == null) {
+            mAllAccounts = mRepository.getAll();
+        }
+        return mAllAccounts;
+    }
 
-    public void insert(Account word) { mRepository.insert(word); }
+    public LiveData<Account> getAccount(int id) {
+        return mRepository.find(id);
+    }
+
+    public void insert(Account account) {
+        mRepository.insert(account);
+    }
+
+    public void update(Account oldAccount, Account newAccount) {
+        mRepository.update(oldAccount, newAccount);
+    }
 }
