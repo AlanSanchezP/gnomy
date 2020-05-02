@@ -120,6 +120,14 @@ public class AccountsFragment extends Fragment {
         });
     }
 
+    public void archiveAccount(Account account) {
+        mAccountViewModel.archive(account);
+    }
+
+    public void deleteAccount(Account account) {
+        mAccountViewModel.delete(account);
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated

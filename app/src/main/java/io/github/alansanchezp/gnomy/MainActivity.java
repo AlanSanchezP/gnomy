@@ -1,5 +1,6 @@
 package io.github.alansanchezp.gnomy;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -7,6 +8,7 @@ import androidx.annotation.NonNull;
 
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -156,10 +158,51 @@ public class MainActivity extends AppCompatActivity implements AccountsFragment.
     public void onListFragmentInteraction(Account account) {
     }
 
-    public boolean onListFragmentMenuItemInteraction(Account account, MenuItem menuItem) {
-        Intent modifyAccountIntent = new Intent(MainActivity.this, ModifyAccountActivity.class);
-        modifyAccountIntent.putExtra("accountId", account.getId());
-        MainActivity.this.startActivity(modifyAccountIntent);
+    public boolean onListFragmentMenuItemInteraction(final Account account, MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case R.id.account_card_details:
+                break;
+            case R.id.account_card_modify:
+                Intent modifyAccountIntent = new Intent(MainActivity.this, ModifyAccountActivity.class);
+                modifyAccountIntent.putExtra("accountId", account.getId());
+                MainActivity.this.startActivity(modifyAccountIntent);
+                break;
+            case R.id.account_card_transactions:
+                break;
+            case R.id.account_card_archive:
+                new AlertDialog.Builder(this)
+                        .setTitle(getString(R.string.account_card_archive))
+                        .setMessage(getString(R.string.account_card_archive_info))
+                        .setPositiveButton(getString(R.string.confirmation_dialog_yes), new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                AccountsFragment fragment = (AccountsFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+                                fragment.archiveAccount(account);
+                            }
+                        })
+                        .setNegativeButton(getString(R.string.confirmation_dialog_no), null)
+                        .show();
+                break;
+            case R.id.account_card_delete:
+                new AlertDialog.Builder(this)
+                        .setTitle(getString(R.string.account_card_delete))
+                        .setMessage(getString(R.string.account_card_delete_warning))
+                        .setPositiveButton(getString(R.string.confirmation_dialog_yes), new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                AccountsFragment fragment = (AccountsFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+                                fragment.deleteAccount(account);
+                            }
+                        })
+                        .setNegativeButton(getString(R.string.confirmation_dialog_no), null)
+                        .show();
+                break;
+            default:
+                return false;
+        }
+
         return true;
     }
 }

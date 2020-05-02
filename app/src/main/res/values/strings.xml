@@ -73,4 +73,6 @@
     <string name="account_card_transactions">See transactions</string>
     <string name="account_card_archive">Archive account</string>
     <string name="account_card_delete">Delete account</string>
+    <string name="account_card_archive_info">You can restore this account and related transactions later.</string>
+    <string name="account_card_delete_warning">Are you sure you want to do this? This action cannot be undone.</string>
 </resources>
