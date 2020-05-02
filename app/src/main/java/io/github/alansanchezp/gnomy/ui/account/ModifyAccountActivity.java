@@ -87,16 +87,16 @@ public class ModifyAccountActivity extends NewAccountActivity {
     @Override
     protected void saveData(String name, String initialValueString, String currencyCode, int accountType, boolean includeInHomepage) {
         try {
-            Account oldAccount = new Account(mAccount);
+            Account updatedAccount = new Account(mAccount);
 
-            mAccount.setName(name);
-            mAccount.setInitialValue(initialValueString);
-            mAccount.setShowInDashboard(includeInHomepage);
-            mAccount.setType(accountType);
-            mAccount.setDefaultCurrency(currencyCode);
-            mAccount.setBackgroundColor(mBgColor);
+            updatedAccount.setName(name);
+            updatedAccount.setInitialValue(initialValueString);
+            updatedAccount.setShowInDashboard(includeInHomepage);
+            updatedAccount.setType(accountType);
+            updatedAccount.setDefaultCurrency(currencyCode);
+            updatedAccount.setBackgroundColor(mBgColor);
 
-            mAccountViewModel.update(oldAccount, mAccount);
+            mAccountViewModel.update(mAccount, updatedAccount);
 
             Toast.makeText(this, getResources().getString(R.string.account_message_saved), Toast.LENGTH_LONG).show();
             finish();
