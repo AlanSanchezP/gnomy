@@ -33,7 +33,8 @@ public class GnomyTypeConverters {
     public static BigDecimal longToDecimal(Long longNumber) {
         if (longNumber != null) {
             return new BigDecimal(longNumber.toString())
-                    .divide(new BigDecimal(10000), 4, BigDecimal.ROUND_HALF_EVEN);
+                    .divide(new BigDecimal(10000), 4, BigDecimal.ROUND_HALF_EVEN)
+                    .stripTrailingZeros();
         }
         return null;
     }

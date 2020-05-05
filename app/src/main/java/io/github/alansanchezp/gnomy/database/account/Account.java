@@ -170,8 +170,4 @@ public class Account {
         this.initialValue = new BigDecimal(stringValue)
                 .setScale(DECIMAL_SCALE, BigDecimal.ROUND_HALF_EVEN);
     }
-
-    public void setCreatedAt() {
-        this.createdAt = OffsetDateTime.now();
-    }
 }
