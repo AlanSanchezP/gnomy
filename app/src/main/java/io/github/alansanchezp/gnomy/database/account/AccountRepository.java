@@ -41,9 +41,9 @@ public class AccountRepository {
         task.execute(account);
     }
 
-    public void update(Account oldAccount, Account newAccount) {
+    public void update(Account account) {
         UpdateAsyncTask task = new UpdateAsyncTask(accountDAO);
-        task.execute(newAccount);
+        task.execute(account);
     }
 
     public void archive(Account account) {
@@ -103,7 +103,7 @@ public class AccountRepository {
 
         @Override
         protected Void doInBackground(final Account... params) {
-            asyncTaskDao.delete(params);
+            asyncTaskDao.delete(params[0]);
             return null;
         }
     }

@@ -1,9 +1,11 @@
 package io.github.alansanchezp.gnomy.database;
 
+import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountDAO;
 import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
@@ -57,8 +59,24 @@ public abstract class GnomyDatabase extends RoomDatabase {
                 .fallbackToDestructiveMigration()
                 // TODO: prepopulate categories
                 // TODO: evaluate if balance adjustment should be done using triggers or as part of repository code
+                .addCallback(triggersCallback)
                 .build();
     }
+
+    private static RoomDatabase.Callback triggersCallback = new RoomDatabase.Callback(){
+        @Override
+        public void onCreate(@NonNull SupportSQLiteDatabase db) {
+            super.onCreate(db);
+            db.execSQL(
+                "CREATE TRIGGER on_account_created " +
+                "AFTER INSERT ON accounts FOR EACH ROW " +
+                "BEGIN " +
+                    "INSERT INTO monthly_balances (account_id, balance_date) " +
+                    "VALUES(NEW.account_id, strftime(\"%Y%m\", datetime(NEW.created_at/1000, 'unixepoch')));" +
+                "END"
+            );
+        }
+    };
 
     // DAO declarations
     public abstract CategoryDAO categoryDAO();

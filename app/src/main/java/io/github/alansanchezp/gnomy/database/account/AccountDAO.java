@@ -7,25 +7,40 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Transaction;
 import androidx.room.Update;
 
 @Dao
-public interface AccountDAO  {
+public abstract class AccountDAO  {
     @Query("SELECT * FROM accounts WHERE is_archived = 0")
-    LiveData<List<Account>> getAll();
+    abstract LiveData<List<Account>> getAll();
 
     @Query("SELECT * FROM accounts WHERE account_id = :id")
-    LiveData<Account> find(int id);
+    abstract LiveData<Account> find(int id);
+
+    @Query("SELECT * FROM accounts WHERE account_id = :id")
+    abstract Account findSync(int id);
 
     @Insert
-    void insert(Account... accounts);
+    abstract void insert(Account... accounts);
 
     @Delete
-    void delete(Account... accounts);
+    abstract void delete(Account... accounts);
+
+    @Transaction
+    public void update(Account account) {
+        Account original = findSync(account.getId());
+
+        if (!original.getDefaultCurrency().equals(account.getDefaultCurrency())) {
+            // TODO: recalculation of calculated values
+        }
+
+        _update(account);
+    }
 
     @Update
-    void update(Account account);
+    abstract void _update(Account account);
 
     @Query("UPDATE OR ABORT accounts SET is_archived = 1 WHERE account_id = :id")
-    void archive(int id);
+    abstract void archive(int id);
 }

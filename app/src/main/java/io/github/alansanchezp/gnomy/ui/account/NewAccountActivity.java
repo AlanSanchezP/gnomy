@@ -14,6 +14,7 @@ import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.viewmodel.AccountViewModel;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -35,6 +36,8 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.thebluealliance.spectrum.SpectrumDialog;
 
+import java.util.Arrays;
+
 public class NewAccountActivity extends AppCompatActivity {
     protected int mBgColor;
     protected int mTextColor;
@@ -44,6 +47,8 @@ public class NewAccountActivity extends AppCompatActivity {
     protected Drawable mUpArrow;
     protected String mActivityTitle;
     protected AccountViewModel mAccountViewModel;
+    // Only used for edit purposes
+    protected int mAccountId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +56,24 @@ public class NewAccountActivity extends AppCompatActivity {
         setContentView(R.layout.activity_new_account);
 
         mAccountViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication())).get(AccountViewModel.class);
-        initAccountData();
+
+        TextInputLayout nameTIL = (TextInputLayout) findViewById(R.id.new_account_name);
+        TextInputLayout valueTIL = (TextInputLayout) findViewById(R.id.new_account_initial_value);
+
+        Intent intent = getIntent();
+        mAccountId = intent.getIntExtra("accountId", 0);
+        Log.d("", "onCreate: id " + mAccountId);
+        if (mAccountId != 0) {
+            mActivityTitle = getString(R.string.account_card_modify);
+            mBgColor = intent.getIntExtra("accountBgColor", 0);
+            nameTIL.getEditText().setText(intent.getStringExtra("accountName"));
+            valueTIL.getEditText().setText(intent.getStringExtra("accountInitialValue"));
+            Switch includeInSwitch = (Switch) findViewById(R.id.new_account_show_in_home);
+            includeInSwitch.setChecked(intent.getBooleanExtra("accountIncludedInSum", true));
+        } else {
+            mActivityTitle = getString(R.string.account_new);
+            mBgColor = ColorUtil.getRandomColor();
+        }
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mToolbar.setTitle(mActivityTitle);
@@ -62,11 +84,9 @@ public class NewAccountActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         setColors();
-        setLists();
+        setLists(intent.getStringExtra("accountCurrency"),
+                intent.getIntExtra("accountType", 0));
         setFilters();
-
-        TextInputLayout nameTIL = (TextInputLayout) findViewById(R.id.new_account_name);
-        TextInputLayout valueTIL = (TextInputLayout) findViewById(R.id.new_account_initial_value);
 
         nameTIL.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
@@ -151,11 +171,6 @@ public class NewAccountActivity extends AppCompatActivity {
                 .show();
     }
 
-    protected void initAccountData() {
-        mBgColor = ColorUtil.getRandomColor();
-        mActivityTitle = getString(R.string.account_new);
-    }
-
     protected void setColors() {
         mTextColor = ColorUtil.getTextColor(mBgColor);
         mToolbar.setBackgroundColor(mBgColor);
@@ -201,7 +216,7 @@ public class NewAccountActivity extends AppCompatActivity {
         palette.getDrawable().mutate().setTint(mTextColor);
     }
 
-    protected void setLists() {
+    protected void setLists(String currencyCode, int accountType) {
         MaterialSpinner currencySpinner = (MaterialSpinner) findViewById(R.id.new_account_currency);
         MaterialSpinner typeSpinner = (MaterialSpinner) findViewById(R.id.new_account_type);
 
@@ -210,7 +225,16 @@ public class NewAccountActivity extends AppCompatActivity {
             String[] accountTypes = getResources().getStringArray(R.array.account_types);
 
             currencySpinner.setItems(currencies);
+            if (currencyCode != null) {
+                Log.d("ACCOUNT ACT", "setLists: currency " + currencyCode);
+                currencySpinner.setSelectedIndex(
+                        Arrays.asList(CurrencyUtil.getCurrencies()).indexOf(currencyCode)
+                );
+            }
             typeSpinner.setItems(accountTypes);
+            if (accountType != 0) {
+                typeSpinner.setSelectedIndex(accountType - 1);
+            }
         } catch (GnomyCurrencyException e) {
             // This shouldn't happen
             Log.wtf("NewAccountActivity", "setLists: CURRENCIES array triggers error", e);
@@ -339,6 +363,7 @@ public class NewAccountActivity extends AppCompatActivity {
     protected void saveData(String name, String initialValueString, String currencyCode, int accountType, boolean includeInHomepage) {
         try {
             Account account = new Account();
+            String toastMessage;
 
             account.setName(name);
             account.setInitialValue(initialValueString);
@@ -346,11 +371,17 @@ public class NewAccountActivity extends AppCompatActivity {
             account.setType(accountType);
             account.setDefaultCurrency(currencyCode);
             account.setBackgroundColor(mBgColor);
-            account.setCreatedAt();
 
-            mAccountViewModel.insert(account);
+            if (mAccountId == 0) {
+                mAccountViewModel.insert(account);
+                toastMessage = getResources().getString(R.string.account_message_saved);
+            } else {
+                account.setId(mAccountId);
+                mAccountViewModel.update(account);
+                toastMessage = getResources().getString(R.string.account_message_updated);
+            }
 
-            Toast.makeText(this, getResources().getString(R.string.account_message_saved), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
             finish();
         } catch(NumberFormatException nfe) {
             Log.wtf("NewAccountActivity", "saveData: Initial value validation failed", nfe);

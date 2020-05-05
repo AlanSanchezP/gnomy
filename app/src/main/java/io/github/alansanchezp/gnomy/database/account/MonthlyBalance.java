@@ -32,15 +32,15 @@ public class MonthlyBalance {
     @NonNull
     private YearMonth date = YearMonth.now();
 
-    @ColumnInfo(name = "total_incomes")
+    @ColumnInfo(name = "total_incomes", defaultValue = "0")
     @NonNull
     private BigDecimal totalIncomes = new BigDecimal(0);
 
-    @ColumnInfo(name = "total_expenses")
+    @ColumnInfo(name = "total_expenses", defaultValue = "0")
     @NonNull
     private BigDecimal totalExpenses = new BigDecimal(0);
 
-    @ColumnInfo(name = "accumulated_before")
+    @ColumnInfo(name = "accumulated_before", defaultValue = "0")
     @NonNull
     private BigDecimal accumulatedBefore = new BigDecimal(0);
 
