@@ -60,6 +60,7 @@
     <string name="account_error_name">Account name can\'t be empty</string>
     <string name="account_error_initial_value">Initial value is not a valid number.</string>
     <string name="account_message_saved">Your account was saved correctly.</string>
+    <string name="account_message_updated">Your account was updated correctly.</string>
 
     <!--  Account card  -->
     <string name="account_current_balance">Current balance</string>

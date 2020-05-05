@@ -24,8 +24,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
-import io.github.alansanchezp.gnomy.ui.account.ModifyAccountActivity;
-import io.github.alansanchezp.gnomy.ui.account.NewAccountActivity;
+import io.github.alansanchezp.gnomy.ui.account.AddEditAccountActivity;
 
 public class MainActivity extends AppCompatActivity implements AccountsFragment.OnListFragmentInteractionListener {
     private static final String FRAGMENT_TAG = "GNOMY_MAIN_FRAGMENT";
@@ -149,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements AccountsFragment.
         if (currentFragment == null) return;
 
         if (currentFragment instanceof AccountsFragment) {
-            Intent newAccountIntent = new Intent(MainActivity.this, NewAccountActivity.class);
+            Intent newAccountIntent = new Intent(MainActivity.this, AddEditAccountActivity.class);
             MainActivity.this.startActivity(newAccountIntent);
         }
     }
@@ -163,8 +162,15 @@ public class MainActivity extends AppCompatActivity implements AccountsFragment.
             case R.id.account_card_details:
                 break;
             case R.id.account_card_modify:
-                Intent modifyAccountIntent = new Intent(MainActivity.this, ModifyAccountActivity.class);
+                Intent modifyAccountIntent = new Intent(MainActivity.this, AddEditAccountActivity.class);
                 modifyAccountIntent.putExtra("accountId", account.getId());
+                modifyAccountIntent.putExtra("accountBgColor", account.getBackgroundColor());
+                modifyAccountIntent.putExtra("accountName", account.getName());
+                modifyAccountIntent.putExtra("accountInitialValue", account.getInitialValue().toString());
+                modifyAccountIntent.putExtra("accountIncludedInSum", account.isShowInDashboard());
+                modifyAccountIntent.putExtra("accountCurrency", account.getDefaultCurrency());
+                modifyAccountIntent.putExtra("accountType", account.getType());
+
                 MainActivity.this.startActivity(modifyAccountIntent);
                 break;
             case R.id.account_card_transactions:

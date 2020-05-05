@@ -38,7 +38,7 @@ import com.thebluealliance.spectrum.SpectrumDialog;
 
 import java.util.Arrays;
 
-public class NewAccountActivity extends AppCompatActivity {
+public class AddEditAccountActivity extends AppCompatActivity {
     protected int mBgColor;
     protected int mTextColor;
     protected boolean mNameInputIsPristine = true;
@@ -53,7 +53,7 @@ public class NewAccountActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_new_account);
+        setContentView(R.layout.activity_add_edit_account);
 
         mAccountViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication())).get(AccountViewModel.class);
 
