@@ -8,15 +8,18 @@ import java.math.BigDecimal;
 
 public class InputFilterMinMax implements InputFilter {
     private BigDecimal min, max;
+    private int decimalScale;
 
-    public InputFilterMinMax(BigDecimal min, BigDecimal max) {
+    public InputFilterMinMax(BigDecimal min, BigDecimal max, int decimalScale) {
         this.min = min;
         this.max = max;
+        this.decimalScale = decimalScale;
     }
 
-    public InputFilterMinMax(String min, String max) {
+    public InputFilterMinMax(String min, String max, int decimalScale) {
         this.min = new BigDecimal(min);
         this.max = new BigDecimal(max);
+        this.decimalScale = decimalScale;
     }
 
     @Override
@@ -28,8 +31,10 @@ public class InputFilterMinMax implements InputFilter {
                                int dend) {
         try {
             BigDecimal input = new BigDecimal(dest.toString() + source.toString());
-            if (isInRange(min, max, input))
-                return null;
+
+            if (isInRange(min, max, input)) {
+                if (input.scale() <= this.decimalScale) return null;
+            }
         } catch (NumberFormatException nfe) {
             Log.e("InputFilterMinMax", "filter: Input is not a valid number", nfe);
         }

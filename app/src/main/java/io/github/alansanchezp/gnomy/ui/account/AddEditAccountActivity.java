@@ -243,7 +243,7 @@ public class AddEditAccountActivity extends AppCompatActivity {
 
     protected void setFilters() {
         TextInputEditText valueTIET = (TextInputEditText) findViewById(R.id.new_account_initial_value_input);
-        valueTIET.setFilters(new InputFilter[]{new InputFilterMinMax(Account.MIN_INITIAL, Account.MAX_INITIAL)});
+        valueTIET.setFilters(new InputFilter[]{new InputFilterMinMax(Account.MIN_INITIAL, Account.MAX_INITIAL, Account.DECIMAL_SCALE)});
     }
 
     protected ColorStateList getSwitchColorStateList(int color) {
