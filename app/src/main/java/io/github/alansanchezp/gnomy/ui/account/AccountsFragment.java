@@ -112,7 +112,7 @@ public class AccountsFragment extends Fragment {
     }
 
     private void setObserver() {
-        accounts.observe(this, new Observer<List<Account>>() {
+        accounts.observe(getViewLifecycleOwner(), new Observer<List<Account>>() {
             @Override
             public void onChanged(@Nullable final List<Account> accounts) {
                 mAdapter.setValues(accounts);
