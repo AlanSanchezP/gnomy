@@ -88,24 +88,32 @@ public class MainActivity extends AppCompatActivity implements AccountsFragment.
     }
 
     private void toggleTransactionActions() {
+        menu.findItem(R.id.action_search).setVisible(false);
+        menu.findItem(R.id.action_filter).setVisible(false);
+        menu.findItem(R.id.action_show_archived).setVisible(false);
+
         if (currentTitle.equals(getString(R.string.title_transactions))) {
             menu.findItem(R.id.action_search).setVisible(true);
             menu.findItem(R.id.action_filter).setVisible(true);
-        } else {
-            menu.findItem(R.id.action_search).setVisible(false);
-            menu.findItem(R.id.action_filter).setVisible(false);
+        } else if (currentTitle.equals((getString(R.string.title_accounts)))) {
+            menu.findItem(R.id.action_show_archived).setVisible(true);
         }
     }
 
     private void tintMenuItems() {
         MenuItem searchItem = menu.findItem(R.id.action_search);
         MenuItem filterItem = menu.findItem(R.id.action_filter);
+        MenuItem archivedItem = menu.findItem(R.id.action_show_archived);
 
         Drawable normalDrawable = searchItem.getIcon();
         Drawable wrapDrawable = DrawableCompat.wrap(normalDrawable);
         DrawableCompat.setTint(wrapDrawable, this.getResources().getColor(R.color.colorTextInverse));
 
         normalDrawable = filterItem.getIcon();
+        wrapDrawable = DrawableCompat.wrap(normalDrawable);
+        DrawableCompat.setTint(wrapDrawable, this.getResources().getColor(R.color.colorTextInverse));
+
+        normalDrawable = archivedItem.getIcon();
         wrapDrawable = DrawableCompat.wrap(normalDrawable);
         DrawableCompat.setTint(wrapDrawable, this.getResources().getColor(R.color.colorTextInverse));
     }

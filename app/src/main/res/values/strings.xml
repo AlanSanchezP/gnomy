@@ -7,6 +7,7 @@
 
     <string name="action_search">Search</string>
     <string name="action_filter">Filter results</string>
+    <string name="action_show_archived">Show archived accounts</string>
     <string name="action_filter_all">All transactions</string>
     <string name="action_filter_expenses">Expenses</string>
     <string name="action_filter_incomes">Incomes</string>
