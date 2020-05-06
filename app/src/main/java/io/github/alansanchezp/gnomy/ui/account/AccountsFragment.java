@@ -93,8 +93,8 @@ public class AccountsFragment extends Fragment {
 
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setNestedScrollingEnabled(false);
-        mBalance = (TextView) view.findViewById(R.id.totalBalance);
-        mProjected = (TextView) view.findViewById(R.id.totalProjected);
+        mBalance = (TextView) view.findViewById(R.id.total_balance);
+        mProjected = (TextView) view.findViewById(R.id.total_projected);
         setObserver();
 
         return view;
