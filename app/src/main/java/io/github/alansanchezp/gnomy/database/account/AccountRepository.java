@@ -53,7 +53,7 @@ public class AccountRepository {
 
     // Monthly balance methods
 
-    public LiveData<List<MonthlyBalance>> getAllFromMonth(YearMonth month) {
+    public LiveData<List<AccountWithBalance>> getAllFromMonth(YearMonth month) {
         return balanceDAO.getAllFromMonth(month);
     }
 
