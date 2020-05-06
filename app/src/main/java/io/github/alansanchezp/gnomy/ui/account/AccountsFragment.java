@@ -12,15 +12,23 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
+import org.threeten.bp.YearMonth;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
+import io.github.alansanchezp.gnomy.util.CurrencyUtil;
+import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.viewmodel.AccountViewModel;
 
 
@@ -35,8 +43,9 @@ public class AccountsFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private OnListFragmentInteractionListener mListener;
     private AccountRecyclerViewAdapter mAdapter;
-    private LiveData<List<Account>> accounts;
     private AccountViewModel mAccountViewModel;
+    private LiveData<List<AccountWithBalance>> mAccountBalances;
+    private TextView mBalance, mProjected;
 
     public AccountsFragment() {
         // Required empty public constructor
@@ -65,6 +74,7 @@ public class AccountsFragment extends Fragment {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
 
+
         mAccountViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getActivity().getApplication())).get(AccountViewModel.class);
         updateDataSet();
     }
@@ -83,6 +93,9 @@ public class AccountsFragment extends Fragment {
         }
 
         mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setNestedScrollingEnabled(false);
+        mBalance = (TextView) view.findViewById(R.id.totalBalance);
+        mProjected = (TextView) view.findViewById(R.id.totalProjected);
         setObserver();
 
         return view;
@@ -108,14 +121,31 @@ public class AccountsFragment extends Fragment {
 
     public void updateDataSet() {
         // TODO: Implement filters here
-        accounts = mAccountViewModel.getAll();
+        mAccountBalances = mAccountViewModel.getAllFromMonth(YearMonth.now());
     }
 
     private void setObserver() {
-        accounts.observe(getViewLifecycleOwner(), new Observer<List<Account>>() {
+        mAccountBalances.observe(getViewLifecycleOwner(), new Observer<List<AccountWithBalance>>() {
             @Override
-            public void onChanged(@Nullable final List<Account> accounts) {
+            public void onChanged(@Nullable final List<AccountWithBalance> accounts) {
                 mAdapter.setValues(accounts);
+                BigDecimal balance = new BigDecimal("0");
+                BigDecimal projected = new BigDecimal("0");
+
+                // TODO: Handle conversion to global currency
+                // This loop is here just so we can display something
+                for (AccountWithBalance mb : accounts) {
+                    balance = balance.add(mb.accumulatedBalance);
+                    projected = projected.add(mb.projectedBalance);
+                }
+
+                try {
+                    mBalance.setText(CurrencyUtil.format(balance, "USD"));
+                    mProjected.setText(CurrencyUtil.format(projected, "USD"));
+                } catch (GnomyCurrencyException e) {
+                    // This shouldn't happen
+                    Log.wtf("AccountsFragment", "onChanged: ", e);
+                }
             }
         });
     }

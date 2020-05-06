@@ -31,6 +31,8 @@ public class AccountViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<AccountWithBalance>> getAllFromMonth(YearMonth month) {
+        // TODO: Implement filters
+        // https://stackoverflow.com/questions/48769812/best-practice-runtime-filters-with-room-and-livedata
         if (mBalancesToDisplay == null) {
             mBalancesToDisplay = mRepository.getAllFromMonth(month);
         }

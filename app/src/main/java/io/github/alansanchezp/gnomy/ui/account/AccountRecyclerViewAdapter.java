@@ -17,7 +17,8 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import io.github.alansanchezp.gnomy.database.account.Account;
+import static io.github.alansanchezp.gnomy.database.account.Account.*;
+import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment.OnListFragmentInteractionListener;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
@@ -26,12 +27,12 @@ import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import java.util.List;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link Account} and makes a call to the
+ * {@link RecyclerView.Adapter} that can display a {@link AccountWithBalance} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
  */
 public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecyclerViewAdapter.ViewHolder> {
 
-    private List<Account> mValues;
+    private List<AccountWithBalance> mValues;
     private final OnListFragmentInteractionListener mListener;
     private Resources resources;
 
@@ -39,7 +40,7 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
         mListener = listener;
     }
 
-    public void setValues(List<Account> accounts) {
+    public void setValues(List<AccountWithBalance> accounts) {
         mValues = accounts;
         notifyDataSetChanged();
     }
@@ -56,36 +57,36 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
     public void onBindViewHolder(final ViewHolder holder, int position) {
         if (mValues != null) {
             holder.mItem = mValues.get(position);
-            holder.mNameView.setText(holder.mItem.getName());
+            holder.mNameView.setText(holder.mItem.account.getName());
             try {
-                holder.mCurrentView.setText(CurrencyUtil.format(holder.mItem.getInitialValue(), holder.mItem.getDefaultCurrency()));
-                holder.mProjectedView.setText(CurrencyUtil.format(holder.mItem.getInitialValue(), holder.mItem.getDefaultCurrency()));
+                holder.mCurrentView.setText(CurrencyUtil.format(holder.mItem.accumulatedBalance, holder.mItem.account.getDefaultCurrency()));
+                holder.mProjectedView.setText(CurrencyUtil.format(holder.mItem.projectedBalance, holder.mItem.account.getDefaultCurrency()));
             } catch (GnomyCurrencyException e) {
                 Log.wtf("AccountRecyclerViewA...", "onBindViewHolder: You somehow managed to store an invalid currency", e);
             }
 
             GradientDrawable accountIconContainer = (GradientDrawable) holder.mIconView.getBackground();
-            int accountColor = holder.mItem.getBackgroundColor();
+            int accountColor = holder.mItem.account.getBackgroundColor();
             int iconColor = ColorUtil.getTextColor(accountColor);
             Drawable icon;
 
-            switch (holder.mItem.getType()) {
-                case Account.INFORMAL:
+            switch (holder.mItem.account.getType()) {
+                case INFORMAL:
                     icon = (Drawable) resources.getDrawable(R.drawable.ic_account_balance_piggy_black_24dp);
                     break;
-                case Account.SAVINGS:
+                case SAVINGS:
                     icon = (Drawable) resources.getDrawable(R.drawable.ic_account_balance_savings_black_24dp);
                     break;
-                case Account.INVERSIONS:
+                case INVERSIONS:
                     icon = (Drawable) resources.getDrawable(R.drawable.ic_account_balance_inversion_black_24dp);
                     break;
-                case Account.CREDIT_CARD:
+                case CREDIT_CARD:
                     icon = (Drawable) resources.getDrawable(R.drawable.ic_account_balance_credit_card_black_24dp);
                     break;
-                case Account.OTHER:
+                case OTHER:
                     icon = (Drawable) resources.getDrawable(R.drawable.ic_account_balance_wallet_black_24dp);
                     break;
-                case Account.BANK:
+                case BANK:
                 default:
                     icon = (Drawable) holder.mIconView.getDrawable();
                     break;
@@ -112,7 +113,7 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
         public final TextView mProjectedView;
         public final ImageView mIconView;
         public final ImageButton mButton;
-        public Account mItem;
+        public AccountWithBalance mItem;
         public PopupMenu popup;
 
 
@@ -131,7 +132,7 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
             popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
-                    return mListener.onListFragmentMenuItemInteraction(mItem, item);
+                    return mListener.onListFragmentMenuItemInteraction(mItem.account, item);
                 }
             });
             mButton.setOnClickListener(new View.OnClickListener() {

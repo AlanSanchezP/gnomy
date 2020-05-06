@@ -84,19 +84,43 @@
         android:layout_marginRight="12dp"
         android:background="?android:attr/listDivider" />
 
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/scroll"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="bottom"
-        android:layout_marginTop="65dp">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/items_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layoutManager="LinearLayoutManager"
-            tools:listitem="@layout/fragment_account_card" />
+    <androidx.core.widget.NestedScrollView
+    android:id="@+id/scroll"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="bottom"
+    android:layout_marginTop="65dp">
+        <LinearLayout
+            android:orientation="vertical"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent">
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent">
+                <TextView
+                    android:id="@+id/totalBalance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TextView" />
+
+                <TextView
+                    android:id="@+id/totalProjected"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="100dp"
+                    android:text="TextView" />
+            </LinearLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/items_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layoutManager="LinearLayoutManager"
+                android:layout_marginTop="20dp"
+                tools:listitem="@layout/fragment_account_card" />
+        </LinearLayout>
+
     </androidx.core.widget.NestedScrollView>
 
 </FrameLayout>
