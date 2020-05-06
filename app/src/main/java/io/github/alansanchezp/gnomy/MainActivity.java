@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements AccountsFragment.
                 modifyAccountIntent.putExtra("accountId", account.getId());
                 modifyAccountIntent.putExtra("accountBgColor", account.getBackgroundColor());
                 modifyAccountIntent.putExtra("accountName", account.getName());
-                modifyAccountIntent.putExtra("accountInitialValue", account.getInitialValue().toString());
+                modifyAccountIntent.putExtra("accountInitialValue", account.getInitialValue().toPlainString());
                 modifyAccountIntent.putExtra("accountIncludedInSum", account.isShowInDashboard());
                 modifyAccountIntent.putExtra("accountCurrency", account.getDefaultCurrency());
                 modifyAccountIntent.putExtra("accountType", account.getType());
