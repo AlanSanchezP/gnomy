@@ -65,7 +65,6 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
                 Log.wtf("AccountRecyclerViewA...", "onBindViewHolder: You somehow managed to store an invalid currency", e);
             }
 
-            GradientDrawable accountIconContainer = (GradientDrawable) holder.mIconView.getBackground();
             int accountColor = holder.mItem.account.getBackgroundColor();
             int iconColor = ColorUtil.getTextColor(accountColor);
             Drawable icon;
@@ -88,13 +87,13 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
                     break;
                 case BANK:
                 default:
-                    icon = (Drawable) holder.mIconView.getDrawable();
+                    icon = (Drawable) resources.getDrawable(R.drawable.ic_account_balance_black_24dp);
                     break;
             }
 
-            accountIconContainer.setColor(accountColor);
-            icon.setTint(iconColor);
+            ((GradientDrawable) holder.mIconView.getBackground()).setColor(accountColor);
             holder.mIconView.setImageDrawable(icon);
+            holder.mIconView.setColorFilter(iconColor);
         }
     }
 
