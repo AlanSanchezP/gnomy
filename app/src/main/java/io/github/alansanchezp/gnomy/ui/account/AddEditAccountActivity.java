@@ -62,7 +62,7 @@ public class AddEditAccountActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         mAccountId = intent.getIntExtra("accountId", 0);
-        Log.d("", "onCreate: id " + mAccountId);
+
         if (mAccountId != 0) {
             mActivityTitle = getString(R.string.account_card_modify);
             mBgColor = intent.getIntExtra("accountBgColor", 0);
