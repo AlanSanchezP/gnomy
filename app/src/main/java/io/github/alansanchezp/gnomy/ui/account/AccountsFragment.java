@@ -74,7 +74,6 @@ public class AccountsFragment extends Fragment {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
 
-
         mAccountViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getActivity().getApplication())).get(AccountViewModel.class);
         updateDataSet();
     }
@@ -144,7 +143,7 @@ public class AccountsFragment extends Fragment {
                     mProjected.setText(CurrencyUtil.format(projected, "USD"));
                 } catch (GnomyCurrencyException e) {
                     // This shouldn't happen
-                    Log.wtf("AccountsFragment", "onChanged: ", e);
+                    Log.wtf("AccountsFragment", "setObserver: ", e);
                 }
             }
         });
