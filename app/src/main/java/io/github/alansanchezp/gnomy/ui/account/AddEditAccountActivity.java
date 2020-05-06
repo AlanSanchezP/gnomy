@@ -69,7 +69,7 @@ public class AddEditAccountActivity extends AppCompatActivity {
             nameTIL.getEditText().setText(intent.getStringExtra("accountName"));
             valueTIL.getEditText().setText(intent.getStringExtra("accountInitialValue"));
             Switch includeInSwitch = (Switch) findViewById(R.id.new_account_show_in_home);
-            includeInSwitch.setChecked(intent.getBooleanExtra("accountIncludedInSum", true));
+            includeInSwitch.setChecked(intent.getBooleanExtra("accountIncludedInSum", false));
         } else {
             mActivityTitle = getString(R.string.account_new);
             mBgColor = ColorUtil.getRandomColor();
