@@ -2,6 +2,7 @@
     <string name="app_name">gnomy</string>
     <string name="title_home">Summary</string>
     <string name="title_transactions">Transactions</string>
+    <string name="title_archived_accounts">Archived accounts</string>
     <string name="title_accounts">Accounts</string>
     <string name="title_notifications">Notifications</string>
 
@@ -43,6 +44,36 @@
     <string name="account_type_credit_card">Credit card</string>
     <string name="account_type_other">Other</string>
 
+    <string name="account_initial_value">Initial value</string>
+
+    <string name="account_currency">Account currency</string>
+    <string name="account_type">Account type</string>
+    <string name="account_include_in_sum">Include in homepage sum</string>
+    <string name="account_pick_color">Pick a color to identify this account</string>
+    <string name="account_error_name">Account name can\'t be empty</string>
+
+    <string name="account_error_initial_value">Initial value is not a valid number.</string>
+    <string name="account_message_saved">Your account was saved correctly.</string>
+    <string name="account_message_updated">Your account was updated correctly.</string>
+    <string name="account_current_balance">Current balance</string>
+
+    <!--  Account card  -->
+    <string name="account_projected_balance">Projected balance</string>
+    <string name="account_accumulated_balance">Accumulated balance</string>
+    <string name="account_card_options">Account options</string>
+    <string name="account_icon">Account icon</string>
+    <string name="account_card_details">Details</string>
+
+    <string name="account_card_modify">Modify account</string>
+    <string name="account_card_transactions">See transactions</string>
+    <string name="account_card_archive">Archive account</string>
+    <string name="account_card_delete">Delete account</string>
+    <string name="account_card_archive_info">You can restore this account and related transactions later.</string>
+    <string name="account_card_delete_warning">Are you sure you want to do this? This action cannot be undone.</string>
+    <string name="account_card_restore">Restore</string>
+    <string name="accounts_restore_all">Restore all</string>
+    <string name="account_card_delete_short">Delete</string>
+
     <string-array name="account_types">
         <item>@string/account_type_bank</item>
         <item>@string/account_type_informal</item>
@@ -51,30 +82,4 @@
         <item>@string/account_type_credit_card</item>
         <item>@string/account_type_other</item>
     </string-array>
-
-    <string name="account_initial_value">Initial value</string>
-    <string name="account_currency">Account currency</string>
-    <string name="account_type">Account type</string>
-    <string name="account_include_in_sum">Include in homepage sum</string>
-    <string name="account_pick_color">Pick a color to identify this account</string>
-
-    <string name="account_error_name">Account name can\'t be empty</string>
-    <string name="account_error_initial_value">Initial value is not a valid number.</string>
-    <string name="account_message_saved">Your account was saved correctly.</string>
-    <string name="account_message_updated">Your account was updated correctly.</string>
-
-    <!--  Account card  -->
-    <string name="account_current_balance">Current balance</string>
-    <string name="account_projected_balance">Projected balance</string>
-    <string name="account_accumulated_balance">Accumulated balance</string>
-    <string name="account_card_options">Account options</string>
-    <string name="account_icon">Account icon</string>
-
-    <string name="account_card_details">Details</string>
-    <string name="account_card_modify">Modify account</string>
-    <string name="account_card_transactions">See transactions</string>
-    <string name="account_card_archive">Archive account</string>
-    <string name="account_card_delete">Delete account</string>
-    <string name="account_card_archive_info">You can restore this account and related transactions later.</string>
-    <string name="account_card_delete_warning">Are you sure you want to do this? This action cannot be undone.</string>
 </resources>

@@ -7,6 +7,7 @@
 
     <color name="colorSuccess">#009B01</color>
     <color name="colorError">#EC4530</color>
+    <color name="colorErrorLight">#EB9E9E</color>
     <color name="colorTransfers">#BEB596</color>
     <color name="colorIncomes">@color/colorSuccess</color>
     <color name="colorExpenses">@color/colorError</color>
