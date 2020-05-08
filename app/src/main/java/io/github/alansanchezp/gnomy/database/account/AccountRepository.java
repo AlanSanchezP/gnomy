@@ -27,6 +27,10 @@ public class AccountRepository {
         return allAccounts;
     }
 
+    public LiveData<List<Account>> getArchivedAccounts() {
+        return accountDAO.getArchivedAccounts();
+    }
+
     public LiveData<Account> find(int accountId) {
         return accountDAO.find(accountId);
     }
@@ -48,6 +52,11 @@ public class AccountRepository {
 
     public void archive(Account account) {
         ArchiveAsyncTask task = new ArchiveAsyncTask(accountDAO);
+        task.execute(account);
+    }
+
+    public void restore(Account account) {
+        RestoreAsyncTask task = new RestoreAsyncTask(accountDAO);
         task.execute(account);
     }
 
@@ -149,6 +158,21 @@ public class AccountRepository {
         @Override
         protected Void doInBackground(final Account... accounts) {
             asyncTaskDao.archive(accounts[0].getId());
+            return null;
+        }
+    }
+
+    private static class RestoreAsyncTask extends AsyncTask<Account, Void, Void> {
+
+        private AccountDAO asyncTaskDao;
+
+        RestoreAsyncTask(AccountDAO dao) {
+            asyncTaskDao = dao;
+        }
+
+        @Override
+        protected Void doInBackground(final Account... accounts) {
+            asyncTaskDao.restore(accounts[0].getId());
             return null;
         }
     }

@@ -17,6 +17,7 @@ public class AccountViewModel extends AndroidViewModel {
 
     private LiveData<List<Account>> mAllAccounts;
     private LiveData<List<AccountWithBalance>> mBalancesToDisplay;
+    private LiveData<List<Account>> mArchivedAccounts;
 
     public AccountViewModel (Application application) {
         super(application);
@@ -39,6 +40,13 @@ public class AccountViewModel extends AndroidViewModel {
         return mBalancesToDisplay;
     }
 
+    public  LiveData<List<Account>> getArchivedAccounts() {
+        if (mArchivedAccounts == null) {
+            mArchivedAccounts = mRepository.getArchivedAccounts();
+        }
+        return mArchivedAccounts;
+    }
+
     public LiveData<Account> getAccount(int id) {
         return mRepository.find(id);
     }
@@ -57,5 +65,9 @@ public class AccountViewModel extends AndroidViewModel {
 
     public void archive(Account account) {
         mRepository.archive(account);
+    }
+
+    public void restore(Account account) {
+        mRepository.restore(account);
     }
 }

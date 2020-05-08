@@ -15,6 +15,9 @@ public abstract class AccountDAO  {
     @Query("SELECT * FROM accounts WHERE is_archived = 0")
     abstract LiveData<List<Account>> getAll();
 
+    @Query("SELECT * FROM accounts WHERE is_archived = 1")
+    abstract LiveData<List<Account>> getArchivedAccounts();
+
     @Query("SELECT * FROM accounts WHERE account_id = :id")
     abstract LiveData<Account> find(int id);
 
@@ -43,4 +46,7 @@ public abstract class AccountDAO  {
 
     @Query("UPDATE OR ABORT accounts SET is_archived = 1 WHERE account_id = :id")
     abstract void archive(int id);
+
+    @Query("UPDATE OR ABORT accounts SET is_archived = 0 WHERE account_id = :id")
+    abstract void restore(int id);
 }
