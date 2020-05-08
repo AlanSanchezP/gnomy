@@ -2,7 +2,6 @@ package io.github.alansanchezp.gnomy;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 
@@ -11,8 +10,6 @@ import com.jakewharton.threetenabp.AndroidThreeTen;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import android.os.Handler;
@@ -23,38 +20,40 @@ import android.view.MenuItem;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.ui.BaseMainNavigationFragment;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 import io.github.alansanchezp.gnomy.ui.account.AddEditAccountActivity;
 
-public class MainActivity extends AppCompatActivity implements AccountsFragment.OnListFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity
+        implements BaseMainNavigationFragment.MainNavigationInteractionInterface,
+            AccountsFragment.OnListFragmentInteractionListener {
     private static final String FRAGMENT_TAG = "GNOMY_MAIN_FRAGMENT";
-    private Menu menu;
-    private String currentTitle;
+    private static final int
+            SUMMARY_FRAGMENT_INDEX = 1,
+            TRANSACTIONS_FRAGMENT_INDEX = 2,
+            ACCOUNTS_FRAGMENT_INDEX = 3,
+            NOTIFICATIONS_FRAGMENT_INDEX = 4;
+    private int mCurrentFragmentIndex = 0;
+
+    private Toolbar mMainBar;
 
     private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            String newTitle;
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    newTitle = getString(R.string.title_home);
-                    break;
+                    return switchFragment(SUMMARY_FRAGMENT_INDEX);
                 case R.id.navigation_transactions:
-                    newTitle = getString(R.string.title_transactions);
-                    break;
+                    return switchFragment(TRANSACTIONS_FRAGMENT_INDEX);
                 case R.id.navigation_accounts:
-                    newTitle = getString(R.string.title_accounts);
-                    break;
+                    return switchFragment(ACCOUNTS_FRAGMENT_INDEX);
                 case R.id.navigation_notifications:
-                    newTitle = getString(R.string.title_notifications);
-                    break;
+                    return switchFragment(NOTIFICATIONS_FRAGMENT_INDEX);
                 default:
-                    newTitle = "";
                     return false;
             }
-            return switchFragment(newTitle);
         }
     };
 
@@ -64,15 +63,8 @@ public class MainActivity extends AppCompatActivity implements AccountsFragment.
         AndroidThreeTen.init(this);
 
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        Fragment initialFragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
-        if (initialFragment instanceof AccountsFragment) {
-            setTitle(getResources().getString(R.string.title_accounts));
-        } else {
-            setTitle(currentTitle = getResources().getString(R.string.title_home));
-        }
+        mMainBar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mMainBar);
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -80,58 +72,28 @@ public class MainActivity extends AppCompatActivity implements AccountsFragment.
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        this.menu = menu;
         getMenuInflater().inflate(R.menu.main_activity_toolbar, menu);
-        tintMenuItems();
-        toggleTransactionActions();
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
-    private void toggleTransactionActions() {
-        menu.findItem(R.id.action_search).setVisible(false);
-        menu.findItem(R.id.action_filter).setVisible(false);
-        menu.findItem(R.id.action_show_archived).setVisible(false);
 
-        if (currentTitle.equals(getString(R.string.title_transactions))) {
-            menu.findItem(R.id.action_search).setVisible(true);
-            menu.findItem(R.id.action_filter).setVisible(true);
-        } else if (currentTitle.equals((getString(R.string.title_accounts)))) {
-            menu.findItem(R.id.action_show_archived).setVisible(true);
-        }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        return super.onOptionsItemSelected(item);
     }
 
-    private void tintMenuItems() {
-        MenuItem searchItem = menu.findItem(R.id.action_search);
-        MenuItem filterItem = menu.findItem(R.id.action_filter);
-        MenuItem archivedItem = menu.findItem(R.id.action_show_archived);
-
-        Drawable normalDrawable = searchItem.getIcon();
-        Drawable wrapDrawable = DrawableCompat.wrap(normalDrawable);
-        DrawableCompat.setTint(wrapDrawable, this.getResources().getColor(R.color.colorTextInverse));
-
-        normalDrawable = filterItem.getIcon();
-        wrapDrawable = DrawableCompat.wrap(normalDrawable);
-        DrawableCompat.setTint(wrapDrawable, this.getResources().getColor(R.color.colorTextInverse));
-
-        normalDrawable = archivedItem.getIcon();
-        wrapDrawable = DrawableCompat.wrap(normalDrawable);
-        DrawableCompat.setTint(wrapDrawable, this.getResources().getColor(R.color.colorTextInverse));
-    }
-
-    public boolean switchFragment(String newTitle) {
+    public boolean switchFragment(int newIndex) {
         final FragmentManager manager = getSupportFragmentManager();
-        final Fragment fragment;
+        final BaseMainNavigationFragment fragment;
 
-        if (newTitle.equals(currentTitle)) return true;
+        if (newIndex == mCurrentFragmentIndex) return true;
 
-        // TODO: Move this two lines right before return statement when all fragments are handled
-        setTitle(newTitle);
-        toggleTransactionActions();
-
-        if (currentTitle.equals(getResources().getString(R.string.title_accounts))) {
-            fragment = AccountsFragment.newInstance(1);
-        } else {
-            return true;
+        switch (newIndex) {
+            case ACCOUNTS_FRAGMENT_INDEX:
+                fragment = AccountsFragment.newInstance(1, newIndex);
+                break;
+            default:
+                return true;
         }
 
         new Handler().postDelayed(new Runnable() {
@@ -141,26 +103,17 @@ public class MainActivity extends AppCompatActivity implements AccountsFragment.
                         .replace(R.id.main_container, fragment, FRAGMENT_TAG)
                         .commit();
             }
-        }, 260);
+        }, 210);
 
         return true;
     }
 
-    private void setTitle(String title) {
-        currentTitle = title;
-        getSupportActionBar().setTitle(currentTitle);
-    }
-
     public void onFABClick(View v) {
-        Fragment currentFragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+        BaseMainNavigationFragment currentFragment = (BaseMainNavigationFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
         if (currentFragment == null) return;
 
-        if (currentFragment instanceof AccountsFragment) {
-            Intent newAccountIntent = new Intent(MainActivity.this, AddEditAccountActivity.class);
-            MainActivity.this.startActivity(newAccountIntent);
-        }
+        currentFragment.onFABClick(v);
     }
-
 
     public void onListFragmentInteraction(Account account) {
     }
@@ -218,5 +171,13 @@ public class MainActivity extends AppCompatActivity implements AccountsFragment.
         }
 
         return true;
+    }
+
+    public void onFragmentChanged(int index) {
+        mCurrentFragmentIndex = index;
+    }
+
+    public void tintAppbars(int bgColor, boolean showSecondaryToolbar) {
+        mMainBar.getBackground().setTint(bgColor);
     }
 }

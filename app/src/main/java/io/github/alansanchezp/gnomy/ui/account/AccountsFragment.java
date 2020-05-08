@@ -1,8 +1,10 @@
 package io.github.alansanchezp.gnomy.ui.account;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
@@ -14,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +30,7 @@ import java.util.List;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
+import io.github.alansanchezp.gnomy.ui.BaseMainNavigationFragment;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.viewmodel.AccountViewModel;
@@ -37,9 +41,10 @@ import io.github.alansanchezp.gnomy.viewmodel.AccountViewModel;
  * Use the {@link AccountsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AccountsFragment extends Fragment {
+public class AccountsFragment extends BaseMainNavigationFragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 1;
+
     private RecyclerView mRecyclerView;
     private OnListFragmentInteractionListener mListener;
     private AccountRecyclerViewAdapter mAdapter;
@@ -55,21 +60,35 @@ public class AccountsFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @return A new instance of fragment NewAccountFragment.
+     * @return A new instance of fragment AccountsFragment.
      */
 
-    public static AccountsFragment newInstance(int columnCount) {
+    public static AccountsFragment newInstance(int columnCount, int index) {
         AccountsFragment fragment = new AccountsFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
+        args.putInt(ARG_NAVIGATION_INDEX, index);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    /* ANDROID LIFECYCLE METHODS */
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnListFragmentInteractionListener) {
+            mListener = (OnListFragmentInteractionListener) context;
+            mAdapter = new AccountRecyclerViewAdapter(mListener);
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnListFragmentInteractionListener");
+        }
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
@@ -101,22 +120,60 @@ public class AccountsFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
-            mAdapter = new AccountRecyclerViewAdapter(mListener);
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentInteractionListener");
-        }
-    }
-
-    @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
     }
+
+    /* ANDROID EVENT LISTENERS */
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_show_archived:
+                break;
+            default:
+                return false;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    /* CONCRETE METHODS INHERITED FROM ABSTRACT CLASS */
+
+    protected boolean hasAppbarActions() {
+        return true;
+    }
+
+    protected int getMenuResourceId() {
+        return R.menu.accounts_fragment_toolbar;
+    }
+
+    protected boolean displaySecondaryToolbar() {
+        return true;
+    }
+
+    protected int getAppbarColor() {
+        return getResources().getColor(R.color.colorPrimary);
+    }
+
+    protected String getTitle() {
+        return getResources().getString(R.string.title_accounts);
+    }
+
+    protected void tintMenuIcons(Menu menu) {
+        menu.findItem(R.id.action_show_archived)
+                .getIcon()
+                .setTint(getResources().getColor(R.color.colorTextInverse));
+    }
+
+    /* CONCRETE LISTENERS INHERITED FROM ABSTRACT CLASS */
+
+    public void onFABClick(View v) {
+        Intent newAccountIntent = new Intent(getActivity(), AddEditAccountActivity.class);
+        getActivity().startActivity(newAccountIntent);
+    }
+
+    /* FRAGMENT-SPECIFIC METHODS */
 
     public void updateDataSet() {
         // TODO: Implement filters here
