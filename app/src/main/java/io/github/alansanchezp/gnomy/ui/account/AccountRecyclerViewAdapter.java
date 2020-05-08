@@ -4,7 +4,6 @@ import io.github.alansanchezp.gnomy.R;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
@@ -34,7 +33,6 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
 
     private List<AccountWithBalance> mValues;
     private final OnListItemInteractionListener mListener;
-    private Resources resources;
 
     public AccountRecyclerViewAdapter(OnListItemInteractionListener listener) {
         mListener = listener;
@@ -47,7 +45,6 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        resources = parent.getResources();
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.fragment_account_card, parent, false);
         return new ViewHolder(view);
@@ -71,23 +68,23 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
 
             switch (holder.mItem.account.getType()) {
                 case INFORMAL:
-                    icon = (Drawable) resources.getDrawable(R.drawable.ic_account_balance_piggy_black_24dp);
+                    icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_piggy_black_24dp);
                     break;
                 case SAVINGS:
-                    icon = (Drawable) resources.getDrawable(R.drawable.ic_account_balance_savings_black_24dp);
+                    icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_savings_black_24dp);
                     break;
                 case INVERSIONS:
-                    icon = (Drawable) resources.getDrawable(R.drawable.ic_account_balance_inversion_black_24dp);
+                    icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_inversion_black_24dp);
                     break;
                 case CREDIT_CARD:
-                    icon = (Drawable) resources.getDrawable(R.drawable.ic_account_balance_credit_card_black_24dp);
+                    icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_credit_card_black_24dp);
                     break;
                 case OTHER:
-                    icon = (Drawable) resources.getDrawable(R.drawable.ic_account_balance_wallet_black_24dp);
+                    icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_wallet_black_24dp);
                     break;
                 case BANK:
                 default:
-                    icon = (Drawable) resources.getDrawable(R.drawable.ic_account_balance_black_24dp);
+                    icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_black_24dp);
                     break;
             }
 
