@@ -123,6 +123,7 @@ public class AccountsFragment extends BaseMainNavigationFragment
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_show_archived:
+                displayArchivedAccounts();
                 break;
             default:
                 return false;
@@ -223,6 +224,11 @@ public class AccountsFragment extends BaseMainNavigationFragment
     }
 
     /* FRAGMENT-SPECIFIC METHODS */
+
+    private void displayArchivedAccounts() {
+        ArchivedAccountsDialogFragment dialog = new ArchivedAccountsDialogFragment();
+        dialog.show(getFragmentManager(), ArchivedAccountsDialogFragment.TAG);
+    }
 
     public void updateDataSet() {
         // TODO: Implement filters here
