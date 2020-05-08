@@ -18,8 +18,8 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import static io.github.alansanchezp.gnomy.database.account.Account.*;
+import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
-import io.github.alansanchezp.gnomy.ui.account.AccountsFragment.OnListFragmentInteractionListener;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
@@ -28,15 +28,15 @@ import java.util.List;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link AccountWithBalance} and makes a call to the
- * specified {@link OnListFragmentInteractionListener}.
+ * specified {@link OnListItemInteractionListener}.
  */
 public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecyclerViewAdapter.ViewHolder> {
 
     private List<AccountWithBalance> mValues;
-    private final OnListFragmentInteractionListener mListener;
+    private final OnListItemInteractionListener mListener;
     private Resources resources;
 
-    public AccountRecyclerViewAdapter(OnListFragmentInteractionListener listener) {
+    public AccountRecyclerViewAdapter(OnListItemInteractionListener listener) {
         mListener = listener;
     }
 
@@ -128,10 +128,17 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
             popup = new PopupMenu(mView.getContext(), mButton);
             popup.inflate(R.menu.account_card);
 
+            mView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mListener.onItemInteraction(mItem.account);
+                }
+            });
+
             popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
-                    return mListener.onListFragmentMenuItemInteraction(mItem.account, item);
+                    return mListener.onItemMenuItemInteraction(mItem.account, item);
                 }
             });
             mButton.setOnClickListener(new View.OnClickListener() {
@@ -146,5 +153,20 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
         public String toString() {
             return super.toString() + " '" + mNameView.getText() + "'";
         }
+    }
+
+    /**
+     * This interface must be implemented by activities that contain this
+     * fragment to allow an interaction in this fragment to be communicated
+     * to the activity and potentially other fragments contained in that
+     * activity.
+     * <p/>
+     * See the Android Training lesson <a href=
+     * "http://developer.android.com/training/basics/fragments/communicating.html"
+     * >Communicating with Other Fragments</a> for more information.
+     */
+    public interface OnListItemInteractionListener {
+        void onItemInteraction(Account account);
+        boolean onItemMenuItemInteraction(Account account, MenuItem menuItem);
     }
 }

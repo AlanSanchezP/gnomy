@@ -1,11 +1,13 @@
 package io.github.alansanchezp.gnomy.ui.account;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -41,12 +43,12 @@ import io.github.alansanchezp.gnomy.viewmodel.AccountViewModel;
  * Use the {@link AccountsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AccountsFragment extends BaseMainNavigationFragment {
+public class AccountsFragment extends BaseMainNavigationFragment
+        implements AccountRecyclerViewAdapter.OnListItemInteractionListener {
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 1;
 
     private RecyclerView mRecyclerView;
-    private OnListFragmentInteractionListener mListener;
     private AccountRecyclerViewAdapter mAdapter;
     private AccountViewModel mAccountViewModel;
     private LiveData<List<AccountWithBalance>> mAccountBalances;
@@ -77,13 +79,8 @@ public class AccountsFragment extends BaseMainNavigationFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
-            mAdapter = new AccountRecyclerViewAdapter(mListener);
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentInteractionListener");
-        }
+        AccountRecyclerViewAdapter.OnListItemInteractionListener listener = (AccountRecyclerViewAdapter.OnListItemInteractionListener) this;
+        mAdapter = new AccountRecyclerViewAdapter(listener);
     }
 
     @Override
@@ -119,11 +116,6 @@ public class AccountsFragment extends BaseMainNavigationFragment {
         return view;
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
 
     /* ANDROID EVENT LISTENERS */
 
@@ -173,6 +165,63 @@ public class AccountsFragment extends BaseMainNavigationFragment {
         getActivity().startActivity(newAccountIntent);
     }
 
+    /* INTERFACE METHODS */
+
+    public void onItemInteraction(Account account) { }
+
+    public boolean onItemMenuItemInteraction(final Account account, MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case R.id.account_card_details:
+                break;
+            case R.id.account_card_modify:
+                Intent modifyAccountIntent = new Intent(getContext(), AddEditAccountActivity.class);
+                modifyAccountIntent.putExtra("accountId", account.getId());
+                modifyAccountIntent.putExtra("accountBgColor", account.getBackgroundColor());
+                modifyAccountIntent.putExtra("accountName", account.getName());
+                modifyAccountIntent.putExtra("accountInitialValue", account.getInitialValue().toPlainString());
+                modifyAccountIntent.putExtra("accountIncludedInSum", account.isShowInDashboard());
+                modifyAccountIntent.putExtra("accountCurrency", account.getDefaultCurrency());
+                modifyAccountIntent.putExtra("accountType", account.getType());
+
+                getActivity().startActivity(modifyAccountIntent);
+                break;
+            case R.id.account_card_transactions:
+                break;
+            case R.id.account_card_archive:
+                new AlertDialog.Builder(getContext())
+                        .setTitle(getString(R.string.account_card_archive))
+                        .setMessage(getString(R.string.account_card_archive_info))
+                        .setPositiveButton(getString(R.string.confirmation_dialog_yes), new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                archiveAccount(account);
+                            }
+                        })
+                        .setNegativeButton(getString(R.string.confirmation_dialog_no), null)
+                        .show();
+                break;
+            case R.id.account_card_delete:
+                new AlertDialog.Builder(getContext())
+                        .setTitle(getString(R.string.account_card_delete))
+                        .setMessage(getString(R.string.account_card_delete_warning))
+                        .setPositiveButton(getString(R.string.confirmation_dialog_yes), new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                deleteAccount(account);
+                            }
+                        })
+                        .setNegativeButton(getString(R.string.confirmation_dialog_no), null)
+                        .show();
+                break;
+            default:
+                return false;
+        }
+
+        return true;
+    }
+
     /* FRAGMENT-SPECIFIC METHODS */
 
     public void updateDataSet() {
@@ -212,20 +261,5 @@ public class AccountsFragment extends BaseMainNavigationFragment {
 
     public void deleteAccount(Account account) {
         mAccountViewModel.delete(account);
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnListFragmentInteractionListener {
-        void onListFragmentInteraction(Account account);
-        boolean onListFragmentMenuItemInteraction(Account account, MenuItem menuItem);
     }
 }
