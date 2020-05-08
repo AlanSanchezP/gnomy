@@ -70,4 +70,8 @@ public class AccountViewModel extends AndroidViewModel {
     public void restore(Account account) {
         mRepository.restore(account);
     }
+
+    public void restoreAll() {
+        mRepository.restoreAll();
+    }
 }

@@ -49,4 +49,7 @@ public abstract class AccountDAO  {
 
     @Query("UPDATE OR ABORT accounts SET is_archived = 0 WHERE account_id = :id")
     abstract void restore(int id);
+
+    @Query("UPDATE OR ABORT accounts SET is_archived = 0 WHERE is_archived = 1")
+    abstract void restoreAll();
 }

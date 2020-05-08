@@ -60,6 +60,11 @@ public class AccountRepository {
         task.execute(account);
     }
 
+    public void restoreAll() {
+        RestoreAllAsyncTask task = new RestoreAllAsyncTask(accountDAO);
+        task.execute();
+    }
+
     // Monthly balance methods
 
     public LiveData<List<AccountWithBalance>> getAllFromMonth(YearMonth month) {
@@ -173,6 +178,21 @@ public class AccountRepository {
         @Override
         protected Void doInBackground(final Account... accounts) {
             asyncTaskDao.restore(accounts[0].getId());
+            return null;
+        }
+    }
+
+    private static class RestoreAllAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        private AccountDAO asyncTaskDao;
+
+        RestoreAllAsyncTask(AccountDAO dao) {
+            asyncTaskDao = dao;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            asyncTaskDao.restoreAll();
             return null;
         }
     }
