@@ -1,8 +1,10 @@
 package io.github.alansanchezp.gnomy;
 
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,6 +33,7 @@ public class MainActivity extends AppCompatActivity
 
     private Toolbar mMainBar;
     private Toolbar mSecondaryBar;
+    private FloatingActionButton mFAB;
 
     private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -59,8 +62,10 @@ public class MainActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_main);
         mMainBar = (Toolbar) findViewById(R.id.toolbar);
-        mSecondaryBar = (Toolbar) findViewById(R.id.toolbar2);
         setSupportActionBar(mMainBar);
+
+        mSecondaryBar = (Toolbar) findViewById(R.id.toolbar2);
+        mFAB = (FloatingActionButton) findViewById(R.id.main_floating_action_button);
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -115,7 +120,11 @@ public class MainActivity extends AppCompatActivity
         mCurrentFragmentIndex = index;
     }
 
-    public void tintAppbars(int bgColor, boolean showSecondaryToolbar) {
+    public void tintAppbars(int bgColor, int textColor, boolean showSecondaryToolbar) {
         mMainBar.setBackgroundColor(bgColor);
+        mMainBar.setTitleTextColor(bgColor);
+        mSecondaryBar.setBackgroundColor(bgColor);
+        mFAB.setBackgroundTintList(ColorStateList.valueOf(bgColor));
+        mFAB.getDrawable().mutate().setTint(textColor);
     }
 }
