@@ -71,6 +71,7 @@
     <string name="account_card_archive_info">You can restore this account and related transactions later.</string>
     <string name="account_card_delete_warning">Are you sure you want to do this? This action cannot be undone.</string>
     <string name="account_card_restore">Restore</string>
+    <string name="accounts_empty_archived_list">You don\'t have any archived accounts.</string>
     <string name="accounts_restore_all">Restore all</string>
     <string name="account_card_delete_short">Delete</string>
 

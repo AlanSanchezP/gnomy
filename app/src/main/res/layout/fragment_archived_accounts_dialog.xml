@@ -16,6 +16,18 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent" >
 
+        <TextView
+            android:id="@+id/archived_items_empty"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="20dp"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            android:text="@string/accounts_empty_archived_list"
+            android:visibility="invisible" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/archived_items_list"
             android:layout_width="match_parent"
@@ -29,7 +41,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginTop="10dp"
-            android:text="@string/accounts_restore_all" />
+            android:text="@string/accounts_restore_all"
+            android:visibility="gone" />
     </LinearLayout>
     </ScrollView>
 </FrameLayout>
