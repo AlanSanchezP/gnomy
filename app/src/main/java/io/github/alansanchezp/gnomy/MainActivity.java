@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity
 
     public void tintAppbars(int bgColor, int textColor, boolean showSecondaryToolbar) {
         mMainBar.setBackgroundColor(bgColor);
-        mMainBar.setTitleTextColor(bgColor);
+        mMainBar.setTitleTextColor(textColor);
         mSecondaryBar.setBackgroundColor(bgColor);
         mFAB.setBackgroundTintList(ColorStateList.valueOf(bgColor));
         mFAB.getDrawable().mutate().setTint(textColor);
