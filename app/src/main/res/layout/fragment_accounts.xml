@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,151 +7,68 @@
     android:orientation="vertical"
     tools:context=".ui.account.AccountsFragment">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar2"
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:paddingEnd="16dp">
+        android:paddingTop="25dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp" >
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/accounts_top_layout"
-            android:layout_width="match_parent"
+            android:orientation="horizontal"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <ImageButton
-                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-                android:id="@+id/prev_month_total"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_chevron_left_black_24dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/prev_month"
-                android:tint="@color/colorTextInverse"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
+            android:layout_width="match_parent"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp" >
 
             <TextView
-                android:id="@+id/month_name_total"
-                android:layout_width="160dp"
+                android:id="@+id/total_balance_lable"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:text="@string/accounts_test_month"
-                android:textAlignment="center"
-                android:textSize="16sp"
-                android:textColor="@color/colorTextInverse"
-                app:layout_constraintStart_toEndOf="@id/prev_month_total"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
-
-
-            <ImageButton
-                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-                android:id="@+id/next_month_total"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="10dp"
-                android:layout_toEndOf="@id/month_name_total"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:clickable="true"
-                android:contentDescription="@string/next_month"
-                android:focusable="true"
-                android:src="@drawable/ic_chevron_right_black_24dp"
-                android:tint="@color/colorTextInverse"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@id/month_name_total"
+                android:textSize="20sp"
+                android:text="@string/account_current_balance"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageButton
-                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-                android:id="@+id/select_total_month"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:src="@drawable/ic_date_range_black_24dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/select_month"
-                android:tint="@color/colorTextInverse"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.appcompat.widget.Toolbar>
-
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/scroll"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
-
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:paddingTop="25dp"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp" >
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:orientation="horizontal"
+            <TextView
+                android:id="@+id/total_balance"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="12dp" >
+                android:textColor="@color/colorIncomes"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                    android:id="@+id/total_balance_lable"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="20sp"
-                    android:text="@string/account_current_balance"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/total_projected_lable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/account_projected_balance"
+                android:textColor="@color/colorTextSecondary"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="@id/total_balance_lable"
+                app:layout_constraintTop_toBottomOf="@id/total_balance_lable" />
 
-                <TextView
-                    android:id="@+id/total_balance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/colorIncomes"
-                    android:textSize="20sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/total_projected"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:textColor="@color/colorTextSecondary"
+                app:layout_constraintEnd_toEndOf="@id/total_balance"
+                app:layout_constraintTop_toTopOf="@id/total_projected_lable" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <TextView
-                    android:id="@+id/total_projected_lable"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="@string/account_projected_balance"
-                    android:textColor="@color/colorTextSecondary"
-                    android:textSize="14sp"
-                    app:layout_constraintStart_toStartOf="@id/total_balance_lable"
-                    app:layout_constraintTop_toBottomOf="@id/total_balance_lable" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/items_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="25dp"
+            android:layout_marginBottom="50dp"
+            app:layoutManager="LinearLayoutManager"
+            tools:listitem="@layout/fragment_account_card" />
 
-                <TextView
-                    android:id="@+id/total_projected"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:textColor="@color/colorTextSecondary"
-                    app:layout_constraintEnd_toEndOf="@id/total_balance"
-                    app:layout_constraintTop_toTopOf="@id/total_projected_lable" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/items_list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="25dp"
-                android:layout_marginBottom="50dp"
-                app:layoutManager="LinearLayoutManager"
-                tools:listitem="@layout/fragment_account_card" />
-        </LinearLayout>
-
-    </androidx.core.widget.NestedScrollView>
-
-</LinearLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

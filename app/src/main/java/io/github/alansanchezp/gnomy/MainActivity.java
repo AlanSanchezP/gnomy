@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity
     private int mCurrentFragmentIndex = 0;
 
     private Toolbar mMainBar;
+    private Toolbar mSecondaryBar;
 
     private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_main);
         mMainBar = (Toolbar) findViewById(R.id.toolbar);
+        mSecondaryBar = (Toolbar) findViewById(R.id.toolbar2);
         setSupportActionBar(mMainBar);
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);

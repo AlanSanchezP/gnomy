@@ -30,7 +30,7 @@ public class MainNavigationInstrumentedTest {
         onView(withId(R.id.navigation_accounts))
                 .perform(click());
 
-        onView(withText(R.string.accounts_test_month))
+        onView(withText(R.string.account_current_balance))
                 .check(matches(isDisplayed()));
     }
 }

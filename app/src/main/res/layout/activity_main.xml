@@ -3,7 +3,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
@@ -11,11 +10,100 @@
     <include layout="@layout/layout_appbar" />
 
     <FrameLayout
-        android:id="@+id/main_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="56dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" >
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar2"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                android:paddingEnd="16dp"
+                android:layout_gravity="top">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/accounts_top_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+
+                    <ImageButton
+                        style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                        android:id="@+id/prev_month_total"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_chevron_left_black_24dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/prev_month"
+                        android:tint="@color/colorTextInverse"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent" />
+
+                    <TextView
+                        android:id="@+id/month_name_total"
+                        android:layout_width="160dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:text="@string/accounts_test_month"
+                        android:textAlignment="center"
+                        android:textSize="16sp"
+                        android:textColor="@color/colorTextInverse"
+                        app:layout_constraintStart_toEndOf="@id/prev_month_total"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent" />
+
+
+                    <ImageButton
+                        style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                        android:id="@+id/next_month_total"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="10dp"
+                        android:layout_toEndOf="@id/month_name_total"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:contentDescription="@string/next_month"
+                        android:focusable="true"
+                        android:src="@drawable/ic_chevron_right_black_24dp"
+                        android:tint="@color/colorTextInverse"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/month_name_total"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ImageButton
+                        style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                        android:id="@+id/select_total_month"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        android:src="@drawable/ic_date_range_black_24dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/select_month"
+                        android:tint="@color/colorTextInverse"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.appcompat.widget.Toolbar>
+
+            <FrameLayout
+                android:id="@+id/main_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </LinearLayout>
+    </FrameLayout>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/navigation"
