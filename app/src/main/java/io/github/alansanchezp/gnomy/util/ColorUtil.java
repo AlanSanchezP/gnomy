@@ -31,7 +31,15 @@ public class ColorUtil {
     }
 
     public static int getDarkVariant(int color) {
-        return getVariantByFactor(color, 0.8f);
+        return getVariantByFactor(color, 0.73f);
+    }
+
+    public static int getLightVariant(int color) {
+        return getVariantByFactor(color, 1.27f);
+    }
+
+    public static int getRippleVariant(int color) {
+        return getVariantByFactor(color, 2.1f);
     }
 
     public static int getVariantByFactor(int color, float ratio) {

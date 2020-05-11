@@ -46,7 +46,7 @@ public class ColorUtilTest {
         int color = 0XFF00bfff;
         int darkColor = ColorUtil.getDarkVariant(color);
 
-        assertEquals(0XFF0098cc, darkColor);
+        assertEquals(0XFF008bba, darkColor);
     }
 
     @Test

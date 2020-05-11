@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#2196F3</color>
-    <color name="colorPrimaryLight">#6EC6FF</color>
-    <color name="colorPrimaryDark">#0069C0</color>
+    <color name="colorPrimaryLight">#29beff</color>
+    <color name="colorPrimaryDark">#186db1</color>
     <color name="colorAccent">@color/colorPrimaryDark</color>
 
     <color name="colorSuccess">#009B01</color>
     <color name="colorError">#EC4530</color>
-    <color name="colorErrorLight">#EB9E9E</color>
+    <color name="colorErrorLight">#ff9064</color>
     <color name="colorTransfers">#BEB596</color>
     <color name="colorIncomes">@color/colorSuccess</color>
     <color name="colorExpenses">@color/colorError</color>
-    <color name="colorIncomesDark">#008700</color>
-    <color name="colorExpensesDark">#C90101</color>
-    <color name="colorTransfersDark">#8D8568</color>
+    <color name="colorIncomesDark">#007100</color>
+    <color name="colorExpensesDark">#ac3223</color>
+    <color name="colorTransfersDark">#8a846d</color>
 
     <color name="colorSurface">#FFFFFF</color>
     <color name="colorText">#555555</color>
