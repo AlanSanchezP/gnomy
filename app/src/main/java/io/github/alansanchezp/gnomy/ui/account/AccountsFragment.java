@@ -149,10 +149,6 @@ public class AccountsFragment extends BaseMainNavigationFragment
         return getResources().getColor(R.color.colorPrimary);
     }
 
-    protected int getAppbarTextColor() {
-        return getResources().getColor(R.color.colorTextInverse);
-    }
-
     protected String getTitle() {
         return getResources().getString(R.string.title_accounts);
     }

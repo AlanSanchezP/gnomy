@@ -68,7 +68,6 @@ public abstract class BaseMainNavigationFragment
     protected void tintAppbars() {
         mNavigationInterface.tintAppbars(
                 getAppbarColor(),
-                getAppbarTextColor(),
                 displaySecondaryToolbar()
         );
     }
@@ -83,8 +82,6 @@ public abstract class BaseMainNavigationFragment
 
     protected abstract int getAppbarColor();
 
-    protected abstract int getAppbarTextColor();
-
     protected abstract String getTitle();
 
     protected abstract void tintMenuIcons(Menu menu);
@@ -96,7 +93,7 @@ public abstract class BaseMainNavigationFragment
     // TODO: Listener for month changes from MainActivity
 
     public interface MainNavigationInteractionInterface {
-        void tintAppbars(int bgColor, int textColor, boolean showSecondaryToolbar);
+        void tintAppbars(int mainColor, boolean showSecondaryToolbar);
         void onFragmentChanged(int index);
     }
 }

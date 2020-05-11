@@ -20,6 +20,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import io.github.alansanchezp.gnomy.ui.BaseMainNavigationFragment;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
+import io.github.alansanchezp.gnomy.util.ColorUtil;
 
 public class MainActivity extends AppCompatActivity
         implements BaseMainNavigationFragment.MainNavigationInteractionInterface {
@@ -120,11 +121,19 @@ public class MainActivity extends AppCompatActivity
         mCurrentFragmentIndex = index;
     }
 
-    public void tintAppbars(int bgColor, int textColor, boolean showSecondaryToolbar) {
-        mMainBar.setBackgroundColor(bgColor);
+    public void tintAppbars(int mainColor, boolean showSecondaryToolbar) {
+        int textColor = ColorUtil.getTextColor(mainColor);
+        int darkVariant =  ColorUtil.getDarkVariant(mainColor);
+
+        getWindow().setStatusBarColor(darkVariant);
+
+        mMainBar.setBackgroundColor(mainColor);
         mMainBar.setTitleTextColor(textColor);
-        mSecondaryBar.setBackgroundColor(bgColor);
-        mFAB.setBackgroundTintList(ColorStateList.valueOf(bgColor));
+        mMainBar.getOverflowIcon().setTint(textColor);
+
+        mSecondaryBar.setBackgroundColor(mainColor);
+
+        mFAB.setBackgroundTintList(ColorStateList.valueOf(darkVariant));
         mFAB.getDrawable().mutate().setTint(textColor);
     }
 }
