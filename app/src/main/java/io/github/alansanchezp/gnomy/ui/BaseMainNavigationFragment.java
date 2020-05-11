@@ -9,12 +9,16 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 
+import org.threeten.bp.YearMonth;
+
 public abstract class BaseMainNavigationFragment
         extends Fragment {
 
     public static final String ARG_NAVIGATION_INDEX = "navigation-index";
+    public static final String ARG_MONTH = "navigation-index";
     protected MainNavigationInteractionInterface mNavigationInterface;
     protected int mFragmentIndex = 0;
+    protected YearMonth mCurrentMonth;
 
     /* ANDROID LIFECYCLE METHODS */
 
@@ -90,7 +94,7 @@ public abstract class BaseMainNavigationFragment
 
     public abstract void onFABClick(View v);
 
-    // TODO: Listener for month changes from MainActivity
+    public abstract void onMonthChanged(YearMonth month);
 
     public interface MainNavigationInteractionInterface {
         void tintAppbars(int mainColor, boolean showSecondaryToolbar);

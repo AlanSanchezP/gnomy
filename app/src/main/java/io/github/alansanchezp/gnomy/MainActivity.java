@@ -15,8 +15,13 @@ import android.os.Handler;
 import android.view.Menu;
 import android.view.View;
 import android.view.MenuItem;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import org.threeten.bp.YearMonth;
+import org.threeten.bp.format.DateTimeFormatter;
 
 import io.github.alansanchezp.gnomy.ui.BaseMainNavigationFragment;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
@@ -31,6 +36,7 @@ public class MainActivity extends AppCompatActivity
             ACCOUNTS_FRAGMENT_INDEX = 3,
             NOTIFICATIONS_FRAGMENT_INDEX = 4;
     private int mCurrentFragmentIndex = 0;
+    private YearMonth mCurrentMonth;
 
     private Toolbar mMainBar;
     private Toolbar mSecondaryBar;
@@ -62,6 +68,8 @@ public class MainActivity extends AppCompatActivity
         AndroidThreeTen.init(this);
 
         setContentView(R.layout.activity_main);
+        updateMonth(YearMonth.now());
+
         mMainBar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mMainBar);
 
@@ -77,7 +85,6 @@ public class MainActivity extends AppCompatActivity
         getMenuInflater().inflate(R.menu.main_activity_toolbar, menu);
         return super.onCreateOptionsMenu(menu);
     }
-
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -115,6 +122,55 @@ public class MainActivity extends AppCompatActivity
         if (currentFragment == null) return;
 
         currentFragment.onFABClick(v);
+    }
+
+    public void onPreviousMonthClick(View v) {
+        updateMonth(mCurrentMonth.minusMonths(1));
+    }
+
+    public void onNextMonthClick(View v) {
+        updateMonth(mCurrentMonth.plusMonths(1));
+    }
+
+    public void onCalendarClick(View v) {
+        updateMonth(null);
+    }
+
+    private void updateMonth(YearMonth month) {
+        if (month == null) return;
+
+        TextView monthTextView = (TextView) findViewById(R.id.month_name_view);
+        ImageButton nextMonthBtn = (ImageButton) findViewById(R.id.next_month_btn);
+        String formatterPattern;
+        String monthString;
+
+        if (month.getYear() == YearMonth.now().getYear()) {
+            formatterPattern = "MMMM";
+        } else {
+            formatterPattern = "MMMM yyyy";
+        }
+
+        monthString = month.format(DateTimeFormatter.ofPattern(formatterPattern));
+        /* This is needed as spanish localization (and possibly others too)
+           returns first character as lowercase */
+        monthString = monthString.substring(0, 1).toUpperCase()
+                + monthString.substring(1);
+
+        /* Temporal limitation
+           TODO: Handle projected balances for future months (as there is no MonthlyBalance instance for those) */
+        if (month.equals(YearMonth.now())) {
+            nextMonthBtn.setVisibility(View.INVISIBLE);
+        } else {
+            nextMonthBtn.setVisibility(View.VISIBLE);
+        }
+
+        monthTextView.setText(monthString);
+        mCurrentMonth = month;
+
+        BaseMainNavigationFragment currentFragment = (BaseMainNavigationFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+        if (currentFragment == null) return;
+
+        currentFragment.onMonthChanged(mCurrentMonth);
     }
 
     public void onFragmentChanged(int index) {

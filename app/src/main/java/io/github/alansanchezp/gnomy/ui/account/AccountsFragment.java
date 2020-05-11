@@ -166,6 +166,10 @@ public class AccountsFragment extends BaseMainNavigationFragment
         getActivity().startActivity(newAccountIntent);
     }
 
+    public void onMonthChanged(YearMonth month) {
+        mCurrentMonth = month;
+    }
+
     /* INTERFACE METHODS */
 
     public void onItemInteraction(Account account) { }
@@ -231,7 +235,7 @@ public class AccountsFragment extends BaseMainNavigationFragment
     }
 
     public void updateDataSet() {
-        // TODO: Implement filters here
+        // TODO: Update to match new inherited methods
         mAccountBalances = mAccountViewModel.getAllFromMonth(YearMonth.now());
     }
 
