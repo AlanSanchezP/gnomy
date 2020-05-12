@@ -30,6 +30,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import io.github.alansanchezp.gnomy.R;
+import static io.github.alansanchezp.gnomy.database.GnomyTypeConverters.yearMonthToInt;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
 import io.github.alansanchezp.gnomy.ui.BaseMainNavigationFragment;
@@ -45,8 +46,6 @@ import io.github.alansanchezp.gnomy.viewmodel.AccountViewModel;
  */
 public class AccountsFragment extends BaseMainNavigationFragment
         implements AccountRecyclerViewAdapter.OnListItemInteractionListener {
-    private static final String ARG_COLUMN_COUNT = "column-count";
-    private int mColumnCount = 1;
 
     private RecyclerView mRecyclerView;
     private AccountRecyclerViewAdapter mAdapter;
@@ -65,11 +64,12 @@ public class AccountsFragment extends BaseMainNavigationFragment
      * @return A new instance of fragment AccountsFragment.
      */
 
-    public static AccountsFragment newInstance(int columnCount, int index) {
+    public static AccountsFragment newInstance(int columnCount, int index, YearMonth month) {
         AccountsFragment fragment = new AccountsFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         args.putInt(ARG_NAVIGATION_INDEX, index);
+        args.putInt(ARG_MONTH, yearMonthToInt(month));
         fragment.setArguments(args);
         return fragment;
     }
@@ -86,12 +86,11 @@ public class AccountsFragment extends BaseMainNavigationFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
-        }
-
         mAccountViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getActivity().getApplication())).get(AccountViewModel.class);
-        updateDataSet();
+        mAccountBalances = mAccountViewModel.getBalances();
+        if (mAccountViewModel.getMonth() != null) {
+            mCurrentMonth = null;
+        }
     }
 
     @Override
@@ -111,6 +110,8 @@ public class AccountsFragment extends BaseMainNavigationFragment
         mRecyclerView.setNestedScrollingEnabled(false);
         mBalance = (TextView) view.findViewById(R.id.total_balance);
         mProjected = (TextView) view.findViewById(R.id.total_projected);
+
+        onMonthChanged(mCurrentMonth, view);
         setObserver();
 
         return view;
@@ -167,7 +168,28 @@ public class AccountsFragment extends BaseMainNavigationFragment
     }
 
     public void onMonthChanged(YearMonth month) {
+        if (month == null) return;
+        onMonthChanged(month, getView());
+    }
+
+    private void onMonthChanged(YearMonth month, View v) {
+        if (month == null) {
+            month = mAccountViewModel.getMonth();
+        } else {
+            mAccountViewModel.setMonth(month);
+        }
+
+        if (month.equals(YearMonth.now())) {
+            ((TextView) v.findViewById(R.id.total_projected_lable)).setText(R.string.account_projected_balance);
+        } else {
+            ((TextView) v.findViewById(R.id.total_projected_lable)).setText(R.string.account_accumulated_balance);
+        }
+
         mCurrentMonth = month;
+    }
+
+    public YearMonth getMonth() {
+        return mCurrentMonth;
     }
 
     /* INTERFACE METHODS */
@@ -232,11 +254,6 @@ public class AccountsFragment extends BaseMainNavigationFragment
     private void displayArchivedAccounts() {
         ArchivedAccountsDialogFragment dialog = new ArchivedAccountsDialogFragment();
         dialog.show(getFragmentManager(), ArchivedAccountsDialogFragment.TAG);
-    }
-
-    public void updateDataSet() {
-        // TODO: Update to match new inherited methods
-        mAccountBalances = mAccountViewModel.getAllFromMonth(YearMonth.now());
     }
 
     private void setObserver() {

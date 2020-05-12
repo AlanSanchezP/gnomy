@@ -12,6 +12,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 
 import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.MenuItem;
@@ -68,16 +69,30 @@ public class MainActivity extends AppCompatActivity
         AndroidThreeTen.init(this);
 
         setContentView(R.layout.activity_main);
-        updateMonth(YearMonth.now());
 
         mMainBar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mMainBar);
+        mCurrentMonth = YearMonth.now();
 
         mSecondaryBar = (Toolbar) findViewById(R.id.toolbar2);
         mFAB = (FloatingActionButton) findViewById(R.id.main_floating_action_button);
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        BaseMainNavigationFragment currentFragment = (BaseMainNavigationFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+        if (currentFragment == null) return;
+
+        if (currentFragment.getMonth() == null) {
+            updateMonth(YearMonth.now());
+        } else {
+            updateMonth(currentFragment.getMonth());
+        }
     }
 
     @Override
@@ -99,7 +114,7 @@ public class MainActivity extends AppCompatActivity
 
         switch (newIndex) {
             case ACCOUNTS_FRAGMENT_INDEX:
-                fragment = AccountsFragment.newInstance(1, newIndex);
+                fragment = AccountsFragment.newInstance(1, newIndex, mCurrentMonth);
                 break;
             default:
                 return true;
@@ -170,7 +185,13 @@ public class MainActivity extends AppCompatActivity
         BaseMainNavigationFragment currentFragment = (BaseMainNavigationFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
         if (currentFragment == null) return;
 
-        currentFragment.onMonthChanged(mCurrentMonth);
+        try {
+            if (!mCurrentMonth.equals(currentFragment.getMonth())) {
+                currentFragment.onMonthChanged(mCurrentMonth);
+            }
+        } catch (NullPointerException npe) {
+            Log.e("MAIN ACTIVITY", "updateMonth: fragment view not yet created", npe);
+        }
     }
 
     public void onFragmentChanged(int index) {

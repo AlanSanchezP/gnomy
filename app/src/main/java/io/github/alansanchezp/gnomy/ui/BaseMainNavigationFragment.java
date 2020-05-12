@@ -2,6 +2,7 @@ package io.github.alansanchezp.gnomy.ui;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import io.github.alansanchezp.gnomy.database.GnomyTypeConverters;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -14,9 +15,13 @@ import org.threeten.bp.YearMonth;
 public abstract class BaseMainNavigationFragment
         extends Fragment {
 
+    public static final String ARG_COLUMN_COUNT = "column-count";
     public static final String ARG_NAVIGATION_INDEX = "navigation-index";
     public static final String ARG_MONTH = "navigation-index";
+
     protected MainNavigationInteractionInterface mNavigationInterface;
+
+    protected int mColumnCount = 1;
     protected int mFragmentIndex = 0;
     protected YearMonth mCurrentMonth;
 
@@ -38,8 +43,14 @@ public abstract class BaseMainNavigationFragment
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(hasAppbarActions());
         if (getArguments() != null) {
-            mFragmentIndex = getArguments().getInt(ARG_NAVIGATION_INDEX);
+            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT, 1);
+            mFragmentIndex = getArguments().getInt(ARG_NAVIGATION_INDEX, 0);
+            mCurrentMonth = GnomyTypeConverters.intToYearMonth(
+                    getArguments().getInt(ARG_MONTH)
+            );
             mNavigationInterface.onFragmentChanged(mFragmentIndex);
+        } else {
+            mCurrentMonth = YearMonth.now();
         }
     }
 
@@ -81,6 +92,8 @@ public abstract class BaseMainNavigationFragment
     protected abstract boolean hasAppbarActions();
 
     protected abstract int getMenuResourceId();
+
+    public abstract YearMonth getMonth();
 
     protected abstract boolean displaySecondaryToolbar();
 
