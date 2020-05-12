@@ -16,6 +16,8 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import org.threeten.bp.YearMonth;
+
 import static io.github.alansanchezp.gnomy.database.account.Account.*;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
@@ -32,14 +34,16 @@ import java.util.List;
 public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecyclerViewAdapter.ViewHolder> {
 
     private List<AccountWithBalance> mValues;
+    private YearMonth mMonth;
     private final OnListItemInteractionListener mListener;
 
     public AccountRecyclerViewAdapter(OnListItemInteractionListener listener) {
         mListener = listener;
     }
 
-    public void setValues(List<AccountWithBalance> accounts) {
+    public void setValues(List<AccountWithBalance> accounts, YearMonth month) {
         mValues = accounts;
+        mMonth = month;
         notifyDataSetChanged();
     }
 
@@ -55,6 +59,13 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
         if (mValues != null) {
             holder.mItem = mValues.get(position);
             holder.mNameView.setText(holder.mItem.account.getName());
+
+            if (!mMonth.equals(YearMonth.now())) {
+                holder.mProjectedLabelView.setText(R.string.account_accumulated_balance);
+            } else {
+                holder.mProjectedLabelView.setText(R.string.account_projected_balance);
+            }
+
             try {
                 holder.mCurrentView.setText(CurrencyUtil.format(holder.mItem.accumulatedBalance, holder.mItem.account.getDefaultCurrency()));
                 holder.mProjectedView.setText(CurrencyUtil.format(holder.mItem.projectedBalance, holder.mItem.account.getDefaultCurrency()));
@@ -106,7 +117,9 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
         public final View mView;
         public final TextView mNameView;
         public final TextView mCurrentView;
+        public final TextView mCurrentLabelView;
         public final TextView mProjectedView;
+        public final TextView mProjectedLabelView;
         public final ImageView mIconView;
         public final ImageButton mButton;
         public AccountWithBalance mItem;
@@ -118,7 +131,9 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
             mView = view;
             mNameView = (TextView) view.findViewById(R.id.account_card_name);
             mCurrentView = (TextView) view.findViewById(R.id.account_card_current);
+            mCurrentLabelView = (TextView) view.findViewById(R.id.account_card_current_lable);
             mProjectedView = (TextView) view.findViewById(R.id.account_card_projected);
+            mProjectedLabelView = (TextView) view.findViewById(R.id.account_card_projected_lable);
             mButton = (ImageButton) view.findViewById(R.id.account_card_button);
             mIconView = (ImageView) view.findViewById(R.id.account_card_icon);
 

@@ -260,7 +260,7 @@ public class AccountsFragment extends BaseMainNavigationFragment
         mAccountBalances.observe(getViewLifecycleOwner(), new Observer<List<AccountWithBalance>>() {
             @Override
             public void onChanged(@Nullable final List<AccountWithBalance> accounts) {
-                mAdapter.setValues(accounts);
+                mAdapter.setValues(accounts, mCurrentMonth);
                 BigDecimal balance = new BigDecimal("0");
                 BigDecimal projected = new BigDecimal("0");
 
