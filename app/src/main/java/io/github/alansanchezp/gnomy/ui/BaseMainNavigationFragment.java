@@ -2,7 +2,7 @@ package io.github.alansanchezp.gnomy.ui;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import io.github.alansanchezp.gnomy.database.GnomyTypeConverters;
+import androidx.lifecycle.LiveData;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -17,7 +17,6 @@ public abstract class BaseMainNavigationFragment
 
     public static final String ARG_COLUMN_COUNT = "column-count";
     public static final String ARG_NAVIGATION_INDEX = "navigation-index";
-    public static final String ARG_MONTH = "navigation-index";
 
     protected MainNavigationInteractionInterface mNavigationInterface;
 
@@ -45,12 +44,7 @@ public abstract class BaseMainNavigationFragment
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT, 1);
             mFragmentIndex = getArguments().getInt(ARG_NAVIGATION_INDEX, 0);
-            mCurrentMonth = GnomyTypeConverters.intToYearMonth(
-                    getArguments().getInt(ARG_MONTH)
-            );
             mNavigationInterface.onFragmentChanged(mFragmentIndex);
-        } else {
-            mCurrentMonth = YearMonth.now();
         }
     }
 
@@ -93,8 +87,6 @@ public abstract class BaseMainNavigationFragment
 
     protected abstract int getMenuResourceId();
 
-    public abstract YearMonth getMonth();
-
     protected abstract boolean displaySecondaryToolbar();
 
     protected abstract int getAppbarColor();
@@ -112,5 +104,6 @@ public abstract class BaseMainNavigationFragment
     public interface MainNavigationInteractionInterface {
         void tintAppbars(int mainColor, boolean showSecondaryToolbar);
         void onFragmentChanged(int index);
+        LiveData<YearMonth> getMonthFilter();
     }
 }

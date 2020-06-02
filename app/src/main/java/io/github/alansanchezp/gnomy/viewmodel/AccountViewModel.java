@@ -9,7 +9,6 @@ import java.util.List;
 import androidx.arch.core.util.Function;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
@@ -17,7 +16,7 @@ import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
 
 public class AccountViewModel extends AndroidViewModel {
     private AccountRepository mRepository;
-    private MutableLiveData<YearMonth> mMonthFilter = new MutableLiveData<>();
+    private LiveData<YearMonth> mMonthFilter;
     private LiveData<List<Account>> mAllAccounts;
     private LiveData<List<AccountWithBalance>> mBalancesToDisplay;
     private LiveData<List<Account>> mArchivedAccounts;
@@ -27,6 +26,14 @@ public class AccountViewModel extends AndroidViewModel {
         mRepository = new AccountRepository(application);
     }
 
+    public boolean shouldInitMonthFilter() {
+        return mMonthFilter == null;
+    }
+
+    public void initMonthFilter(LiveData<YearMonth> monthFilter) {
+        if (mMonthFilter == null) mMonthFilter = monthFilter;
+    }
+
     public LiveData<List<Account>> getAll() {
         if (mAllAccounts == null) {
             mAllAccounts = mRepository.getAll();
@@ -34,13 +41,7 @@ public class AccountViewModel extends AndroidViewModel {
         return mAllAccounts;
     }
 
-    public void setMonth(YearMonth month) {
-        mMonthFilter.postValue(month);
-    }
-
-    public YearMonth getMonth() {
-        return mMonthFilter.getValue();
-    }
+    // TODO: Return individual list for latest accounts
 
     public LiveData<List<AccountWithBalance>> getBalances() {
         if (mBalancesToDisplay == null) {

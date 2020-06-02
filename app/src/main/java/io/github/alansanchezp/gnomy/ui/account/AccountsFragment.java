@@ -30,7 +30,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import io.github.alansanchezp.gnomy.R;
-import static io.github.alansanchezp.gnomy.database.GnomyTypeConverters.yearMonthToInt;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
 import io.github.alansanchezp.gnomy.ui.BaseMainNavigationFragment;
@@ -69,7 +68,6 @@ public class AccountsFragment extends BaseMainNavigationFragment
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         args.putInt(ARG_NAVIGATION_INDEX, index);
-        args.putInt(ARG_MONTH, yearMonthToInt(month));
         fragment.setArguments(args);
         return fragment;
     }
@@ -87,10 +85,6 @@ public class AccountsFragment extends BaseMainNavigationFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAccountViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getActivity().getApplication())).get(AccountViewModel.class);
-        mAccountBalances = mAccountViewModel.getBalances();
-        if (mAccountViewModel.getMonth() != null) {
-            mCurrentMonth = null;
-        }
     }
 
     @Override
@@ -111,10 +105,19 @@ public class AccountsFragment extends BaseMainNavigationFragment
         mBalance = (TextView) view.findViewById(R.id.total_balance);
         mProjected = (TextView) view.findViewById(R.id.total_projected);
 
-        onMonthChanged(mCurrentMonth, view);
-        setObserver();
-
         return view;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (mAccountViewModel.shouldInitMonthFilter()) {
+            mAccountViewModel.initMonthFilter(mNavigationInterface.getMonthFilter());
+        }
+        if (mAccountBalances == null) {
+        mAccountBalances = mAccountViewModel.getBalances();
+        }
+        setObservers();
     }
 
 
@@ -169,16 +172,7 @@ public class AccountsFragment extends BaseMainNavigationFragment
 
     public void onMonthChanged(YearMonth month) {
         if (month == null) return;
-        onMonthChanged(month, getView());
-    }
-
-    private void onMonthChanged(YearMonth month, View v) {
-        if (month == null) {
-            month = mAccountViewModel.getMonth();
-        } else {
-            mAccountViewModel.setMonth(month);
-        }
-
+        View v = getView();
         if (month.equals(YearMonth.now())) {
             ((TextView) v.findViewById(R.id.total_projected_lable)).setText(R.string.account_projected_balance);
         } else {
@@ -186,10 +180,6 @@ public class AccountsFragment extends BaseMainNavigationFragment
         }
 
         mCurrentMonth = month;
-    }
-
-    public YearMonth getMonth() {
-        return mCurrentMonth;
     }
 
     /* INTERFACE METHODS */
@@ -256,10 +246,18 @@ public class AccountsFragment extends BaseMainNavigationFragment
         dialog.show(getFragmentManager(), ArchivedAccountsDialogFragment.TAG);
     }
 
-    private void setObserver() {
+    private void setObservers() {
+        mNavigationInterface.getMonthFilter().observe(getViewLifecycleOwner(), new Observer<YearMonth>() {
+            @Override
+            public void onChanged(@Nullable final YearMonth month) {
+                onMonthChanged(month);
+            }
+        });
+
         mAccountBalances.observe(getViewLifecycleOwner(), new Observer<List<AccountWithBalance>>() {
             @Override
             public void onChanged(@Nullable final List<AccountWithBalance> accounts) {
+                if (mCurrentMonth == null) return;
                 mAdapter.setValues(accounts, mCurrentMonth);
                 BigDecimal balance = new BigDecimal("0");
                 BigDecimal projected = new BigDecimal("0");

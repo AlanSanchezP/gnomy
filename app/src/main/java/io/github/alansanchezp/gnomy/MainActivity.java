@@ -7,12 +7,12 @@ import androidx.annotation.NonNull;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 
 import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.MenuItem;
@@ -24,9 +24,13 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import org.threeten.bp.YearMonth;
 import org.threeten.bp.format.DateTimeFormatter;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.ui.BaseMainNavigationFragment;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
+import io.github.alansanchezp.gnomy.viewmodel.MainActivityViewModel;
 
 public class MainActivity extends AppCompatActivity
         implements BaseMainNavigationFragment.MainNavigationInteractionInterface {
@@ -37,7 +41,7 @@ public class MainActivity extends AppCompatActivity
             ACCOUNTS_FRAGMENT_INDEX = 3,
             NOTIFICATIONS_FRAGMENT_INDEX = 4;
     private int mCurrentFragmentIndex = 0;
-    private YearMonth mCurrentMonth;
+    private MainActivityViewModel mViewModel;
 
     private Toolbar mMainBar;
     private Toolbar mSecondaryBar;
@@ -72,27 +76,20 @@ public class MainActivity extends AppCompatActivity
 
         mMainBar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mMainBar);
-        mCurrentMonth = YearMonth.now();
+
+        mViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication())).get(MainActivityViewModel.class);
+        mViewModel.getPublicMonthFilter().observe(this, new Observer<YearMonth>() {
+            @Override
+            public void onChanged(@Nullable final YearMonth month) {
+                updateMonth(month);
+            }
+        });
 
         mSecondaryBar = (Toolbar) findViewById(R.id.toolbar2);
         mFAB = (FloatingActionButton) findViewById(R.id.main_floating_action_button);
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        BaseMainNavigationFragment currentFragment = (BaseMainNavigationFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
-        if (currentFragment == null) return;
-
-        if (currentFragment.getMonth() == null) {
-            updateMonth(YearMonth.now());
-        } else {
-            updateMonth(currentFragment.getMonth());
-        }
     }
 
     @Override
@@ -114,7 +111,7 @@ public class MainActivity extends AppCompatActivity
 
         switch (newIndex) {
             case ACCOUNTS_FRAGMENT_INDEX:
-                fragment = AccountsFragment.newInstance(1, newIndex, mCurrentMonth);
+                fragment = AccountsFragment.newInstance(1, newIndex, mViewModel.getMonth());
                 break;
             default:
                 return true;
@@ -140,20 +137,18 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void onPreviousMonthClick(View v) {
-        updateMonth(mCurrentMonth.minusMonths(1));
+        mViewModel.setMonth(mViewModel.getMonth().minusMonths(1));
     }
 
     public void onNextMonthClick(View v) {
-        updateMonth(mCurrentMonth.plusMonths(1));
+        mViewModel.setMonth(mViewModel.getMonth().plusMonths(1));
     }
 
     public void onCalendarClick(View v) {
-        updateMonth(null);
+        mViewModel.setMonth(null);
     }
 
     private void updateMonth(YearMonth month) {
-        if (month == null) return;
-
         TextView monthTextView = (TextView) findViewById(R.id.month_name_view);
         ImageButton nextMonthBtn = (ImageButton) findViewById(R.id.next_month_btn);
         String formatterPattern;
@@ -180,22 +175,14 @@ public class MainActivity extends AppCompatActivity
         }
 
         monthTextView.setText(monthString);
-        mCurrentMonth = month;
-
-        BaseMainNavigationFragment currentFragment = (BaseMainNavigationFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
-        if (currentFragment == null) return;
-
-        try {
-            if (!mCurrentMonth.equals(currentFragment.getMonth())) {
-                currentFragment.onMonthChanged(mCurrentMonth);
-            }
-        } catch (NullPointerException npe) {
-            Log.e("MAIN ACTIVITY", "updateMonth: fragment view not yet created", npe);
-        }
     }
 
     public void onFragmentChanged(int index) {
         mCurrentFragmentIndex = index;
+    }
+
+    public LiveData<YearMonth> getMonthFilter() {
+        return mViewModel.getPublicMonthFilter();
     }
 
     public void tintAppbars(int mainColor, boolean showSecondaryToolbar) {
