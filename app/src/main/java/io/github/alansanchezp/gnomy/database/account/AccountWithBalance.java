@@ -9,6 +9,8 @@ public class AccountWithBalance {
     @Embedded
     public Account account;
 
+    // TODO: Find a better naming for these 2 fields
+    // queries on DAO are confusing because of these names
     @ColumnInfo(name="accumulated")
     public BigDecimal accumulatedBalance;
     @ColumnInfo(name="projected")

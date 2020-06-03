@@ -260,13 +260,16 @@ public class AccountsFragment extends BaseMainNavigationFragment
                 if (mCurrentMonth == null) return;
                 mAdapter.setValues(accounts, mCurrentMonth);
                 BigDecimal balance = new BigDecimal("0");
-                BigDecimal projected = new BigDecimal("0");
+                BigDecimal projected = null;
 
                 // TODO: Handle conversion to global currency
                 // This loop is here just so we can display something
                 for (AccountWithBalance mb : accounts) {
+                    if (mb.projectedBalance != null) {
+                        if (projected == null) projected = new BigDecimal("0");
+                        projected = projected.add(mb.projectedBalance);
+                    }
                     balance = balance.add(mb.accumulatedBalance);
-                    projected = projected.add(mb.projectedBalance);
                 }
 
                 try {

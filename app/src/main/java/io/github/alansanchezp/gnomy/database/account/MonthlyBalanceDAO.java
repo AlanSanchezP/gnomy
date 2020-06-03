@@ -39,12 +39,12 @@ public abstract class MonthlyBalanceDAO {
     @Query("SELECT accounts.*,  " +
                 "(accounts.initial_value + " +
                     "_monthly_balances.balance) " +
-                    "as accumulated, " +
+                    "as projected, " +
                 "(accounts.initial_value + " +
                     "latest.balance) " +
-                    "as projected " +
+                    "as accumulated " +
             "FROM accounts " +
-            "JOIN " +
+            "LEFT OUTER JOIN " +
                 "(SELECT monthly_balances.account_id, " +
                     "sum(monthly_balances.total_incomes - monthly_balances.total_expenses) as balance " +
                     "FROM monthly_balances " +

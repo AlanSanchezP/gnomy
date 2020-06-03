@@ -34,6 +34,11 @@ public class CurrencyUtil {
     }
 
     public static String format(BigDecimal number, String currencyCode) throws GnomyCurrencyException {
+        if (number == null) {
+            // TODO: Evaluate if '---' should be replaced by something else
+            return "---";
+        }
+
         Currency currency = getCurrency(currencyCode);
         NumberFormat formatter = NumberFormat.getCurrencyInstance(Locale.getDefault());
 
