@@ -23,7 +23,7 @@
     <!--  Shared strings  -->
     <string name="prev_month">See previous month</string>
     <string name="next_month">See next month</string>
-    <string name="select_month">Select month</string>
+    <string name="return_to_current_month">Return to current month</string>
     <string name="name">Name</string>
     <string name="color_picker">Color picker</string>
     <string name="form_error">Your data has some errors.</string>

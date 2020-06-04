@@ -144,13 +144,18 @@ public class MainActivity extends AppCompatActivity
         mViewModel.setMonth(mViewModel.getMonth().plusMonths(1));
     }
 
-    public void onCalendarClick(View v) {
+    public void onMonthPickerClick(View v) {
         mViewModel.setMonth(null);
+    }
+
+    public void onReturnToCurrentMonthClick(View v) {
+        mViewModel.setMonth(YearMonth.now());
     }
 
     private void updateMonth(YearMonth month) {
         TextView monthTextView = (TextView) findViewById(R.id.month_name_view);
         ImageButton nextMonthBtn = (ImageButton) findViewById(R.id.next_month_btn);
+        ImageButton calendarBtn =  (ImageButton) findViewById(R.id.select_total_month);
         String formatterPattern;
         String monthString;
 
@@ -170,8 +175,10 @@ public class MainActivity extends AppCompatActivity
            TODO: Handle projected balances for future months (as there is no MonthlyBalance instance for those) */
         if (month.equals(YearMonth.now())) {
             nextMonthBtn.setVisibility(View.INVISIBLE);
+            calendarBtn.setVisibility(View.GONE);
         } else {
             nextMonthBtn.setVisibility(View.VISIBLE);
+            calendarBtn.setVisibility(View.VISIBLE);
         }
 
         monthTextView.setText(monthString);
@@ -195,7 +202,12 @@ public class MainActivity extends AppCompatActivity
         mMainBar.setTitleTextColor(textColor);
         mMainBar.getOverflowIcon().setTint(textColor);
 
-        mSecondaryBar.setBackgroundColor(mainColor);
+        mSecondaryBar.setVisibility(View.GONE);
+
+        if (showSecondaryToolbar) {
+            mSecondaryBar.setVisibility(View.VISIBLE);
+            mSecondaryBar.setBackgroundColor(mainColor);
+        }
 
         mFAB.setBackgroundTintList(ColorStateList.valueOf(darkVariant));
         mFAB.getDrawable().mutate().setTint(textColor);
