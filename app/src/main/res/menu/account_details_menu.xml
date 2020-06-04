@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
+
+    <item
+        android:id="@+id/action_account_actions"
+        android:icon="@drawable/ic_add_black_24dp"
+        android:title="@string/account_details_actions"
+        app:showAsAction="always" >
+
+        <menu>
+            <item
+                android:id="@+id/action_new_expense"
+                android:title="@string/action_new_expense"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_new_income"
+                android:title="@string/action_new_income"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_new_incoming_transfer"
+                android:title="@string/action_new_incoming_transfer"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/action_new_outgoing_transfer"
+                android:title="@string/action_new_outgoing_transfer"
+                app:showAsAction="never" />
+        </menu>
+    </item>
+
+</menu>
