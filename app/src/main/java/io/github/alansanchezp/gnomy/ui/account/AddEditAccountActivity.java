@@ -192,10 +192,12 @@ public class AddEditAccountActivity extends AppCompatActivity {
         ColorStateList nameCSL = getStrokeColorStateList(mTextColor);
         ColorStateList textCSL = ColorStateList.valueOf(mTextColor);
         ColorStateList bgCSL = ColorStateList.valueOf(mBgColor);
+        int fabBgColor = ColorUtil.getVariantByFactor(mBgColor, 0.86f);
+        int fabTextColor = ColorUtil.getTextColor(fabBgColor);
 
         container.setBackgroundColor(mBgColor);
-        fab.setBackgroundTintList(bgCSL);
-        fab.getDrawable().mutate().setTint(mTextColor);
+        fab.setBackgroundTintList(ColorStateList.valueOf(fabBgColor));
+        fab.getDrawable().mutate().setTint(fabTextColor);
         fab.setRippleColor(mTextColor);
 
         nameTIL.setBoxStrokeColorStateList(nameCSL);
