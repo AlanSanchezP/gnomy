@@ -4,6 +4,8 @@ import android.content.res.ColorStateList;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 
+import com.github.dewinjm.monthyearpicker.MonthYearPickerDialog;
+import com.github.dewinjm.monthyearpicker.MonthYearPickerDialogFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
@@ -23,6 +25,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.threeten.bp.YearMonth;
 import org.threeten.bp.format.DateTimeFormatter;
+
+import java.util.Calendar;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -145,7 +149,32 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void onMonthPickerClick(View v) {
-        mViewModel.setMonth(null);
+        // TODO: Implement (when possible) a better looking calendar
+        // Current limitation is that open source libraries
+        // implementing material design do not support
+        // a range limit, causing conflicts with
+        // gnomy's inability to handle future balances
+        Calendar calendar = Calendar.getInstance();
+        int yearSelected = mViewModel.getMonth().getYear();
+        int monthSelected = mViewModel.getMonth().getMonthValue();
+
+        // Month representation here ranges from 0 to 11,
+        // thus requiring +1 and -1 operations
+        calendar.clear();
+        calendar.set(YearMonth.now().getYear(), YearMonth.now().getMonthValue()-1, 1);
+        long maxDate = calendar.getTimeInMillis();
+
+        MonthYearPickerDialogFragment dialogFragment = MonthYearPickerDialogFragment
+                .getInstance(monthSelected-1, yearSelected, 0, maxDate);
+
+        dialogFragment.setOnDateSetListener(new MonthYearPickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(int year, int monthOfYear) {
+                mViewModel.setMonth(YearMonth.of(year, monthOfYear+1));
+            }
+        });
+
+        dialogFragment.show(getSupportFragmentManager(), null);
     }
 
     public void onReturnToCurrentMonthClick(View v) {
