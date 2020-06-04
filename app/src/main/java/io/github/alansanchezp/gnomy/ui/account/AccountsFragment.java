@@ -184,11 +184,18 @@ public class AccountsFragment extends BaseMainNavigationFragment
 
     /* INTERFACE METHODS */
 
-    public void onItemInteraction(Account account) { }
+    public void onItemInteraction(Account account) {
+        Intent detailsIntent = new Intent(getContext(), AccountDetailsActivity.class);
+        detailsIntent.putExtra(AccountDetailsActivity.EXTRA_ID, account.getId());
+        detailsIntent.putExtra(AccountDetailsActivity.EXTRA_BGCOLOR, account.getBackgroundColor());
+
+        getActivity().startActivity(detailsIntent);
+    }
 
     public boolean onItemMenuItemInteraction(final Account account, MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case R.id.account_card_details:
+                onItemInteraction(account);
                 break;
             case R.id.account_card_modify:
                 Intent modifyAccountIntent = new Intent(getContext(), AddEditAccountActivity.class);
