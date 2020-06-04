@@ -35,7 +35,7 @@ import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
 import io.github.alansanchezp.gnomy.ui.BaseMainNavigationFragment;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
-import io.github.alansanchezp.gnomy.viewmodel.AccountViewModel;
+import io.github.alansanchezp.gnomy.viewmodel.AccountsListViewModel;
 
 
 /**
@@ -48,7 +48,7 @@ public class AccountsFragment extends BaseMainNavigationFragment
 
     private RecyclerView mRecyclerView;
     private AccountRecyclerViewAdapter mAdapter;
-    private AccountViewModel mAccountViewModel;
+    private AccountsListViewModel mListViewModel;
     private LiveData<List<AccountWithBalance>> mAccountBalances;
     private TextView mBalance, mProjected;
 
@@ -84,7 +84,7 @@ public class AccountsFragment extends BaseMainNavigationFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAccountViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getActivity().getApplication())).get(AccountViewModel.class);
+        mListViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getActivity().getApplication())).get(AccountsListViewModel.class);
     }
 
     @Override
@@ -111,11 +111,11 @@ public class AccountsFragment extends BaseMainNavigationFragment
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (mAccountViewModel.shouldInitMonthFilter()) {
-            mAccountViewModel.initMonthFilter(mNavigationInterface.getMonthFilter());
+        if (mListViewModel.shouldInitMonthFilter()) {
+            mListViewModel.initMonthFilter(mNavigationInterface.getMonthFilter());
         }
         if (mAccountBalances == null) {
-        mAccountBalances = mAccountViewModel.getBalances();
+        mAccountBalances = mListViewModel.getBalances();
         }
         setObservers();
     }
@@ -291,10 +291,10 @@ public class AccountsFragment extends BaseMainNavigationFragment
     }
 
     public void archiveAccount(Account account) {
-        mAccountViewModel.archive(account);
+        mListViewModel.archive(account);
     }
 
     public void deleteAccount(Account account) {
-        mAccountViewModel.delete(account);
+        mListViewModel.delete(account);
     }
 }

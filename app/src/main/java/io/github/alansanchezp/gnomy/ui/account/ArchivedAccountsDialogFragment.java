@@ -24,7 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.viewmodel.AccountViewModel;
+import io.github.alansanchezp.gnomy.viewmodel.AccountsListViewModel;
 
 public class ArchivedAccountsDialogFragment extends DialogFragment
         implements ArchivedAccountsRecyclerViewAdapter.OnArchivedItemInteractionListener {
@@ -33,7 +33,7 @@ public class ArchivedAccountsDialogFragment extends DialogFragment
     private RecyclerView mRecyclerView;
     private ArchivedAccountsRecyclerViewAdapter mAdapter;
     private LiveData<List<Account>> mAccounts;
-    private AccountViewModel mAccountViewModel;
+    private AccountsListViewModel mListViewModel;
     private Button mRestoreAllButton;
     private TextView mEmptyListText;
     private int mListSize = -1;
@@ -52,8 +52,8 @@ public class ArchivedAccountsDialogFragment extends DialogFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAccountViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getActivity().getApplication())).get(AccountViewModel.class);
-        mAccounts = mAccountViewModel.getArchivedAccounts();
+        mListViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getActivity().getApplication())).get(AccountsListViewModel.class);
+        mAccounts = mListViewModel.getArchivedAccounts();
 
         setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Material_Light_Dialog);
     }
@@ -79,7 +79,7 @@ public class ArchivedAccountsDialogFragment extends DialogFragment
         mRestoreAllButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mAccountViewModel.restoreAll();
+                mListViewModel.restoreAll();
                 dismiss();
             }
         });
@@ -129,7 +129,7 @@ public class ArchivedAccountsDialogFragment extends DialogFragment
     }
 
     public void restoreAccount(Account account) {
-        mAccountViewModel.restore(account);
+        mListViewModel.restore(account);
     }
 
     public void deleteAccount(final Account account) {
@@ -140,7 +140,7 @@ public class ArchivedAccountsDialogFragment extends DialogFragment
                 {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mAccountViewModel.delete(account);
+                        mListViewModel.delete(account);
                     }
                 })
                 .setNegativeButton(getString(R.string.confirmation_dialog_no), null)
