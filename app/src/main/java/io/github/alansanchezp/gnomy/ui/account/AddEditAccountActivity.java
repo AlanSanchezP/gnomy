@@ -39,6 +39,16 @@ import com.thebluealliance.spectrum.SpectrumDialog;
 import java.util.Arrays;
 
 public class AddEditAccountActivity extends AppCompatActivity {
+    static final String EXTRA_ID = "account_id";
+    static final String EXTRA_BG_COLOR = "account_bg_color";
+    static final String EXTRA_NAME = "account_name";
+    static final String EXTRA_INITIAL_VALUE = "account_initial_value";
+    static final String EXTRA_INCLUDED_IN_SUM = "account_included_in_sum";
+    static final String EXTRA_CURRENCY = "account_currency";
+    static final String EXTRA_TYPE = "account_type";
+    static final String SAVED_NAME_PRISTINE = "name_is_pristine";
+    static final String SAVED_INITIAL_VALUE_PRISTINE = "initial_value_is_pristine";
+    static final String TAG_PICKER_DIALOG = "color_picker_dialog";
     protected int mBgColor;
     protected int mTextColor;
     protected boolean mNameInputIsPristine = true;
@@ -62,15 +72,15 @@ public class AddEditAccountActivity extends AppCompatActivity {
         TextInputLayout valueTIL = (TextInputLayout) findViewById(R.id.new_account_initial_value);
 
         Intent intent = getIntent();
-        mAccountId = intent.getIntExtra("accountId", 0);
+        mAccountId = intent.getIntExtra(EXTRA_ID, 0);
 
         if (mAccountId != 0) {
             mActivityTitle = getString(R.string.account_card_modify);
-            mBgColor = intent.getIntExtra("accountBgColor", 0);
-            nameTIL.getEditText().setText(intent.getStringExtra("accountName"));
-            valueTIL.getEditText().setText(intent.getStringExtra("accountInitialValue"));
+            mBgColor = intent.getIntExtra(EXTRA_BG_COLOR, 0);
+            nameTIL.getEditText().setText(intent.getStringExtra(EXTRA_NAME));
+            valueTIL.getEditText().setText(intent.getStringExtra(EXTRA_INITIAL_VALUE));
             Switch includeInSwitch = (Switch) findViewById(R.id.new_account_show_in_home);
-            includeInSwitch.setChecked(intent.getBooleanExtra("accountIncludedInSum", false));
+            includeInSwitch.setChecked(intent.getBooleanExtra(EXTRA_INCLUDED_IN_SUM, false));
         } else {
             mActivityTitle = getString(R.string.account_new);
             mBgColor = ColorUtil.getRandomColor();
@@ -87,8 +97,8 @@ public class AddEditAccountActivity extends AppCompatActivity {
         mFAB = (FloatingActionButton) findViewById(R.id.new_account_ok);
 
         setColors();
-        setLists(intent.getStringExtra("accountCurrency"),
-                intent.getIntExtra("accountType", 0));
+        setLists(intent.getStringExtra(EXTRA_CURRENCY),
+                intent.getIntExtra(EXTRA_TYPE, 0));
         setFilters();
 
         nameTIL.getEditText().addTextChangedListener(new TextWatcher() {
@@ -126,17 +136,17 @@ public class AddEditAccountActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        savedInstanceState.putInt("bgcolor", mBgColor);
-        savedInstanceState.putBoolean("nameIsPristine", mNameInputIsPristine);
-        savedInstanceState.putBoolean("valueIsPristine", mValueInputIsPristine);
+        savedInstanceState.putInt(EXTRA_BG_COLOR, mBgColor);
+        savedInstanceState.putBoolean(SAVED_NAME_PRISTINE, mNameInputIsPristine);
+        savedInstanceState.putBoolean(SAVED_INITIAL_VALUE_PRISTINE, mValueInputIsPristine);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        boolean nameIsPristine = savedInstanceState.getBoolean("nameIsPristine");
-        boolean valueIsPristine = savedInstanceState.getBoolean("valueIsPristine");
-        mBgColor = savedInstanceState.getInt("bgcolor");
+        boolean nameIsPristine = savedInstanceState.getBoolean(SAVED_NAME_PRISTINE);
+        boolean valueIsPristine = savedInstanceState.getBoolean(SAVED_INITIAL_VALUE_PRISTINE);
+        mBgColor = savedInstanceState.getInt(EXTRA_BG_COLOR);
 
         if (nameIsPristine) {
             mNameInputIsPristine = true;
@@ -237,7 +247,6 @@ public class AddEditAccountActivity extends AppCompatActivity {
 
             currencySpinner.setItems(currencies);
             if (currencyCode != null) {
-                Log.d("ACCOUNT ACT", "setLists: currency " + currencyCode);
                 currencySpinner.setSelectedIndex(
                         Arrays.asList(CurrencyUtil.getCurrencies()).indexOf(currencyCode)
                 );
@@ -306,7 +315,7 @@ public class AddEditAccountActivity extends AppCompatActivity {
                             setColors();
                         }
                     }
-                }).build().show(getSupportFragmentManager(),"dialog");
+                }).build().show(getSupportFragmentManager(), TAG_PICKER_DIALOG);
     }
 
     public void processData(View v) {

@@ -25,7 +25,7 @@ import io.github.alansanchezp.gnomy.viewmodel.AccountViewModel;
 
 public class AccountDetailsActivity extends AppCompatActivity {
     static final String EXTRA_ID = "account_id";
-    static final String EXTRA_BGCOLOR = "bg_color";
+    static final String EXTRA_BG_COLOR = "bg_color";
     protected int mBgColor;
     protected int mTextColor;
     protected Toolbar mToolbar;
@@ -52,7 +52,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         mAccountId = intent.getIntExtra(EXTRA_ID, 0);
-        mBgColor = intent.getIntExtra(EXTRA_BGCOLOR, 0XFF);
+        mBgColor = intent.getIntExtra(EXTRA_BG_COLOR, 0XFF);
         mTextColor = ColorUtil.getTextColor(mBgColor);
 
         mNameTV = (TextView) findViewById(R.id.account_name);
@@ -117,13 +117,13 @@ public class AccountDetailsActivity extends AppCompatActivity {
         Account account = mAccount.getValue();
 
         Intent modifyAccountIntent = new Intent(this, AddEditAccountActivity.class);
-        modifyAccountIntent.putExtra("accountId", account.getId());
-        modifyAccountIntent.putExtra("accountBgColor", account.getBackgroundColor());
-        modifyAccountIntent.putExtra("accountName", account.getName());
-        modifyAccountIntent.putExtra("accountInitialValue", account.getInitialValue().toPlainString());
-        modifyAccountIntent.putExtra("accountIncludedInSum", account.isShowInDashboard());
-        modifyAccountIntent.putExtra("accountCurrency", account.getDefaultCurrency());
-        modifyAccountIntent.putExtra("accountType", account.getType());
+        modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_ID, account.getId());
+        modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_BG_COLOR, account.getBackgroundColor());
+        modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_NAME, account.getName());
+        modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_INITIAL_VALUE, account.getInitialValue().toPlainString());
+        modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_INCLUDED_IN_SUM, account.isShowInDashboard());
+        modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_CURRENCY, account.getDefaultCurrency());
+        modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_TYPE, account.getType());
 
         startActivity(modifyAccountIntent);
     }

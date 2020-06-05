@@ -193,7 +193,7 @@ public class AccountsFragment extends BaseMainNavigationFragment
     public void onItemInteraction(Account account) {
         Intent detailsIntent = new Intent(getContext(), AccountDetailsActivity.class);
         detailsIntent.putExtra(AccountDetailsActivity.EXTRA_ID, account.getId());
-        detailsIntent.putExtra(AccountDetailsActivity.EXTRA_BGCOLOR, account.getBackgroundColor());
+        detailsIntent.putExtra(AccountDetailsActivity.EXTRA_BG_COLOR, account.getBackgroundColor());
 
         getActivity().startActivity(detailsIntent);
     }
@@ -205,13 +205,13 @@ public class AccountsFragment extends BaseMainNavigationFragment
                 break;
             case R.id.account_card_modify:
                 Intent modifyAccountIntent = new Intent(getContext(), AddEditAccountActivity.class);
-                modifyAccountIntent.putExtra("accountId", account.getId());
-                modifyAccountIntent.putExtra("accountBgColor", account.getBackgroundColor());
-                modifyAccountIntent.putExtra("accountName", account.getName());
-                modifyAccountIntent.putExtra("accountInitialValue", account.getInitialValue().toPlainString());
-                modifyAccountIntent.putExtra("accountIncludedInSum", account.isShowInDashboard());
-                modifyAccountIntent.putExtra("accountCurrency", account.getDefaultCurrency());
-                modifyAccountIntent.putExtra("accountType", account.getType());
+                modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_ID, account.getId());
+                modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_BG_COLOR, account.getBackgroundColor());
+                modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_NAME, account.getName());
+                modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_INITIAL_VALUE, account.getInitialValue().toPlainString());
+                modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_INCLUDED_IN_SUM, account.isShowInDashboard());
+                modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_CURRENCY, account.getDefaultCurrency());
+                modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_TYPE, account.getType());
 
                 getActivity().startActivity(modifyAccountIntent);
                 break;
