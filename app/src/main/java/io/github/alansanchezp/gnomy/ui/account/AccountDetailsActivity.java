@@ -1,15 +1,27 @@
 package io.github.alansanchezp.gnomy.ui.account;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.R;
+import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
+import io.github.alansanchezp.gnomy.viewmodel.AccountViewModel;
 
 public class AccountDetailsActivity extends AppCompatActivity {
     static final String EXTRA_ID = "account_id";
@@ -18,7 +30,12 @@ public class AccountDetailsActivity extends AppCompatActivity {
     protected int mTextColor;
     protected Toolbar mToolbar;
     protected Drawable mUpArrow;
-    protected String mActivityTitle;
+    protected AccountViewModel mAccountViewModel;
+    protected LiveData<Account> mAccount;
+    private TextView mNameTV;
+    private Menu mMenu;
+    FloatingActionButton mFAB;
+    protected Button mSeeMoreBtn;
     protected int mAccountId;
 
     @Override
@@ -27,6 +44,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_account_details);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar.setTitle(getString(R.string.account_details));
         setSupportActionBar(mToolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -37,16 +55,49 @@ public class AccountDetailsActivity extends AppCompatActivity {
         mBgColor = intent.getIntExtra(EXTRA_BGCOLOR, 0XFF);
         mTextColor = ColorUtil.getTextColor(mBgColor);
 
+        mNameTV = (TextView) findViewById(R.id.account_name);
+
+        mSeeMoreBtn = (Button) findViewById(R.id.account_see_more_button);
+        mSeeMoreBtn.setEnabled(false);
+
+        mFAB = (FloatingActionButton) findViewById(R.id.account_floating_action_button);
+        mFAB.setEnabled(false);
+
         setColors();
+
+        mAccountViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication())).get(AccountViewModel.class);
+        mAccount = mAccountViewModel.getAccount(mAccountId);
+        mAccount.observe(this, new Observer<Account>() {
+            @Override
+            public void onChanged(Account account) {
+                if (account.getBackgroundColor() != mBgColor) {
+                    mBgColor = account.getBackgroundColor();
+                    mTextColor = ColorUtil.getTextColor(mBgColor);
+                    setColors();
+                }
+                mFAB.setEnabled(true);
+                mSeeMoreBtn.setEnabled(true);
+                updateInfo(account);
+            }
+        });
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.account_details_menu, menu);
+        mMenu = menu;
+
         menu.findItem(R.id.action_account_actions)
                 .getIcon()
                 .setTint(mTextColor);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mFAB.setEnabled(true);
+        mSeeMoreBtn.setEnabled(true);
     }
 
     @Override
@@ -60,6 +111,27 @@ public class AccountDetailsActivity extends AppCompatActivity {
         finish();
     }
 
+    public void onFABClick(View v) {
+        mFAB.setEnabled(false);
+        mFAB.setElevation(6f);
+        Account account = mAccount.getValue();
+
+        Intent modifyAccountIntent = new Intent(this, AddEditAccountActivity.class);
+        modifyAccountIntent.putExtra("accountId", account.getId());
+        modifyAccountIntent.putExtra("accountBgColor", account.getBackgroundColor());
+        modifyAccountIntent.putExtra("accountName", account.getName());
+        modifyAccountIntent.putExtra("accountInitialValue", account.getInitialValue().toPlainString());
+        modifyAccountIntent.putExtra("accountIncludedInSum", account.isShowInDashboard());
+        modifyAccountIntent.putExtra("accountCurrency", account.getDefaultCurrency());
+        modifyAccountIntent.putExtra("accountType", account.getType());
+
+        startActivity(modifyAccountIntent);
+    }
+
+    private void updateInfo(Account account) {
+        mNameTV.setText(account.getName());
+    }
+
     private void setColors() {
         mToolbar.setBackgroundColor(mBgColor);
         mToolbar.setTitleTextColor(mTextColor);
@@ -68,7 +140,28 @@ public class AccountDetailsActivity extends AppCompatActivity {
         getSupportActionBar().setHomeAsUpIndicator(mUpArrow);
         getWindow().setStatusBarColor(ColorUtil.getDarkVariant(mBgColor));
 
+        if (mMenu != null) {
+            mMenu.findItem(R.id.action_account_actions)
+                    .getIcon()
+                    .setTint(mTextColor);
+        }
+
         LinearLayout container = (LinearLayout) findViewById(R.id.account_details_container);
         container.setBackgroundColor(mBgColor);
+
+        mNameTV.setTextColor(mTextColor);
+
+        int fabBgColor = ColorUtil.getVariantByFactor(mBgColor, 0.86f);
+        int fabTextColor = ColorUtil.getTextColor(fabBgColor);
+
+        mFAB.setBackgroundTintList(ColorStateList.valueOf(fabBgColor));
+        mFAB.getDrawable().mutate().setTint(fabTextColor);
+        mFAB.setRippleColor(mTextColor);
+
+        TextView balanceHistoryTV = (TextView) findViewById(R.id.account_balance_history_title);
+        balanceHistoryTV.setTextColor(mTextColor);
+
+        mSeeMoreBtn.setBackgroundColor(mBgColor);
+        mSeeMoreBtn.setTextColor(mTextColor);
     }
 }
