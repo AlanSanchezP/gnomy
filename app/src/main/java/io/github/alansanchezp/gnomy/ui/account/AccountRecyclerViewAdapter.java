@@ -36,6 +36,7 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
     private List<AccountWithBalance> mValues;
     private YearMonth mMonth;
     private final OnListItemInteractionListener mListener;
+    private boolean mAllowClicks = true;
 
     public AccountRecyclerViewAdapter(OnListItemInteractionListener listener) {
         mListener = listener;
@@ -45,6 +46,14 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
         mValues = accounts;
         mMonth = month;
         notifyDataSetChanged();
+    }
+
+    public void enableClicks() {
+        mAllowClicks = true;
+    }
+
+    public void disableClicks() {
+        mAllowClicks = false;
     }
 
     @Override
@@ -143,14 +152,21 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
             mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mListener.onItemInteraction(mItem.account);
+                    if (mAllowClicks) {
+                        disableClicks();
+                        mListener.onItemInteraction(mItem.account);
+                    }
                 }
             });
 
             popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
-                    return mListener.onItemMenuItemInteraction(mItem.account, item);
+                    if (mAllowClicks) {
+                        disableClicks();
+                        return mListener.onItemMenuItemInteraction(mItem.account, item);
+                    }
+                    return false;
                 }
             });
             mButton.setOnClickListener(new View.OnClickListener() {

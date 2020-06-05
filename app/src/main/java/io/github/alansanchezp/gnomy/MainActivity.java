@@ -97,6 +97,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        mFAB.setEnabled(true);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_activity_toolbar, menu);
         return super.onCreateOptionsMenu(menu);
@@ -138,6 +144,7 @@ public class MainActivity extends AppCompatActivity
         if (currentFragment == null) return;
 
         currentFragment.onFABClick(v);
+        mFAB.setEnabled(false);
     }
 
     public void onPreviousMonthClick(View v) {

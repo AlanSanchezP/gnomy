@@ -47,6 +47,7 @@ public class AddEditAccountActivity extends AppCompatActivity {
     protected Drawable mUpArrow;
     protected String mActivityTitle;
     protected AccountViewModel mAccountViewModel;
+    protected FloatingActionButton mFAB;
     // Only used for edit purposes
     protected int mAccountId;
 
@@ -82,6 +83,8 @@ public class AddEditAccountActivity extends AppCompatActivity {
 
         getSupportActionBar().setHomeAsUpIndicator(mUpArrow);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        mFAB = (FloatingActionButton) findViewById(R.id.new_account_ok);
 
         setColors();
         setLists(intent.getStringExtra("accountCurrency"),
@@ -157,6 +160,7 @@ public class AddEditAccountActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        mFAB.setEnabled(false);
         new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.confirmation_dialog_title))
                 .setMessage(getString(R.string.confirmation_dialog_description))
@@ -167,7 +171,13 @@ public class AddEditAccountActivity extends AppCompatActivity {
                         finish();
                     }
                 })
-                .setNegativeButton(getString(R.string.confirmation_dialog_no), null)
+                .setNegativeButton(getString(R.string.confirmation_dialog_no),  new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mFAB.setEnabled(true);
+                    }
+                })
                 .show();
     }
 
@@ -180,7 +190,6 @@ public class AddEditAccountActivity extends AppCompatActivity {
         getSupportActionBar().setHomeAsUpIndicator(mUpArrow);
         getWindow().setStatusBarColor(ColorUtil.getDarkVariant(mBgColor));
         LinearLayout container = (LinearLayout) findViewById(R.id.new_account_container);
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.new_account_ok);
         TextInputLayout nameTIL = (TextInputLayout) findViewById(R.id.new_account_name);
         TextInputEditText nameTIET = (TextInputEditText) findViewById(R.id.new_account_name_input);
         TextInputLayout valueTIL = (TextInputLayout) findViewById(R.id.new_account_initial_value);
@@ -196,9 +205,9 @@ public class AddEditAccountActivity extends AppCompatActivity {
         int fabTextColor = ColorUtil.getTextColor(fabBgColor);
 
         container.setBackgroundColor(mBgColor);
-        fab.setBackgroundTintList(ColorStateList.valueOf(fabBgColor));
-        fab.getDrawable().mutate().setTint(fabTextColor);
-        fab.setRippleColor(mTextColor);
+        mFAB.setBackgroundTintList(ColorStateList.valueOf(fabBgColor));
+        mFAB.getDrawable().mutate().setTint(fabTextColor);
+        mFAB.setRippleColor(mTextColor);
 
         nameTIL.setBoxStrokeColorStateList(nameCSL);
         nameTIL.setDefaultHintTextColor(textCSL);
@@ -374,6 +383,7 @@ public class AddEditAccountActivity extends AppCompatActivity {
             account.setDefaultCurrency(currencyCode);
             account.setBackgroundColor(mBgColor);
 
+            mFAB.setEnabled(false);
             if (mAccountId == 0) {
                 mAccountViewModel.insert(account);
                 toastMessage = getResources().getString(R.string.account_message_saved);

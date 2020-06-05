@@ -120,6 +120,11 @@ public class AccountsFragment extends BaseMainNavigationFragment
         setObservers();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        mAdapter.enableClicks();
+    }
 
     /* ANDROID EVENT LISTENERS */
 
@@ -168,6 +173,7 @@ public class AccountsFragment extends BaseMainNavigationFragment
     public void onFABClick(View v) {
         Intent newAccountIntent = new Intent(getActivity(), AddEditAccountActivity.class);
         getActivity().startActivity(newAccountIntent);
+        mAdapter.disableClicks();
     }
 
     public void onMonthChanged(YearMonth month) {
