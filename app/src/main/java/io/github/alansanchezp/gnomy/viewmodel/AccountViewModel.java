@@ -25,4 +25,8 @@ public class AccountViewModel extends AndroidViewModel {
     public void update(Account account) {
         mRepository.update(account);
     }
+
+    public void archive(Account account) {
+        mRepository.archive(account);
+    }
 }

@@ -1,18 +1,23 @@
 package io.github.alansanchezp.gnomy.ui.account;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.LiveData;
@@ -77,6 +82,12 @@ public class AccountDetailsActivity extends AppCompatActivity {
                 }
                 mFAB.setEnabled(true);
                 mSeeMoreBtn.setEnabled(true);
+                if (mMenu != null) {
+                    mMenu.findItem(R.id.action_account_actions)
+                            .setEnabled(true);
+                    mMenu.findItem(R.id.action_archive_account)
+                            .setEnabled(true);
+                }
                 updateInfo(account);
             }
         });
@@ -87,10 +98,57 @@ public class AccountDetailsActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.account_details_menu, menu);
         mMenu = menu;
 
+        menu.findItem(R.id.action_archive_account)
+                .getIcon()
+                .setTint(mTextColor);
         menu.findItem(R.id.action_account_actions)
                 .getIcon()
                 .setTint(mTextColor);
+
+        if (mAccount.getValue() == null) {
+            menu.findItem(R.id.action_account_actions)
+                    .setEnabled(false);
+            menu.findItem(R.id.action_archive_account)
+                    .setEnabled(false);
+        }
+
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_archive_account:
+                item.setEnabled(false);
+                mFAB.setEnabled(false);
+                mFAB.setElevation(6f);
+                new AlertDialog.Builder(this)
+                        .setTitle(getString(R.string.account_card_archive))
+                        .setMessage(getString(R.string.account_card_archive_info))
+                        .setPositiveButton(getString(R.string.confirmation_dialog_yes), new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mAccountViewModel.archive(mAccount.getValue());
+                                Toast.makeText(AccountDetailsActivity.this, getString(R.string.account_message_archived), Toast.LENGTH_LONG).show();
+                                finish();
+                            }
+                        })
+                        .setNegativeButton(getString(R.string.confirmation_dialog_no), null)
+                        .setOnDismissListener(new DialogInterface.OnDismissListener()
+                        {
+                            @Override
+                            public void onDismiss(DialogInterface dialog) {
+                                item.setEnabled(true);
+                                mFAB.setEnabled(true);
+                            }
+                        })
+                        .show();
+                break;
+            default:
+                return false;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -142,6 +200,9 @@ public class AccountDetailsActivity extends AppCompatActivity {
 
         if (mMenu != null) {
             mMenu.findItem(R.id.action_account_actions)
+                    .getIcon()
+                    .setTint(mTextColor);
+            mMenu.findItem(R.id.action_archive_account)
                     .getIcon()
                     .setTint(mTextColor);
         }

@@ -4,10 +4,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto" >
 
     <item
+        android:id="@+id/action_archive_account"
+        android:icon="@drawable/ic_archive_black_24dp"
+        android:title="@string/account_card_archive"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_account_actions"
         android:icon="@drawable/ic_add_black_24dp"
         android:title="@string/account_details_actions"
-        app:showAsAction="always" >
+        app:showAsAction="ifRoom" >
 
         <menu>
             <item
