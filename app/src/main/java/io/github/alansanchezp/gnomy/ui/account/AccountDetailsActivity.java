@@ -6,10 +6,12 @@ import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,7 +28,16 @@ import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
+import io.github.alansanchezp.gnomy.util.CurrencyUtil;
+import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.viewmodel.AccountViewModel;
+
+import static io.github.alansanchezp.gnomy.database.account.Account.BANK;
+import static io.github.alansanchezp.gnomy.database.account.Account.CREDIT_CARD;
+import static io.github.alansanchezp.gnomy.database.account.Account.INFORMAL;
+import static io.github.alansanchezp.gnomy.database.account.Account.INVERSIONS;
+import static io.github.alansanchezp.gnomy.database.account.Account.OTHER;
+import static io.github.alansanchezp.gnomy.database.account.Account.SAVINGS;
 
 public class AccountDetailsActivity extends AppCompatActivity {
     static final String EXTRA_ID = "account_id";
@@ -188,6 +199,64 @@ public class AccountDetailsActivity extends AppCompatActivity {
 
     private void updateInfo(Account account) {
         mNameTV.setText(account.getName());
+
+        TextView initialValueTV = (TextView) findViewById(R.id.account_initial_value);
+        ImageView typeImage = (ImageView) findViewById(R.id.account_type_icon);
+        TextView typeTV = (TextView) findViewById(R.id.account_type);
+        ImageView includedInSumImage = (ImageView) findViewById(R.id.account_included_in_sum_icon);
+        TextView includedInSumTV = (TextView) findViewById(R.id.account_included_in_sum_text);
+
+        Drawable typeIcon;
+        String typeString;
+        Drawable includedInSumIcon;
+        String includedInSumString;
+
+        switch (account.getType()) {
+            case INFORMAL:
+                typeIcon = (Drawable) typeImage.getResources().getDrawable(R.drawable.ic_account_balance_piggy_black_24dp);
+                typeString = getString(R.string.account_type_informal);
+                break;
+            case SAVINGS:
+                typeIcon = (Drawable) typeImage.getResources().getDrawable(R.drawable.ic_account_balance_savings_black_24dp);
+                typeString = getString(R.string.account_type_savings);
+                break;
+            case INVERSIONS:
+                typeIcon = (Drawable) typeImage.getResources().getDrawable(R.drawable.ic_account_balance_inversion_black_24dp);
+                typeString = getString(R.string.account_type_inversions);
+                break;
+            case CREDIT_CARD:
+                typeIcon = (Drawable) typeImage.getResources().getDrawable(R.drawable.ic_account_balance_credit_card_black_24dp);
+                typeString = getString(R.string.account_type_credit_card);
+                break;
+            case OTHER:
+                typeIcon = (Drawable) typeImage.getResources().getDrawable(R.drawable.ic_account_balance_wallet_black_24dp);
+                typeString = getString(R.string.account_type_other);
+                break;
+            case BANK:
+            default:
+                typeIcon = (Drawable) typeImage.getResources().getDrawable(R.drawable.ic_account_balance_black_24dp);
+                typeString = getString(R.string.account_type_bank);
+                break;
+        }
+
+        if (account.isShowInDashboard()) {
+            includedInSumIcon = (Drawable) includedInSumImage.getResources().getDrawable(R.drawable.ic_check_black_24dp);
+            includedInSumString = getString(R.string.account_is_included_in_sum);
+        } else {
+            includedInSumIcon = (Drawable) includedInSumImage.getResources().getDrawable(R.drawable.ic_close_black_24dp);
+            includedInSumString = getString(R.string.account_is_not_included_in_sum);
+        }
+
+        typeImage.setImageDrawable(typeIcon);
+        typeTV.setText(typeString);
+        includedInSumImage.setImageDrawable(includedInSumIcon);
+        includedInSumTV.setText(includedInSumString);
+
+        try {
+            initialValueTV.setText(CurrencyUtil.format(account.getInitialValue(), account.getDefaultCurrency()));
+        } catch (GnomyCurrencyException gce) {
+            Log.wtf("AccountDetailsActivity", "updateInfo: ", gce);
+        }
     }
 
     private void setColors() {

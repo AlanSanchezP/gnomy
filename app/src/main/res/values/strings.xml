@@ -68,7 +68,9 @@
     <string name="account_projected_balance">Projected balance</string>
     <string name="account_accumulated_balance">Accumulated balance</string>
     <string name="account_card_options">Account options</string>
-    <string name="account_icon">Account icon</string>
+    <string name="account_icon">Account type icon</string>
+    <string name="account_initial_value_icon">Money icon</string>
+    <string name="account_included_in_sum_icon">Check/Cross icon</string>
     <string name="account_card_details">Details</string>
 
     <string name="account_card_modify">Modify account</string>
