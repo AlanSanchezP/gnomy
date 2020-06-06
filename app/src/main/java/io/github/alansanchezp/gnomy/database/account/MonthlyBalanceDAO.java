@@ -70,6 +70,23 @@ public abstract class MonthlyBalanceDAO {
         }
     }
 
+    @Query("SELECT accounts.*,  " +
+                "(accounts.initial_value + " +
+                "_monthly_balances.balance) " +
+                "as accumulated, " +
+                "0 as projected " +
+            "FROM accounts " +
+            "JOIN " +
+                "(SELECT monthly_balances.account_id, " +
+                        "sum(monthly_balances.total_incomes - monthly_balances.total_expenses) as balance, " +
+                        "0 as projected " +
+                    "FROM monthly_balances " +
+                    "GROUP BY monthly_balances.account_id" +
+                ") as _monthly_balances " +
+            "ON accounts.account_id = _monthly_balances.account_id " +
+            "WHERE accounts.account_id = :accountId")
+    abstract LiveData<AccountWithBalance> getLatestFromAccount(int accountId);
+
     @Query("SELECT monthly_balances.* " +
             "FROM monthly_balances " +
             "JOIN accounts " +

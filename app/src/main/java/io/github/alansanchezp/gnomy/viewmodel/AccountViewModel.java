@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
+import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
 
 public class AccountViewModel extends AndroidViewModel {
     private AccountRepository mRepository;
@@ -14,7 +15,7 @@ public class AccountViewModel extends AndroidViewModel {
         mRepository = new AccountRepository(application);
     }
 
-    public LiveData<Account> getAccount(int id) {
+    public LiveData<AccountWithBalance> getAccount(int id) {
         return mRepository.find(id);
     }
 

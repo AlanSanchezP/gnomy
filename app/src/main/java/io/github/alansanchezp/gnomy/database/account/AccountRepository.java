@@ -31,8 +31,8 @@ public class AccountRepository {
         return accountDAO.getArchivedAccounts();
     }
 
-    public LiveData<Account> find(int accountId) {
-        return accountDAO.find(accountId);
+    public LiveData<AccountWithBalance> find(int accountId) {
+        return balanceDAO.getLatestFromAccount(accountId);
     }
 
     public void insert(Account account) {

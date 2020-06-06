@@ -27,6 +27,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
@@ -47,7 +48,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
     protected Toolbar mToolbar;
     protected Drawable mUpArrow;
     protected AccountViewModel mAccountViewModel;
-    protected LiveData<Account> mAccount;
+    protected LiveData<AccountWithBalance> mAccountWithBalance;
     private TextView mNameTV;
     private Menu mMenu;
     FloatingActionButton mFAB;
@@ -82,12 +83,12 @@ public class AccountDetailsActivity extends AppCompatActivity {
         setColors();
 
         mAccountViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication())).get(AccountViewModel.class);
-        mAccount = mAccountViewModel.getAccount(mAccountId);
-        mAccount.observe(this, new Observer<Account>() {
+        mAccountWithBalance = mAccountViewModel.getAccount(mAccountId);
+        mAccountWithBalance.observe(this, new Observer<AccountWithBalance>() {
             @Override
-            public void onChanged(Account account) {
-                if (account.getBackgroundColor() != mBgColor) {
-                    mBgColor = account.getBackgroundColor();
+            public void onChanged(AccountWithBalance awb) {
+                if (awb.account.getBackgroundColor() != mBgColor) {
+                    mBgColor = awb.account.getBackgroundColor();
                     mTextColor = ColorUtil.getTextColor(mBgColor);
                     setColors();
                 }
@@ -99,7 +100,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
                     mMenu.findItem(R.id.action_archive_account)
                             .setEnabled(true);
                 }
-                updateInfo(account);
+                updateInfo(awb);
             }
         });
     }
@@ -116,7 +117,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
                 .getIcon()
                 .setTint(mTextColor);
 
-        if (mAccount.getValue() == null) {
+        if (mAccountWithBalance.getValue() == null) {
             menu.findItem(R.id.action_account_actions)
                     .setEnabled(false);
             menu.findItem(R.id.action_archive_account)
@@ -140,7 +141,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
                         {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                mAccountViewModel.archive(mAccount.getValue());
+                                mAccountViewModel.archive(mAccountWithBalance.getValue().account);
                                 Toast.makeText(AccountDetailsActivity.this, getString(R.string.account_message_archived), Toast.LENGTH_LONG).show();
                                 finish();
                             }
@@ -183,7 +184,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
     public void onFABClick(View v) {
         mFAB.setEnabled(false);
         mFAB.setElevation(6f);
-        Account account = mAccount.getValue();
+        Account account = mAccountWithBalance.getValue().account;
 
         Intent modifyAccountIntent = new Intent(this, AddEditAccountActivity.class);
         modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_ID, account.getId());
@@ -197,9 +198,10 @@ public class AccountDetailsActivity extends AppCompatActivity {
         startActivity(modifyAccountIntent);
     }
 
-    private void updateInfo(Account account) {
-        mNameTV.setText(account.getName());
+    private void updateInfo(AccountWithBalance awb) {
+        mNameTV.setText(awb.account.getName());
 
+        TextView currentBalanceTV = (TextView) findViewById(R.id.account_latest_balance);
         TextView initialValueTV = (TextView) findViewById(R.id.account_initial_value);
         ImageView typeImage = (ImageView) findViewById(R.id.account_type_icon);
         TextView typeTV = (TextView) findViewById(R.id.account_type);
@@ -211,7 +213,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
         Drawable includedInSumIcon;
         String includedInSumString;
 
-        switch (account.getType()) {
+        switch (awb.account.getType()) {
             case INFORMAL:
                 typeIcon = (Drawable) typeImage.getResources().getDrawable(R.drawable.ic_account_balance_piggy_black_24dp);
                 typeString = getString(R.string.account_type_informal);
@@ -239,7 +241,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
                 break;
         }
 
-        if (account.isShowInDashboard()) {
+        if (awb.account.isShowInDashboard()) {
             includedInSumIcon = (Drawable) includedInSumImage.getResources().getDrawable(R.drawable.ic_check_black_24dp);
             includedInSumString = getString(R.string.account_is_included_in_sum);
         } else {
@@ -253,7 +255,8 @@ public class AccountDetailsActivity extends AppCompatActivity {
         includedInSumTV.setText(includedInSumString);
 
         try {
-            initialValueTV.setText(CurrencyUtil.format(account.getInitialValue(), account.getDefaultCurrency()));
+            currentBalanceTV.setText(CurrencyUtil.format(awb.accumulatedBalance, awb.account.getDefaultCurrency()));
+            initialValueTV.setText(CurrencyUtil.format(awb.account.getInitialValue(), awb.account.getDefaultCurrency()));
         } catch (GnomyCurrencyException gce) {
             Log.wtf("AccountDetailsActivity", "updateInfo: ", gce);
         }
