@@ -18,6 +18,10 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import org.threeten.bp.YearMonth;
+
+import java.math.BigDecimal;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,7 +31,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
@@ -48,7 +51,8 @@ public class AccountDetailsActivity extends AppCompatActivity {
     protected Toolbar mToolbar;
     protected Drawable mUpArrow;
     protected AccountViewModel mAccountViewModel;
-    protected LiveData<AccountWithBalance> mAccountWithBalance;
+    protected LiveData<Account> mAccount;
+    protected LiveData<BigDecimal> mLatestBalanceSum;
     private TextView mNameTV;
     private Menu mMenu;
     FloatingActionButton mFAB;
@@ -83,12 +87,12 @@ public class AccountDetailsActivity extends AppCompatActivity {
         setColors();
 
         mAccountViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication())).get(AccountViewModel.class);
-        mAccountWithBalance = mAccountViewModel.getAccountWithLatest(mAccountId);
-        mAccountWithBalance.observe(this, new Observer<AccountWithBalance>() {
+        mAccount = mAccountViewModel.getAccount(mAccountId);
+        mAccount.observe(this, new Observer<Account>() {
             @Override
-            public void onChanged(AccountWithBalance awb) {
-                if (awb.account.getBackgroundColor() != mBgColor) {
-                    mBgColor = awb.account.getBackgroundColor();
+            public void onChanged(Account account) {
+                if (account.getBackgroundColor() != mBgColor) {
+                    mBgColor = account.getBackgroundColor();
                     mTextColor = ColorUtil.getTextColor(mBgColor);
                     setColors();
                 }
@@ -100,7 +104,15 @@ public class AccountDetailsActivity extends AppCompatActivity {
                     mMenu.findItem(R.id.action_archive_account)
                             .setEnabled(true);
                 }
-                updateInfo(awb);
+
+                updateInfo(account);
+            }
+        });
+        mLatestBalanceSum = mAccountViewModel.getAccumulatedFromMonth(mAccountId, YearMonth.now());
+        mLatestBalanceSum.observe(this, new Observer<BigDecimal>() {
+            @Override
+            public void onChanged(BigDecimal balance) {
+                updateBalanceSum(mAccount.getValue(), balance);
             }
         });
     }
@@ -117,7 +129,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
                 .getIcon()
                 .setTint(mTextColor);
 
-        if (mAccountWithBalance.getValue() == null) {
+        if (mAccount.getValue() == null) {
             menu.findItem(R.id.action_account_actions)
                     .setEnabled(false);
             menu.findItem(R.id.action_archive_account)
@@ -141,7 +153,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
                         {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                mAccountViewModel.archive(mAccountWithBalance.getValue().account);
+                                mAccountViewModel.archive(mAccount.getValue());
                                 Toast.makeText(AccountDetailsActivity.this, getString(R.string.account_message_archived), Toast.LENGTH_LONG).show();
                                 finish();
                             }
@@ -184,7 +196,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
     public void onFABClick(View v) {
         mFAB.setEnabled(false);
         mFAB.setElevation(6f);
-        Account account = mAccountWithBalance.getValue().account;
+        Account account = mAccount.getValue();
 
         Intent modifyAccountIntent = new Intent(this, AddEditAccountActivity.class);
         modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_ID, account.getId());
@@ -198,10 +210,21 @@ public class AccountDetailsActivity extends AppCompatActivity {
         startActivity(modifyAccountIntent);
     }
 
-    private void updateInfo(AccountWithBalance awb) {
-        mNameTV.setText(awb.account.getName());
+    private void updateBalanceSum(Account account, BigDecimal balanceSum) {
+        if (account == null || balanceSum == null) return;
 
         TextView currentBalanceTV = (TextView) findViewById(R.id.account_latest_balance);
+
+        try {
+            currentBalanceTV.setText(CurrencyUtil.format(balanceSum, mAccount.getValue().getDefaultCurrency()));
+        } catch (GnomyCurrencyException gce) {
+            Log.wtf("AccountDetailsActivity", "updateBalance: ", gce);
+        }
+    }
+
+    private void updateInfo(Account account) {
+        mNameTV.setText(account.getName());
+
         TextView initialValueTV = (TextView) findViewById(R.id.account_initial_value);
         ImageView typeImage = (ImageView) findViewById(R.id.account_type_icon);
         TextView typeTV = (TextView) findViewById(R.id.account_type);
@@ -213,7 +236,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
         Drawable includedInSumIcon;
         String includedInSumString;
 
-        switch (awb.account.getType()) {
+        switch (account.getType()) {
             case INFORMAL:
                 typeIcon = (Drawable) typeImage.getResources().getDrawable(R.drawable.ic_account_balance_piggy_black_24dp);
                 typeString = getString(R.string.account_type_informal);
@@ -241,7 +264,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
                 break;
         }
 
-        if (awb.account.isShowInDashboard()) {
+        if (account.isShowInDashboard()) {
             includedInSumIcon = (Drawable) includedInSumImage.getResources().getDrawable(R.drawable.ic_check_black_24dp);
             includedInSumString = getString(R.string.account_is_included_in_sum);
         } else {
@@ -255,8 +278,8 @@ public class AccountDetailsActivity extends AppCompatActivity {
         includedInSumTV.setText(includedInSumString);
 
         try {
-            currentBalanceTV.setText(CurrencyUtil.format(awb.accumulatedBalance, awb.account.getDefaultCurrency()));
-            initialValueTV.setText(CurrencyUtil.format(awb.account.getInitialValue(), awb.account.getDefaultCurrency()));
+            updateBalanceSum(account, mLatestBalanceSum.getValue());
+            initialValueTV.setText(CurrencyUtil.format(account.getInitialValue(), account.getDefaultCurrency()));
         } catch (GnomyCurrencyException gce) {
             Log.wtf("AccountDetailsActivity", "updateInfo: ", gce);
         }

@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 
 import org.threeten.bp.YearMonth;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import androidx.lifecycle.LiveData;
@@ -31,11 +32,11 @@ public class AccountRepository {
         return accountDAO.getArchivedAccounts();
     }
 
-    public LiveData<AccountWithBalance> getAccountWithLatest(int accountId) {
-        return balanceDAO.getAccountWithLatest(accountId);
+    public LiveData<Account> getAccount(int accountId) {
+        return accountDAO.find(accountId);
     }
 
-    public LiveData<MonthlyBalance> getAccumulatedFromMonth(int accountId, YearMonth month) {
+    public LiveData<BigDecimal> getAccumulatedFromMonth(int accountId, YearMonth month) {
         return balanceDAO.getAccumulatedFromMonth(accountId, month);
     }
 

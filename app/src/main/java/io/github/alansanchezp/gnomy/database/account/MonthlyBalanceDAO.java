@@ -2,6 +2,7 @@ package io.github.alansanchezp.gnomy.database.account;
 
 import org.threeten.bp.YearMonth;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import androidx.lifecycle.LiveData;
@@ -70,35 +71,19 @@ public abstract class MonthlyBalanceDAO {
         }
     }
 
-    @Transaction
-    @Query("SELECT accounts.*,  " +
-                "(accounts.initial_value + " +
-                "_monthly_balances.balance) " +
-                "as accumulated, " +
-                "0 as projected " +
+    @Query("SELECT " +
+                "accounts.initial_value + _monthly_balances.sum " +
             "FROM accounts " +
             "JOIN " +
                 "(SELECT monthly_balances.account_id, " +
-                        "sum(monthly_balances.total_incomes - monthly_balances.total_expenses) as balance, " +
-                        "0 as projected " +
+                        "sum(monthly_balances.total_incomes - monthly_balances.total_expenses) as sum " +
                     "FROM monthly_balances " +
+                    "WHERE monthly_balances.balance_date <= :month " +
                     "GROUP BY monthly_balances.account_id" +
                 ") as _monthly_balances " +
             "ON accounts.account_id = _monthly_balances.account_id " +
             "WHERE accounts.account_id = :accountId")
-    abstract LiveData<AccountWithBalance> getAccountWithLatest(int accountId);
-
-    @Query("SELECT " +
-                "monthly_balances.account_id, " +
-                "monthly_balances.balance_date, " +
-                "0 as projected_expenses," +
-                "0 as projected_incomes," +
-                "sum(monthly_balances.total_incomes) as total_incomes," +
-                "sum(monthly_balances.total_expenses) as total_expenses " +
-            "FROM monthly_balances " +
-            "WHERE monthly_balances.account_id = :accountId " +
-            "AND monthly_balances.balance_date <= :month")
-    abstract LiveData<MonthlyBalance> getAccumulatedFromMonth(int accountId, YearMonth month);
+    abstract LiveData<BigDecimal> getAccumulatedFromMonth(int accountId, YearMonth month);
 
     @Transaction
     @Query("SELECT monthly_balances.* " +
