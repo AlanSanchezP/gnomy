@@ -9,6 +9,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.comparesEqualTo;
 
 import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.YearMonth;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.format.DateTimeFormatter;
 
@@ -58,42 +59,77 @@ public class TypeConvertersTest {
 
     @Test
     public void toTimestamp_isCorrect() {
-        assertEquals(timestamp, GnomyTypeConverters.toTimestamp(dateTime));
-        assertNull(GnomyTypeConverters.toTimestamp(null));
+        assertEquals(timestamp, GnomyTypeConverters.dateToTimestamp(dateTime));
+        assertNull(GnomyTypeConverters.dateToTimestamp(null));
     }
 
     @Test
     public void toDate_isCorrect() {
-        assertEquals(dateTime, GnomyTypeConverters.toDate(timestamp));
-        assertNull(GnomyTypeConverters.toDate(null));
+        assertEquals(dateTime, GnomyTypeConverters.timestampToDate(timestamp));
+        assertNull(GnomyTypeConverters.timestampToDate(null));
     }
 
     @Test
     public void toDecimal_isCorrect() {
         assertThat(expectedDecimal_100_50, comparesEqualTo(
-                GnomyTypeConverters.toDecimal(expectedLong_100_50)));
+                GnomyTypeConverters.longToDecimal(expectedLong_100_50)));
         assertThat(expectedDecimal_187_35, comparesEqualTo(
-                GnomyTypeConverters.toDecimal(expectedLong_187_35)));
+                GnomyTypeConverters.longToDecimal(expectedLong_187_35)));
         assertThat(expectedDecimal_34_685, comparesEqualTo(
-                GnomyTypeConverters.toDecimal(expectedLong_34_685)));
+                GnomyTypeConverters.longToDecimal(expectedLong_34_685)));
         assertThat(expectedDecimal_1980_9, comparesEqualTo(
-                GnomyTypeConverters.toDecimal(expectedLong_1980_9)));
+                GnomyTypeConverters.longToDecimal(expectedLong_1980_9)));
 
-        assertNull(GnomyTypeConverters.toLong(null));
+        assertNull(GnomyTypeConverters.longToDecimal(null));
     }
 
     @Test
     public void toLong_isCorrect() {
         assertEquals(expectedLong_100_50,
-                GnomyTypeConverters.toLong(expectedDecimal_100_50));
+                GnomyTypeConverters.decimalToLong(expectedDecimal_100_50));
         assertEquals(expectedLong_187_35,
-                GnomyTypeConverters.toLong(expectedDecimal_187_35));
+                GnomyTypeConverters.decimalToLong(expectedDecimal_187_35));
         assertEquals(expectedLong_34_685,
-                GnomyTypeConverters.toLong(expectedDecimal_34_685));
+                GnomyTypeConverters.decimalToLong(expectedDecimal_34_685));
         assertEquals(expectedLong_1980_9,
-                GnomyTypeConverters.toLong(expectedDecimal_1980_9));
+                GnomyTypeConverters.decimalToLong(expectedDecimal_1980_9));
 
-        assertNull(GnomyTypeConverters.toDecimal(null));
+        assertNull(GnomyTypeConverters.decimalToLong(null));
+    }
+
+    @Test
+    public void toYearMonth_isCorrect() {
+        YearMonth testObj = GnomyTypeConverters.intToYearMonth(10);
+        assertNull(testObj);
+
+        testObj = GnomyTypeConverters.intToYearMonth(101);
+        assertEquals("0001-01", testObj.toString());
+
+        testObj = GnomyTypeConverters.intToYearMonth(199712);
+        assertEquals("1997-12", testObj.toString());
+
+        testObj = GnomyTypeConverters.intToYearMonth(202001);
+        assertEquals("2020-01", testObj.toString());
+
+        testObj = GnomyTypeConverters.intToYearMonth(202015);
+        assertNull(testObj);
+
+        testObj = GnomyTypeConverters.intToYearMonth(100);
+        assertNull(testObj);
+    }
+
+    @Test
+    public void toInt_isCorrect() {
+        assertEquals(0, GnomyTypeConverters.yearMonthToInt(null));
+
+        YearMonth testObj = YearMonth.of(1, 1);
+        assertEquals(101, GnomyTypeConverters.yearMonthToInt(testObj));
+
+        testObj = YearMonth.of(1997, 12);
+        assertEquals(199712, GnomyTypeConverters.yearMonthToInt(testObj));
+
+        testObj = YearMonth.of(2020, 1);
+        assertEquals(202001, GnomyTypeConverters.yearMonthToInt(testObj));
     }
 
     @AfterClass

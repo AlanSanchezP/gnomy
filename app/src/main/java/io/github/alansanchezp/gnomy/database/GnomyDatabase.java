@@ -10,8 +10,6 @@ import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
 import io.github.alansanchezp.gnomy.database.account.MonthlyBalanceDAO;
 import io.github.alansanchezp.gnomy.database.category.Category;
 import io.github.alansanchezp.gnomy.database.category.CategoryDAO;
-import io.github.alansanchezp.gnomy.database.currency.Currency;
-import io.github.alansanchezp.gnomy.database.currency.CurrencyDAO;
 import io.github.alansanchezp.gnomy.database.recurrentTransaction.RecurrentTransaction;
 import io.github.alansanchezp.gnomy.database.recurrentTransaction.RecurrentTransactionDAO;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
@@ -25,7 +23,6 @@ import net.sqlcipher.database.SupportFactory;
 import net.sqlcipher.database.SQLiteDatabase;
 
 @Database(entities = {
-    Currency.class,
     Category.class,
     Account.class,
     MoneyTransaction.class,
@@ -35,13 +32,17 @@ import net.sqlcipher.database.SQLiteDatabase;
 }, version = 1)
 @TypeConverters({GnomyTypeConverters.class})
 public abstract class GnomyDatabase extends RoomDatabase {
-    private static GnomyDatabase gnomyDB;
+    private static GnomyDatabase INSTANCE;
 
     public static GnomyDatabase getInstance(Context context, String userEnteredPassphrase) {
-        if (null == gnomyDB) {
-            gnomyDB = buildDatabaseInstance(context, userEnteredPassphrase);
+        if (INSTANCE == null) {
+            synchronized (GnomyDatabase.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = buildDatabaseInstance(context, userEnteredPassphrase);
+                }
+            }
         }
-        return gnomyDB;
+        return INSTANCE;
     }
 
     private static GnomyDatabase buildDatabaseInstance(Context context, String userEnteredPassphrase) {
@@ -51,17 +52,15 @@ public abstract class GnomyDatabase extends RoomDatabase {
         return Room.databaseBuilder(context,
                 GnomyDatabase.class,
                 "gnomy.db")
-                .allowMainThreadQueries()
                 .openHelperFactory(factory)
-                // TODO generate complete set of currencies
-                // consider limitations of free services for conversion rates
-                .createFromAsset("gnomy.db")
+                // TODO: create migrations
+                .fallbackToDestructiveMigration()
+                // TODO: prepopulate categories
+                // TODO: evaluate if balance adjustment should be done using triggers or as part of repository code
                 .build();
     }
 
     // DAO declarations
-    public abstract CurrencyDAO currencyDAO();
-
     public abstract CategoryDAO categoryDAO();
 
     public abstract AccountDAO accountDAO();
@@ -75,6 +74,6 @@ public abstract class GnomyDatabase extends RoomDatabase {
     public abstract TransferDAO transferDAO();
 
     public static void cleanUp(){
-        gnomyDB = null;
+        INSTANCE = null;
     }
 }

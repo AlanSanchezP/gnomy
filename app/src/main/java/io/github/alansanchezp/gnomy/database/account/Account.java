@@ -7,20 +7,12 @@ import java.math.BigDecimal;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
-import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
-import io.github.alansanchezp.gnomy.database.currency.Currency;
 
-@Entity(tableName = "accounts",
-        foreignKeys = @ForeignKey(
-            entity = Currency.class,
-            parentColumns = "currency_id",
-            childColumns = "default_currency_id",
-            onDelete = ForeignKey.RESTRICT
-        )
-)
+@Entity(tableName = "accounts")
 public class Account {
+    // TODO Icon handling
     @Ignore
     public static final int BANK = 1;
     @Ignore
@@ -50,11 +42,18 @@ public class Account {
     @NonNull
     private BigDecimal initialValue = new BigDecimal(0);
 
-    @ColumnInfo(name="default_currency_id")
-    private int defaultCurrency;
+    @ColumnInfo(name="account_type")
+    private int type = BANK;
 
-    @ColumnInfo(name="include_in_total")
-    private boolean includeInTotal;
+    @ColumnInfo(name="default_currency_code")
+    @NonNull
+    private String defaultCurrency = "USD";
+
+    @ColumnInfo(name="show_in_dashboard")
+    private boolean showInDashboard = true;
+
+    @ColumnInfo(name="is_archived")
+    private boolean isArchived = false;
 
     @ColumnInfo(name="bg_color")
     // TODO Apply color conversion logic for this field too
@@ -95,20 +94,29 @@ public class Account {
         this.initialValue = initialValue;
     }
 
-    public int getDefaultCurrency() {
+    @NonNull
+    public String getDefaultCurrency() {
         return defaultCurrency;
     }
 
-    public void setDefaultCurrency(int defaultCurrency) {
+    public void setDefaultCurrency(@NonNull String defaultCurrency) {
         this.defaultCurrency = defaultCurrency;
     }
 
-    public boolean isIncludeInTotal() {
-        return includeInTotal;
+    public boolean isShowInDashboard() {
+        return showInDashboard;
     }
 
-    public void setIncludeInTotal(boolean includeInTotal) {
-        this.includeInTotal = includeInTotal;
+    public void setShowInDashboard(boolean showInDashboard) {
+        this.showInDashboard = showInDashboard;
+    }
+
+    public boolean isArchived() {
+        return isArchived;
+    }
+
+    public void setArchived(boolean archived) {
+        isArchived = archived;
     }
 
     public int getBackgroundColor() {
@@ -117,5 +125,13 @@ public class Account {
 
     public void setBackgroundColor(int backgroundColor) {
         this.backgroundColor = backgroundColor;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 }

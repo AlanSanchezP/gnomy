@@ -1,6 +1,6 @@
 package io.github.alansanchezp.gnomy.database.account;
 
-import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.YearMonth;
 
 import java.math.BigDecimal;
 
@@ -10,9 +10,12 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.Index;
-import androidx.room.PrimaryKey;
 
 @Entity(tableName = "monthly_balances",
+        primaryKeys = {
+            "account_id",
+            "balance_date"
+        },
         foreignKeys = @ForeignKey(
             entity = Account.class,
             parentColumns = "account_id",
@@ -22,16 +25,12 @@ import androidx.room.PrimaryKey;
         indices = @Index("account_id")
 )
 public class MonthlyBalance {
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "balance_id")
-    private int id;
-
     @ColumnInfo(name = "account_id")
     private int accountId;
 
     @ColumnInfo(name = "balance_date")
     @NonNull
-    private OffsetDateTime date = OffsetDateTime.now();
+    private YearMonth date = YearMonth.now();
 
     @ColumnInfo(name = "total_incomes")
     @NonNull
@@ -45,13 +44,12 @@ public class MonthlyBalance {
     @NonNull
     private BigDecimal accumulatedBefore = new BigDecimal(0);
 
-    public int getId() {
-        return id;
+    @Ignore
+    public MonthlyBalance(Account account) {
+        this.setAccountId(account.getId());
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public MonthlyBalance() { }
 
     public int getAccountId() {
         return accountId;
@@ -62,11 +60,11 @@ public class MonthlyBalance {
     }
 
     @NonNull
-    public OffsetDateTime getDate() {
+    public YearMonth getDate() {
         return date;
     }
 
-    public void setDate(@NonNull OffsetDateTime date) {
+    public void setDate(@NonNull YearMonth date) {
         this.date = date;
     }
 

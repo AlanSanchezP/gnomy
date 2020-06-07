@@ -1,5 +1,7 @@
 package io.github.alansanchezp.gnomy.database.transaction;
-
+// TODO: Transaction, Transfer and ReccurrentTransaction repositories
+// Create them after before (or in parallel) to their corresponding
+// UI classes.
 import org.threeten.bp.OffsetDateTime;
 
 import androidx.annotation.NonNull;
@@ -11,16 +13,9 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.category.Category;
-import io.github.alansanchezp.gnomy.database.currency.Currency;
 
 @Entity(tableName = "transactions",
         foreignKeys = {
-            @ForeignKey(
-                entity = Currency.class,
-                parentColumns = "currency_id",
-                childColumns = "currency_id",
-                onDelete = ForeignKey.RESTRICT
-            ),
             @ForeignKey(
                 entity = Account.class,
                 parentColumns = "account_id",
@@ -53,8 +48,9 @@ public class MoneyTransaction {
     @ColumnInfo(name="transaction_id")
     private int id;
 
-    @ColumnInfo(name="currency_id")
-    private int currency;
+    @ColumnInfo(name="transaction_currency")
+    @NonNull
+    private String currency = "USD";
 
     @ColumnInfo(name="account_id")
     private int account;
@@ -79,10 +75,10 @@ public class MoneyTransaction {
     private String description = "";
 
     @ColumnInfo(name="is_confirmed")
-    private boolean isConfirmed;
+    private boolean isConfirmed = true;
 
     @ColumnInfo(name="transaction_type")
-    private int type;
+    private int type = EXPENSE;
 
     @ColumnInfo(name="transaction_notes")
     @NonNull
@@ -96,11 +92,12 @@ public class MoneyTransaction {
         this.id = id;
     }
 
-    public int getCurrency() {
+    @NonNull
+    public String getCurrency() {
         return currency;
     }
 
-    public void setCurrency(int currency) {
+    public void setCurrency(@NonNull String currency) {
         this.currency = currency;
     }
 
