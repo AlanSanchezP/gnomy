@@ -181,10 +181,11 @@ public class AddEditAccountActivity extends AppCompatActivity {
                         finish();
                     }
                 })
-                .setNegativeButton(getString(R.string.confirmation_dialog_no),  new DialogInterface.OnClickListener()
+                .setNegativeButton(getString(R.string.confirmation_dialog_no),  null)
+                .setOnDismissListener(new DialogInterface.OnDismissListener()
                 {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    public void onDismiss(DialogInterface dialog) {
                         mFAB.setEnabled(true);
                     }
                 })

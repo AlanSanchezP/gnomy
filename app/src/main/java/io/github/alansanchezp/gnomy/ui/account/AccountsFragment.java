@@ -229,6 +229,13 @@ public class AccountsFragment extends BaseMainNavigationFragment
                             }
                         })
                         .setNegativeButton(getString(R.string.confirmation_dialog_no), null)
+                        .setOnDismissListener(new DialogInterface.OnDismissListener()
+                        {
+                            @Override
+                            public void onDismiss(DialogInterface dialog) {
+                                mAdapter.enableClicks();
+                            }
+                        })
                         .show();
                 break;
             case R.id.account_card_delete:
@@ -243,9 +250,17 @@ public class AccountsFragment extends BaseMainNavigationFragment
                             }
                         })
                         .setNegativeButton(getString(R.string.confirmation_dialog_no), null)
+                        .setOnDismissListener(new DialogInterface.OnDismissListener()
+                        {
+                            @Override
+                            public void onDismiss(DialogInterface dialog) {
+                                mAdapter.enableClicks();
+                            }
+                        })
                         .show();
                 break;
             default:
+                mAdapter.enableClicks();
                 return false;
         }
 
