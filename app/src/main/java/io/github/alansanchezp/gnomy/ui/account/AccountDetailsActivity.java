@@ -83,7 +83,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
         setColors();
 
         mAccountViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication())).get(AccountViewModel.class);
-        mAccountWithBalance = mAccountViewModel.getAccount(mAccountId);
+        mAccountWithBalance = mAccountViewModel.getAccountWithLatest(mAccountId);
         mAccountWithBalance.observe(this, new Observer<AccountWithBalance>() {
             @Override
             public void onChanged(AccountWithBalance awb) {

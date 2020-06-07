@@ -70,8 +70,6 @@ public abstract class MonthlyBalanceDAO {
         }
     }
 
-    // TODO: Make a similar method that returns accumulated balance for any month
-    // Omiting account data on the resulting info
     @Transaction
     @Query("SELECT accounts.*,  " +
                 "(accounts.initial_value + " +
@@ -88,7 +86,19 @@ public abstract class MonthlyBalanceDAO {
                 ") as _monthly_balances " +
             "ON accounts.account_id = _monthly_balances.account_id " +
             "WHERE accounts.account_id = :accountId")
-    abstract LiveData<AccountWithBalance> getLatestFromAccount(int accountId);
+    abstract LiveData<AccountWithBalance> getAccountWithLatest(int accountId);
+
+    @Query("SELECT " +
+                "monthly_balances.account_id, " +
+                "monthly_balances.balance_date, " +
+                "0 as projected_expenses," +
+                "0 as projected_incomes," +
+                "sum(monthly_balances.total_incomes) as total_incomes," +
+                "sum(monthly_balances.total_expenses) as total_expenses " +
+            "FROM monthly_balances " +
+            "WHERE monthly_balances.account_id = :accountId " +
+            "AND monthly_balances.balance_date <= :month")
+    abstract LiveData<MonthlyBalance> getAccumulatedFromMonth(int accountId, YearMonth month);
 
     @Transaction
     @Query("SELECT monthly_balances.* " +
