@@ -42,7 +42,7 @@ public abstract class AccountDAO  {
     }
 
     @Update
-    abstract void _update(Account account);
+    protected abstract void _update(Account account);
 
     @Query("UPDATE OR ABORT accounts SET is_archived = 1 WHERE account_id = :id")
     abstract void archive(int id);

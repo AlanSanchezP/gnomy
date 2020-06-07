@@ -34,7 +34,7 @@ public abstract class MonthlyBalanceDAO {
                 ") as _monthly_balances " +
             "ON accounts.account_id = _monthly_balances.account_id " +
             "WHERE accounts.is_archived = 0")
-    abstract LiveData<List<AccountWithBalance>> _getAllLatest();
+    protected abstract LiveData<List<AccountWithBalance>> _getAllLatest();
 
     @Transaction
     @Query("SELECT accounts.*,  " +
@@ -61,7 +61,7 @@ public abstract class MonthlyBalanceDAO {
                 ") as latest " +
             "ON accounts.account_id = latest.account_id " +
             "WHERE accounts.is_archived = 0")
-    abstract LiveData<List<AccountWithBalance>> _getAllFromMonth(YearMonth month);
+    protected abstract LiveData<List<AccountWithBalance>> _getAllFromMonth(YearMonth month);
 
     public LiveData<List<AccountWithBalance>> getAllFromMonth(YearMonth month) {
         if (YearMonth.now().equals(month)) {
@@ -98,8 +98,8 @@ public abstract class MonthlyBalanceDAO {
     abstract MonthlyBalance find(int accountId, YearMonth month);
 
     @Insert
-    abstract void insert(MonthlyBalance... balances);
+    protected abstract void insert(MonthlyBalance... balances);
 
     @Update
-    abstract void update(MonthlyBalance balance);
+    protected abstract void update(MonthlyBalance balance);
 }
