@@ -210,6 +210,11 @@ public class AccountDetailsActivity extends AppCompatActivity {
         startActivity(modifyAccountIntent);
     }
 
+    public void onSeeMoreClick(View v) {
+        Intent accountHistoryIntent = new Intent(this, AccountHistoryActivity.class);
+        startActivity(accountHistoryIntent);
+    }
+
     private void updateBalanceSum(Account account, BigDecimal balanceSum) {
         if (account == null || balanceSum == null) return;
 
