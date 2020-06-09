@@ -65,6 +65,7 @@
                         android:textAlignment="center"
                         android:textStyle="bold"
                         android:textSize="32sp"
+                        android:textColor="@color/colorTextHighlight"
                         app:layout_constraintTop_toBottomOf="@id/account_latest_balance_label" />
 
                     <LinearLayout
@@ -184,6 +185,7 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
+                android:textAlignment="viewStart"
                 android:text="@string/account_balance_history"/>
 
             <androidx.cardview.widget.CardView

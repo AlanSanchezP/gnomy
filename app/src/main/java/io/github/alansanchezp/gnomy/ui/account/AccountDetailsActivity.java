@@ -322,7 +322,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
         TextView balanceHistoryTV = (TextView) findViewById(R.id.account_balance_history_title);
         balanceHistoryTV.setTextColor(mTextColor);
 
-        mSeeMoreBtn.setBackgroundColor(mBgColor);
-        mSeeMoreBtn.setTextColor(mTextColor);
+        mSeeMoreBtn.setBackgroundColor(fabBgColor);
+        mSeeMoreBtn.setTextColor(fabTextColor);
     }
 }
