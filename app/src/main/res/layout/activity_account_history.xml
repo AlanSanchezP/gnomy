@@ -25,9 +25,7 @@
                 android:layout_height="match_parent"
                 android:layout_width="match_parent"
                 android:paddingTop="20dp"
-                android:paddingBottom="20dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp" >
+                android:paddingBottom="20dp" >
 
                 <TextView
                     android:id="@+id/account_history_accumulated_balance_label"
@@ -36,6 +34,8 @@
                     android:textAlignment="center"
                     android:textColor="@color/colorTextSecondary"
                     android:text="@string/account_current_accumulated_balance"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
@@ -46,6 +46,8 @@
                     android:textStyle="bold"
                     android:textSize="32sp"
                     android:textColor="@color/colorTextHighlight"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
                     app:layout_constraintTop_toBottomOf="@id/account_history_accumulated_balance_label"/>
 
                 <TextView
@@ -57,6 +59,8 @@
                     android:layout_marginTop="22dp"
                     android:textAlignment="viewStart"
                     android:text="@string/account_confirmed_balance"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
                     app:layout_constraintTop_toBottomOf="@id/account_history_accumulated_balance"/>
 
                 <androidx.cardview.widget.CardView
@@ -67,6 +71,8 @@
                     app:cardBackgroundColor="@color/colorCardBackground"
                     app:cardCornerRadius="15dp"
                     app:contentPadding="20dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
                     app:layout_constraintTop_toBottomOf="@id/account_history_confirmed_title"
                     app:contentPaddingBottom="30dp" >
 
@@ -173,6 +179,8 @@
                     android:layout_marginTop="32dp"
                     android:textAlignment="viewStart"
                     android:text="@string/pending_transactions"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
                     app:layout_constraintTop_toBottomOf="@id/account_history_confirmed_card"/>
 
                 <Button
@@ -182,6 +190,7 @@
                     android:text="@string/account_balance_check_button"
                     android:clickable="true"
                     android:focusable="true"
+                    android:layout_marginEnd="16dp"
                     app:layout_constraintTop_toTopOf="@id/account_history_pending_title"
                     app:layout_constraintBottom_toBottomOf="@id/account_history_pending_title"
                     app:layout_constraintEnd_toEndOf="parent" />
@@ -192,6 +201,8 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/colorTextHighlight"
                     android:layout_marginTop="16dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
                     app:cardBackgroundColor="@color/colorCardBackground"
                     app:cardCornerRadius="15dp"
                     app:contentPadding="20dp"
@@ -298,6 +309,8 @@
                     android:layout_marginTop="12dp"
                     android:textSize="13sp"
                     android:textColor="@color/colorTextSecondary"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
                     app:layout_constraintTop_toBottomOf="@id/account_history_pending_card"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.core.widget.NestedScrollView>
