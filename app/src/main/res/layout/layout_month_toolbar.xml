@@ -70,7 +70,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
-            android:id="@+id/select_total_month"
+            android:id="@+id/return_to_today_bth"
             style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
             android:layout_width="35dp"
             android:layout_height="35dp"

@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity
     private void updateMonth(YearMonth month) {
         TextView monthTextView = (TextView) findViewById(R.id.month_name_view);
         ImageButton nextMonthBtn = (ImageButton) findViewById(R.id.next_month_btn);
-        ImageButton calendarBtn =  (ImageButton) findViewById(R.id.select_total_month);
+        ImageButton calendarBtn =  (ImageButton) findViewById(R.id.return_to_today_bth);
         String formatterPattern;
         String monthString;
 

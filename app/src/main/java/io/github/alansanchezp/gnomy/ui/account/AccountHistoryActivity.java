@@ -151,7 +151,7 @@ public class AccountHistoryActivity extends AppCompatActivity {
         // TODO: Modularize this to avoid DRY of month management
         TextView monthTextView = (TextView) findViewById(R.id.month_name_view);
         ImageButton nextMonthBtn = (ImageButton) findViewById(R.id.next_month_btn);
-        ImageButton calendarBtn =  (ImageButton) findViewById(R.id.select_total_month);
+        ImageButton calendarBtn =  (ImageButton) findViewById(R.id.return_to_today_bth);
 
         TextView accumulatedTitleTV = (TextView) findViewById(R.id.account_history_accumulated_balance_label);
         TextView confirmedTitleTV = (TextView) findViewById(R.id.account_history_confirmed_title);
@@ -237,6 +237,33 @@ public class AccountHistoryActivity extends AppCompatActivity {
             pendingExpenses = balance.getProjectedExpenses();
             pendingTotal = pendingIncomes.subtract(pendingExpenses);
 
+            switch (confirmedTotal.compareTo(BigDecimal.ZERO)) {
+                case -1:
+                    confirmedTotalTV.setTextColor(getResources().getColor(R.color.colorExpenses));
+                    break;
+                case 0:
+                    confirmedTotalTV.setTextColor(getResources().getColor(R.color.colorText));
+                    break;
+                case 1:
+                    confirmedTotalTV.setTextColor(getResources().getColor(R.color.colorIncomes));
+                    break;
+                default:
+                    break;
+            }
+            switch (pendingTotal.compareTo(BigDecimal.ZERO)) {
+                case -1:
+                    pendingTotalTV.setTextColor(getResources().getColor(R.color.colorExpenses));
+                    break;
+                case 0:
+                    pendingTotalTV.setTextColor(getResources().getColor(R.color.colorText));
+                    break;
+                case 1:
+                    pendingTotalTV.setTextColor(getResources().getColor(R.color.colorIncomes));
+                    break;
+                default:
+                    break;
+            }
+
             checkMoreBtn.setVisibility(View.VISIBLE);
         } else {
             checkMoreBtn.setVisibility(View.GONE);
@@ -264,5 +291,9 @@ public class AccountHistoryActivity extends AppCompatActivity {
         getWindow().setStatusBarColor(ColorUtil.getDarkVariant(mToolbarBgColor));
 
         mSecondaryBar.setBackgroundColor(mToolbarBgColor);
+        ((TextView) findViewById(R.id.month_name_view)).setTextColor(mTitleTextColor);
+        ((ImageButton) findViewById(R.id.prev_month_btn)).getDrawable().setTint(mTitleTextColor);
+        ((ImageButton) findViewById(R.id.next_month_btn)).getDrawable().setTint(mTitleTextColor);
+        ((ImageButton) findViewById(R.id.return_to_today_bth)).getDrawable().setTint(mTitleTextColor);
     }
 }
