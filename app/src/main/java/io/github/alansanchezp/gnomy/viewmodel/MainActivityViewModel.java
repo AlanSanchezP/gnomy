@@ -9,7 +9,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 public class MainActivityViewModel extends AndroidViewModel {
-    private MutableLiveData<YearMonth> mMonthFilter = new MutableLiveData<>();
+    protected MutableLiveData<YearMonth> mMonthFilter = new MutableLiveData<>();
 
     public MainActivityViewModel (Application application) {
         super(application);

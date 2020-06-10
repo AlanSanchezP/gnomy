@@ -95,7 +95,7 @@ public abstract class MonthlyBalanceDAO {
     abstract LiveData<List<MonthlyBalance>> getAllFromAccount(int accountId);
 
     @Query("SELECT * FROM monthly_balances WHERE account_id = :accountId AND balance_date = :month")
-    abstract MonthlyBalance find(int accountId, YearMonth month);
+    abstract LiveData<MonthlyBalance> find(int accountId, YearMonth month);
 
     @Insert
     protected abstract void insert(MonthlyBalance... balances);

@@ -80,12 +80,14 @@ public class AccountRepository {
         return balanceDAO.getAllFromAccount(account.getId());
     }
 
-    public MonthlyBalance getBalanceFromMonth(Account account, YearMonth month) {
-        return balanceDAO.find(account.getId(), month);
+    public LiveData<MonthlyBalance> getBalanceFromMonth(int accountId, YearMonth month) {
+        return balanceDAO.find(accountId, month);
     }
 
+    /*
+    TODO: Find a way to automatically create monthly balances every month
     public void createMonthlyBalance(Account account) {
-        MonthlyBalance currentBalance = getBalanceFromMonth(account, YearMonth.now());
+        MonthlyBalance currentBalance = getBalanceFromMonth(account.getId(), YearMonth.now());
 
         if (currentBalance == null) {
             MonthlyBalance mb = new MonthlyBalance(account);
@@ -94,6 +96,7 @@ public class AccountRepository {
             asyncTask.execute(mb);
         }
     }
+    */
 
     // AsyncTask classes
 
