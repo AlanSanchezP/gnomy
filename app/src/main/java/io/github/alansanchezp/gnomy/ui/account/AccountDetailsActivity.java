@@ -211,7 +211,15 @@ public class AccountDetailsActivity extends AppCompatActivity {
     }
 
     public void onSeeMoreClick(View v) {
+        mSeeMoreBtn.setEnabled(false);
+        Account account = mAccount.getValue();
+
         Intent accountHistoryIntent = new Intent(this, AccountHistoryActivity.class);
+        accountHistoryIntent.putExtra(AccountHistoryActivity.EXTRA_ID, account.getId());
+        accountHistoryIntent.putExtra(AccountHistoryActivity.EXTRA_BG_COLOR, account.getBackgroundColor());
+        accountHistoryIntent.putExtra(AccountHistoryActivity.EXTRA_NAME, account.getName());
+        accountHistoryIntent.putExtra(AccountHistoryActivity.EXTRA_CURRENCY, account.getDefaultCurrency());
+
         startActivity(accountHistoryIntent);
     }
 
