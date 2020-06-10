@@ -6,8 +6,10 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.dewinjm.monthyearpicker.MonthYearPickerDialog;
 import com.github.dewinjm.monthyearpicker.MonthYearPickerDialogFragment;
@@ -106,6 +108,11 @@ public class AccountHistoryActivity extends AppCompatActivity {
         finish();
     }
 
+    public void onCheckPendingTransactionsClick(View v) {
+        // TODO: Implement pending transactions list when Transactions module is ready
+        Toast.makeText(this, getString(R.string.wip), Toast.LENGTH_LONG).show();
+    }
+
     public void onPreviousMonthClick(View v) {
         mAccountHistoryViewModel.setMonth(mAccountHistoryViewModel.getMonth().minusMonths(1));
     }
@@ -164,7 +171,6 @@ public class AccountHistoryActivity extends AppCompatActivity {
             formatterPattern = "MMMM yyyy";
         }
 
-
         monthString = month.format(DateTimeFormatter.ofPattern(formatterPattern));
         monthString = monthString.substring(0, 1).toUpperCase()
                 + monthString.substring(1);
@@ -185,14 +191,14 @@ public class AccountHistoryActivity extends AppCompatActivity {
             pendingTitle = getString(R.string.unresolved_transactions);
         }
 
+        monthTextView.setText(monthString);
+
         bottomLegend += pendingTitle + " " + getString(R.string.account_balance_not_included_legend);;
 
         accumulatedTitleTV.setText(accumulatedTitle);
         confirmedTitleTV.setText(confirmedTitle);
         pendingTitleTV.setText(pendingTitle);
         bottomLegendTV.setText(bottomLegend);
-
-        monthTextView.setText(monthString);
     }
 
     private void updateAccumulated(BigDecimal accumulated) {
@@ -214,6 +220,8 @@ public class AccountHistoryActivity extends AppCompatActivity {
         TextView pendingExpensesTV = (TextView) findViewById(R.id.account_history_pending_expenses);
         TextView pendingTotalTV = (TextView) findViewById(R.id.account_history_pending_total);
 
+        Button checkMoreBtn = (Button) findViewById(R.id.account_history_check_btn);
+
         BigDecimal confirmedIncomes = null;
         BigDecimal confirmedExpenses = null;
         BigDecimal confirmedTotal = null;
@@ -228,6 +236,10 @@ public class AccountHistoryActivity extends AppCompatActivity {
             pendingIncomes = balance.getProjectedIncomes();
             pendingExpenses = balance.getProjectedExpenses();
             pendingTotal = pendingIncomes.subtract(pendingExpenses);
+
+            checkMoreBtn.setVisibility(View.VISIBLE);
+        } else {
+            checkMoreBtn.setVisibility(View.GONE);
         }
 
         try {

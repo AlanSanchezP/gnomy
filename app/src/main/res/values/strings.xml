@@ -107,4 +107,6 @@
     <string name="pending_transactions">Pending transactions</string>
     <string name="unresolved_transactions">Unresolved transactions</string>
     <string name="account_balance_not_included_legend">are not included on the accumulated balance.</string>
+
+    <string name="wip">Work in progress</string>
 </resources>
