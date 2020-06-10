@@ -144,6 +144,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_archive_account:
                 item.setEnabled(false);
+                mSeeMoreBtn.setEnabled(false);
                 mFAB.setEnabled(false);
                 mFAB.setElevation(6f);
                 new AlertDialog.Builder(this)
@@ -165,6 +166,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
                             public void onDismiss(DialogInterface dialog) {
                                 item.setEnabled(true);
                                 mFAB.setEnabled(true);
+                                mSeeMoreBtn.setEnabled(true);
                             }
                         })
                         .show();
