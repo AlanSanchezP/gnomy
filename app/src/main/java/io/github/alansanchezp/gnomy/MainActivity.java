@@ -124,9 +124,11 @@ public class MainActivity extends AppCompatActivity
                 fragment = AccountsFragment.newInstance(1, newIndex, mViewModel.getMonth());
                 break;
             default:
-                return true;
+                return false;
         }
 
+        // TODO: Is there a better way to prevent animation lag?
+        // TODO: Can this delay cause any undesired behavior?
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -134,7 +136,7 @@ public class MainActivity extends AppCompatActivity
                         .replace(R.id.main_container, fragment, FRAGMENT_TAG)
                         .commit();
             }
-        }, 210);
+        }, 230);
 
         return true;
     }

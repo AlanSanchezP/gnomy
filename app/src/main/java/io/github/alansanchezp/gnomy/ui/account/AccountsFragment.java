@@ -115,7 +115,7 @@ public class AccountsFragment extends BaseMainNavigationFragment
             mListViewModel.initMonthFilter(mNavigationInterface.getMonthFilter());
         }
         if (mAccountBalances == null) {
-        mAccountBalances = mListViewModel.getBalances();
+            mAccountBalances = mListViewModel.getBalances();
         }
         setObservers();
     }

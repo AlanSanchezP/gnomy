@@ -10,6 +10,7 @@ import androidx.test.rule.ActivityTestRule;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -30,7 +31,12 @@ public class MainNavigationInstrumentedTest {
         onView(withId(R.id.navigation_accounts))
                 .perform(click());
 
-        onView(withText(R.string.account_current_balance))
+        onView(withId(R.id.toolbar))
+                .check(matches(hasDescendant(
+                        withText(R.string.title_accounts)
+                )));
+
+        onView(withId(R.id.total_balance_lable))
                 .check(matches(isDisplayed()));
     }
 }
