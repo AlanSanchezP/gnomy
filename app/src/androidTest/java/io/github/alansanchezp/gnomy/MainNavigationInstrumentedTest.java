@@ -48,7 +48,7 @@ public class MainNavigationInstrumentedTest {
 
     // TODO: Move this test to its own file (as month toolbar should have independent behavior)
     @Test
-    public void uses_month_toolbar() {
+    public void uses_month_arrows() {
         onView(withId(R.id.month_name_view))
                 .check(matches(
                         withText("January")
@@ -57,19 +57,6 @@ public class MainNavigationInstrumentedTest {
         onView(withId(R.id.next_month_btn))
                 .check(matches(
                         withEffectiveVisibility(ViewMatchers.Visibility.INVISIBLE)
-                ));
-
-        onView(withId(R.id.return_to_today_bth))
-                .check(matches(
-                        withEffectiveVisibility(ViewMatchers.Visibility.GONE)
-                ));
-
-        onView(withId(R.id.prev_month_btn))
-                .perform(click());
-
-        onView(withId(R.id.month_name_view))
-                .check(matches(
-                        withText("December 1999")
                 ));
 
         onView(withId(R.id.prev_month_btn))
@@ -78,7 +65,7 @@ public class MainNavigationInstrumentedTest {
 
         onView(withId(R.id.month_name_view))
                 .check(matches(
-                        withText("October 1999")
+                        withText("November 1999")
                 ));
 
         onView(withId(R.id.next_month_btn))
@@ -86,18 +73,9 @@ public class MainNavigationInstrumentedTest {
 
         onView(withId(R.id.month_name_view))
                 .check(matches(
-                        withText("November 1999")
-                ));
-
-        onView(withId(R.id.return_to_today_bth))
-                .perform(click());
-
-        onView(withId(R.id.month_name_view))
-                .check(matches(
-                        withText("January")
+                        withText("December 1999")
                 ));
     }
-
 
     @Test
     public void uses_return_to_today() {
@@ -106,20 +84,16 @@ public class MainNavigationInstrumentedTest {
                         withText("January")
                 ));
 
-        onView(withId(R.id.next_month_btn))
+        onView(withId(R.id.return_to_today_bth))
                 .check(matches(
-                        withEffectiveVisibility(ViewMatchers.Visibility.INVISIBLE)
+                        withEffectiveVisibility(ViewMatchers.Visibility.GONE)
                 ));
 
         onView(withId(R.id.prev_month_btn))
+                .perform(click())
                 .perform(click());
 
-        onView(withId(R.id.month_name_view))
-                .check(matches(
-                        withText("December 1999")
-                ));
-
-        onView(withId(R.id.next_month_btn))
+        onView(withId(R.id.return_to_today_bth))
                 .perform(click());
 
         onView(withId(R.id.month_name_view))
@@ -156,5 +130,14 @@ public class MainNavigationInstrumentedTest {
         // same doubt here
         onView(withId(R.id.toolbar2))
                 .check(matches(isDisplayed()));
+
+        onView(withId(R.id.main_floating_action_button))
+                .check(matches(isDisplayed()))
+                .perform(click());
+
+        onView(withId(R.id.toolbar))
+                .check(matches(hasDescendant(
+                        withText(R.string.account_new))
+                ));
     }
 }
