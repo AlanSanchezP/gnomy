@@ -20,7 +20,10 @@
             android:layout_height="match_parent"
             android:layout_width="match_parent">
 
-            <include layout="@layout/layout_month_toolbar" />
+            <io.github.alansanchezp.gnomy.ui.MonthToolbarView
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:id="@+id/monthtoolbar" />
 
             <FrameLayout
                 android:id="@+id/main_container"

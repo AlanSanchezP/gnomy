@@ -4,8 +4,6 @@ import android.content.res.ColorStateList;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 
-import com.github.dewinjm.monthyearpicker.MonthYearPickerDialog;
-import com.github.dewinjm.monthyearpicker.MonthYearPickerDialogFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
@@ -18,20 +16,16 @@ import android.os.Handler;
 import android.view.Menu;
 import android.view.View;
 import android.view.MenuItem;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.threeten.bp.YearMonth;
-import org.threeten.bp.format.DateTimeFormatter;
-
-import java.util.Calendar;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.ui.BaseMainNavigationFragment;
+import io.github.alansanchezp.gnomy.ui.MonthToolbarView;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.viewmodel.MainActivityViewModel;
@@ -48,7 +42,7 @@ public class MainActivity extends AppCompatActivity
     private MainActivityViewModel mViewModel;
 
     private Toolbar mMainBar;
-    private Toolbar mSecondaryBar;
+    private MonthToolbarView mMonthBar;
     private FloatingActionButton mFAB;
 
     private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -82,14 +76,42 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(mMainBar);
 
         mViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication())).get(MainActivityViewModel.class);
-        mViewModel.getPublicMonthFilter().observe(this, new Observer<YearMonth>() {
+
+        mMonthBar = (MonthToolbarView) findViewById(R.id.monthtoolbar);
+        mMonthBar.setListeners(new MonthToolbarView.MonthToolbarClickListener() {
             @Override
-            public void onChanged(@Nullable final YearMonth month) {
-                updateMonth(month);
+            public void onPreviousMonthClick() {
+                mViewModel.setMonth(mViewModel.getMonth().minusMonths(1));
+            }
+
+            @Override
+            public void onNextMonthClick() {
+                mViewModel.setMonth(mViewModel.getMonth().plusMonths(1));
+            }
+
+            @Override
+            public void onReturnToCurrentMonthClick() {
+                mViewModel.setMonth(YearMonth.now());
+            }
+
+            @Override
+            public YearMonth onGetYearMonth() {
+                return mViewModel.getMonth();
+            }
+
+            @Override
+            public void onDateSet(int year, int monthOfYear) {
+                mViewModel.setMonth(YearMonth.of(year, monthOfYear+1));
             }
         });
 
-        mSecondaryBar = (Toolbar) findViewById(R.id.toolbar2);
+        mViewModel.getPublicMonthFilter().observe(this, new Observer<YearMonth>() {
+            @Override
+            public void onChanged(@Nullable final YearMonth month) {
+                mMonthBar.setMonth(month);
+            }
+        });
+
         mFAB = (FloatingActionButton) findViewById(R.id.main_floating_action_button);
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
@@ -149,79 +171,6 @@ public class MainActivity extends AppCompatActivity
         mFAB.setEnabled(false);
     }
 
-    public void onPreviousMonthClick(View v) {
-        mViewModel.setMonth(mViewModel.getMonth().minusMonths(1));
-    }
-
-    public void onNextMonthClick(View v) {
-        mViewModel.setMonth(mViewModel.getMonth().plusMonths(1));
-    }
-
-    public void onMonthPickerClick(View v) {
-        // TODO: Implement (when possible) a better looking calendar
-        // Current limitation is that open source libraries
-        // implementing material design do not support
-        // a range limit, causing conflicts with
-        // gnomy's inability to handle future balances
-        Calendar calendar = Calendar.getInstance();
-        int yearSelected = mViewModel.getMonth().getYear();
-        int monthSelected = mViewModel.getMonth().getMonthValue();
-
-        // Month representation here ranges from 0 to 11,
-        // thus requiring +1 and -1 operations
-        calendar.clear();
-        calendar.set(YearMonth.now().getYear(), YearMonth.now().getMonthValue()-1, 1);
-        long maxDate = calendar.getTimeInMillis();
-
-        MonthYearPickerDialogFragment dialogFragment = MonthYearPickerDialogFragment
-                .getInstance(monthSelected-1, yearSelected, 0, maxDate);
-
-        dialogFragment.setOnDateSetListener(new MonthYearPickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(int year, int monthOfYear) {
-                mViewModel.setMonth(YearMonth.of(year, monthOfYear+1));
-            }
-        });
-
-        dialogFragment.show(getSupportFragmentManager(), null);
-    }
-
-    public void onReturnToCurrentMonthClick(View v) {
-        mViewModel.setMonth(YearMonth.now());
-    }
-
-    private void updateMonth(YearMonth month) {
-        TextView monthTextView = (TextView) findViewById(R.id.month_name_view);
-        ImageButton nextMonthBtn = (ImageButton) findViewById(R.id.next_month_btn);
-        ImageButton calendarBtn =  (ImageButton) findViewById(R.id.return_to_today_bth);
-        String formatterPattern;
-        String monthString;
-
-        if (month.getYear() == YearMonth.now().getYear()) {
-            formatterPattern = "MMMM";
-        } else {
-            formatterPattern = "MMMM yyyy";
-        }
-
-        monthString = month.format(DateTimeFormatter.ofPattern(formatterPattern));
-        /* This is needed as spanish localization (and possibly others too)
-           returns first character as lowercase */
-        monthString = monthString.substring(0, 1).toUpperCase()
-                + monthString.substring(1);
-
-        /* Temporal limitation
-           TODO: Handle projected balances for future months (as there is no MonthlyBalance instance for those) */
-        if (month.equals(YearMonth.now())) {
-            nextMonthBtn.setVisibility(View.INVISIBLE);
-            calendarBtn.setVisibility(View.GONE);
-        } else {
-            nextMonthBtn.setVisibility(View.VISIBLE);
-            calendarBtn.setVisibility(View.VISIBLE);
-        }
-
-        monthTextView.setText(monthString);
-    }
-
     public void onFragmentChanged(int index) {
         mCurrentFragmentIndex = index;
     }
@@ -240,12 +189,7 @@ public class MainActivity extends AppCompatActivity
         mMainBar.setTitleTextColor(textColor);
         mMainBar.getOverflowIcon().setTint(textColor);
 
-        mSecondaryBar.setVisibility(View.GONE);
-
-        if (showSecondaryToolbar) {
-            mSecondaryBar.setVisibility(View.VISIBLE);
-            mSecondaryBar.setBackgroundColor(mainColor);
-        }
+        mMonthBar.setVisibility(showSecondaryToolbar, mainColor);
 
         mFAB.setBackgroundTintList(ColorStateList.valueOf(darkVariant));
         mFAB.getDrawable().mutate().setTint(textColor);
