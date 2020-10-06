@@ -17,10 +17,12 @@ import org.threeten.bp.format.DateTimeFormatter;
 import java.util.Calendar;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import io.github.alansanchezp.gnomy.R;
 
 public class MonthToolbarView extends LinearLayout {
     final static String CALENDAR_PICKER_TAG = "CALENDAR PICKER MODAL";
+    Toolbar mInnerToolbar;
     TextView mMonthTextView;
     ImageButton mPrevMonthBtn;
     ImageButton mNextMonthBtn;
@@ -49,6 +51,7 @@ public class MonthToolbarView extends LinearLayout {
 
     private void initializeView(Context context) {
         inflate(getContext(), R.layout.layout_month_toolbar,this);
+        mInnerToolbar = (Toolbar) findViewById(R.id.month_toolbar_inner);
         mMonthTextView = (TextView) findViewById(R.id.month_name_view);
         mPrevMonthBtn = (ImageButton) findViewById(R.id.prev_month_btn);
         mNextMonthBtn = (ImageButton) findViewById(R.id.next_month_btn);
@@ -145,13 +148,17 @@ public class MonthToolbarView extends LinearLayout {
         mMonthTextView.setText(monthString);
     }
 
-    public void setVisibility(boolean show, int bgColor) {
-        setVisibility(View.GONE);
+    public void setToolbarVisibility(boolean show, int bgColor) {
+        mInnerToolbar.setVisibility(View.GONE);
 
         if (show) {
-            setVisibility(View.VISIBLE);
-            setBackgroundColor(bgColor);
+            mInnerToolbar.setVisibility(View.VISIBLE);
+            setToolbarColor(bgColor);
         }
+    }
+
+    public void setToolbarColor(int bgColor) {
+        mInnerToolbar.setBackgroundColor(bgColor);
     }
 
     public interface MonthToolbarClickListener {

@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity
         mMainBar.setTitleTextColor(textColor);
         mMainBar.getOverflowIcon().setTint(textColor);
 
-        mMonthBar.setVisibility(showSecondaryToolbar, mainColor);
+        mMonthBar.setToolbarVisibility(showSecondaryToolbar, mainColor);
 
         mFAB.setBackgroundTintList(ColorStateList.valueOf(darkVariant));
         mFAB.getDrawable().mutate().setTint(textColor);

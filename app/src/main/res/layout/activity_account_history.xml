@@ -14,7 +14,10 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" >
 
-        <include layout="@layout/layout_month_toolbar" />
+        <io.github.alansanchezp.gnomy.ui.MonthToolbarView
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:id="@+id/monthtoolbar" />
 
         <androidx.core.widget.NestedScrollView
             android:layout_marginTop="?attr/actionBarSize"

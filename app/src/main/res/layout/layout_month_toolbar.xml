@@ -5,7 +5,7 @@
     <androidx.appcompat.widget.Toolbar
         android:layout_height="?attr/actionBarSize"
         android:layout_width="match_parent"
-        android:id="@+id/toolbar2"
+        android:id="@+id/month_toolbar_inner"
         android:background="?attr/colorPrimary"
         android:layout_gravity="top"
         app:contentInsetLeft="0dp"

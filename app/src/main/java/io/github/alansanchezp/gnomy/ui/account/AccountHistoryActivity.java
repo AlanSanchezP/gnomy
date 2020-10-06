@@ -28,6 +28,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
+import io.github.alansanchezp.gnomy.ui.MonthToolbarView;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
@@ -38,7 +39,7 @@ public class AccountHistoryActivity extends AppCompatActivity {
     static final String EXTRA_NAME = "account_name";
     static final String EXTRA_CURRENCY = "account_currency";
     static final String EXTRA_BG_COLOR = "bg_color";
-    private Toolbar mSecondaryBar;
+    private MonthToolbarView mMonthBar;
     private Drawable mUpArrow;
     private AccountHistoryViewModel mAccountHistoryViewModel;
     private LiveData<BigDecimal> mAccumulated;
@@ -69,11 +70,38 @@ public class AccountHistoryActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mUpArrow = getResources().getDrawable(R.drawable.abc_vector_test);
 
-        mSecondaryBar = (Toolbar) findViewById(R.id.toolbar2);
+        mAccountHistoryViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication())).get(AccountHistoryViewModel.class);
+
+        mMonthBar = (MonthToolbarView) findViewById(R.id.monthtoolbar);
+        mMonthBar.setListeners(new MonthToolbarView.MonthToolbarClickListener() {
+            @Override
+            public void onPreviousMonthClick() {
+                mAccountHistoryViewModel.setMonth(mAccountHistoryViewModel.getMonth().minusMonths(1));
+            }
+
+            @Override
+            public void onNextMonthClick() {
+                mAccountHistoryViewModel.setMonth(mAccountHistoryViewModel.getMonth().plusMonths(1));
+            }
+
+            @Override
+            public void onReturnToCurrentMonthClick() {
+                mAccountHistoryViewModel.setMonth(YearMonth.now());
+            }
+
+            @Override
+            public YearMonth onGetYearMonth() {
+                return mAccountHistoryViewModel.getMonth();
+            }
+
+            @Override
+            public void onDateSet(int year, int monthOfYear) {
+                mAccountHistoryViewModel.setMonth(YearMonth.of(year, monthOfYear+1));
+            }
+        });
 
         setColors();
 
-        mAccountHistoryViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication())).get(AccountHistoryViewModel.class);
         mAccountHistoryViewModel.getPublicMonthFilter().observe(this, new Observer<YearMonth>() {
             @Override
             public void onChanged(@Nullable final YearMonth month) {
@@ -113,85 +141,30 @@ public class AccountHistoryActivity extends AppCompatActivity {
         Toast.makeText(this, getString(R.string.wip), Toast.LENGTH_LONG).show();
     }
 
-    public void onPreviousMonthClick(View v) {
-        mAccountHistoryViewModel.setMonth(mAccountHistoryViewModel.getMonth().minusMonths(1));
-    }
 
-    public void onNextMonthClick(View v) {
-        mAccountHistoryViewModel.setMonth(mAccountHistoryViewModel.getMonth().plusMonths(1));
-    }
-
-    public void onMonthPickerClick(View v) {
-        Calendar calendar = Calendar.getInstance();
-        int yearSelected = mAccountHistoryViewModel.getMonth().getYear();
-        int monthSelected = mAccountHistoryViewModel.getMonth().getMonthValue();
-
-        calendar.clear();
-        calendar.set(YearMonth.now().getYear(), YearMonth.now().getMonthValue()-1, 1);
-        long maxDate = calendar.getTimeInMillis();
-
-        MonthYearPickerDialogFragment dialogFragment = MonthYearPickerDialogFragment
-                .getInstance(monthSelected-1, yearSelected, 0, maxDate);
-
-        dialogFragment.setOnDateSetListener(new MonthYearPickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(int year, int monthOfYear) {
-                mAccountHistoryViewModel.setMonth(YearMonth.of(year, monthOfYear+1));
-            }
-        });
-
-        dialogFragment.show(getSupportFragmentManager(), null);
-    }
-
-    public void onReturnToCurrentMonthClick(View v) {
-        mAccountHistoryViewModel.setMonth(YearMonth.now());
-    }
 
     private void updateMonth(YearMonth month) {
-        // TODO: Modularize this to avoid DRY of month management
-        TextView monthTextView = (TextView) findViewById(R.id.month_name_view);
-        ImageButton nextMonthBtn = (ImageButton) findViewById(R.id.next_month_btn);
-        ImageButton calendarBtn =  (ImageButton) findViewById(R.id.return_to_today_bth);
+        mMonthBar.setMonth(month);
 
         TextView accumulatedTitleTV = (TextView) findViewById(R.id.account_history_accumulated_balance_label);
         TextView confirmedTitleTV = (TextView) findViewById(R.id.account_history_confirmed_title);
         TextView pendingTitleTV = (TextView) findViewById(R.id.account_history_pending_title);
         TextView bottomLegendTV = (TextView) findViewById(R.id.account_history_bottom_legend);
 
-        String formatterPattern;
-        String monthString;
         String accumulatedTitle;
         String confirmedTitle;
         String pendingTitle;
         String bottomLegend = "* ";
 
-        if (month.getYear() == YearMonth.now().getYear()) {
-            formatterPattern = "MMMM";
-        } else {
-            formatterPattern = "MMMM yyyy";
-        }
-
-        monthString = month.format(DateTimeFormatter.ofPattern(formatterPattern));
-        monthString = monthString.substring(0, 1).toUpperCase()
-                + monthString.substring(1);
-
         if (month.equals(YearMonth.now())) {
-            nextMonthBtn.setVisibility(View.INVISIBLE);
-            calendarBtn.setVisibility(View.GONE);
-
             accumulatedTitle = getString(R.string.account_current_accumulated_balance);
             confirmedTitle = getString(R.string.account_confirmed_balance);
             pendingTitle = getString(R.string.pending_transactions);
         } else {
-            nextMonthBtn.setVisibility(View.VISIBLE);
-            calendarBtn.setVisibility(View.VISIBLE);
-
             accumulatedTitle = getString(R.string.account_accumulated_balance);
             confirmedTitle = getString(R.string.account_balance_end_of_month);
             pendingTitle = getString(R.string.unresolved_transactions);
         }
-
-        monthTextView.setText(monthString);
 
         bottomLegend += pendingTitle + " " + getString(R.string.account_balance_not_included_legend);;
 
@@ -290,7 +263,7 @@ public class AccountHistoryActivity extends AppCompatActivity {
         getSupportActionBar().setHomeAsUpIndicator(mUpArrow);
         getWindow().setStatusBarColor(ColorUtil.getDarkVariant(mToolbarBgColor));
 
-        mSecondaryBar.setBackgroundColor(mToolbarBgColor);
+        mMonthBar.setToolbarColor(mToolbarBgColor);
         ((TextView) findViewById(R.id.month_name_view)).setTextColor(mTitleTextColor);
         ((ImageButton) findViewById(R.id.prev_month_btn)).getDrawable().setTint(mTitleTextColor);
         ((ImageButton) findViewById(R.id.next_month_btn)).getDrawable().setTint(mTitleTextColor);
