@@ -61,6 +61,15 @@ android {
             includeAndroidResources = true
         }
     }
+    flavorDimensions 'dimension'
+    productFlavors {
+        mock {
+            dimension 'dimension'
+        }
+        prod {
+            dimension 'dimension'
+        }
+    }
 }
 
 dependencies {

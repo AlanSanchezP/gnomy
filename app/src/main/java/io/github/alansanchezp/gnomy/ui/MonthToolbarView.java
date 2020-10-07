@@ -20,6 +20,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import io.github.alansanchezp.gnomy.R;
 
+// TODO: Use data binding to avoid cluttered mock activity
+// TODO: Move to a different package
 public class MonthToolbarView extends LinearLayout {
     final static String CALENDAR_PICKER_TAG = "CALENDAR PICKER MODAL";
     Toolbar mInnerToolbar;
