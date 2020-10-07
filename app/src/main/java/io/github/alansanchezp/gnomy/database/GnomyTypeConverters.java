@@ -1,10 +1,10 @@
 package io.github.alansanchezp.gnomy.database;
 
-import org.threeten.bp.DateTimeException;
-import org.threeten.bp.Instant;
-import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.YearMonth;
-import org.threeten.bp.ZoneId;
+import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.YearMonth;
+import java.time.ZoneId;
 
 import java.math.BigDecimal;
 

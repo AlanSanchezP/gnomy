@@ -84,16 +84,8 @@
     <string name="accounts_restore_all">Restore all</string>
     <string name="account_card_delete_short">Delete</string>
 
-    <string-array name="account_types">
-        <item>@string/account_type_bank</item>
-        <item>@string/account_type_informal</item>
-        <item>@string/account_type_savings</item>
-        <item>@string/account_type_inversions</item>
-        <item>@string/account_type_credit_card</item>
-        <item>@string/account_type_other</item>
-    </string-array>
-
     <string name="account_details">Account details</string>
+
     <string name="account_details_actions">Create new...</string>
     <string name="account_is_included_in_sum">Included in homepage sum</string>
     <string name="account_is_not_included_in_sum">Not included in homepage sum</string>
@@ -107,6 +99,14 @@
     <string name="pending_transactions">Pending transactions</string>
     <string name="unresolved_transactions">Unresolved transactions</string>
     <string name="account_balance_not_included_legend">are not included on the accumulated balance.</string>
-
     <string name="wip">Work in progress</string>
+
+    <string-array name="account_types">
+        <item>@string/account_type_bank</item>
+        <item>@string/account_type_informal</item>
+        <item>@string/account_type_savings</item>
+        <item>@string/account_type_inversions</item>
+        <item>@string/account_type_credit_card</item>
+        <item>@string/account_type_other</item>
+    </string-array>
 </resources>

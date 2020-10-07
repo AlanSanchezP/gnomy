@@ -3,7 +3,7 @@ package io.github.alansanchezp.gnomy.database.account;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import org.threeten.bp.YearMonth;
+import java.time.YearMonth;
 
 import java.math.BigDecimal;
 import java.util.List;

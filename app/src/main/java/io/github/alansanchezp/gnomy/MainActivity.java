@@ -5,7 +5,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,7 +18,7 @@ import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import org.threeten.bp.YearMonth;
+import java.time.YearMonth;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -68,7 +67,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        AndroidThreeTen.init(this);
 
         setContentView(R.layout.activity_main);
 

@@ -37,6 +37,13 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+    compileOptions {
+        // Flag to enable support for the new language APIs
+        coreLibraryDesugaringEnabled true
+        // Sets Java compatibility to Java 8
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
     buildTypes {
         debug {
             testCoverageEnabled true
@@ -69,11 +76,8 @@ dependencies {
     implementation "androidx.sqlite:sqlite:2.1.0"
     implementation 'com.github.dewinjm:monthyear-picker:1.0.2'
 
-    implementation 'com.jakewharton.threetenabp:threetenabp:1.2.2'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.9'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
-    testImplementation('org.threeten:threetenbp:1.4.2') {
-        exclude group: 'com.jakewharton.threetenabp', module: 'threetenabp'
-    }
 
     implementation "androidx.room:room-runtime:2.2.5"
     annotationProcessor "androidx.room:room-compiler:2.2.5"

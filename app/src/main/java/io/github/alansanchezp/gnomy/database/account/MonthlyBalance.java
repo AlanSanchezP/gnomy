@@ -1,6 +1,6 @@
 package io.github.alansanchezp.gnomy.database.account;
 
-import org.threeten.bp.YearMonth;
+import java.time.YearMonth;
 
 import java.math.BigDecimal;
 

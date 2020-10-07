@@ -2,7 +2,7 @@ package io.github.alansanchezp.gnomy.viewmodel;
 
 import android.app.Application;
 
-import org.threeten.bp.YearMonth;
+import java.time.YearMonth;
 
 import java.math.BigDecimal;
 

@@ -1,6 +1,6 @@
 package io.github.alansanchezp.gnomy.database.account;
 
-import org.threeten.bp.OffsetDateTime;
+import java.time.OffsetDateTime;
 
 import java.math.BigDecimal;
 

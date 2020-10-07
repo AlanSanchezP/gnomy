@@ -2,7 +2,7 @@ package io.github.alansanchezp.gnomy.database.transaction;
 // TODO: Transaction, Transfer and ReccurrentTransaction repositories
 // Create them after before (or in parallel) to their corresponding
 // UI classes.
-import org.threeten.bp.OffsetDateTime;
+import java.time.OffsetDateTime;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;

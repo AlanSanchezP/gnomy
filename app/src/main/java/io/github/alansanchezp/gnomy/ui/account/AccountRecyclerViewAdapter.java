@@ -16,7 +16,7 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import org.threeten.bp.YearMonth;
+import java.time.YearMonth;
 
 import static io.github.alansanchezp.gnomy.database.account.Account.*;
 import io.github.alansanchezp.gnomy.database.account.Account;

@@ -7,7 +7,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.threeten.bp.YearMonth;
+import java.time.YearMonth;
 
 import java.util.Locale;
 
@@ -118,7 +118,7 @@ public class MainNavigationInstrumentedTest {
         ColorDrawable appbarBg = (ColorDrawable) activityRule.getActivity()
                 .findViewById(R.id.toolbar).getBackground();
         ColorDrawable toolbarBg = (ColorDrawable) activityRule.getActivity()
-                .findViewById(R.id.toolbar2).getBackground();
+                .findViewById(R.id.monthtoolbar).getBackground();
 
         // TODO: Analyze what is the best way to test this
         // Options: - This way is fine
@@ -128,7 +128,7 @@ public class MainNavigationInstrumentedTest {
         assertEquals(0XFF2196F3, toolbarBg.getColor());
 
         // same doubt here
-        onView(withId(R.id.toolbar2))
+        onView(withId(R.id.monthtoolbar))
                 .check(matches(isDisplayed()));
 
         onView(withId(R.id.main_floating_action_button))
