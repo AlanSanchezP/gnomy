@@ -53,6 +53,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    buildFeatures {
+        dataBinding true
+        viewBinding true
+    }
     testOptions {
         // execution 'ANDROID_TEST_ORCHESTRATOR'
         animationsDisabled true

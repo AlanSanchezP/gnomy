@@ -9,23 +9,29 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 public class MainActivityViewModel extends AndroidViewModel {
-    protected MutableLiveData<YearMonth> mMonthFilter = new MutableLiveData<>();
+    private MutableLiveData<YearMonth> mMonthFilter = new MutableLiveData<>();
+    public LiveData<YearMonth> selectedMonth;
 
     public MainActivityViewModel (Application application) {
         super(application);
         if (mMonthFilter.getValue() == null) mMonthFilter.postValue(YearMonth.now());
+        if (selectedMonth == null) selectedMonth = (LiveData<YearMonth>) mMonthFilter;
+    }
+
+    public void prevMonth() {
+        mMonthFilter.postValue(mMonthFilter.getValue().minusMonths(1));
+    }
+
+    public void nextMonth() {
+        mMonthFilter.postValue(mMonthFilter.getValue().plusMonths(1));
+    }
+
+    public void today() {
+        mMonthFilter.postValue(YearMonth.now());
     }
 
     public void setMonth(YearMonth month) {
         if (month == null) return;
         mMonthFilter.postValue(month);
-    }
-
-    public YearMonth getMonth() {
-        return mMonthFilter.getValue();
-    }
-
-    public LiveData<YearMonth> getPublicMonthFilter() {
-        return (LiveData) mMonthFilter;
     }
 }

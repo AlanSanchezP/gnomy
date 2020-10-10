@@ -3,12 +3,10 @@ package io.github.alansanchezp.gnomy.ui;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
-import com.github.dewinjm.monthyearpicker.MonthYearPickerDialog;
 import com.github.dewinjm.monthyearpicker.MonthYearPickerDialogFragment;
 
 import java.time.YearMonth;
@@ -17,33 +15,27 @@ import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import io.github.alansanchezp.gnomy.R;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModelProvider;
+import io.github.alansanchezp.gnomy.databinding.LayoutMonthToolbarBinding;
+import io.github.alansanchezp.gnomy.viewmodel.MainActivityViewModel;
 
 // TODO: Use data binding to avoid cluttered mock activity
 // TODO: Move to a different package
 public class MonthToolbarView extends LinearLayout {
     final static String CALENDAR_PICKER_TAG = "CALENDAR PICKER MODAL";
-    Toolbar mInnerToolbar;
-    TextView mMonthTextView;
-    ImageButton mPrevMonthBtn;
-    ImageButton mNextMonthBtn;
-    ImageButton mCalendarBtn;
-    MonthYearPickerDialog.OnDateSetListener mOnDateSetListener;
+    private LayoutMonthToolbarBinding mBinding;
 
     public MonthToolbarView(Context context) {
-        super(context);
-        initializeView(context);
+        this(context, null);
     }
 
     public MonthToolbarView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        initializeView(context);
+        this(context, attrs, 0);
     }
 
     public MonthToolbarView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        initializeView(context);
+        this(context, attrs, defStyleAttr,0);
     }
 
     public MonthToolbarView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
@@ -52,54 +44,36 @@ public class MonthToolbarView extends LinearLayout {
     }
 
     private void initializeView(Context context) {
-        inflate(getContext(), R.layout.layout_month_toolbar,this);
-        mInnerToolbar = (Toolbar) findViewById(R.id.month_toolbar_inner);
-        mMonthTextView = (TextView) findViewById(R.id.month_name_view);
-        mPrevMonthBtn = (ImageButton) findViewById(R.id.prev_month_btn);
-        mNextMonthBtn = (ImageButton) findViewById(R.id.next_month_btn);
-        mCalendarBtn =  (ImageButton) findViewById(R.id.return_to_today_bth);
+        LayoutInflater inflater = (LayoutInflater)
+                context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mBinding = LayoutMonthToolbarBinding.inflate(inflater, this, true);
+        try {
+            setViewModel(
+                new ViewModelProvider(
+                        ((AppCompatActivity) getContext()),
+                        ViewModelProvider.AndroidViewModelFactory.getInstance(
+                            ((AppCompatActivity) getContext()).getApplication()))
+                        .get(MainActivityViewModel.class));
+        } catch (NullPointerException npe) {
+            Log.e("[Month Toolbar]", "initializeView: ", npe);
+        }
     }
 
-    public void setListeners(final MonthToolbarClickListener listener) {
-        mMonthTextView.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onMonthPickerClick(listener.onGetYearMonth());
-            }
-        });
-        mPrevMonthBtn.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onPreviousMonthClick();
-            }
-        });
-        mNextMonthBtn.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onNextMonthClick();
-            }
-        });
-        mCalendarBtn.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onReturnToCurrentMonthClick();
-            }
-        });
-        mOnDateSetListener = new MonthYearPickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(int year, int monthOfYear) {
-                listener.onDateSet(year, monthOfYear);
-            }
-        };;
+    private void setViewModel(MainActivityViewModel viewModel) {
+        mBinding.setViewmodel(viewModel);
+        mBinding.monthNameView.setOnClickListener(v -> onMonthPickerClick());
+        mBinding.getViewmodel().selectedMonth
+                .observe(((AppCompatActivity) getContext()), month -> updateMonthText(month));
     }
 
-    private void onMonthPickerClick(YearMonth currentYearMonth) {
+    private void onMonthPickerClick() {
         // TODO: Implement (when possible) a better looking calendar
         // Current limitation is that open source libraries
         // implementing material design do not support
         // a range limit, causing conflicts with
         // gnomy's inability to handle future balances
         Calendar calendar = Calendar.getInstance();
+        YearMonth currentYearMonth = mBinding.getViewmodel().selectedMonth.getValue();
         int yearSelected = currentYearMonth.getYear();
         int monthSelected = currentYearMonth.getMonthValue();
 
@@ -112,7 +86,10 @@ public class MonthToolbarView extends LinearLayout {
         MonthYearPickerDialogFragment dialogFragment = MonthYearPickerDialogFragment
                 .getInstance(monthSelected-1, yearSelected, 0, maxDate);
 
-        dialogFragment.setOnDateSetListener(mOnDateSetListener);
+        dialogFragment.setOnDateSetListener((year, monthOfYear) -> {
+            YearMonth month = YearMonth.of(year, monthOfYear+1);
+            mBinding.getViewmodel().setMonth(month);
+        });
 
         try {
             dialogFragment.show(((AppCompatActivity) getContext()).getSupportFragmentManager(), CALENDAR_PICKER_TAG);
@@ -121,7 +98,7 @@ public class MonthToolbarView extends LinearLayout {
         }
     }
 
-    public void setMonth(YearMonth month) {
+    private void updateMonthText(YearMonth month) {
         String formatterPattern;
         String monthString;
 
@@ -140,34 +117,30 @@ public class MonthToolbarView extends LinearLayout {
         /* Temporal limitation
            TODO: Handle projected balances for future months (as there is no MonthlyBalance instance for those) */
         if (month.equals(YearMonth.now())) {
-            mNextMonthBtn.setVisibility(View.INVISIBLE);
-            mCalendarBtn.setVisibility(View.GONE);
+            mBinding.nextMonthBtn.setVisibility(View.INVISIBLE);
+            mBinding.returnToTodayBth.setVisibility(View.GONE);
         } else {
-            mNextMonthBtn.setVisibility(View.VISIBLE);
-            mCalendarBtn.setVisibility(View.VISIBLE);
+            mBinding.nextMonthBtn.setVisibility(View.VISIBLE);
+            mBinding.returnToTodayBth.setVisibility(View.VISIBLE);
         }
 
-        mMonthTextView.setText(monthString);
+        mBinding.monthNameView.setText(monthString);
     }
 
     public void setToolbarVisibility(boolean show, int bgColor) {
-        mInnerToolbar.setVisibility(View.GONE);
+        mBinding.monthToolbarInner.setVisibility(View.GONE);
 
         if (show) {
-            mInnerToolbar.setVisibility(View.VISIBLE);
+            mBinding.monthToolbarInner.setVisibility(View.VISIBLE);
             setToolbarColor(bgColor);
         }
     }
 
     public void setToolbarColor(int bgColor) {
-        mInnerToolbar.setBackgroundColor(bgColor);
+        mBinding.monthToolbarInner.setBackgroundColor(bgColor);
     }
 
-    public interface MonthToolbarClickListener {
-        void onPreviousMonthClick();
-        void onNextMonthClick();
-        void onReturnToCurrentMonthClick();
-        YearMonth onGetYearMonth();
-        void onDateSet(int year, int monthOfYear);
+    public LiveData<YearMonth> getSelectedMonth() {
+        return mBinding.getViewmodel().selectedMonth;
     }
 }

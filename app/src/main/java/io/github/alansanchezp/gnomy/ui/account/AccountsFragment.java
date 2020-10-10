@@ -63,7 +63,7 @@ public class AccountsFragment extends BaseMainNavigationFragment
      * @return A new instance of fragment AccountsFragment.
      */
 
-    public static AccountsFragment newInstance(int columnCount, int index, YearMonth month) {
+    public static AccountsFragment newInstance(int columnCount, int index) {
         AccountsFragment fragment = new AccountsFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
@@ -112,7 +112,7 @@ public class AccountsFragment extends BaseMainNavigationFragment
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (mListViewModel.shouldInitMonthFilter()) {
-            mListViewModel.initMonthFilter(mNavigationInterface.getMonthFilter());
+            mListViewModel.initMonthFilter(mNavigationInterface.getSelectedMonth());
         }
         if (mAccountBalances == null) {
             mAccountBalances = mListViewModel.getBalances();
@@ -275,7 +275,7 @@ public class AccountsFragment extends BaseMainNavigationFragment
     }
 
     private void setObservers() {
-        mNavigationInterface.getMonthFilter().observe(getViewLifecycleOwner(), new Observer<YearMonth>() {
+        mNavigationInterface.getSelectedMonth().observe(getViewLifecycleOwner(), new Observer<YearMonth>() {
             @Override
             public void onChanged(@Nullable final YearMonth month) {
                 onMonthChanged(month);

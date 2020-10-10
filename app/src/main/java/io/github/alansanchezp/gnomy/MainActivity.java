@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
@@ -21,13 +20,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.time.YearMonth;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.ui.BaseMainNavigationFragment;
 import io.github.alansanchezp.gnomy.ui.MonthToolbarView;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
-import io.github.alansanchezp.gnomy.viewmodel.MainActivityViewModel;
 
 public class MainActivity extends AppCompatActivity
         implements BaseMainNavigationFragment.MainNavigationInteractionInterface {
@@ -38,7 +34,6 @@ public class MainActivity extends AppCompatActivity
             ACCOUNTS_FRAGMENT_INDEX = 3,
             NOTIFICATIONS_FRAGMENT_INDEX = 4;
     private int mCurrentFragmentIndex = 0;
-    private MainActivityViewModel mViewModel;
 
     private Toolbar mMainBar;
     private MonthToolbarView mMonthBar;
@@ -73,43 +68,7 @@ public class MainActivity extends AppCompatActivity
         mMainBar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mMainBar);
 
-        mViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication())).get(MainActivityViewModel.class);
-
         mMonthBar = (MonthToolbarView) findViewById(R.id.monthtoolbar);
-        mMonthBar.setListeners(new MonthToolbarView.MonthToolbarClickListener() {
-            @Override
-            public void onPreviousMonthClick() {
-                mViewModel.setMonth(mViewModel.getMonth().minusMonths(1));
-            }
-
-            @Override
-            public void onNextMonthClick() {
-                mViewModel.setMonth(mViewModel.getMonth().plusMonths(1));
-            }
-
-            @Override
-            public void onReturnToCurrentMonthClick() {
-                mViewModel.setMonth(YearMonth.now());
-            }
-
-            @Override
-            public YearMonth onGetYearMonth() {
-                return mViewModel.getMonth();
-            }
-
-            @Override
-            public void onDateSet(int year, int monthOfYear) {
-                mViewModel.setMonth(YearMonth.of(year, monthOfYear+1));
-            }
-        });
-
-        mViewModel.getPublicMonthFilter().observe(this, new Observer<YearMonth>() {
-            @Override
-            public void onChanged(@Nullable final YearMonth month) {
-                mMonthBar.setMonth(month);
-            }
-        });
-
         mFAB = (FloatingActionButton) findViewById(R.id.main_floating_action_button);
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
@@ -141,7 +100,7 @@ public class MainActivity extends AppCompatActivity
 
         switch (newIndex) {
             case ACCOUNTS_FRAGMENT_INDEX:
-                fragment = AccountsFragment.newInstance(1, newIndex, mViewModel.getMonth());
+                fragment = AccountsFragment.newInstance(1, newIndex);
                 break;
             default:
                 return false;
@@ -173,8 +132,8 @@ public class MainActivity extends AppCompatActivity
         mCurrentFragmentIndex = index;
     }
 
-    public LiveData<YearMonth> getMonthFilter() {
-        return mViewModel.getPublicMonthFilter();
+    public LiveData<YearMonth> getSelectedMonth() {
+        return mMonthBar.getSelectedMonth();
     }
 
     public void tintAppbars(int mainColor, boolean showSecondaryToolbar) {

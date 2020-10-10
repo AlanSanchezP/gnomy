@@ -104,6 +104,6 @@ public abstract class BaseMainNavigationFragment
     public interface MainNavigationInteractionInterface {
         void tintAppbars(int mainColor, boolean showSecondaryToolbar);
         void onFragmentChanged(int index);
-        LiveData<YearMonth> getMonthFilter();
+        LiveData<YearMonth> getSelectedMonth();
     }
 }

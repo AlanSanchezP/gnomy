@@ -66,38 +66,12 @@ public class AccountHistoryActivity extends AppCompatActivity {
         mUpArrow = getResources().getDrawable(R.drawable.abc_vector_test);
 
         mAccountHistoryViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication())).get(AccountHistoryViewModel.class);
-
         mMonthBar = (MonthToolbarView) findViewById(R.id.monthtoolbar);
-        mMonthBar.setListeners(new MonthToolbarView.MonthToolbarClickListener() {
-            @Override
-            public void onPreviousMonthClick() {
-                mAccountHistoryViewModel.setMonth(mAccountHistoryViewModel.getMonth().minusMonths(1));
-            }
 
-            @Override
-            public void onNextMonthClick() {
-                mAccountHistoryViewModel.setMonth(mAccountHistoryViewModel.getMonth().plusMonths(1));
-            }
-
-            @Override
-            public void onReturnToCurrentMonthClick() {
-                mAccountHistoryViewModel.setMonth(YearMonth.now());
-            }
-
-            @Override
-            public YearMonth onGetYearMonth() {
-                return mAccountHistoryViewModel.getMonth();
-            }
-
-            @Override
-            public void onDateSet(int year, int monthOfYear) {
-                mAccountHistoryViewModel.setMonth(YearMonth.of(year, monthOfYear+1));
-            }
-        });
-
+        mAccountHistoryViewModel.setMonthLiveData(mMonthBar.getSelectedMonth());
         setColors();
 
-        mAccountHistoryViewModel.getPublicMonthFilter().observe(this, new Observer<YearMonth>() {
+        mAccountHistoryViewModel.selectedMonth.observe(this, new Observer<YearMonth>() {
             @Override
             public void onChanged(@Nullable final YearMonth month) {
                 updateMonth(month);
@@ -139,8 +113,6 @@ public class AccountHistoryActivity extends AppCompatActivity {
 
 
     private void updateMonth(YearMonth month) {
-        mMonthBar.setMonth(month);
-
         TextView accumulatedTitleTV = (TextView) findViewById(R.id.account_history_accumulated_balance_label);
         TextView confirmedTitleTV = (TextView) findViewById(R.id.account_history_confirmed_title);
         TextView pendingTitleTV = (TextView) findViewById(R.id.account_history_pending_title);
