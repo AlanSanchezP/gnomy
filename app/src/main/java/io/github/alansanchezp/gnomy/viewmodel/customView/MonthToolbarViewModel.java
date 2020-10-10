@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.viewmodel;
+package io.github.alansanchezp.gnomy.viewmodel.customView;
 
 import android.app.Application;
 
@@ -8,11 +8,11 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-public class MainActivityViewModel extends AndroidViewModel {
+public class MonthToolbarViewModel extends AndroidViewModel {
     private MutableLiveData<YearMonth> mMonthFilter = new MutableLiveData<>();
     public LiveData<YearMonth> selectedMonth;
 
-    public MainActivityViewModel (Application application) {
+    public MonthToolbarViewModel(Application application) {
         super(application);
         if (mMonthFilter.getValue() == null) mMonthFilter.postValue(YearMonth.now());
         if (selectedMonth == null) selectedMonth = (LiveData<YearMonth>) mMonthFilter;

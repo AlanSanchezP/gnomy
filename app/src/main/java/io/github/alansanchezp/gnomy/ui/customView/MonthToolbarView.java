@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.ui;
+package io.github.alansanchezp.gnomy.ui.customView;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -18,7 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.databinding.LayoutMonthToolbarBinding;
-import io.github.alansanchezp.gnomy.viewmodel.MainActivityViewModel;
+import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
 
 // TODO: Use data binding to avoid cluttered mock activity
 // TODO: Move to a different package
@@ -53,13 +53,13 @@ public class MonthToolbarView extends LinearLayout {
                         ((AppCompatActivity) getContext()),
                         ViewModelProvider.AndroidViewModelFactory.getInstance(
                             ((AppCompatActivity) getContext()).getApplication()))
-                        .get(MainActivityViewModel.class));
+                        .get(MonthToolbarViewModel.class));
         } catch (NullPointerException npe) {
             Log.e("[Month Toolbar]", "initializeView: ", npe);
         }
     }
 
-    private void setViewModel(MainActivityViewModel viewModel) {
+    private void setViewModel(MonthToolbarViewModel viewModel) {
         mBinding.setViewmodel(viewModel);
         mBinding.monthNameView.setOnClickListener(v -> onMonthPickerClick());
         mBinding.getViewmodel().selectedMonth

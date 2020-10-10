@@ -21,7 +21,7 @@ import java.time.YearMonth;
 
 import androidx.lifecycle.LiveData;
 import io.github.alansanchezp.gnomy.ui.BaseMainNavigationFragment;
-import io.github.alansanchezp.gnomy.ui.MonthToolbarView;
+import io.github.alansanchezp.gnomy.ui.customView.MonthToolbarView;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 
