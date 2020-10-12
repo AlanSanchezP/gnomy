@@ -37,6 +37,9 @@ public class CurrencyUtilTest {
 
             currency = "MXN";
             assertEquals("20,15 MXN", CurrencyUtil.format(number, currency));
+
+            currency = "MXN";
+            assertEquals("---", CurrencyUtil.format(null, currency));
         } catch(GnomyCurrencyException e) {
             e.printStackTrace();
         }
