@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy;
+package io.github.alansanchezp.gnomy.customView;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -12,6 +12,7 @@ import java.util.Locale;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
+import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.mock.MockMonthToolbarActivity;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -40,7 +41,7 @@ public class MonthToolbarInstrumentedTest {
 
     @Test
     public void uses_month_arrows() {
-        onView(withId(R.id.month_name_view))
+        onView(ViewMatchers.withId(R.id.month_name_view))
                 .check(matches(
                         withText("January")
                 ));
