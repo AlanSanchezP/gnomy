@@ -180,9 +180,9 @@ public class AccountsFragment extends BaseMainNavigationFragment
         if (month == null) return;
         View v = getView();
         if (month.equals(YearMonth.now())) {
-            ((TextView) v.findViewById(R.id.total_projected_lable)).setText(R.string.account_projected_balance);
+            ((TextView) v.findViewById(R.id.total_projected_label)).setText(R.string.account_projected_balance);
         } else {
-            ((TextView) v.findViewById(R.id.total_projected_lable)).setText(R.string.account_accumulated_balance);
+            ((TextView) v.findViewById(R.id.total_projected_label)).setText(R.string.account_accumulated_balance);
         }
 
         mCurrentMonth = month;

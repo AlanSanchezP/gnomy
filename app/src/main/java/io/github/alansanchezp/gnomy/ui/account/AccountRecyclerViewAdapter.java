@@ -140,9 +140,9 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
             mView = view;
             mNameView = (TextView) view.findViewById(R.id.account_card_name);
             mCurrentView = (TextView) view.findViewById(R.id.account_card_current);
-            mCurrentLabelView = (TextView) view.findViewById(R.id.account_card_current_lable);
+            mCurrentLabelView = (TextView) view.findViewById(R.id.account_card_current_label);
             mProjectedView = (TextView) view.findViewById(R.id.account_card_projected);
-            mProjectedLabelView = (TextView) view.findViewById(R.id.account_card_projected_lable);
+            mProjectedLabelView = (TextView) view.findViewById(R.id.account_card_projected_label);
             mButton = (ImageButton) view.findViewById(R.id.account_card_button);
             mIconView = (ImageView) view.findViewById(R.id.account_card_icon);
 

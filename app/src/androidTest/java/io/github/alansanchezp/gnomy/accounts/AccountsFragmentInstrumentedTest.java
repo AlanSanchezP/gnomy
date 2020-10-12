@@ -38,7 +38,7 @@ public class AccountsFragmentInstrumentedTest {
     @Test
     public void projected_balance_label_is_correct() {
         FragmentScenario scenario = launchInContainer(AccountsFragment.class);
-        onView(ViewMatchers.withId(R.id.total_projected_lable))
+        onView(ViewMatchers.withId(R.id.total_projected_label))
                 .check(matches(
                         withText("Projected balance")
                 ));
@@ -46,7 +46,7 @@ public class AccountsFragmentInstrumentedTest {
             BaseMainNavigationFragment customFragment = (BaseMainNavigationFragment) fragment;
             customFragment.onMonthChanged(YearMonth.now().minusMonths(1));
         });
-        onView(withId(R.id.total_projected_lable))
+        onView(withId(R.id.total_projected_label))
                 .check(matches(
                         withText("Accumulated balance")
                 ));

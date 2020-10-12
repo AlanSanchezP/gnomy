@@ -38,7 +38,7 @@ public class MainNavigationInstrumentedTest {
                         withText(R.string.title_accounts)
                 )));
 
-        onView(withId(R.id.total_balance_lable))
+        onView(withId(R.id.total_balance_label))
                 .check(matches(isDisplayed()));
 
         ColorDrawable appbarBg = (ColorDrawable) activityRule.getActivity()
