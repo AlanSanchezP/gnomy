@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.accounts;
+package io.github.alansanchezp.gnomy.account;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
