@@ -24,6 +24,7 @@ import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -51,6 +52,7 @@ public class AccountsFragmentInstrumentedTest {
                         withText("Accumulated balance")
                 ));
     }
+
     @Test
     public void archived_accounts_modal_is_shown() {
         FragmentScenario scenario = launchInContainer(AccountsFragment.class);
@@ -271,6 +273,19 @@ public class AccountsFragmentInstrumentedTest {
         onView(withId(R.id.archived_items_container))
                 .check(matches(
                         isDisplayed()
+                ));
+    }
+
+    @Test
+    public void opens_new_account_activity() {
+        FragmentScenario scenario = launchInContainer(AccountsFragment.class);
+        scenario.onFragment(fragment -> {
+            BaseMainNavigationFragment customFragment = (BaseMainNavigationFragment) fragment;
+            customFragment.onFABClick(null);
+        });
+        onView(withId(R.id.toolbar))
+                .check(matches(hasDescendant(
+                        withText(R.string.account_new))
                 ));
     }
 }

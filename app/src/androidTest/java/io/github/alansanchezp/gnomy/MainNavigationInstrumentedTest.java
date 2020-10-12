@@ -41,6 +41,9 @@ public class MainNavigationInstrumentedTest {
         onView(withId(R.id.total_balance_label))
                 .check(matches(isDisplayed()));
 
+        // Testing here because FragmentScenario does not offer
+        // support for toolbar elements
+
         ColorDrawable appbarBg = (ColorDrawable) activityRule.getActivity()
                 .findViewById(R.id.toolbar).getBackground();
         ColorDrawable toolbarBg = (ColorDrawable) activityRule.getActivity()
@@ -53,17 +56,7 @@ public class MainNavigationInstrumentedTest {
         assertEquals(0XFF2196F3, appbarBg.getColor());
         assertEquals(0XFF2196F3, toolbarBg.getColor());
 
-        // same doubt here
         onView(withId(R.id.monthtoolbar))
                 .check(matches(isDisplayed()));
-
-        onView(withId(R.id.main_floating_action_button))
-                .check(matches(isDisplayed()))
-                .perform(click());
-
-        onView(withId(R.id.toolbar))
-                .check(matches(hasDescendant(
-                        withText(R.string.account_new))
-                ));
     }
 }
