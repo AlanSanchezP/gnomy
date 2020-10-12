@@ -3,9 +3,11 @@ package io.github.alansanchezp.gnomy.ui;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
@@ -31,9 +33,30 @@ public abstract class BaseMainNavigationFragment
         super.onAttach(context);
         if (context instanceof MainNavigationInteractionInterface) {
             mNavigationInterface = (MainNavigationInteractionInterface) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement AppbarInteractionInterface");
+        } else  {
+            try {
+                Class.forName("io.github.alansanchezp.gnomy.MainNavigationInstrumentedTest");
+                Log.d("BASE FRAGMENT", "onAttach: app is in test environment");
+                mNavigationInterface = new MainNavigationInteractionInterface() {
+                    @Override
+                    public void tintAppbars(int mainColor, boolean showSecondaryToolbar) {
+                    }
+
+                    @Override
+                    public void onFragmentChanged(int index) {
+                    }
+
+                    @Override
+                    public LiveData<YearMonth> getSelectedMonth() {
+                        MutableLiveData<YearMonth> monthFilter = new MutableLiveData<>();
+                        monthFilter.postValue(YearMonth.now());
+                        return (LiveData) monthFilter;
+                    }
+                };
+            } catch(ClassNotFoundException cnfe) {
+                throw new RuntimeException(context.toString()
+                        + " must implement AppbarInteractionInterface");
+            }
         }
     }
 
