@@ -188,6 +188,32 @@ public class AccountsFragment extends BaseMainNavigationFragment
         mCurrentMonth = month;
     }
 
+    public void onAccountsListChanged(List<AccountWithBalance> accounts) {
+        if (mCurrentMonth == null) return;
+        mAdapter.setValues(accounts, mCurrentMonth);
+        BigDecimal balance = new BigDecimal("0");
+        BigDecimal projected = null;
+
+        // This loop is here just so we can display something
+        // TODO: Calculate proper value once global user currency is implemented
+        for (AccountWithBalance mb : accounts) {
+            if (mb.projectedBalance != null) {
+                if (projected == null) projected = new BigDecimal("0");
+                projected = projected.add(mb.projectedBalance);
+            }
+            balance = balance.add(mb.accumulatedBalance);
+        }
+
+        try {
+            // TODO: Use global user currency when implemented
+            mBalance.setText(CurrencyUtil.format(balance, "USD"));
+            mProjected.setText(CurrencyUtil.format(projected, "USD"));
+        } catch (GnomyCurrencyException e) {
+            // This shouldn't happen
+            Log.wtf("AccountsFragment", "setObserver: ", e);
+        }
+    }
+
     /* INTERFACE METHODS */
 
     public void onItemInteraction(Account account) {
@@ -285,28 +311,7 @@ public class AccountsFragment extends BaseMainNavigationFragment
         mAccountBalances.observe(getViewLifecycleOwner(), new Observer<List<AccountWithBalance>>() {
             @Override
             public void onChanged(@Nullable final List<AccountWithBalance> accounts) {
-                if (mCurrentMonth == null) return;
-                mAdapter.setValues(accounts, mCurrentMonth);
-                BigDecimal balance = new BigDecimal("0");
-                BigDecimal projected = null;
-
-                // TODO: Handle conversion to global currency
-                // This loop is here just so we can display something
-                for (AccountWithBalance mb : accounts) {
-                    if (mb.projectedBalance != null) {
-                        if (projected == null) projected = new BigDecimal("0");
-                        projected = projected.add(mb.projectedBalance);
-                    }
-                    balance = balance.add(mb.accumulatedBalance);
-                }
-
-                try {
-                    mBalance.setText(CurrencyUtil.format(balance, "USD"));
-                    mProjected.setText(CurrencyUtil.format(projected, "USD"));
-                } catch (GnomyCurrencyException e) {
-                    // This shouldn't happen
-                    Log.wtf("AccountsFragment", "setObserver: ", e);
-                }
+                onAccountsListChanged(accounts);
             }
         });
     }

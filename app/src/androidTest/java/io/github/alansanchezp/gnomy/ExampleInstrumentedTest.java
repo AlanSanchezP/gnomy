@@ -19,7 +19,6 @@ public class ExampleInstrumentedTest {
     @Test
     // TODO: Remove this example test
     // TODO: Test MainActivity FAB
-    // TODO: Test AccountsFragment
     // TODO: Test AddEditAccountActivity
     // TODO: Test AccountDetailsActivity
     // TODO: Test AccountHistoryActivity

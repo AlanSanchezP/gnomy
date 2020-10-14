@@ -91,6 +91,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
         mAccount.observe(this, new Observer<Account>() {
             @Override
             public void onChanged(Account account) {
+                if (account == null) return;
                 if (account.getBackgroundColor() != mBgColor) {
                     mBgColor = account.getBackgroundColor();
                     mTextColor = ColorUtil.getTextColor(mBgColor);
