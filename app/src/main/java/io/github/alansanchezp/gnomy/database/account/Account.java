@@ -9,6 +9,7 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
+import io.github.alansanchezp.gnomy.R;
 
 @Entity(tableName = "accounts")
 public class Account {
@@ -64,6 +65,25 @@ public class Account {
     private int backgroundColor;
 
     public Account() {}
+
+    @Ignore
+    public static int getDrawableResourceId(int type) {
+        switch (type) {
+            case BANK:
+                return R.drawable.ic_account_balance_black_24dp;
+            case INFORMAL:
+                return R.drawable.ic_account_balance_piggy_black_24dp;
+            case SAVINGS:
+                return R.drawable.ic_account_balance_savings_black_24dp;
+            case INVERSIONS:
+                return R.drawable.ic_account_balance_inversion_black_24dp;
+            case CREDIT_CARD:
+                return R.drawable.ic_account_balance_credit_card_black_24dp;
+            case OTHER:
+            default:
+                return R.drawable.ic_account_balance_wallet_black_24dp;
+        }
+    }
 
     @Ignore
     public Account(Account original) {

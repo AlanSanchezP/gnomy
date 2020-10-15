@@ -10,16 +10,10 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
-
-import static io.github.alansanchezp.gnomy.database.account.Account.BANK;
-import static io.github.alansanchezp.gnomy.database.account.Account.CREDIT_CARD;
-import static io.github.alansanchezp.gnomy.database.account.Account.INFORMAL;
-import static io.github.alansanchezp.gnomy.database.account.Account.INVERSIONS;
-import static io.github.alansanchezp.gnomy.database.account.Account.OTHER;
-import static io.github.alansanchezp.gnomy.database.account.Account.SAVINGS;
 
 public class ArchivedAccountsRecyclerViewAdapter
         extends RecyclerView.Adapter<ArchivedAccountsRecyclerViewAdapter.ViewHolder>{
@@ -45,35 +39,7 @@ public class ArchivedAccountsRecyclerViewAdapter
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         if (mValues != null) {
-            Drawable icon;
-
-            holder.mItem = mValues.get(position);
-            holder.mNameView.setText(holder.mItem.getName());
-
-            switch (holder.mItem.getType()) {
-                case INFORMAL:
-                    icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_piggy_black_24dp);
-                    break;
-                case SAVINGS:
-                    icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_savings_black_24dp);
-                    break;
-                case INVERSIONS:
-                    icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_inversion_black_24dp);
-                    break;
-                case CREDIT_CARD:
-                    icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_credit_card_black_24dp);
-                    break;
-                case OTHER:
-                    icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_wallet_black_24dp);
-                    break;
-                case BANK:
-                default:
-                    icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_black_24dp);
-                    break;
-            }
-
-            holder.mIconView.setImageDrawable(icon);
-            holder.mIconView.setColorFilter(holder.mItem.getBackgroundColor());
+            holder.setAccountData(mValues.get(position));
         }
     }
 
@@ -86,11 +52,11 @@ public class ArchivedAccountsRecyclerViewAdapter
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        public Account mItem;
-        public View mView;
+        private Account mItem;
+        private View mView;
 
-        public final TextView mNameView;
-        public final ImageView mIconView;
+        private final TextView mNameView;
+        private final ImageView mIconView;
         private final Button mRestoreButton;
         private final Button mDeleteButton;
 
@@ -115,6 +81,18 @@ public class ArchivedAccountsRecyclerViewAdapter
                     mListener.deleteAccount(mItem);
                 }
             });
+        }
+
+        public void setAccountData(@NonNull Account account) {
+            mItem = account;
+
+            int iconResId = Account.getDrawableResourceId(mItem.getType());
+            Drawable icon = (Drawable) mView.getResources().getDrawable(iconResId);
+
+            mNameView.setText(mItem.getName());
+            mIconView.setImageDrawable(icon);
+            mIconView.setColorFilter(mItem.getBackgroundColor());
+            mIconView.setTag(iconResId);
         }
     }
 

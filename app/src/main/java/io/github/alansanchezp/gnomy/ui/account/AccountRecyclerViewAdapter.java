@@ -1,5 +1,6 @@
 package io.github.alansanchezp.gnomy.ui.account;
 
+import androidx.annotation.NonNull;
 import io.github.alansanchezp.gnomy.R;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,7 +19,6 @@ import android.widget.TextView;
 
 import java.time.YearMonth;
 
-import static io.github.alansanchezp.gnomy.database.account.Account.*;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
@@ -66,60 +66,7 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         if (mValues != null) {
-            holder.mItem = mValues.get(position);
-
-            // TODO: Move this logic to ViewHolder for testing purposes
-            // https://proandroiddev.com/testing-views-in-isolation-at-romobos-d288e76fe10e
-            holder.mNameView.setText(holder.mItem.account.getName());
-
-            if (!mMonth.equals(YearMonth.now())) {
-                holder.mProjectedLabelView.setText(R.string.account_accumulated_balance);
-            } else {
-                holder.mProjectedLabelView.setText(R.string.account_projected_balance);
-            }
-
-            try {
-                holder.mCurrentView.setText(CurrencyUtil.format(holder.mItem.accumulatedBalance, holder.mItem.account.getDefaultCurrency()));
-                holder.mProjectedView.setText(CurrencyUtil.format(holder.mItem.projectedBalance, holder.mItem.account.getDefaultCurrency()));
-            } catch (GnomyCurrencyException e) {
-                Log.wtf("AccountRecyclerViewA...", "onBindViewHolder: You somehow managed to store an invalid currency", e);
-            }
-
-            int accountColor = holder.mItem.account.getBackgroundColor();
-            int iconColor = ColorUtil.getTextColor(accountColor);
-            Drawable icon;
-
-            switch (holder.mItem.account.getType()) {
-                case INFORMAL:
-                    icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_piggy_black_24dp);
-                    holder.mIconView.setTag(R.drawable.ic_account_balance_piggy_black_24dp);
-                    break;
-                case SAVINGS:
-                    icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_savings_black_24dp);
-                    holder.mIconView.setTag(R.drawable.ic_account_balance_savings_black_24dp);
-                    break;
-                case INVERSIONS:
-                    icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_inversion_black_24dp);
-                    holder.mIconView.setTag(R.drawable.ic_account_balance_inversion_black_24dp);
-                    break;
-                case CREDIT_CARD:
-                    icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_credit_card_black_24dp);
-                    holder.mIconView.setTag(R.drawable.ic_account_balance_credit_card_black_24dp);
-                    break;
-                case OTHER:
-                    icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_wallet_black_24dp);
-                    holder.mIconView.setTag(R.drawable.ic_account_balance_wallet_black_24dp);
-                    break;
-                case BANK:
-                default:
-                    icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_black_24dp);
-                    holder.mIconView.setTag(R.drawable.ic_account_balance_black_24dp);
-                    break;
-            }
-
-            ((GradientDrawable) holder.mIconView.getBackground()).setColor(accountColor);
-            holder.mIconView.setImageDrawable(icon);
-            holder.mIconView.setColorFilter(iconColor);
+            holder.setAccountData(mValues.get(position));
         }
     }
 
@@ -131,17 +78,19 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
+        // TODO: Test in isolation
+        //  use https://proandroiddev.com/testing-views-in-isolation-at-romobos-d288e76fe10e
 
-        public final View mView;
-        public final TextView mNameView;
-        public final TextView mCurrentView;
-        public final TextView mCurrentLabelView;
-        public final TextView mProjectedView;
-        public final TextView mProjectedLabelView;
-        public final ImageView mIconView;
-        public final ImageButton mButton;
-        public AccountWithBalance mItem;
-        public PopupMenu popup;
+        private final View mView;
+        private final TextView mNameView;
+        private final TextView mCurrentView;
+        private final TextView mCurrentLabelView;
+        private final TextView mProjectedView;
+        private final TextView mProjectedLabelView;
+        private final ImageView mIconView;
+        private final ImageButton mButton;
+        private AccountWithBalance mItem;
+        private PopupMenu popup;
 
 
         public ViewHolder(View view) {
@@ -184,6 +133,43 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
                     popup.show();
                 }
             });
+        }
+
+        public void setAccountData(@NonNull AccountWithBalance awb) {
+            mItem = awb;
+
+            int accountColor = mItem.account.getBackgroundColor();
+            int iconColor = ColorUtil.getTextColor(accountColor);
+            int iconResId = Account.getDrawableResourceId(mItem.account.getType());
+            Drawable icon = (Drawable) mView.getResources().getDrawable(iconResId);
+
+            ((GradientDrawable) mIconView.getBackground()).setColor(accountColor);
+            mIconView.setImageDrawable(icon);
+            mIconView.setColorFilter(iconColor);
+            mIconView.setTag(iconResId);
+
+            mNameView.setText(mItem.account.getName());
+
+            if (!mMonth.equals(YearMonth.now())) {
+                mProjectedLabelView.setText(R.string.account_accumulated_balance);
+            } else {
+                mProjectedLabelView.setText(R.string.account_projected_balance);
+            }
+
+            try {
+                mCurrentView.setText(
+                        CurrencyUtil.format(
+                                mItem.accumulatedBalance,
+                                mItem.account.getDefaultCurrency()))
+                ;
+                mProjectedView.setText(
+                        CurrencyUtil.format(
+                                mItem.projectedBalance,
+                                mItem.account.getDefaultCurrency())
+                );
+            } catch (GnomyCurrencyException e) {
+                Log.wtf("AccountRecyclerViewA...", "onBindViewHolder: You somehow managed to store an invalid currency", e);
+            }
         }
 
         @Override
