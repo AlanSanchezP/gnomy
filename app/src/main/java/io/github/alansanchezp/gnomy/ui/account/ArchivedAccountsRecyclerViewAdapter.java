@@ -40,6 +40,7 @@ public class ArchivedAccountsRecyclerViewAdapter
     public void onBindViewHolder(final ViewHolder holder, int position) {
         if (mValues != null) {
             holder.setAccountData(mValues.get(position));
+            holder.setEventListeners(mListener);
         }
     }
 
@@ -50,7 +51,7 @@ public class ArchivedAccountsRecyclerViewAdapter
         else return 0;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
 
         private Account mItem;
         private View mView;
@@ -67,20 +68,6 @@ public class ArchivedAccountsRecyclerViewAdapter
             mIconView = (ImageView) view.findViewById(R.id.archived_account_card_icon);
             mRestoreButton = (Button) view.findViewById(R.id.archived_account_restore_button);
             mDeleteButton = (Button) view.findViewById(R.id.archived_account_delete_button);
-
-            mRestoreButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mListener.restoreAccount(mItem);
-                }
-            });
-
-            mDeleteButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mListener.deleteAccount(mItem);
-                }
-            });
         }
 
         public void setAccountData(@NonNull Account account) {
@@ -93,6 +80,22 @@ public class ArchivedAccountsRecyclerViewAdapter
             mIconView.setImageDrawable(icon);
             mIconView.setColorFilter(mItem.getBackgroundColor());
             mIconView.setTag(iconResId);
+        }
+
+        private void setEventListeners(OnArchivedItemInteractionListener listener) {
+            mRestoreButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.restoreAccount(mItem);
+                }
+            });
+
+            mDeleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.deleteAccount(mItem);
+                }
+            });
         }
     }
 

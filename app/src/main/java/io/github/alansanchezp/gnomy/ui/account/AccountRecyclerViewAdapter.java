@@ -66,7 +66,18 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         if (mValues != null) {
-            holder.setAccountData(mValues.get(position));
+            holder.setAccountData(mValues.get(position), mMonth);
+            holder.setEventListeners(mListener, new ClickDisablerInterface() {
+                @Override
+                public void disableClicks() {
+                    AccountRecyclerViewAdapter.this.disableClicks();
+                }
+
+                @Override
+                public boolean clicksEnabled() {
+                    return mAllowClicks;
+                }
+            });
         }
     }
 
@@ -77,14 +88,13 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
         else return 0;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         // TODO: Test in isolation
         //  use https://proandroiddev.com/testing-views-in-isolation-at-romobos-d288e76fe10e
 
         private final View mView;
         private final TextView mNameView;
         private final TextView mCurrentView;
-        private final TextView mCurrentLabelView;
         private final TextView mProjectedView;
         private final TextView mProjectedLabelView;
         private final ImageView mIconView;
@@ -92,13 +102,11 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
         private AccountWithBalance mItem;
         private PopupMenu popup;
 
-
         public ViewHolder(View view) {
             super(view);
             mView = view;
             mNameView = (TextView) view.findViewById(R.id.account_card_name);
             mCurrentView = (TextView) view.findViewById(R.id.account_card_current);
-            mCurrentLabelView = (TextView) view.findViewById(R.id.account_card_current_label);
             mProjectedView = (TextView) view.findViewById(R.id.account_card_projected);
             mProjectedLabelView = (TextView) view.findViewById(R.id.account_card_projected_label);
             mButton = (ImageButton) view.findViewById(R.id.account_card_button);
@@ -106,36 +114,9 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
 
             popup = new PopupMenu(mView.getContext(), mButton);
             popup.inflate(R.menu.account_card);
-
-            mView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mAllowClicks) {
-                        disableClicks();
-                        mListener.onItemInteraction(mItem.account);
-                    }
-                }
-            });
-
-            popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    if (mAllowClicks) {
-                        disableClicks();
-                        return mListener.onItemMenuItemInteraction(mItem.account, item);
-                    }
-                    return false;
-                }
-            });
-            mButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    popup.show();
-                }
-            });
         }
 
-        public void setAccountData(@NonNull AccountWithBalance awb) {
+        public void setAccountData(@NonNull AccountWithBalance awb, @NonNull YearMonth month) {
             mItem = awb;
 
             int accountColor = mItem.account.getBackgroundColor();
@@ -150,7 +131,7 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
 
             mNameView.setText(mItem.account.getName());
 
-            if (!mMonth.equals(YearMonth.now())) {
+            if (!month.equals(YearMonth.now())) {
                 mProjectedLabelView.setText(R.string.account_accumulated_balance);
             } else {
                 mProjectedLabelView.setText(R.string.account_projected_balance);
@@ -172,6 +153,36 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
             }
         }
 
+        private void setEventListeners(OnListItemInteractionListener listener,
+                                       ClickDisablerInterface clickInterface) {
+            mView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (clickInterface.clicksEnabled()) {
+                        clickInterface.disableClicks();
+                        listener.onItemInteraction(mItem.account);
+                    }
+                }
+            });
+
+            popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    if (clickInterface.clicksEnabled()) {
+                        clickInterface.disableClicks();
+                        return listener.onItemMenuItemInteraction(mItem.account, item);
+                    }
+                    return false;
+                }
+            });
+            mButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    popup.show();
+                }
+            });
+        }
+
         @Override
         public String toString() {
             return super.toString() + " '" + mNameView.getText() + "'";
@@ -191,5 +202,10 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
     public interface OnListItemInteractionListener {
         void onItemInteraction(Account account);
         boolean onItemMenuItemInteraction(Account account, MenuItem menuItem);
+    }
+
+    private interface ClickDisablerInterface {
+        void disableClicks();
+        boolean clicksEnabled();
     }
 }
