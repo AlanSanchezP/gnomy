@@ -1,7 +1,5 @@
 package io.github.alansanchezp.gnomy;
 
-import android.graphics.drawable.ColorDrawable;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,7 +13,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.junit.Assert.assertEquals;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -39,24 +36,6 @@ public class MainNavigationInstrumentedTest {
                 )));
 
         onView(withId(R.id.total_balance_label))
-                .check(matches(isDisplayed()));
-
-        // Testing here because FragmentScenario does not offer
-        // support for toolbar elements
-
-        ColorDrawable appbarBg = (ColorDrawable) activityRule.getActivity()
-                .findViewById(R.id.toolbar).getBackground();
-        ColorDrawable toolbarBg = (ColorDrawable) activityRule.getActivity()
-                .findViewById(R.id.monthtoolbar).getBackground();
-
-        // TODO: Analyze what is the best way to test this
-        // Options: - This way is fine
-        //          - Retrieve the color using getResources()
-        //          - Make BaseMainNavigationFragment.getAppbarColor() public
-        assertEquals(0XFF2196F3, appbarBg.getColor());
-        assertEquals(0XFF2196F3, toolbarBg.getColor());
-
-        onView(withId(R.id.monthtoolbar))
                 .check(matches(isDisplayed()));
     }
 }
