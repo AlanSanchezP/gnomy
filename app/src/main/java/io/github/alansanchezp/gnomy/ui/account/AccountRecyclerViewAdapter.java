@@ -67,6 +67,9 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
     public void onBindViewHolder(final ViewHolder holder, int position) {
         if (mValues != null) {
             holder.mItem = mValues.get(position);
+
+            // TODO: Move this logic to ViewHolder for testing purposes
+            // https://proandroiddev.com/testing-views-in-isolation-at-romobos-d288e76fe10e
             holder.mNameView.setText(holder.mItem.account.getName());
 
             if (!mMonth.equals(YearMonth.now())) {
@@ -89,22 +92,28 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
             switch (holder.mItem.account.getType()) {
                 case INFORMAL:
                     icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_piggy_black_24dp);
+                    holder.mIconView.setTag(R.drawable.ic_account_balance_piggy_black_24dp);
                     break;
                 case SAVINGS:
                     icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_savings_black_24dp);
+                    holder.mIconView.setTag(R.drawable.ic_account_balance_savings_black_24dp);
                     break;
                 case INVERSIONS:
                     icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_inversion_black_24dp);
+                    holder.mIconView.setTag(R.drawable.ic_account_balance_inversion_black_24dp);
                     break;
                 case CREDIT_CARD:
                     icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_credit_card_black_24dp);
+                    holder.mIconView.setTag(R.drawable.ic_account_balance_credit_card_black_24dp);
                     break;
                 case OTHER:
                     icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_wallet_black_24dp);
+                    holder.mIconView.setTag(R.drawable.ic_account_balance_wallet_black_24dp);
                     break;
                 case BANK:
                 default:
                     icon = (Drawable) holder.mView.getResources().getDrawable(R.drawable.ic_account_balance_black_24dp);
+                    holder.mIconView.setTag(R.drawable.ic_account_balance_black_24dp);
                     break;
             }
 

@@ -88,6 +88,7 @@ dependencies {
     implementation 'net.zetetic:android-database-sqlcipher:4.3.0'
     implementation "androidx.sqlite:sqlite:2.1.0"
     implementation 'com.github.dewinjm:monthyear-picker:1.0.2'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.9'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'

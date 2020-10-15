@@ -1,7 +1,6 @@
 package io.github.alansanchezp.gnomy.account;
 
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.ActionProvider;
 import android.view.ContextMenu;
@@ -9,6 +8,7 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import androidx.fragment.app.testing.FragmentScenario;
 import static androidx.fragment.app.testing.FragmentScenario.launchInContainer;
@@ -26,8 +27,6 @@ import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
-import io.github.alansanchezp.gnomy.util.CurrencyUtil;
-import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
@@ -36,8 +35,10 @@ import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withTagValue;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.junit.Assert.assertEquals;
+import static io.github.alansanchezp.gnomy.RecyclerViewMatcher.withRecyclerView;
+import static org.hamcrest.CoreMatchers.equalTo;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -46,20 +47,99 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(AndroidJUnit4.class)
 public class AccountsFragmentInstrumentedTest {
+    /*
+    This class tests AccountRecyclerViewAdapter too, as
+    RecyclerViewAdapters cannot be tested in isolation
+    like Activities and Fragments.
+    */
+    private static AccountWithBalance[] accountsWithBalance = new AccountWithBalance[6];
+
+    @BeforeClass
+    public static void init_accounts_list_and_set_locale() {
+        Locale.setDefault(Locale.US);
+        accountsWithBalance[0] = new AccountWithBalance();
+        accountsWithBalance[1] = new AccountWithBalance();
+        accountsWithBalance[2] = new AccountWithBalance();
+        accountsWithBalance[3] = new AccountWithBalance();
+        accountsWithBalance[4] = new AccountWithBalance();
+        accountsWithBalance[5] = new AccountWithBalance();
+
+        accountsWithBalance[0].account = new Account();
+        accountsWithBalance[0].account.setName("Test account 1");
+        accountsWithBalance[0].account.setType(Account.BANK);
+        accountsWithBalance[0].account.setInitialValue("0");
+        accountsWithBalance[0].accumulatedBalance = new BigDecimal("20");
+        accountsWithBalance[0].projectedBalance = new BigDecimal("30");
+
+        accountsWithBalance[1].account = new Account();
+        accountsWithBalance[1].account.setName("Test account 2");
+        accountsWithBalance[1].account.setType(Account.INFORMAL);
+        accountsWithBalance[1].account.setInitialValue("0");
+        accountsWithBalance[1].accumulatedBalance = new BigDecimal("40");
+        accountsWithBalance[1].projectedBalance = new BigDecimal("50");
+
+        accountsWithBalance[2].account = new Account();
+        accountsWithBalance[2].account.setName("Test account 3");
+        accountsWithBalance[2].account.setType(Account.OTHER);
+        accountsWithBalance[2].account.setInitialValue("0");
+        accountsWithBalance[2].accumulatedBalance = new BigDecimal("20");
+        accountsWithBalance[2].projectedBalance = new BigDecimal("30");
+
+        accountsWithBalance[3].account = new Account();
+        accountsWithBalance[3].account.setName("Test account 4");
+        accountsWithBalance[3].account.setType(Account.CREDIT_CARD);
+        accountsWithBalance[3].account.setInitialValue("0");
+        accountsWithBalance[3].accumulatedBalance = new BigDecimal("40");
+        accountsWithBalance[3].projectedBalance = new BigDecimal("50");
+
+        accountsWithBalance[4].account = new Account();
+        accountsWithBalance[4].account.setName("Test account 5");
+        accountsWithBalance[4].account.setType(Account.SAVINGS);
+        accountsWithBalance[4].account.setInitialValue("0");
+        accountsWithBalance[4].accumulatedBalance = new BigDecimal("20");
+        accountsWithBalance[4].projectedBalance = new BigDecimal("30");
+
+        accountsWithBalance[5].account = new Account();
+        accountsWithBalance[5].account.setName("Test account 6");
+        accountsWithBalance[5].account.setType(Account.INVERSIONS);
+        accountsWithBalance[5].account.setInitialValue("0");
+        accountsWithBalance[5].accumulatedBalance = new BigDecimal("40");
+        accountsWithBalance[5].projectedBalance = new BigDecimal("50");
+    }
+
     @Test
-    public void projected_balance_label_is_correct() {
-        FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class);
+    public void dynamic_balance_labels_are_correct() {
+        FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class,
+                null, R.style.AppTheme, null);
+        List<AccountWithBalance> accounts = new ArrayList<>();
+        accounts.add(accountsWithBalance[4]);
+
+        scenario.onFragment(fragment -> {
+            fragment.onAccountsListChanged(accounts);
+        });
+
         onView(ViewMatchers.withId(R.id.total_projected_label))
                 .check(matches(
-                        withText("Projected balance")
+                        withText(R.string.account_projected_balance)
                 ));
+        onView(
+                withRecyclerView(R.id.items_list)
+                        .atPositionOnView(0, R.id.account_card_projected_label)
+        ).check(matches(withText(R.string.account_projected_balance)));
+
         scenario.onFragment(fragment -> {
             fragment.onMonthChanged(YearMonth.now().minusMonths(1));
+            fragment.onAccountsListChanged(accounts);
         });
-        onView(withId(R.id.total_projected_label))
+
+        onView(ViewMatchers.withId(R.id.total_projected_label))
                 .check(matches(
-                        withText("Accumulated balance")
+                        withText(R.string.account_accumulated_balance)
                 ));
+        onView(
+                withRecyclerView(R.id.items_list)
+                        .atPositionOnView(0, R.id.account_card_projected_label)
+        ).check(matches(withText(R.string.account_accumulated_balance)));
     }
 
     @Test
@@ -1200,64 +1280,181 @@ public class AccountsFragmentInstrumentedTest {
 
     @Test
     public void total_balance_is_shown() {
-        // TODO: Check if this is the correct way to test this behavior
         FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class, null, R.style.AppTheme, null);
         List<AccountWithBalance> accounts = new ArrayList<>();
-        AccountWithBalance account1 = new AccountWithBalance(),
-                account2 = new AccountWithBalance();
-        account1.account = new Account();
-        account1.account.setInitialValue("0");
-        account1.accumulatedBalance = new BigDecimal("100");
-        account1.projectedBalance = new BigDecimal("120");
-        account2.account = new Account();
-        account2.account.setInitialValue("0");
-        account2.accumulatedBalance = new BigDecimal("100");
-        account2.projectedBalance = new BigDecimal("50");
 
-        try {
-            scenario.onFragment(fragment -> {
-                fragment.onAccountsListChanged(accounts);
-            });
+        scenario.onFragment(fragment -> {
+            fragment.onAccountsListChanged(accounts);
+        });
 
-            onView(withId(R.id.total_balance))
-                    .check(matches(
-                            withText(CurrencyUtil.format(new BigDecimal("0"), "USD")))
-                    );
-            onView(withId(R.id.total_projected))
-                    .check(matches(
-                            withText("---"))
-                    );
+        onView(withId(R.id.total_balance))
+                .check(matches(
+                        withText("$0.00"))
+                );
+        onView(withId(R.id.total_projected))
+                .check(matches(
+                        withText("---"))
+                );
 
-            accounts.add(account1);
-            scenario.onFragment(fragment -> {
-                fragment.onAccountsListChanged(accounts);
-            });
+        accounts.add(accountsWithBalance[0]);
+        scenario.onFragment(fragment -> {
+            fragment.onAccountsListChanged(accounts);
+        });
 
-            onView(withId(R.id.total_balance))
-                    .check(matches(
-                            withText(CurrencyUtil.format(new BigDecimal("100"), "USD")))
-                    );
-            onView(withId(R.id.total_projected))
-                    .check(matches(
-                            withText(CurrencyUtil.format(new BigDecimal("120"), "USD")))
-                    );
+        onView(withId(R.id.total_balance))
+                .check(matches(
+                        withText("$20.00"))
+                );
+        onView(withId(R.id.total_projected))
+                .check(matches(
+                        withText("$30.00"))
+                );
 
-            accounts.add(account2);
-            scenario.onFragment(fragment -> {
-                fragment.onAccountsListChanged(accounts);
-            });
+        accounts.add(accountsWithBalance[1]);
+        scenario.onFragment(fragment -> {
+            fragment.onAccountsListChanged(accounts);
+        });
 
+        onView(withId(R.id.total_balance))
+                .check(matches(
+                        withText("$60.00"))
+                );
+        onView(withId(R.id.total_projected))
+                .check(matches(
+                        withText("$80.00"))
+                );
+    }
 
-            onView(withId(R.id.total_balance))
-                    .check(matches(
-                            withText(CurrencyUtil.format(new BigDecimal("200"), "USD")))
-                    );
-            onView(withId(R.id.total_projected))
-                    .check(matches(
-                            withText(CurrencyUtil.format(new BigDecimal("170"), "USD")))
-                    );
-        } catch (GnomyCurrencyException gce) {
-            assert(false);
-        }
+    @Test
+    public void account_information_is_displayed_in_card() {
+        FragmentScenario<AccountsFragment> scenario = launchInContainer(
+                AccountsFragment.class, null, R.style.AppTheme, null);
+        List<AccountWithBalance> accounts = new ArrayList<>();
+        accounts.add(accountsWithBalance[0]);
+
+        scenario.onFragment(fragment -> {
+            fragment.onAccountsListChanged(accounts);
+        });
+
+        onView(
+                withRecyclerView(R.id.items_list)
+                        .atPositionOnView(0, R.id.account_card_name)
+        ).check(matches(withText("Test account 1")));
+        onView(
+                withRecyclerView(R.id.items_list)
+                        .atPositionOnView(0, R.id.account_card_current)
+        ).check(matches(withText("$20.00")));
+        onView(
+                withRecyclerView(R.id.items_list)
+                        .atPositionOnView(0, R.id.account_card_projected)
+        ).check(matches(withText("$30.00")));
+
+        accounts.clear();
+        accounts.add(accountsWithBalance[1]);
+        scenario.onFragment(fragment -> {
+            fragment.onAccountsListChanged(accounts);
+        });
+
+        onView(
+                withRecyclerView(R.id.items_list)
+                        .atPositionOnView(0, R.id.account_card_name)
+        ).check(matches(withText("Test account 2")));
+        onView(
+                withRecyclerView(R.id.items_list)
+                        .atPositionOnView(0, R.id.account_card_current)
+        ).check(matches(withText("$40.00")));
+        onView(
+                withRecyclerView(R.id.items_list)
+                        .atPositionOnView(0, R.id.account_card_projected)
+        ).check(matches(withText("$50.00")));
+    }
+
+    @Test
+    public void account_icon_in_card_is_correct() {
+        FragmentScenario<AccountsFragment> scenario = launchInContainer(
+                AccountsFragment.class, null, R.style.AppTheme, null);
+        List<AccountWithBalance> accounts = new ArrayList<>();
+        accounts.add(accountsWithBalance[0]);
+
+        scenario.onFragment(fragment -> {
+            fragment.onAccountsListChanged(accounts);
+        });
+
+        onView(
+                withRecyclerView(R.id.items_list)
+                        .atPositionOnView(0, R.id.account_card_icon)
+        ).check(matches(
+                withTagValue(
+                        equalTo(R.drawable.ic_account_balance_black_24dp)
+                )));
+
+        accounts.clear();
+        accounts.add(accountsWithBalance[1]);
+        scenario.onFragment(fragment -> {
+            fragment.onAccountsListChanged(accounts);
+        });
+        onView(
+                withRecyclerView(R.id.items_list)
+                        .atPositionOnView(0, R.id.account_card_icon)
+        ).check(matches(
+                withTagValue(
+                        equalTo(R.drawable.ic_account_balance_piggy_black_24dp)
+                )));
+
+        accounts.clear();
+        accounts.add(accountsWithBalance[2]);
+        scenario.onFragment(fragment -> {
+            fragment.onAccountsListChanged(accounts);
+        });
+
+        onView(
+                withRecyclerView(R.id.items_list)
+                        .atPositionOnView(0, R.id.account_card_icon)
+        ).check(matches(
+                withTagValue(
+                        equalTo(R.drawable.ic_account_balance_wallet_black_24dp)
+                )));
+
+        accounts.clear();
+        accounts.add(accountsWithBalance[3]);
+        scenario.onFragment(fragment -> {
+            fragment.onAccountsListChanged(accounts);
+        });
+
+        onView(
+                withRecyclerView(R.id.items_list)
+                        .atPositionOnView(0, R.id.account_card_icon)
+        ).check(matches(
+                withTagValue(
+                        equalTo(R.drawable.ic_account_balance_credit_card_black_24dp)
+                )));
+
+        accounts.clear();
+        accounts.add(accountsWithBalance[4]);
+        scenario.onFragment(fragment -> {
+            fragment.onAccountsListChanged(accounts);
+        });
+
+        onView(
+                withRecyclerView(R.id.items_list)
+                        .atPositionOnView(0, R.id.account_card_icon)
+        ).check(matches(
+                withTagValue(
+                        equalTo(R.drawable.ic_account_balance_savings_black_24dp)
+                )));
+
+        accounts.clear();
+        accounts.add(accountsWithBalance[5]);
+        scenario.onFragment(fragment -> {
+            fragment.onAccountsListChanged(accounts);
+        });
+
+        onView(
+                withRecyclerView(R.id.items_list)
+                        .atPositionOnView(0, R.id.account_card_icon)
+        ).check(matches(
+                withTagValue(
+                        equalTo(R.drawable.ic_account_balance_inversion_black_24dp)
+                )));
     }
 }
