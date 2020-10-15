@@ -1,6 +1,7 @@
 package io.github.alansanchezp.gnomy.account;
 
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.ActionProvider;
 import android.view.ContextMenu;
@@ -36,6 +37,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -46,14 +48,13 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 public class AccountsFragmentInstrumentedTest {
     @Test
     public void projected_balance_label_is_correct() {
-        FragmentScenario scenario = launchInContainer(AccountsFragment.class);
+        FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class);
         onView(ViewMatchers.withId(R.id.total_projected_label))
                 .check(matches(
                         withText("Projected balance")
                 ));
         scenario.onFragment(fragment -> {
-            AccountsFragment customFragment = (AccountsFragment) fragment;
-            customFragment.onMonthChanged(YearMonth.now().minusMonths(1));
+            fragment.onMonthChanged(YearMonth.now().minusMonths(1));
         });
         onView(withId(R.id.total_projected_label))
                 .check(matches(
@@ -63,13 +64,12 @@ public class AccountsFragmentInstrumentedTest {
 
     @Test
     public void archived_accounts_modal_is_shown() {
-        FragmentScenario scenario = launchInContainer(AccountsFragment.class);
+        FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class);
         onView(withId(R.id.archived_items_container))
                 .check(
                         doesNotExist()
                 );
         scenario.onFragment(fragment -> {
-            AccountsFragment customFragment = (AccountsFragment) fragment;
             MenuItem menuItem = new MenuItem() {
                 @Override
                 public int getItemId() {
@@ -276,7 +276,7 @@ public class AccountsFragmentInstrumentedTest {
                     return null;
                 }
             };
-            customFragment.onOptionsItemSelected(menuItem);
+            fragment.onOptionsItemSelected(menuItem);
         });
         onView(withId(R.id.archived_items_container))
                 .check(matches(
@@ -286,10 +286,9 @@ public class AccountsFragmentInstrumentedTest {
 
     @Test
     public void opens_new_account_activity() {
-        FragmentScenario scenario = launchInContainer(AccountsFragment.class);
+        FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class);
         scenario.onFragment(fragment -> {
-            AccountsFragment customFragment = (AccountsFragment) fragment;
-            customFragment.onFABClick(null);
+            fragment.onFABClick(null);
         });
         onView(withId(R.id.toolbar))
                 .check(matches(hasDescendant(
@@ -299,12 +298,11 @@ public class AccountsFragmentInstrumentedTest {
 
     @Test
     public void interface_click_method_opens_account_details() {
-        FragmentScenario scenario = launchInContainer(AccountsFragment.class);
+        FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class);
         scenario.onFragment(fragment -> {
-            AccountsFragment customFragment = (AccountsFragment) fragment;
             Account account = new Account();
             account.setId(1);
-            customFragment.onItemInteraction(account);
+            fragment.onItemInteraction(account);
         });
         onView(withId(R.id.toolbar))
                 .check(matches(hasDescendant(
@@ -314,9 +312,8 @@ public class AccountsFragmentInstrumentedTest {
 
     @Test
     public void interface_menu_method_opens_account_details() {
-        FragmentScenario scenario = launchInContainer(AccountsFragment.class);
+        FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class);
         scenario.onFragment(fragment -> {
-            AccountsFragment customFragment = (AccountsFragment) fragment;
             MenuItem menuItem = new MenuItem() {
                 @Override
                 public int getItemId() {
@@ -525,7 +522,7 @@ public class AccountsFragmentInstrumentedTest {
             };
             Account account = new Account();
             account.setId(1);
-            customFragment.onItemMenuItemInteraction(account, menuItem);
+            fragment.onItemMenuItemInteraction(account, menuItem);
         });
         onView(withId(R.id.toolbar))
                 .check(matches(hasDescendant(
@@ -535,9 +532,8 @@ public class AccountsFragmentInstrumentedTest {
 
     @Test
     public void interface_menu_method_opens_account_modify() {
-        FragmentScenario scenario = launchInContainer(AccountsFragment.class);
+        FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class);
         scenario.onFragment(fragment -> {
-            AccountsFragment customFragment = (AccountsFragment) fragment;
             MenuItem menuItem = new MenuItem() {
                 @Override
                 public int getItemId() {
@@ -746,7 +742,7 @@ public class AccountsFragmentInstrumentedTest {
             };
             Account account = new Account();
             account.setId(1);
-            customFragment.onItemMenuItemInteraction(account, menuItem);
+            fragment.onItemMenuItemInteraction(account, menuItem);
         });
         onView(withId(R.id.toolbar))
                 .check(matches(hasDescendant(
@@ -762,10 +758,9 @@ public class AccountsFragmentInstrumentedTest {
 
     @Test
     public void interface_menu_method_opens_archive_dialog() {
-        FragmentScenario scenario = launchInContainer(AccountsFragment.class,
+        FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class,
                 null, R.style.AppTheme, null);
         scenario.onFragment(fragment -> {
-            AccountsFragment customFragment = (AccountsFragment) fragment;
             MenuItem menuItem = new MenuItem() {
                 @Override
                 public int getItemId() {
@@ -972,7 +967,7 @@ public class AccountsFragmentInstrumentedTest {
                     return null;
                 }
             };
-            customFragment.onItemMenuItemInteraction(new Account(), menuItem);
+            fragment.onItemMenuItemInteraction(new Account(), menuItem);
         });
         onView(withText(R.string.account_card_archive))
                 .inRoot(isDialog())
@@ -984,10 +979,9 @@ public class AccountsFragmentInstrumentedTest {
 
     @Test
     public void interface_menu_method_opens_delete_dialog() {
-        FragmentScenario scenario = launchInContainer(AccountsFragment.class,
+        FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class,
                 null, R.style.AppTheme, null);
         scenario.onFragment(fragment -> {
-            AccountsFragment customFragment = (AccountsFragment) fragment;
             MenuItem menuItem = new MenuItem() {
                 @Override
                 public int getItemId() {
@@ -1194,7 +1188,7 @@ public class AccountsFragmentInstrumentedTest {
                     return null;
                 }
             };
-            customFragment.onItemMenuItemInteraction(new Account(), menuItem);
+            fragment.onItemMenuItemInteraction(new Account(), menuItem);
         });
         onView(withText(R.string.account_card_delete))
                 .inRoot(isDialog())
@@ -1207,7 +1201,7 @@ public class AccountsFragmentInstrumentedTest {
     @Test
     public void total_balance_is_shown() {
         // TODO: Check if this is the correct way to test this behavior
-        FragmentScenario scenario = launchInContainer(AccountsFragment.class, null, R.style.AppTheme, null);
+        FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class, null, R.style.AppTheme, null);
         List<AccountWithBalance> accounts = new ArrayList<>();
         AccountWithBalance account1 = new AccountWithBalance(),
                 account2 = new AccountWithBalance();
@@ -1222,8 +1216,7 @@ public class AccountsFragmentInstrumentedTest {
 
         try {
             scenario.onFragment(fragment -> {
-                AccountsFragment customFragment = (AccountsFragment) fragment;
-                customFragment.onAccountsListChanged(accounts);
+                fragment.onAccountsListChanged(accounts);
             });
 
             onView(withId(R.id.total_balance))
@@ -1237,8 +1230,7 @@ public class AccountsFragmentInstrumentedTest {
 
             accounts.add(account1);
             scenario.onFragment(fragment -> {
-                AccountsFragment customFragment = (AccountsFragment) fragment;
-                customFragment.onAccountsListChanged(accounts);
+                fragment.onAccountsListChanged(accounts);
             });
 
             onView(withId(R.id.total_balance))
@@ -1252,8 +1244,7 @@ public class AccountsFragmentInstrumentedTest {
 
             accounts.add(account2);
             scenario.onFragment(fragment -> {
-                AccountsFragment customFragment = (AccountsFragment) fragment;
-                customFragment.onAccountsListChanged(accounts);
+                fragment.onAccountsListChanged(accounts);
             });
 
 
