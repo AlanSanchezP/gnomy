@@ -34,6 +34,7 @@ import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
 import io.github.alansanchezp.gnomy.ui.BaseMainNavigationFragment;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
+import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.viewmodel.account.AccountsListViewModel;
 
@@ -179,7 +180,7 @@ public class AccountsFragment extends BaseMainNavigationFragment
     public void onMonthChanged(YearMonth month) {
         if (month == null) return;
         View v = getView();
-        if (month.equals(YearMonth.now())) {
+        if (month.equals(DateUtil.now())) {
             ((TextView) v.findViewById(R.id.total_projected_label)).setText(R.string.account_projected_balance);
         } else {
             ((TextView) v.findViewById(R.id.total_projected_label)).setText(R.string.account_accumulated_balance);

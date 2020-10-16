@@ -26,6 +26,7 @@ import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
 import io.github.alansanchezp.gnomy.ui.customView.MonthToolbarView;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
+import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.viewmodel.account.AccountHistoryViewModel;
 
@@ -123,7 +124,7 @@ public class AccountHistoryActivity extends AppCompatActivity {
         String pendingTitle;
         String bottomLegend = "* ";
 
-        if (month.equals(YearMonth.now())) {
+        if (month.equals(DateUtil.now())) {
             accumulatedTitle = getString(R.string.account_current_accumulated_balance);
             confirmedTitle = getString(R.string.account_confirmed_balance);
             pendingTitle = getString(R.string.pending_transactions);

@@ -10,7 +10,6 @@ import android.widget.LinearLayout;
 import com.github.dewinjm.monthyearpicker.MonthYearPickerDialogFragment;
 
 import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 
 import java.util.Calendar;
 
@@ -18,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.databinding.LayoutMonthToolbarBinding;
+import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
 
 public class MonthToolbarView extends LinearLayout {
@@ -78,7 +78,7 @@ public class MonthToolbarView extends LinearLayout {
         // Month representation here ranges from 0 to 11,
         // thus requiring +1 and -1 operations
         calendar.clear();
-        calendar.set(YearMonth.now().getYear(), YearMonth.now().getMonthValue()-1, 1);
+        calendar.set(DateUtil.now().getYear(), DateUtil.now().getMonthValue()-1, 1);
         long maxDate = calendar.getTimeInMillis();
 
         MonthYearPickerDialogFragment dialogFragment = MonthYearPickerDialogFragment
@@ -97,27 +97,10 @@ public class MonthToolbarView extends LinearLayout {
     }
 
     private void updateMonthText(YearMonth month) {
-        // TODO: Create a DateUtil that handles this formatting
-        //  When Transactions get implemented we will probably need more
-        //  date-related utilities
-        String formatterPattern;
-        String monthString;
-
-        if (month.getYear() == YearMonth.now().getYear()) {
-            formatterPattern = "MMMM";
-        } else {
-            formatterPattern = "MMMM yyyy";
-        }
-
-        monthString = month.format(DateTimeFormatter.ofPattern(formatterPattern));
-        /* This is needed as spanish localization (and possibly others too)
-           returns first character as lowercase */
-        monthString = monthString.substring(0, 1).toUpperCase()
-                + monthString.substring(1);
-
+        String monthString = DateUtil.getYearMonthString(month);
         /* Temporal limitation
            TODO: Handle projected balances for future months (as there is no MonthlyBalance instance for those) */
-        if (month.equals(YearMonth.now())) {
+        if (month.equals(DateUtil.now())) {
             mBinding.nextMonthBtn.setVisibility(View.INVISIBLE);
             mBinding.returnToTodayBth.setVisibility(View.GONE);
         } else {

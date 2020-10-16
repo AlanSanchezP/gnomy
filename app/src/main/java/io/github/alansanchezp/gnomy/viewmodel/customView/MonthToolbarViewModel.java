@@ -7,6 +7,7 @@ import java.time.YearMonth;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import io.github.alansanchezp.gnomy.util.DateUtil;
 
 public class MonthToolbarViewModel extends AndroidViewModel {
     private MutableLiveData<YearMonth> mMonthFilter = new MutableLiveData<>();
@@ -14,7 +15,7 @@ public class MonthToolbarViewModel extends AndroidViewModel {
 
     public MonthToolbarViewModel(Application application) {
         super(application);
-        if (mMonthFilter.getValue() == null) mMonthFilter.postValue(YearMonth.now());
+        if (mMonthFilter.getValue() == null) mMonthFilter.postValue(DateUtil.now());
         if (selectedMonth == null) selectedMonth = (LiveData<YearMonth>) mMonthFilter;
     }
 
@@ -27,7 +28,7 @@ public class MonthToolbarViewModel extends AndroidViewModel {
     }
 
     public void today() {
-        mMonthFilter.postValue(YearMonth.now());
+        mMonthFilter.postValue(DateUtil.now());
     }
 
     public void setMonth(YearMonth month) {

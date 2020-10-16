@@ -23,6 +23,7 @@ import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
+import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 
 import java.util.List;
@@ -128,7 +129,7 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
 
             mNameView.setText(mItem.account.getName());
 
-            if (!month.equals(YearMonth.now())) {
+            if (!month.equals(DateUtil.now())) {
                 mProjectedLabelView.setText(R.string.account_accumulated_balance);
             } else {
                 mProjectedLabelView.setText(R.string.account_projected_balance);
@@ -152,6 +153,7 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
 
         private void setEventListeners(OnListItemInteractionListener listener,
                                        ClickDisablerInterface clickInterface) {
+            // TODO: Find a way to test if clicks are effectively disabled
             mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

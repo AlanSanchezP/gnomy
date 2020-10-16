@@ -4,6 +4,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import io.github.alansanchezp.gnomy.util.DateUtil;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -49,7 +50,7 @@ public abstract class BaseMainNavigationFragment
                     @Override
                     public LiveData<YearMonth> getSelectedMonth() {
                         MutableLiveData<YearMonth> monthFilter = new MutableLiveData<>();
-                        monthFilter.postValue(YearMonth.now());
+                        monthFilter.postValue(DateUtil.now());
                         return (LiveData) monthFilter;
                     }
                 };

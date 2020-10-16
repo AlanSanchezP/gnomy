@@ -18,8 +18,6 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.time.YearMonth;
-
 import java.math.BigDecimal;
 
 import androidx.annotation.NonNull;
@@ -33,6 +31,7 @@ import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
+import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.viewmodel.account.AccountViewModel;
 
@@ -109,7 +108,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
                 updateInfo(account);
             }
         });
-        mLatestBalanceSum = mAccountViewModel.getAccumulatedFromMonth(mAccountId, YearMonth.now());
+        mLatestBalanceSum = mAccountViewModel.getAccumulatedFromMonth(mAccountId, DateUtil.now());
         mLatestBalanceSum.observe(this, new Observer<BigDecimal>() {
             @Override
             public void onChanged(BigDecimal balance) {

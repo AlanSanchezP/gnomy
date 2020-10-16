@@ -11,6 +11,7 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
+import io.github.alansanchezp.gnomy.util.DateUtil;
 
 
 @Dao
@@ -64,7 +65,7 @@ public abstract class MonthlyBalanceDAO {
     protected abstract LiveData<List<AccountWithBalance>> _getAllFromMonth(YearMonth month);
 
     public LiveData<List<AccountWithBalance>> getAllFromMonth(YearMonth month) {
-        if (YearMonth.now().equals(month)) {
+        if (DateUtil.now().equals(month)) {
             return _getAllLatest();
         } else {
             return _getAllFromMonth(month);
