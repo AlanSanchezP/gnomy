@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.viewmodel;
+package io.github.alansanchezp.gnomy.viewmodel.account;
 
 import android.app.Application;
 

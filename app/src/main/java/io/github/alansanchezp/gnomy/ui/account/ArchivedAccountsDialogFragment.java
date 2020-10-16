@@ -24,7 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.viewmodel.AccountsListViewModel;
+import io.github.alansanchezp.gnomy.viewmodel.account.AccountsListViewModel;
 
 public class ArchivedAccountsDialogFragment extends DialogFragment
         implements ArchivedAccountsRecyclerViewAdapter.OnArchivedItemInteractionListener {

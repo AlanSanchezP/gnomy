@@ -35,7 +35,7 @@ import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
 import io.github.alansanchezp.gnomy.ui.BaseMainNavigationFragment;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
-import io.github.alansanchezp.gnomy.viewmodel.AccountsListViewModel;
+import io.github.alansanchezp.gnomy.viewmodel.account.AccountsListViewModel;
 
 
 /**

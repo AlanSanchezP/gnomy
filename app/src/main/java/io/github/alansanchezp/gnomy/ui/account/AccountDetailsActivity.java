@@ -34,7 +34,7 @@ import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
-import io.github.alansanchezp.gnomy.viewmodel.AccountViewModel;
+import io.github.alansanchezp.gnomy.viewmodel.account.AccountViewModel;
 
 import static io.github.alansanchezp.gnomy.database.account.Account.BANK;
 import static io.github.alansanchezp.gnomy.database.account.Account.CREDIT_CARD;

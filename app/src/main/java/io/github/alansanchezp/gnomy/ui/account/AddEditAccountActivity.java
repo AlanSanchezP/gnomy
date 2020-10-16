@@ -11,7 +11,7 @@ import io.github.alansanchezp.gnomy.util.android.InputFilterMinMax;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
-import io.github.alansanchezp.gnomy.viewmodel.AccountViewModel;
+import io.github.alansanchezp.gnomy.viewmodel.account.AccountViewModel;
 
 import android.content.DialogInterface;
 import android.content.Intent;
