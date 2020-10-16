@@ -35,29 +35,23 @@ public abstract class BaseMainNavigationFragment
         if (context instanceof MainNavigationInteractionInterface) {
             mNavigationInterface = (MainNavigationInteractionInterface) context;
         } else  {
-            try {
-                Class.forName("io.github.alansanchezp.gnomy.MainNavigationInstrumentedTest");
-                Log.d("BASE FRAGMENT", "onAttach: app is in test environment");
-                mNavigationInterface = new MainNavigationInteractionInterface() {
-                    @Override
-                    public void tintAppbars(int mainColor, boolean showSecondaryToolbar) {
-                    }
+            Log.w("BASE FRAGMENT", "onAttach: Navigation interface not found. Fallback to empty instance.");
+            mNavigationInterface = new MainNavigationInteractionInterface() {
+                @Override
+                public void tintAppbars(int mainColor, boolean showSecondaryToolbar) {
+                }
 
-                    @Override
-                    public void onFragmentChanged(int index) {
-                    }
+                @Override
+                public void onFragmentChanged(int index) {
+                }
 
-                    @Override
-                    public LiveData<YearMonth> getSelectedMonth() {
-                        MutableLiveData<YearMonth> monthFilter = new MutableLiveData<>();
-                        monthFilter.postValue(DateUtil.now());
-                        return (LiveData) monthFilter;
-                    }
-                };
-            } catch(ClassNotFoundException cnfe) {
-                throw new RuntimeException(context.toString()
-                        + " must implement AppbarInteractionInterface");
-            }
+                @Override
+                public LiveData<YearMonth> getSelectedMonth() {
+                    MutableLiveData<YearMonth> monthFilter = new MutableLiveData<>();
+                    monthFilter.postValue(DateUtil.now());
+                    return (LiveData<YearMonth>) monthFilter;
+                }
+            };
         }
     }
 
