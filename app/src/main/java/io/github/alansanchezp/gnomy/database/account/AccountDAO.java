@@ -35,7 +35,8 @@ public abstract class AccountDAO  {
         Account original = findSync(account.getId());
 
         if (!original.getDefaultCurrency().equals(account.getDefaultCurrency())) {
-            // TODO: recalculation of calculated values
+            // TODO: recalculation of calculated values.
+            //  See GnomyDatabase's TODOs
         }
 
         _update(account);

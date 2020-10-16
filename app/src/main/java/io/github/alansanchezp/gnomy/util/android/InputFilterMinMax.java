@@ -41,6 +41,7 @@ public class InputFilterMinMax implements InputFilter {
         return "";
     }
 
+    // TODO: Make method public and create a test for it
     private boolean isInRange(BigDecimal a, BigDecimal b, BigDecimal c) {
         // b > a
         if (b.compareTo(a) == 1) {

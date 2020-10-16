@@ -19,11 +19,14 @@ public class ExampleInstrumentedTest {
     @Test
     // TODO: Remove this example test
     // TODO: Test MainActivity FAB
+    //  How do we test clickable status?
+    //  Click actions are being tested on isolated fragments
     // TODO: Test AddEditAccountActivity
     // TODO: Test AccountDetailsActivity
     // TODO: Test AccountHistoryActivity
     // TODO: Test RecyclerViewAdapters
-    //  https://chelseatroy.com/2015/09/27/android-examples-a-test-driven-recyclerview/
+    //  -AccountsList [✔️]
+    //  -ArchivedAccounts [-]
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();

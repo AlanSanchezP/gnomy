@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         // TODO: Is there a better way to prevent animation lag?
-        // TODO: Can this delay cause any undesired behavior?
+        //  Can this delay cause any undesired behavior?
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {

@@ -112,6 +112,10 @@ public abstract class BaseMainNavigationFragment
 
     protected abstract boolean displaySecondaryToolbar();
 
+    // TODO: Add displayFAB() method to control FAB
+    //  NotificationsFragment will probably not have any actions
+    //  Alternatively add some method to manipulate FAB icon
+
     protected abstract int getAppbarColor();
 
     protected abstract String getTitle();

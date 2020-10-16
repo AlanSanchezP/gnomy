@@ -20,8 +20,6 @@ import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.databinding.LayoutMonthToolbarBinding;
 import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
 
-// TODO: Use data binding to avoid cluttered mock activity
-// TODO: Move to a different package
 public class MonthToolbarView extends LinearLayout {
     final static String CALENDAR_PICKER_TAG = "CALENDAR PICKER MODAL";
     private LayoutMonthToolbarBinding mBinding;
@@ -99,6 +97,9 @@ public class MonthToolbarView extends LinearLayout {
     }
 
     private void updateMonthText(YearMonth month) {
+        // TODO: Create a DateUtil that handles this formatting
+        //  When Transactions get implemented we will probably need more
+        //  date-related utilities
         String formatterPattern;
         String monthString;
 
@@ -127,6 +128,8 @@ public class MonthToolbarView extends LinearLayout {
         mBinding.monthNameView.setText(monthString);
     }
 
+    // TODO: Evaluate if should test these two methods
+    //  setToolbarVisibility and setToolbarColor
     public void setToolbarVisibility(boolean show, int bgColor) {
         mBinding.monthToolbarInner.setVisibility(View.GONE);
 

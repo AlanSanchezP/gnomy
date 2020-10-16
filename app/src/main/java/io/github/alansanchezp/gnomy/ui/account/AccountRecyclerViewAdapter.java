@@ -89,9 +89,6 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        // TODO: Test in isolation
-        //  use https://proandroiddev.com/testing-views-in-isolation-at-romobos-d288e76fe10e
-
         private final View mView;
         private final TextView mNameView;
         private final TextView mCurrentView;

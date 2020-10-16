@@ -35,6 +35,7 @@ public class CurrencyUtil {
 
     public static String format(BigDecimal number, String currencyCode) throws GnomyCurrencyException {
         if (number == null) {
+            // TODO: Make this string a Class Constant
             // TODO: Evaluate if '---' should be replaced by something else
             return "---";
         }

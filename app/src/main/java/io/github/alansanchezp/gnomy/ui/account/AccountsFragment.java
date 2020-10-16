@@ -196,6 +196,9 @@ public class AccountsFragment extends BaseMainNavigationFragment
 
         // This loop is here just so we can display something
         // TODO: Calculate proper value once global user currency is implemented
+        // TODO: Evaluate if should move to some utility class
+        //  as we will probably need more BigDecimal operations
+        //  and should be easier to test them as pure java functions
         for (AccountWithBalance mb : accounts) {
             if (mb.projectedBalance != null) {
                 if (projected == null) projected = new BigDecimal("0");
