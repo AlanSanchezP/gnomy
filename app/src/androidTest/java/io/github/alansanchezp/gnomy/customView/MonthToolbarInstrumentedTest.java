@@ -1,5 +1,7 @@
 package io.github.alansanchezp.gnomy.customView;
 
+import android.content.Intent;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -9,11 +11,12 @@ import java.time.YearMonth;
 
 import java.util.Locale;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.matcher.ViewMatchers;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.rule.ActivityTestRule;
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.mock.MockMonthToolbarActivity;
+import io.github.alansanchezp.gnomy.mock.MockActivity;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -25,9 +28,14 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(AndroidJUnit4.class)
 public class MonthToolbarInstrumentedTest {
+    private Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
+            MockActivity.class)
+            .putExtra(
+                    MockActivity.EXTRA_LAYOUT_TAG,
+                    R.layout.m_activity_month_toolbar);
     @Rule
-    public ActivityTestRule<MockMonthToolbarActivity> activityRule =
-            new ActivityTestRule<>(MockMonthToolbarActivity.class);
+    public ActivityScenarioRule<MockActivity> activityRule =
+            new ActivityScenarioRule<>(intent);
 
     @BeforeClass
     public static void set_system_locale() {
@@ -36,6 +44,7 @@ public class MonthToolbarInstrumentedTest {
 
     @Before
     public void system_date_is_set_to_january_2000() {
+        // TODO: Find a way to avoid this step as it gets annoying over time
         assertEquals("2000-01", YearMonth.now().toString());
     }
 
