@@ -41,15 +41,16 @@ public class InputFilterMinMax implements InputFilter {
         return "";
     }
 
-    // TODO: Make method public and create a test for it
-    private boolean isInRange(BigDecimal a, BigDecimal b, BigDecimal c) {
-        // b > a
-        if (b.compareTo(a) == 1) {
-            // c >= a && c <= b
-            return c.compareTo(a) >= 0 && c.compareTo(b) <= 0;
-        } else {
-            // c >= b && c <= a
-            return c.compareTo(b) >= 0 && c.compareTo(a) <= 0;
+    public static boolean isInRange(BigDecimal limitA,
+                                    BigDecimal limitB,
+                                    BigDecimal target) {
+        // limitB > limitA : limitA is lowest valid number
+        if (limitB.compareTo(limitA) == 1) {
+            // target >= limitA && target <= limitB
+            return target.compareTo(limitA) >= 0 && target.compareTo(limitB) <= 0;
+        } else { // limitB is lowest valid number
+            // target >= limitB && target <= limitA
+            return target.compareTo(limitB) >= 0 && target.compareTo(limitA) <= 0;
         }
     }
 }
