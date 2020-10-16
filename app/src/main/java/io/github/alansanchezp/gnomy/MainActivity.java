@@ -25,6 +25,12 @@ import io.github.alansanchezp.gnomy.ui.customView.MonthToolbarView;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 
+// TODO: Add Javadoc comments to project
+// TODO: Write README.md contents
+// TODO: Use Lamda expressions and remove casting on findViewById()
+//  Turns out we don't have to worry about minSDK issues as those are handled by compileSDK
+// These TODOs are placed here just because MainActivity acts as a "root" file
+// even if they are not related to the class
 public class MainActivity extends AppCompatActivity
         implements BaseMainNavigationFragment.MainNavigationInteractionInterface {
     private static final String FRAGMENT_TAG = "GNOMY_MAIN_FRAGMENT";
