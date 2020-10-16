@@ -67,7 +67,7 @@ android {
     }
     flavorDimensions 'dimension'
     productFlavors {
-        mock {
+        dummy {
             dimension 'dimension'
         }
         prod {

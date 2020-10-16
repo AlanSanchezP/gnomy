@@ -20,7 +20,7 @@ import androidx.test.filters.LargeTest;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
-import io.github.alansanchezp.gnomy.mock.MockActivity;
+import io.github.alansanchezp.gnomy.dummy.DummyActivity;
 import io.github.alansanchezp.gnomy.ui.account.AccountRecyclerViewAdapter;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -35,13 +35,13 @@ import static org.hamcrest.CoreMatchers.equalTo;
 public class AccountRecyclerViewHolderInstrumentedTest {
     static AccountWithBalance testAccount = new AccountWithBalance();
     Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
-            MockActivity.class)
+            DummyActivity.class)
             .putExtra(
-                    MockActivity.EXTRA_LAYOUT_TAG,
+                    DummyActivity.EXTRA_LAYOUT_TAG,
                     R.layout.fragment_account_card);
 
     @Rule
-    public ActivityScenarioRule<MockActivity> activityRule =
+    public ActivityScenarioRule<DummyActivity> activityRule =
             new ActivityScenarioRule<>(intent);
 
 
@@ -59,7 +59,7 @@ public class AccountRecyclerViewHolderInstrumentedTest {
 
     @Test
     public void dynamic_balance_labels_are_correct() {
-        ActivityScenario<MockActivity> scenario = activityRule.getScenario();
+        ActivityScenario<DummyActivity> scenario = activityRule.getScenario();
         View view[] = new View[1];
         AccountRecyclerViewAdapter.ViewHolder[] holder = new AccountRecyclerViewAdapter.ViewHolder[1];
         scenario.onActivity(activity -> {
@@ -87,7 +87,7 @@ public class AccountRecyclerViewHolderInstrumentedTest {
 
     @Test
     public void account_information_is_displayed_in_card() {
-        ActivityScenario<MockActivity> scenario = activityRule.getScenario();
+        ActivityScenario<DummyActivity> scenario = activityRule.getScenario();
         View view[] = new View[1];
         AccountRecyclerViewAdapter.ViewHolder[] holder = new AccountRecyclerViewAdapter.ViewHolder[1];
         scenario.onActivity(activity -> {
@@ -108,7 +108,7 @@ public class AccountRecyclerViewHolderInstrumentedTest {
 
     @Test
     public void account_icon_in_card_is_correct() {
-        ActivityScenario<MockActivity> scenario = activityRule.getScenario();
+        ActivityScenario<DummyActivity> scenario = activityRule.getScenario();
         View view[] = new View[1];
         AccountRecyclerViewAdapter.ViewHolder[] holder = new AccountRecyclerViewAdapter.ViewHolder[1];
         scenario.onActivity(activity -> {

@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.mock;
+package io.github.alansanchezp.gnomy.dummy;
 
 import androidx.appcompat.app.AppCompatActivity;
 import io.github.alansanchezp.gnomy.R;
@@ -6,7 +6,7 @@ import io.github.alansanchezp.gnomy.R;
 import android.os.Bundle;
 import android.util.Log;
 
-public class MockActivity extends AppCompatActivity {
+public class DummyActivity extends AppCompatActivity {
     public static String EXTRA_LAYOUT_TAG = "LAYOUT_RES_ID";
     private int layoutId;
 
