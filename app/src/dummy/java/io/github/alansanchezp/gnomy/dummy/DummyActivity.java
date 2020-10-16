@@ -3,6 +3,7 @@ package io.github.alansanchezp.gnomy.dummy;
 import androidx.appcompat.app.AppCompatActivity;
 import io.github.alansanchezp.gnomy.R;
 ;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -16,9 +17,9 @@ public class DummyActivity extends AppCompatActivity {
         try {
             layoutId = getIntent().getIntExtra(EXTRA_LAYOUT_TAG, R.layout.activity_main);
             setContentView(layoutId);
-        } catch (Exception e) {
-            setContentView(R.layout.activity_main);
-            Log.e("MockActivity", "onCreate: ", e);
+        } catch (Resources.NotFoundException nfe) {
+            Log.w("DummyActivity", "onCreate: Fallback to empty activity layout", nfe);
+            setContentView(R.layout.d_activity_empty);
         }
     }
 }

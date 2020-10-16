@@ -1,17 +1,13 @@
 package io.github.alansanchezp.gnomy.customView;
 
-import android.content.Intent;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.matcher.ViewMatchers;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.dummy.DummyActivity;
+import io.github.alansanchezp.gnomy.ViewScenarioRule;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -21,14 +17,9 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 @RunWith(AndroidJUnit4.class)
 public class MonthToolbarInstrumentedTest {
-    private Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
-            DummyActivity.class)
-            .putExtra(
-                    DummyActivity.EXTRA_LAYOUT_TAG,
-                    R.layout.d_activity_month_toolbar);
     @Rule
-    public ActivityScenarioRule<DummyActivity> activityRule =
-            new ActivityScenarioRule<>(intent);
+    public ViewScenarioRule viewRule =
+            new ViewScenarioRule(R.layout.d_activity_month_toolbar);
 
     @Test
     public void buttons_are_hidden_correctly() {
