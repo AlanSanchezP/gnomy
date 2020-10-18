@@ -46,10 +46,10 @@ public abstract class BaseMainNavigationFragment
                 }
 
                 @Override
-                public LiveData<YearMonth> getSelectedMonth() {
-                    MutableLiveData<YearMonth> monthFilter = new MutableLiveData<>();
-                    monthFilter.postValue(DateUtil.now());
-                    return (LiveData<YearMonth>) monthFilter;
+                public LiveData<YearMonth> getActiveMonth() {
+                    MutableLiveData<YearMonth> mutableActiveMonth = new MutableLiveData<>();
+                    mutableActiveMonth.postValue(DateUtil.now());
+                    return (LiveData<YearMonth>) mutableActiveMonth;
                 }
             };
         }
@@ -126,6 +126,6 @@ public abstract class BaseMainNavigationFragment
     public interface MainNavigationInteractionInterface {
         void tintAppbars(int mainColor, boolean showSecondaryToolbar);
         void onFragmentChanged(int index);
-        LiveData<YearMonth> getSelectedMonth();
+        LiveData<YearMonth> getActiveMonth();
     }
 }

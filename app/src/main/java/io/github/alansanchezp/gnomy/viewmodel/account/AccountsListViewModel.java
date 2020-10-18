@@ -16,7 +16,7 @@ import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
 
 public class AccountsListViewModel extends AndroidViewModel {
     private AccountRepository mRepository;
-    private LiveData<YearMonth> mMonthFilter;
+    private LiveData<YearMonth> mActiveMonth;
     private LiveData<List<Account>> mAllAccounts;
     private LiveData<List<AccountWithBalance>> mBalancesToDisplay;
     private LiveData<List<Account>> mArchivedAccounts;
@@ -26,12 +26,8 @@ public class AccountsListViewModel extends AndroidViewModel {
         mRepository = new AccountRepository(application);
     }
 
-    public boolean shouldInitMonthFilter() {
-        return mMonthFilter == null;
-    }
-
-    public void initMonthFilter(LiveData<YearMonth> monthFilter) {
-        if (mMonthFilter == null) mMonthFilter = monthFilter;
+    public void bindMonth(LiveData<YearMonth> month) {
+        if (mActiveMonth == null) mActiveMonth = month;
     }
 
     public LiveData<List<Account>> getAll() {
@@ -43,7 +39,7 @@ public class AccountsListViewModel extends AndroidViewModel {
 
     public LiveData<List<AccountWithBalance>> getBalances() {
         if (mBalancesToDisplay == null) {
-            mBalancesToDisplay = Transformations.switchMap(mMonthFilter, new Function<YearMonth, LiveData<List<AccountWithBalance>>>() {
+            mBalancesToDisplay = Transformations.switchMap(mActiveMonth, new Function<YearMonth, LiveData<List<AccountWithBalance>>>() {
                 @Override
                 public LiveData<List<AccountWithBalance>> apply(YearMonth month) {
                     return mRepository.getAllFromMonth(month);

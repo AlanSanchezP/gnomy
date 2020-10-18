@@ -60,7 +60,7 @@ public class MonthToolbarView extends LinearLayout {
     private void setViewModel(MonthToolbarViewModel viewModel) {
         mBinding.setViewmodel(viewModel);
         mBinding.monthNameView.setOnClickListener(v -> onMonthPickerClick());
-        mBinding.getViewmodel().selectedMonth
+        mBinding.getViewmodel().activeMonth
                 .observe(((AppCompatActivity) getContext()), month -> updateMonthText(month));
     }
 
@@ -71,9 +71,9 @@ public class MonthToolbarView extends LinearLayout {
         // a range limit, causing conflicts with
         // gnomy's inability to handle future balances
         Calendar calendar = Calendar.getInstance();
-        YearMonth currentYearMonth = mBinding.getViewmodel().selectedMonth.getValue();
-        int yearSelected = currentYearMonth.getYear();
-        int monthSelected = currentYearMonth.getMonthValue();
+        YearMonth activeYearMonth = mBinding.getViewmodel().activeMonth.getValue();
+        int activeYear = activeYearMonth.getYear();
+        int activeMonth = activeYearMonth.getMonthValue();
 
         // Month representation here ranges from 0 to 11,
         // thus requiring +1 and -1 operations
@@ -82,7 +82,7 @@ public class MonthToolbarView extends LinearLayout {
         long maxDate = calendar.getTimeInMillis();
 
         MonthYearPickerDialogFragment dialogFragment = MonthYearPickerDialogFragment
-                .getInstance(monthSelected-1, yearSelected, 0, maxDate);
+                .getInstance(activeMonth-1, activeYear, 0, maxDate);
 
         dialogFragment.setOnDateSetListener((year, monthOfYear) -> {
             YearMonth month = YearMonth.of(year, monthOfYear+1);
@@ -126,7 +126,7 @@ public class MonthToolbarView extends LinearLayout {
         mBinding.monthToolbarInner.setBackgroundColor(bgColor);
     }
 
-    public LiveData<YearMonth> getSelectedMonth() {
-        return mBinding.getViewmodel().selectedMonth;
+    public LiveData<YearMonth> getActiveMonth() {
+        return mBinding.getViewmodel().activeMonth;
     }
 }

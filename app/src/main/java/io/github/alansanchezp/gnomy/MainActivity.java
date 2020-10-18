@@ -138,8 +138,8 @@ public class MainActivity extends AppCompatActivity
         mCurrentFragmentIndex = index;
     }
 
-    public LiveData<YearMonth> getSelectedMonth() {
-        return mMonthBar.getSelectedMonth();
+    public LiveData<YearMonth> getActiveMonth() {
+        return mMonthBar.getActiveMonth();
     }
 
     public void tintAppbars(int mainColor, boolean showSecondaryToolbar) {

@@ -69,10 +69,10 @@ public class AccountHistoryActivity extends AppCompatActivity {
         mAccountHistoryViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication())).get(AccountHistoryViewModel.class);
         mMonthBar = (MonthToolbarView) findViewById(R.id.monthtoolbar);
 
-        mAccountHistoryViewModel.setMonthLiveData(mMonthBar.getSelectedMonth());
+        mAccountHistoryViewModel.bindMonth(mMonthBar.getActiveMonth());
         setColors();
 
-        mAccountHistoryViewModel.selectedMonth.observe(this, new Observer<YearMonth>() {
+        mMonthBar.getActiveMonth().observe(this, new Observer<YearMonth>() {
             @Override
             public void onChanged(@Nullable final YearMonth month) {
                 updateMonth(month);
