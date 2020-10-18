@@ -35,13 +35,6 @@ import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.viewmodel.account.AccountViewModel;
 
-import static io.github.alansanchezp.gnomy.database.account.Account.BANK;
-import static io.github.alansanchezp.gnomy.database.account.Account.CREDIT_CARD;
-import static io.github.alansanchezp.gnomy.database.account.Account.INFORMAL;
-import static io.github.alansanchezp.gnomy.database.account.Account.INVERSIONS;
-import static io.github.alansanchezp.gnomy.database.account.Account.OTHER;
-import static io.github.alansanchezp.gnomy.database.account.Account.SAVINGS;
-
 public class AccountDetailsActivity extends AppCompatActivity {
     static final String EXTRA_ID = "account_id";
     static final String EXTRA_BG_COLOR = "bg_color";
@@ -246,38 +239,13 @@ public class AccountDetailsActivity extends AppCompatActivity {
         ImageView includedInSumImage = (ImageView) findViewById(R.id.account_included_in_sum_icon);
         TextView includedInSumTV = (TextView) findViewById(R.id.account_included_in_sum_text);
 
-        Drawable typeIcon;
-        String typeString;
+        Drawable typeIcon = typeImage.getResources().getDrawable(
+                Account.getDrawableResourceId(account.getType()));
+        String typeString = getString(
+                Account.getTypeNameResourceId(account.getType())
+        );
         Drawable includedInSumIcon;
         String includedInSumString;
-
-        switch (account.getType()) {
-            case INFORMAL:
-                typeIcon = (Drawable) typeImage.getResources().getDrawable(R.drawable.ic_account_balance_piggy_black_24dp);
-                typeString = getString(R.string.account_type_informal);
-                break;
-            case SAVINGS:
-                typeIcon = (Drawable) typeImage.getResources().getDrawable(R.drawable.ic_account_balance_savings_black_24dp);
-                typeString = getString(R.string.account_type_savings);
-                break;
-            case INVERSIONS:
-                typeIcon = (Drawable) typeImage.getResources().getDrawable(R.drawable.ic_account_balance_inversion_black_24dp);
-                typeString = getString(R.string.account_type_inversions);
-                break;
-            case CREDIT_CARD:
-                typeIcon = (Drawable) typeImage.getResources().getDrawable(R.drawable.ic_account_balance_credit_card_black_24dp);
-                typeString = getString(R.string.account_type_credit_card);
-                break;
-            case OTHER:
-                typeIcon = (Drawable) typeImage.getResources().getDrawable(R.drawable.ic_account_balance_wallet_black_24dp);
-                typeString = getString(R.string.account_type_other);
-                break;
-            case BANK:
-            default:
-                typeIcon = (Drawable) typeImage.getResources().getDrawable(R.drawable.ic_account_balance_black_24dp);
-                typeString = getString(R.string.account_type_bank);
-                break;
-        }
 
         if (account.isShowInDashboard()) {
             includedInSumIcon = (Drawable) includedInSumImage.getResources().getDrawable(R.drawable.ic_check_black_24dp);

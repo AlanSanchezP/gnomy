@@ -86,6 +86,25 @@ public class Account {
     }
 
     @Ignore
+    public static int getTypeNameResourceId(int type) {
+        switch (type) {
+            case BANK:
+                return R.string.account_type_bank;
+            case INFORMAL:
+                return R.string.account_type_informal;
+            case SAVINGS:
+                return R.string.account_type_savings;
+            case INVERSIONS:
+                return R.string.account_type_inversions;
+            case CREDIT_CARD:
+                return R.string.account_type_credit_card;
+            case OTHER:
+            default:
+                return R.string.account_type_other;
+        }
+    }
+
+    @Ignore
     public Account(Account original) {
         this.id = original.getId();
         this.name = original.getName();
