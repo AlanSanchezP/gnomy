@@ -4,11 +4,14 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Currency;
+import java.util.List;
 import java.util.Locale;
+
+import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
 
 public class CurrencyUtil {
     // TODO generate complete set of currencies
-    // consider limitations of free services for conversion rates
+    //  consider limitations of free services for conversion rates
     private static final String[] CURRENCIES = {
         "USD",
         "MXN",
@@ -71,5 +74,30 @@ public class CurrencyUtil {
        } else {
            throw new GnomyCurrencyException("Currency code is not supported.");
        }
+    }
+
+    public static BigDecimal[] sumAccountListBalances(
+            List<AccountWithBalance> awbList,
+            String baseCurrencyCode)
+            throws GnomyCurrencyException {
+        // TODO: Adjust logic when currency support is implemented
+        //  This loop is here just so we can display something
+        //  It's possible that the whole method (including signature) will change
+        // totals[0] represents accumulated/current balance
+        // totals[1] represents projected/past balance
+        BigDecimal[] totals = {null,null};
+        totals[0] = new BigDecimal("0");
+
+        for (AccountWithBalance awb : awbList) {
+            if (awb.accumulatedBalance != null) {
+                totals[0] = totals[0].add(awb.accumulatedBalance);
+            }
+            if (awb.projectedBalance != null) {
+                if (totals[1] == null) totals[1] = new BigDecimal("0");
+                totals[1] = totals[1].add(awb.projectedBalance);
+            }
+        }
+
+        return totals;
     }
 }

@@ -192,26 +192,13 @@ public class AccountsFragment extends BaseMainNavigationFragment
     public void onAccountsListChanged(List<AccountWithBalance> accounts) {
         if (mCurrentMonth == null) return;
         mAdapter.setValues(accounts, mCurrentMonth);
-        BigDecimal balance = new BigDecimal("0");
-        BigDecimal projected = null;
 
-        // This loop is here just so we can display something
-        // TODO: Calculate proper value once global user currency is implemented
-        // TODO: Evaluate if should move to some utility class
-        //  as we will probably need more BigDecimal operations
-        //  and should be easier to test them as pure java functions
-        for (AccountWithBalance mb : accounts) {
-            if (mb.projectedBalance != null) {
-                if (projected == null) projected = new BigDecimal("0");
-                projected = projected.add(mb.projectedBalance);
-            }
-            balance = balance.add(mb.accumulatedBalance);
-        }
-
+        // TODO: Use global user currency when implemented
+        String userCurrencyCode = "USD";
         try {
-            // TODO: Use global user currency when implemented
-            mBalance.setText(CurrencyUtil.format(balance, "USD"));
-            mProjected.setText(CurrencyUtil.format(projected, "USD"));
+            BigDecimal[] totalBalances = CurrencyUtil.sumAccountListBalances(accounts, userCurrencyCode);
+            mBalance.setText(CurrencyUtil.format(totalBalances[0], userCurrencyCode));
+            mProjected.setText(CurrencyUtil.format(totalBalances[1], userCurrencyCode));
         } catch (GnomyCurrencyException e) {
             // This shouldn't happen
             Log.wtf("AccountsFragment", "setObserver: ", e);
