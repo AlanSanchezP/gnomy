@@ -18,6 +18,9 @@ public class CurrencyUtil {
         "EUR"
     };
 
+    // TODO: Evaluate if '---' should be replaced by something else
+    public static final String NULL_NUMBER_STRING = "---";
+
     public static String[] getCurrencies() {
         return CURRENCIES;
     }
@@ -37,11 +40,7 @@ public class CurrencyUtil {
     }
 
     public static String format(BigDecimal number, String currencyCode) throws GnomyCurrencyException {
-        if (number == null) {
-            // TODO: Make this string a Class Constant
-            // TODO: Evaluate if '---' should be replaced by something else
-            return "---";
-        }
+        if (number == null) return NULL_NUMBER_STRING;
 
         Currency currency = getCurrency(currencyCode);
         NumberFormat formatter = NumberFormat.getCurrencyInstance(Locale.getDefault());
