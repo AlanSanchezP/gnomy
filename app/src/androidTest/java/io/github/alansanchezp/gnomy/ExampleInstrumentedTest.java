@@ -24,9 +24,6 @@ public class ExampleInstrumentedTest {
     // TODO: Test AddEditAccountActivity
     // TODO: Test AccountDetailsActivity
     // TODO: Test AccountHistoryActivity
-    // TODO: Test RecyclerViewAdapters
-    //  -AccountsList [✔️]
-    //  -ArchivedAccounts [-]
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();

@@ -118,6 +118,9 @@ public class AccountRecyclerViewHolderInstrumentedTest {
                         withTagValue(
                             equalTo(Account.getDrawableResourceId(type))
                     )));
+
+            // Couldn't find a way to test drawable tint
+            // or background drawable color
         }
     }
 }
