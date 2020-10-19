@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +31,6 @@ public class ArchivedAccountsDialogFragment extends DialogFragment
         implements ArchivedAccountsRecyclerViewAdapter.OnArchivedItemInteractionListener {
     public static String TAG = "ARCHIVED-ACCOUNTS-DIALOG";
 
-    private RecyclerView mRecyclerView;
     private ArchivedAccountsRecyclerViewAdapter mAdapter;
     private LiveData<List<Account>> mAccounts;
     private AccountsListViewModel mListViewModel;
@@ -61,8 +61,12 @@ public class ArchivedAccountsDialogFragment extends DialogFragment
     @Override
     public void onStart() {
         super.onStart();
-        getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        getDialog().setTitle(getString(R.string.title_archived_accounts));
+        try {
+            getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            getDialog().setTitle(getString(R.string.title_archived_accounts));
+        } catch(NullPointerException npe) {
+            Log.w("ArchivedAccountsDialog", "onStart: This should only happen during tests!", npe);
+        }
     }
 
     @Override
@@ -71,9 +75,9 @@ public class ArchivedAccountsDialogFragment extends DialogFragment
         View view = inflater.inflate(R.layout.fragment_archived_accounts_dialog, container, false);
         Context context = view.getContext();
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.archived_items_list);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-        mRecyclerView.setAdapter(mAdapter);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.archived_items_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        recyclerView.setAdapter(mAdapter);
 
         mRestoreAllButton = (Button) view.findViewById(R.id.restore_all_accounts_button);
         mRestoreAllButton.setOnClickListener(new View.OnClickListener() {
@@ -89,43 +93,33 @@ public class ArchivedAccountsDialogFragment extends DialogFragment
         mAccounts.observe(getViewLifecycleOwner(), new Observer<List<Account>>() {
             @Override
             public void onChanged(@Nullable final List<Account> accounts) {
-                int itemsCount = accounts.size();
-
-                if (mListSize != -1 && itemsCount == 0) {
-                    dismiss();
-                    return;
-                }
-
-                switch (itemsCount) {
-                    case 0:
-                        mEmptyListText.setVisibility(View.VISIBLE);
-                        mRestoreAllButton.setVisibility(View.GONE);
-                    case 1:
-                        mEmptyListText.setVisibility(View.GONE);
-                        mRestoreAllButton.setVisibility(View.VISIBLE);
-                        break;
-                    default:
-                        mRestoreAllButton.setVisibility(View.VISIBLE);
-                }
-
-                if (itemsCount == 0) {
-                    mEmptyListText.setVisibility(View.VISIBLE);
-                    mRestoreAllButton.setVisibility(View.GONE);
-                } else if (itemsCount == 1) {
-                    mEmptyListText.setVisibility(View.GONE);
-                    mRestoreAllButton.setVisibility(View.GONE);
-                } else {
-                    mEmptyListText.setVisibility(View.GONE);
-                    mRestoreAllButton.setVisibility(View.VISIBLE);
-                }
-
-                mListSize = itemsCount;
-                mAdapter.setValues(accounts);
+                onAccountsListChanged(accounts);
             }
         });
 
-
         return view;
+    }
+
+    public void onAccountsListChanged(List<Account> accounts) {
+        int itemsCount = accounts.size();
+        if (mListSize != -1 && itemsCount == 0) {
+            dismiss();
+            return;
+        }
+
+        if (itemsCount == 0) {
+            mEmptyListText.setVisibility(View.VISIBLE);
+            mRestoreAllButton.setVisibility(View.GONE);
+        } else if (itemsCount == 1) {
+            mEmptyListText.setVisibility(View.GONE);
+            mRestoreAllButton.setVisibility(View.GONE);
+        } else {
+            mEmptyListText.setVisibility(View.GONE);
+            mRestoreAllButton.setVisibility(View.VISIBLE);
+        }
+
+        mListSize = itemsCount;
+        mAdapter.setValues(accounts);
     }
 
     public void restoreAccount(Account account) {
