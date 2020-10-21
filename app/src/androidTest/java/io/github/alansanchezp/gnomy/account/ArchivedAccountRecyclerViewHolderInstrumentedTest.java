@@ -11,7 +11,6 @@ import java.util.Locale;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.LargeTest;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.ViewScenarioRule;
 import io.github.alansanchezp.gnomy.database.account.Account;
@@ -26,7 +25,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.equalTo;
 
 @RunWith(AndroidJUnit4.class)
-@LargeTest
 public class ArchivedAccountRecyclerViewHolderInstrumentedTest {
     static Account testAccount = new Account();
 
@@ -66,7 +64,7 @@ public class ArchivedAccountRecyclerViewHolderInstrumentedTest {
         ArchivedAccountsRecyclerViewAdapter.ViewHolder[] holder
                 = new ArchivedAccountsRecyclerViewAdapter.ViewHolder[1];
         scenario.onActivity(activity -> {
-            view[0] = (View) activity.findViewById(R.id.account_card);
+            view[0] = (View) activity.findViewById(R.id.archived_account_card);
             holder[0] = new ArchivedAccountsRecyclerViewAdapter.ViewHolder(view[0]);
         });
 
@@ -80,11 +78,6 @@ public class ArchivedAccountRecyclerViewHolderInstrumentedTest {
                         withTagValue(
                             equalTo(Account.getDrawableResourceId(type))
                     )));
-            onView(withId(R.id.archived_account_card_icon))
-                    .check(matches(
-                            (
-                                    equalTo(Account.getDrawableResourceId(type))
-                            )));
             // Couldn't find a way to test drawable tint
         }
     }

@@ -53,18 +53,7 @@ public class ArchivedAccountsDialogFragmentInstrumentedTest {
                 ArchivedAccountsDialogFragment.class, null, R.style.AppTheme, null);
         List<Account> accountsList = new ArrayList<>();
 
-        // LiveData hasn't returned any results
-        onView(withId(R.id.archived_items_empty))
-                .check(matches(
-                        withEffectiveVisibility(ViewMatchers.Visibility.INVISIBLE)
-                ));
-
-        onView(withId(R.id.restore_all_accounts_button))
-                .check(matches(
-                        withEffectiveVisibility(ViewMatchers.Visibility.GONE)
-                ));
-
-        // List size is 0 as initial state
+        // List size is 0 as initial state or LiveData hasn't returned any results
         scenario.onFragment(fragment -> {
             fragment.onAccountsListChanged(accountsList);
         });
@@ -80,6 +69,7 @@ public class ArchivedAccountsDialogFragmentInstrumentedTest {
                 ));
 
 
+        // List grows
         accountsList.add(accounts[0]);
         scenario.onFragment(fragment -> {
             fragment.onAccountsListChanged(accountsList);
