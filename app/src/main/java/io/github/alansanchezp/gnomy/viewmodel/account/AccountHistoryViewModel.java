@@ -6,7 +6,6 @@ import java.time.YearMonth;
 
 import java.math.BigDecimal;
 
-import androidx.arch.core.util.Function;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
@@ -30,24 +29,16 @@ public class AccountHistoryViewModel extends AndroidViewModel {
 
     public LiveData<BigDecimal> getAccumulatedFromMonth(final int accountId) {
         if (mAccumulated == null) {
-            mAccumulated = Transformations.switchMap(mActiveMonth, new Function<YearMonth, LiveData<BigDecimal>>() {
-                @Override
-                public LiveData<BigDecimal> apply(YearMonth month) {
-                    return mRepository.getAccumulatedFromMonth(accountId, month);
-                }
-            });
+            mAccumulated = Transformations.switchMap(mActiveMonth,
+                    month -> mRepository.getAccumulatedFromMonth(accountId, month));
         }
         return mAccumulated;
     }
 
     public LiveData<MonthlyBalance> getBalanceFromMonth(final int accountId) {
         if (mBalance == null) {
-            mBalance = Transformations.switchMap(mActiveMonth, new Function<YearMonth, LiveData<MonthlyBalance>>() {
-                @Override
-                public LiveData<MonthlyBalance> apply(YearMonth month) {
-                    return mRepository.getBalanceFromMonth(accountId, month);
-                }
-            });
+            mBalance = Transformations.switchMap(mActiveMonth,
+                    month -> mRepository.getBalanceFromMonth(accountId, month));
         }
         return mBalance;
     }
