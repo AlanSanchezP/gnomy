@@ -111,19 +111,20 @@ public class MonthToolbarView extends LinearLayout {
         mBinding.monthNameView.setText(monthString);
     }
 
-    // TODO: Evaluate if should test these two methods
-    //  setToolbarVisibility and setToolbarColor
-    public void setToolbarVisibility(boolean show, int bgColor) {
-        mBinding.monthToolbarInner.setVisibility(View.GONE);
-
+    public void toggleVisibility(boolean show) {
         if (show) {
             mBinding.monthToolbarInner.setVisibility(View.VISIBLE);
-            setToolbarColor(bgColor);
+        } else {
+            mBinding.monthToolbarInner.setVisibility(View.GONE);
         }
     }
 
-    public void setToolbarColor(int bgColor) {
-        mBinding.monthToolbarInner.setBackgroundColor(bgColor);
+    public boolean isVisible() {
+        return mBinding.monthToolbarInner.getVisibility() == View.VISIBLE;
+    }
+
+    public void tintElements(int themeColor) {
+        mBinding.monthToolbarInner.setBackgroundColor(themeColor);
     }
 
     public LiveData<YearMonth> getActiveMonth() {

@@ -1,5 +1,6 @@
 package io.github.alansanchezp.gnomy.ui;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
@@ -15,7 +16,7 @@ import android.view.View;
 
 import java.time.YearMonth;
 
-public abstract class BaseMainNavigationFragment
+public abstract class MainNavigationFragment
         extends Fragment {
 
     public static final String ARG_COLUMN_COUNT = "column-count";
@@ -30,7 +31,7 @@ public abstract class BaseMainNavigationFragment
     /* ANDROID LIFECYCLE METHODS */
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof MainNavigationInteractionInterface) {
             mNavigationInterface = (MainNavigationInteractionInterface) context;
@@ -38,7 +39,11 @@ public abstract class BaseMainNavigationFragment
             Log.w("BASE FRAGMENT", "onAttach: Navigation interface not found. Fallback to empty instance.");
             mNavigationInterface = new MainNavigationInteractionInterface() {
                 @Override
-                public void tintAppbars(int mainColor, boolean showSecondaryToolbar) {
+                public void tintNavigationElements(int themeColor) {
+                }
+
+                @Override
+                public void toggleOptionalNavigationElements(boolean showOptionalElements) {
                 }
 
                 @Override
@@ -67,7 +72,7 @@ public abstract class BaseMainNavigationFragment
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(getMenuResourceId(), menu);
         tintMenuIcons(menu);
         super.onCreateOptionsMenu(menu, inflater);
@@ -76,8 +81,13 @@ public abstract class BaseMainNavigationFragment
     @Override
     public void onStart() {
         super.onStart();
-        setTitle();
-        tintAppbars();
+        requireActivity().setTitle(getTitle());
+        mNavigationInterface.toggleOptionalNavigationElements(
+                withOptionalNavigationElements()
+        );
+        mNavigationInterface.tintNavigationElements(
+                getThemeColor()
+        );
     }
 
     @Override
@@ -86,32 +96,15 @@ public abstract class BaseMainNavigationFragment
         mNavigationInterface = null;
     }
 
-    /* COMMON METHODS ACROSS CONCRETE CLASSES */
-
-    protected void setTitle() {
-        getActivity().setTitle(getTitle());
-    }
-
-    protected void tintAppbars() {
-        mNavigationInterface.tintAppbars(
-                getAppbarColor(),
-                displaySecondaryToolbar()
-        );
-    }
-
     /* ABSTRACT METHODS */
 
     protected abstract boolean hasAppbarActions();
 
     protected abstract int getMenuResourceId();
 
-    protected abstract boolean displaySecondaryToolbar();
+    protected abstract boolean withOptionalNavigationElements();
 
-    // TODO: Add displayFAB() method to control FAB
-    //  NotificationsFragment will probably not have any actions
-    //  Alternatively add some method to manipulate FAB icon
-
-    protected abstract int getAppbarColor();
+    protected abstract int getThemeColor();
 
     protected abstract String getTitle();
 
@@ -124,7 +117,8 @@ public abstract class BaseMainNavigationFragment
     public abstract void onMonthChanged(YearMonth month);
 
     public interface MainNavigationInteractionInterface {
-        void tintAppbars(int mainColor, boolean showSecondaryToolbar);
+        void tintNavigationElements(int themeColor);
+        void toggleOptionalNavigationElements(boolean showOptionalElements);
         void onFragmentChanged(int index);
         LiveData<YearMonth> getActiveMonth();
     }

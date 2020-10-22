@@ -11,6 +11,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 
 import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.MenuItem;
@@ -18,9 +19,10 @@ import android.view.MenuItem;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.time.YearMonth;
+import java.util.Objects;
 
 import androidx.lifecycle.LiveData;
-import io.github.alansanchezp.gnomy.ui.BaseMainNavigationFragment;
+import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
 import io.github.alansanchezp.gnomy.ui.customView.MonthToolbarView;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
@@ -32,7 +34,7 @@ import io.github.alansanchezp.gnomy.util.ColorUtil;
 // These TODOs are placed here just because MainActivity acts as a "root" file
 // even if they are not related to the class
 public class MainActivity extends AppCompatActivity
-        implements BaseMainNavigationFragment.MainNavigationInteractionInterface {
+        implements MainNavigationFragment.MainNavigationInteractionInterface {
     private static final String FRAGMENT_TAG = "GNOMY_MAIN_FRAGMENT";
     private static final int
             SUMMARY_FRAGMENT_INDEX = 1,
@@ -46,24 +48,20 @@ public class MainActivity extends AppCompatActivity
     private FloatingActionButton mFAB;
 
     private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    return switchFragment(SUMMARY_FRAGMENT_INDEX);
-                case R.id.navigation_transactions:
-                    return switchFragment(TRANSACTIONS_FRAGMENT_INDEX);
-                case R.id.navigation_accounts:
-                    return switchFragment(ACCOUNTS_FRAGMENT_INDEX);
-                case R.id.navigation_notifications:
-                    return switchFragment(NOTIFICATIONS_FRAGMENT_INDEX);
-                default:
-                    return false;
-            }
-        }
-    };
+            = item -> {
+                switch (item.getItemId()) {
+                    case R.id.navigation_home:
+                        return switchFragment(SUMMARY_FRAGMENT_INDEX);
+                    case R.id.navigation_transactions:
+                        return switchFragment(TRANSACTIONS_FRAGMENT_INDEX);
+                    case R.id.navigation_accounts:
+                        return switchFragment(ACCOUNTS_FRAGMENT_INDEX);
+                    case R.id.navigation_notifications:
+                        return switchFragment(NOTIFICATIONS_FRAGMENT_INDEX);
+                    default:
+                        return false;
+                }
+            };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,10 +98,11 @@ public class MainActivity extends AppCompatActivity
 
     public boolean switchFragment(int newIndex) {
         final FragmentManager manager = getSupportFragmentManager();
-        final BaseMainNavigationFragment fragment;
+        final MainNavigationFragment fragment;
 
         if (newIndex == mCurrentFragmentIndex) return true;
 
+        //noinspection SwitchStatementWithTooFewBranches
         switch (newIndex) {
             case ACCOUNTS_FRAGMENT_INDEX:
                 fragment = AccountsFragment.newInstance(1, newIndex);
@@ -114,20 +113,15 @@ public class MainActivity extends AppCompatActivity
 
         // TODO: Is there a better way to prevent animation lag?
         //  Can this delay cause any undesired behavior?
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                manager.beginTransaction()
-                        .replace(R.id.main_container, fragment, FRAGMENT_TAG)
-                        .commit();
-            }
-        }, 230);
+        new Handler().postDelayed(() -> manager.beginTransaction()
+                .replace(R.id.main_container, fragment, FRAGMENT_TAG)
+                .commit(), 230);
 
         return true;
     }
 
     public void onFABClick(View v) {
-        BaseMainNavigationFragment currentFragment = (BaseMainNavigationFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+        MainNavigationFragment currentFragment = (MainNavigationFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
         if (currentFragment == null) return;
 
         currentFragment.onFABClick(v);
@@ -142,19 +136,35 @@ public class MainActivity extends AppCompatActivity
         return mMonthBar.getActiveMonth();
     }
 
-    public void tintAppbars(int mainColor, boolean showSecondaryToolbar) {
-        int textColor = ColorUtil.getTextColor(mainColor);
-        int darkVariant =  ColorUtil.getDarkVariant(mainColor);
+    public void tintNavigationElements(int themeColor) {
+        int textColor = ColorUtil.getTextColor(themeColor);
+        int darkVariant =  ColorUtil.getDarkVariant(themeColor);
 
         getWindow().setStatusBarColor(darkVariant);
 
-        mMainBar.setBackgroundColor(mainColor);
+        mMainBar.setBackgroundColor(themeColor);
         mMainBar.setTitleTextColor(textColor);
-        mMainBar.getOverflowIcon().setTint(textColor);
 
-        mMonthBar.setToolbarVisibility(showSecondaryToolbar, mainColor);
+        try {
+            Objects.requireNonNull(mMainBar.getOverflowIcon())
+                    .setTint(textColor);
+        } catch (NullPointerException npe) {
+            Log.e("MainActivity", "tintNavigationElements: Why is menu not collapsed?", npe);
+        }
 
-        mFAB.setBackgroundTintList(ColorStateList.valueOf(darkVariant));
-        mFAB.getDrawable().mutate().setTint(textColor);
+        if (mMonthBar.isVisible()) mMonthBar.tintElements(themeColor);
+        if (mFAB.getVisibility() == View.VISIBLE) {
+            mFAB.setBackgroundTintList(ColorStateList.valueOf(darkVariant));
+            mFAB.getDrawable().mutate().setTint(textColor);
+        }
+    }
+
+    public void toggleOptionalNavigationElements(boolean showOptionalElements) {
+        mMonthBar.toggleVisibility(showOptionalElements);
+        if (showOptionalElements) {
+            mFAB.setVisibility(View.VISIBLE);
+        } else {
+            mFAB.setVisibility(View.INVISIBLE);
+        }
     }
 }

@@ -213,7 +213,7 @@ public class AccountHistoryActivity extends AppCompatActivity {
         getSupportActionBar().setHomeAsUpIndicator(mUpArrow);
         getWindow().setStatusBarColor(ColorUtil.getDarkVariant(mToolbarBgColor));
 
-        mMonthBar.setToolbarColor(mToolbarBgColor);
+        mMonthBar.tintElements(mToolbarBgColor);
         ((TextView) findViewById(R.id.month_name_view))
                 .setTextColor(mTitleTextColor);
         ((ImageButton) findViewById(R.id.prev_month_btn))

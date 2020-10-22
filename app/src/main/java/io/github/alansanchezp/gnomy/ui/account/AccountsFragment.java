@@ -1,7 +1,6 @@
 package io.github.alansanchezp.gnomy.ui.account;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -10,7 +9,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -32,7 +30,7 @@ import java.util.List;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
-import io.github.alansanchezp.gnomy.ui.BaseMainNavigationFragment;
+import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
@@ -44,10 +42,9 @@ import io.github.alansanchezp.gnomy.viewmodel.account.AccountsListViewModel;
  * Use the {@link AccountsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AccountsFragment extends BaseMainNavigationFragment
+public class AccountsFragment extends MainNavigationFragment
         implements AccountRecyclerViewAdapter.OnListItemInteractionListener {
 
-    private RecyclerView mRecyclerView;
     private AccountRecyclerViewAdapter mAdapter;
     private AccountsListViewModel mListViewModel;
     private LiveData<List<AccountWithBalance>> mAccountBalances;
@@ -76,7 +73,7 @@ public class AccountsFragment extends BaseMainNavigationFragment
     /* ANDROID LIFECYCLE METHODS */
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         AccountRecyclerViewAdapter.OnListItemInteractionListener listener = (AccountRecyclerViewAdapter.OnListItemInteractionListener) this;
         mAdapter = new AccountRecyclerViewAdapter(listener);
@@ -85,7 +82,7 @@ public class AccountsFragment extends BaseMainNavigationFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mListViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getActivity().getApplication())).get(AccountsListViewModel.class);
+        mListViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.requireActivity().getApplication())).get(AccountsListViewModel.class);
     }
 
     @Override
@@ -93,16 +90,16 @@ public class AccountsFragment extends BaseMainNavigationFragment
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_accounts, container, false);
         Context context = view.getContext();
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.items_list);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.items_list);
 
         if (mColumnCount <= 1) {
-            mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+            recyclerView.setLayoutManager(new LinearLayoutManager(context));
         } else {
-            mRecyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
+            recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
         }
 
-        mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.setNestedScrollingEnabled(false);
+        recyclerView.setAdapter(mAdapter);
+        recyclerView.setNestedScrollingEnabled(false);
         mBalance = (TextView) view.findViewById(R.id.total_balance);
         mProjected = (TextView) view.findViewById(R.id.total_projected);
 
@@ -129,6 +126,7 @@ public class AccountsFragment extends BaseMainNavigationFragment
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        //noinspection SwitchStatementWithTooFewBranches
         switch (item.getItemId()) {
             case R.id.action_show_archived:
                 displayArchivedAccounts();
@@ -149,11 +147,11 @@ public class AccountsFragment extends BaseMainNavigationFragment
         return R.menu.accounts_fragment_toolbar;
     }
 
-    protected boolean displaySecondaryToolbar() {
+    protected boolean withOptionalNavigationElements() {
         return true;
     }
 
-    protected int getAppbarColor() {
+    protected int getThemeColor() {
         return getResources().getColor(R.color.colorPrimary);
     }
 
@@ -171,13 +169,14 @@ public class AccountsFragment extends BaseMainNavigationFragment
 
     public void onFABClick(View v) {
         Intent newAccountIntent = new Intent(getActivity(), AddEditAccountActivity.class);
-        getActivity().startActivity(newAccountIntent);
+        requireActivity().startActivity(newAccountIntent);
         mAdapter.disableClicks();
     }
 
     public void onMonthChanged(YearMonth month) {
         if (month == null) return;
         View v = getView();
+        assert v != null;
         if (month.equals(DateUtil.now())) {
             ((TextView) v.findViewById(R.id.total_projected_label)).setText(R.string.account_projected_balance);
         } else {
@@ -210,7 +209,7 @@ public class AccountsFragment extends BaseMainNavigationFragment
         detailsIntent.putExtra(AccountDetailsActivity.EXTRA_ID, account.getId());
         detailsIntent.putExtra(AccountDetailsActivity.EXTRA_BG_COLOR, account.getBackgroundColor());
 
-        getActivity().startActivity(detailsIntent);
+        requireActivity().startActivity(detailsIntent);
     }
 
     public boolean onItemMenuItemInteraction(final Account account, MenuItem menuItem) {
@@ -228,50 +227,26 @@ public class AccountsFragment extends BaseMainNavigationFragment
                 modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_CURRENCY, account.getDefaultCurrency());
                 modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_TYPE, account.getType());
 
-                getActivity().startActivity(modifyAccountIntent);
+                requireActivity().startActivity(modifyAccountIntent);
                 break;
             case R.id.account_card_transactions:
                 break;
             case R.id.account_card_archive:
-                new AlertDialog.Builder(getContext())
+                new AlertDialog.Builder(requireContext())
                         .setTitle(getString(R.string.account_card_archive))
                         .setMessage(getString(R.string.account_card_archive_info))
-                        .setPositiveButton(getString(R.string.confirmation_dialog_yes), new DialogInterface.OnClickListener()
-                        {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                archiveAccount(account);
-                            }
-                        })
+                        .setPositiveButton(getString(R.string.confirmation_dialog_yes), (dialog, which) -> archiveAccount(account))
                         .setNegativeButton(getString(R.string.confirmation_dialog_no), null)
-                        .setOnDismissListener(new DialogInterface.OnDismissListener()
-                        {
-                            @Override
-                            public void onDismiss(DialogInterface dialog) {
-                                mAdapter.enableClicks();
-                            }
-                        })
+                        .setOnDismissListener(dialog -> mAdapter.enableClicks())
                         .show();
                 break;
             case R.id.account_card_delete:
-                new AlertDialog.Builder(getContext())
+                new AlertDialog.Builder(requireContext())
                         .setTitle(getString(R.string.account_card_delete))
                         .setMessage(getString(R.string.account_card_delete_warning))
-                        .setPositiveButton(getString(R.string.confirmation_dialog_yes), new DialogInterface.OnClickListener()
-                        {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                deleteAccount(account);
-                            }
-                        })
+                        .setPositiveButton(getString(R.string.confirmation_dialog_yes), (dialog, which) -> deleteAccount(account))
                         .setNegativeButton(getString(R.string.confirmation_dialog_no), null)
-                        .setOnDismissListener(new DialogInterface.OnDismissListener()
-                        {
-                            @Override
-                            public void onDismiss(DialogInterface dialog) {
-                                mAdapter.enableClicks();
-                            }
-                        })
+                        .setOnDismissListener(dialog -> mAdapter.enableClicks())
                         .show();
                 break;
             default:
@@ -286,23 +261,13 @@ public class AccountsFragment extends BaseMainNavigationFragment
 
     private void displayArchivedAccounts() {
         ArchivedAccountsDialogFragment dialog = new ArchivedAccountsDialogFragment();
-        dialog.show(getFragmentManager(), ArchivedAccountsDialogFragment.TAG);
+        dialog.show(getChildFragmentManager(), ArchivedAccountsDialogFragment.TAG);
     }
 
     private void setObservers() {
-        mNavigationInterface.getActiveMonth().observe(getViewLifecycleOwner(), new Observer<YearMonth>() {
-            @Override
-            public void onChanged(@Nullable final YearMonth month) {
-                onMonthChanged(month);
-            }
-        });
+        mNavigationInterface.getActiveMonth().observe(getViewLifecycleOwner(), this::onMonthChanged);
 
-        mAccountBalances.observe(getViewLifecycleOwner(), new Observer<List<AccountWithBalance>>() {
-            @Override
-            public void onChanged(@Nullable final List<AccountWithBalance> accounts) {
-                onAccountsListChanged(accounts);
-            }
-        });
+        mAccountBalances.observe(getViewLifecycleOwner(), this::onAccountsListChanged);
     }
 
     public void archiveAccount(Account account) {
