@@ -12,10 +12,13 @@ import com.github.dewinjm.monthyearpicker.MonthYearPickerDialogFragment;
 import java.time.YearMonth;
 
 import java.util.Calendar;
+import java.util.Objects;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.savedstate.SavedStateRegistryOwner;
 import io.github.alansanchezp.gnomy.databinding.LayoutMonthToolbarBinding;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
@@ -44,14 +47,16 @@ public class MonthToolbarView extends LinearLayout {
     private void initializeView(Context context) {
         LayoutInflater inflater = (LayoutInflater)
                 context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mBinding = LayoutMonthToolbarBinding.inflate(inflater, this, true);
+        mBinding = LayoutMonthToolbarBinding.inflate(Objects.requireNonNull(inflater),
+                this, true);
         try {
             setViewModel(
                 new ViewModelProvider(
-                        ((AppCompatActivity) getContext()),
-                        ViewModelProvider.AndroidViewModelFactory.getInstance(
-                            ((AppCompatActivity) getContext()).getApplication()))
-                        .get(MonthToolbarViewModel.class));
+                        (AppCompatActivity) getContext(),
+                        new SavedStateViewModelFactory(
+                                ((AppCompatActivity) getContext()).getApplication(),
+                                (SavedStateRegistryOwner) getContext()
+                        )).get(MonthToolbarViewModel.class));
         } catch (NullPointerException npe) {
             Log.e("[Month Toolbar]", "initializeView: ", npe);
         }
@@ -61,7 +66,7 @@ public class MonthToolbarView extends LinearLayout {
         mBinding.setViewmodel(viewModel);
         mBinding.monthNameView.setOnClickListener(v -> onMonthPickerClick());
         mBinding.getViewmodel().activeMonth
-                .observe(((AppCompatActivity) getContext()), month -> updateMonthText(month));
+                .observe(((AppCompatActivity) getContext()), this::updateMonthText);
     }
 
     private void onMonthPickerClick() {
@@ -72,7 +77,7 @@ public class MonthToolbarView extends LinearLayout {
         // gnomy's inability to handle future balances
         Calendar calendar = Calendar.getInstance();
         YearMonth activeYearMonth = mBinding.getViewmodel().activeMonth.getValue();
-        int activeYear = activeYearMonth.getYear();
+        int activeYear = Objects.requireNonNull(activeYearMonth).getYear();
         int activeMonth = activeYearMonth.getMonthValue();
 
         // Month representation here ranges from 0 to 11,
