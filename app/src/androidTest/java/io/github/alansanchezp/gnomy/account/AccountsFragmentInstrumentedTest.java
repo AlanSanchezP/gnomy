@@ -309,7 +309,7 @@ public class AccountsFragmentInstrumentedTest {
         scenario.onFragment(fragment -> {
             fragment.onFABClick(null);
         });
-        onView(withId(R.id.toolbar))
+        onView(withId(R.id.custom_appbar))
                 .check(matches(hasDescendant(
                         withText(R.string.account_new))
                 ));
@@ -323,7 +323,7 @@ public class AccountsFragmentInstrumentedTest {
             account.setId(1);
             fragment.onItemInteraction(account);
         });
-        onView(withId(R.id.toolbar))
+        onView(withId(R.id.custom_appbar))
                 .check(matches(hasDescendant(
                         withText(R.string.account_details))
                 ));
@@ -543,7 +543,7 @@ public class AccountsFragmentInstrumentedTest {
             account.setId(1);
             fragment.onItemMenuItemInteraction(account, menuItem);
         });
-        onView(withId(R.id.toolbar))
+        onView(withId(R.id.custom_appbar))
                 .check(matches(hasDescendant(
                         withText(R.string.account_details))
                 ));
@@ -763,7 +763,7 @@ public class AccountsFragmentInstrumentedTest {
             account.setId(1);
             fragment.onItemMenuItemInteraction(account, menuItem);
         });
-        onView(withId(R.id.toolbar))
+        onView(withId(R.id.custom_appbar))
                 .check(matches(hasDescendant(
                         withText(R.string.account_card_modify))
                 ));

@@ -39,6 +39,7 @@ import com.thebluealliance.spectrum.SpectrumDialog;
 import java.util.Arrays;
 
 public class AddEditAccountActivity extends AppCompatActivity {
+    // TODO: Evaluate if onSaveInstanceState and onRestoreInstanceState should be replaced with ViewModel
     static final String EXTRA_ID = "account_id";
     static final String EXTRA_BG_COLOR = "account_bg_color";
     static final String EXTRA_NAME = "account_name";
@@ -53,7 +54,7 @@ public class AddEditAccountActivity extends AppCompatActivity {
     protected int mTextColor;
     protected boolean mNameInputIsPristine = true;
     protected boolean mValueInputIsPristine = true;
-    protected Toolbar mToolbar;
+    protected Toolbar mAppbar;
     protected Drawable mUpArrow;
     protected String mActivityTitle;
     protected AccountViewModel mAccountViewModel;
@@ -86,9 +87,9 @@ public class AddEditAccountActivity extends AppCompatActivity {
             mBgColor = ColorUtil.getRandomColor();
         }
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-        mToolbar.setTitle(mActivityTitle);
-        setSupportActionBar(mToolbar);
+        mAppbar = (Toolbar) findViewById(R.id.custom_appbar);
+        mAppbar.setTitle(mActivityTitle);
+        setSupportActionBar(mAppbar);
         mUpArrow = getResources().getDrawable(R.drawable.abc_vector_test);
 
         getSupportActionBar().setHomeAsUpIndicator(mUpArrow);
@@ -194,8 +195,8 @@ public class AddEditAccountActivity extends AppCompatActivity {
 
     protected void setColors() {
         mTextColor = ColorUtil.getTextColor(mBgColor);
-        mToolbar.setBackgroundColor(mBgColor);
-        mToolbar.setTitleTextColor(mTextColor);
+        mAppbar.setBackgroundColor(mBgColor);
+        mAppbar.setTitleTextColor(mTextColor);
         mUpArrow.setColorFilter(mTextColor, PorterDuff.Mode.SRC_ATOP);
 
         getSupportActionBar().setHomeAsUpIndicator(mUpArrow);

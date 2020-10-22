@@ -1,6 +1,5 @@
 package io.github.alansanchezp.gnomy.ui.account;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
@@ -39,7 +38,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
     public static final String EXTRA_BG_COLOR = "bg_color";
     private int mBgColor;
     private int mTextColor;
-    private Toolbar mToolbar;
+    private Toolbar mAppbar;
     private Drawable mUpArrow;
     private AccountViewModel mAccountViewModel;
     private Account mAccount;
@@ -54,9 +53,9 @@ public class AccountDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account_details);
 
-        mToolbar = findViewById(R.id.toolbar);
-        mToolbar.setTitle(getString(R.string.account_details));
-        setSupportActionBar(mToolbar);
+        mAppbar = findViewById(R.id.custom_appbar);
+        mAppbar.setTitle(getString(R.string.account_details));
+        setSupportActionBar(mAppbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mUpArrow = getResources().getDrawable(R.drawable.abc_vector_test);
@@ -258,8 +257,8 @@ public class AccountDetailsActivity extends AppCompatActivity {
     }
 
     private void setColors() {
-        mToolbar.setBackgroundColor(mBgColor);
-        mToolbar.setTitleTextColor(mTextColor);
+        mAppbar.setBackgroundColor(mBgColor);
+        mAppbar.setTitleTextColor(mTextColor);
         mUpArrow.setColorFilter(mTextColor, PorterDuff.Mode.SRC_ATOP);
 
         getSupportActionBar().setHomeAsUpIndicator(mUpArrow);

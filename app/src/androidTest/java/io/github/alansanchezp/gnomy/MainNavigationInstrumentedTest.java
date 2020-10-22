@@ -31,7 +31,7 @@ public class MainNavigationInstrumentedTest {
         onView(withId(R.id.navigation_accounts))
                 .perform(click());
 
-        onView(withId(R.id.toolbar))
+        onView(withId(R.id.custom_appbar))
                 .check(matches(hasDescendant(
                         withText(R.string.title_accounts)
                 )));

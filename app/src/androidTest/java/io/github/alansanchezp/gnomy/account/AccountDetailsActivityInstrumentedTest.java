@@ -105,7 +105,7 @@ public class AccountDetailsActivityInstrumentedTest {
         onView(withId(R.id.account_floating_action_button))
                 .perform(click());
 
-        onView(withId(R.id.toolbar))
+        onView(withId(R.id.custom_appbar))
                 .check(matches(hasDescendant(
                         withText(R.string.account_card_modify))
                 ));
@@ -123,7 +123,7 @@ public class AccountDetailsActivityInstrumentedTest {
         onView(withId(R.id.account_see_more_button))
                 .perform(click());
 
-        onView(withId(R.id.toolbar))
+        onView(withId(R.id.custom_appbar))
                 .check(matches(hasDescendant(
                         withSubstring(legend_string))
                 ));

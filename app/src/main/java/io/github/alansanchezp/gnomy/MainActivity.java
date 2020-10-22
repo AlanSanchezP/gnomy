@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity
             NOTIFICATIONS_FRAGMENT_INDEX = 4;
     private int mCurrentFragmentIndex = 0;
 
-    private Toolbar mMainBar;
+    private Toolbar mAppBar;
     private MonthToolbarView mMonthBar;
     private FloatingActionButton mFAB;
 
@@ -69,8 +69,8 @@ public class MainActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_main);
 
-        mMainBar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(mMainBar);
+        mAppBar = (Toolbar) findViewById(R.id.custom_appbar);
+        setSupportActionBar(mAppBar);
 
         mMonthBar = (MonthToolbarView) findViewById(R.id.monthtoolbar);
         mFAB = (FloatingActionButton) findViewById(R.id.main_floating_action_button);
@@ -142,11 +142,11 @@ public class MainActivity extends AppCompatActivity
 
         getWindow().setStatusBarColor(darkVariant);
 
-        mMainBar.setBackgroundColor(themeColor);
-        mMainBar.setTitleTextColor(textColor);
+        mAppBar.setBackgroundColor(themeColor);
+        mAppBar.setTitleTextColor(textColor);
 
         try {
-            Objects.requireNonNull(mMainBar.getOverflowIcon())
+            Objects.requireNonNull(mAppBar.getOverflowIcon())
                     .setTint(textColor);
         } catch (NullPointerException npe) {
             Log.e("MainActivity", "tintNavigationElements: Why is menu not collapsed?", npe);

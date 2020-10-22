@@ -57,7 +57,7 @@ public class AccountHistoryActivityInstrumentedTest {
                 .getString(R.string.account_balance_history_legend);
         String title = accountTitle + " " + history_legend;
 
-        onView(withId(R.id.toolbar))
+        onView(withId(R.id.custom_appbar))
                 .check(matches(hasDescendant(withText(title))));
     }
 

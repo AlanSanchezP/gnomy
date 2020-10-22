@@ -38,7 +38,7 @@ public class AccountHistoryActivity extends AppCompatActivity {
     private int mToolbarBgColor;
     private int mTitleTextColor;
     private String mAccountCurrency;
-    private Toolbar mMainBar;
+    private Toolbar mAppBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,9 +54,9 @@ public class AccountHistoryActivity extends AppCompatActivity {
         mToolbarBgColor = intent.getIntExtra(EXTRA_BG_COLOR, 0XFF);
         mTitleTextColor = ColorUtil.getTextColor(mToolbarBgColor);
 
-        mMainBar = findViewById(R.id.toolbar);
-        mMainBar.setTitle(accountName + " " + getString(R.string.account_balance_history_legend));
-        setSupportActionBar(mMainBar);
+        mAppBar = findViewById(R.id.custom_appbar);
+        mAppBar.setTitle(accountName + " " + getString(R.string.account_balance_history_legend));
+        setSupportActionBar(mAppBar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mUpArrow = getResources().getDrawable(R.drawable.abc_vector_test);
@@ -206,8 +206,8 @@ public class AccountHistoryActivity extends AppCompatActivity {
     }
 
     private void setColors() {
-        mMainBar.setBackgroundColor(mToolbarBgColor);
-        mMainBar.setTitleTextColor(mTitleTextColor);
+        mAppBar.setBackgroundColor(mToolbarBgColor);
+        mAppBar.setTitleTextColor(mTitleTextColor);
         mUpArrow.setColorFilter(mTitleTextColor, PorterDuff.Mode.SRC_ATOP);
 
         getSupportActionBar().setHomeAsUpIndicator(mUpArrow);
