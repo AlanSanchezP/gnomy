@@ -1,19 +1,22 @@
 package io.github.alansanchezp.gnomy.ui.account;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.savedstate.SavedStateRegistryOwner;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.util.android.InputFilterMinMax;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
-import io.github.alansanchezp.gnomy.viewmodel.account.AccountViewModel;
+import io.github.alansanchezp.gnomy.viewmodel.account.AccountAddEditViewModel;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -24,6 +27,7 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.InflateException;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -37,6 +41,7 @@ import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.thebluealliance.spectrum.SpectrumDialog;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class AddEditAccountActivity extends AppCompatActivity {
     // TODO: Evaluate if onSaveInstanceState and onRestoreInstanceState should be replaced with ViewModel
@@ -50,15 +55,13 @@ public class AddEditAccountActivity extends AppCompatActivity {
     static final String SAVED_NAME_PRISTINE = "name_is_pristine";
     static final String SAVED_INITIAL_VALUE_PRISTINE = "initial_value_is_pristine";
     static final String TAG_PICKER_DIALOG = "color_picker_dialog";
-    protected int mBgColor;
-    protected int mTextColor;
-    protected boolean mNameInputIsPristine = true;
-    protected boolean mValueInputIsPristine = true;
-    protected Toolbar mAppbar;
-    protected Drawable mUpArrow;
-    protected String mActivityTitle;
-    protected AccountViewModel mAccountViewModel;
-    protected FloatingActionButton mFAB;
+    private Account mAccount;
+    private boolean mNameInputIsPristine = true;
+    private boolean mValueInputIsPristine = true;
+    private Toolbar mAppbar;
+    private Drawable mUpArrow;
+    private AccountAddEditViewModel mAccountViewModel;
+    private FloatingActionButton mFAB;
     // Only used for edit purposes
     protected int mAccountId;
 
@@ -67,41 +70,66 @@ public class AddEditAccountActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit_account);
 
-        mAccountViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication())).get(AccountViewModel.class);
 
-        TextInputLayout nameTIL = (TextInputLayout) findViewById(R.id.new_account_name);
-        TextInputLayout valueTIL = (TextInputLayout) findViewById(R.id.new_account_initial_value);
+        mAppbar = (Toolbar) findViewById(R.id.custom_appbar);
+        setSupportActionBar(mAppbar);
+
+        mAccountViewModel = new ViewModelProvider(this,
+                new SavedStateViewModelFactory(
+                        this.getApplication(), (SavedStateRegistryOwner) this))
+                .get(AccountAddEditViewModel.class);
+
+        TextInputLayout nameTIL = findViewById(R.id.new_account_name);
+        TextInputLayout valueTIL = findViewById(R.id.new_account_initial_value);
+        if (nameTIL.getEditText() == null || valueTIL.getEditText() == null)
+            throw new InflateException("<R.id.new_account_name> and <R.id.new_account_initial_value> are expected to have a child TextInputEditText element.");
 
         Intent intent = getIntent();
         mAccountId = intent.getIntExtra(EXTRA_ID, 0);
+        LiveData<Account> accountLD = mAccountViewModel.getAccount(mAccountId);
 
-        if (mAccountId != 0) {
-            mActivityTitle = getString(R.string.account_card_modify);
-            mBgColor = intent.getIntExtra(EXTRA_BG_COLOR, 0);
-            nameTIL.getEditText().setText(intent.getStringExtra(EXTRA_NAME));
-            valueTIL.getEditText().setText(intent.getStringExtra(EXTRA_INITIAL_VALUE));
-            Switch includeInSwitch = (Switch) findViewById(R.id.new_account_show_in_home);
-            includeInSwitch.setChecked(intent.getBooleanExtra(EXTRA_INCLUDED_IN_SUM, false));
+        String activityTitle;
+        if (accountLD != null) {
+            activityTitle = getString(R.string.account_card_modify);
+            accountLD.observe(this, account -> {
+                if (account == null) {
+                    Log.e("AddEditAccount", "onCreate: Account not found. Closing activity.");
+                    finish();
+                    return;
+                }
+                mAccount = account;
+                mAccountViewModel.setAccountColor(account.getBackgroundColor());
+                nameTIL.getEditText().setText(account.getName());
+                valueTIL.getEditText().setText(account.getInitialValue().toPlainString());
+                Switch includeInSwitch = (Switch) findViewById(R.id.new_account_show_in_home);
+                includeInSwitch.setChecked(account.isShowInDashboard());
+            });
         } else {
-            mActivityTitle = getString(R.string.account_new);
-            mBgColor = ColorUtil.getRandomColor();
+            activityTitle = getString(R.string.account_new);
+            mAccount = new Account();
+
+            // Only generate new color if viewModel doesn't have one stored already
+            if (Objects.requireNonNull(mAccountViewModel.accountColor.getValue()) == 1) {
+                mAccountViewModel.setAccountColor(ColorUtil.getRandomColor());
+            }
         }
 
-        mAppbar = (Toolbar) findViewById(R.id.custom_appbar);
-        mAppbar.setTitle(mActivityTitle);
+        setTitle(activityTitle);
         setSupportActionBar(mAppbar);
         mUpArrow = getResources().getDrawable(R.drawable.abc_vector_test);
 
+        //noinspection ConstantConditions
         getSupportActionBar().setHomeAsUpIndicator(mUpArrow);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mFAB = (FloatingActionButton) findViewById(R.id.new_account_ok);
 
-        setColors();
+        mAccountViewModel.accountColor.observe(this, this::setColors);
         setLists(intent.getStringExtra(EXTRA_CURRENCY),
                 intent.getIntExtra(EXTRA_TYPE, 0));
         setFilters();
 
+        //noinspection ConstantConditions
         nameTIL.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -109,7 +137,7 @@ public class AddEditAccountActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                boolean isValid = validateName();
+                validateName();
                 mNameInputIsPristine = false;
             }
 
@@ -117,6 +145,7 @@ public class AddEditAccountActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
             }
         });
+        //noinspection ConstantConditions
         valueTIL.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -124,7 +153,7 @@ public class AddEditAccountActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                boolean isValid = validateValueString();
+                validateValueString();
                 mValueInputIsPristine = false;
             }
 
@@ -135,19 +164,17 @@ public class AddEditAccountActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle savedInstanceState) {
+    protected void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        savedInstanceState.putInt(EXTRA_BG_COLOR, mBgColor);
         savedInstanceState.putBoolean(SAVED_NAME_PRISTINE, mNameInputIsPristine);
         savedInstanceState.putBoolean(SAVED_INITIAL_VALUE_PRISTINE, mValueInputIsPristine);
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         boolean nameIsPristine = savedInstanceState.getBoolean(SAVED_NAME_PRISTINE);
         boolean valueIsPristine = savedInstanceState.getBoolean(SAVED_INITIAL_VALUE_PRISTINE);
-        mBgColor = savedInstanceState.getInt(EXTRA_BG_COLOR);
 
         if (nameIsPristine) {
             mNameInputIsPristine = true;
@@ -159,8 +186,6 @@ public class AddEditAccountActivity extends AppCompatActivity {
             TextInputLayout valueTIL = (TextInputLayout) findViewById(R.id.new_account_initial_value);
             valueTIL.setErrorEnabled(false);
         }
-
-        setColors();
     }
 
     @Override
@@ -175,32 +200,29 @@ public class AddEditAccountActivity extends AppCompatActivity {
         new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.confirmation_dialog_title))
                 .setMessage(getString(R.string.confirmation_dialog_description))
-                .setPositiveButton(getString(R.string.confirmation_dialog_yes), new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                    }
-                })
+                .setPositiveButton(getString(R.string.confirmation_dialog_yes), (dialog, which) -> finish())
                 .setNegativeButton(getString(R.string.confirmation_dialog_no),  null)
-                .setOnDismissListener(new DialogInterface.OnDismissListener()
-                {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        mFAB.setEnabled(true);
-                    }
-                })
+                .setOnDismissListener(dialog -> mFAB.setEnabled(true))
                 .show();
     }
 
-    protected void setColors() {
-        mTextColor = ColorUtil.getTextColor(mBgColor);
-        mAppbar.setBackgroundColor(mBgColor);
-        mAppbar.setTitleTextColor(mTextColor);
-        mUpArrow.setColorFilter(mTextColor, PorterDuff.Mode.SRC_ATOP);
+    protected void setColors(@ColorInt int color) {
+        // 1 is an invalid HEX number, no point in trying to color elements
+        if (color == 1) return;
+        // If account is null (null != empty) then no data has been received from Room.
+        // That means that we will receive a second color pretty soon and therefore
+        // this first coloring can be skipped.
+        if (mAccount == null) return;
 
+        int textColor = ColorUtil.getTextColor(color);
+        mAccount.setBackgroundColor(color);
+        mAppbar.setBackgroundColor(color);
+        mAppbar.setTitleTextColor(textColor);
+        mUpArrow.setColorFilter(textColor, PorterDuff.Mode.SRC_ATOP);
+
+        //noinspection ConstantConditions
         getSupportActionBar().setHomeAsUpIndicator(mUpArrow);
-        getWindow().setStatusBarColor(ColorUtil.getDarkVariant(mBgColor));
+        getWindow().setStatusBarColor(ColorUtil.getDarkVariant(color));
         LinearLayout container = (LinearLayout) findViewById(R.id.new_account_container);
         TextInputLayout nameTIL = (TextInputLayout) findViewById(R.id.new_account_name);
         TextInputEditText nameTIET = (TextInputEditText) findViewById(R.id.new_account_name_input);
@@ -209,23 +231,23 @@ public class AddEditAccountActivity extends AppCompatActivity {
         ImageButton palette = (ImageButton) findViewById(R.id.new_account_color_button);
 
         // Custom ColorStateLists
-        ColorStateList switchCSL = getSwitchColorStateList(mBgColor);
-        ColorStateList nameCSL = getStrokeColorStateList(mTextColor);
-        ColorStateList textCSL = ColorStateList.valueOf(mTextColor);
-        ColorStateList bgCSL = ColorStateList.valueOf(mBgColor);
-        int fabBgColor = ColorUtil.getVariantByFactor(mBgColor, 0.86f);
+        ColorStateList switchCSL = getSwitchColorStateList(color);
+        ColorStateList nameCSL = getStrokeColorStateList(textColor);
+        ColorStateList textCSL = ColorStateList.valueOf(textColor);
+        ColorStateList bgCSL = ColorStateList.valueOf(color);
+        int fabBgColor = ColorUtil.getVariantByFactor(color, 0.86f);
         int fabTextColor = ColorUtil.getTextColor(fabBgColor);
 
-        container.setBackgroundColor(mBgColor);
+        container.setBackgroundColor(color);
         mFAB.setBackgroundTintList(ColorStateList.valueOf(fabBgColor));
         mFAB.getDrawable().mutate().setTint(fabTextColor);
-        mFAB.setRippleColor(mTextColor);
+        mFAB.setRippleColor(textColor);
 
         nameTIL.setBoxStrokeColorStateList(nameCSL);
         nameTIL.setDefaultHintTextColor(textCSL);
-        nameTIET.setTextColor(mTextColor);
+        nameTIET.setTextColor(textColor);
 
-        valueTIL.setBoxStrokeColor(mBgColor);
+        valueTIL.setBoxStrokeColor(color);
         valueTIL.setHintTextColor(bgCSL);
 
         nameTIL.setErrorTextColor(textCSL);
@@ -236,7 +258,7 @@ public class AddEditAccountActivity extends AppCompatActivity {
         includeInSwitch.getTrackDrawable().setTintList(switchCSL);
 
         palette.setBackgroundTintList(bgCSL);
-        palette.getDrawable().mutate().setTint(mTextColor);
+        palette.getDrawable().mutate().setTint(textColor);
     }
 
     protected void setLists(String currencyCode, int accountType) {
@@ -306,16 +328,14 @@ public class AddEditAccountActivity extends AppCompatActivity {
     public void showColorPicker(View v) {
         new SpectrumDialog.Builder(this)
                 .setColors(ColorUtil.getColors())
-                .setSelectedColor(mBgColor)
+                .setSelectedColor(Objects.requireNonNull(mAccountViewModel.accountColor.getValue()))
                 .setDismissOnColorSelected(true)
                 .setOutlineWidth(0)
                 .setFixedColumnCount(5)
-                .setOnColorSelectedListener(new SpectrumDialog.OnColorSelectedListener() {
-                    @Override public void onColorSelected(boolean positiveResult, @ColorInt int color) {
-                        if (positiveResult) {
-                            mBgColor = color;
-                            setColors();
-                        }
+                .setOnColorSelectedListener((positiveResult, color) -> {
+                    if (positiveResult) {
+                        Log.d("AEAActivity", "showColorPicker: setting color " + color);
+                        mAccountViewModel.setAccountColor(color);
                     }
                 }).build().show(getSupportFragmentManager(), TAG_PICKER_DIALOG);
     }
@@ -384,7 +404,7 @@ public class AddEditAccountActivity extends AppCompatActivity {
 
     protected void saveData(String name, String initialValueString, String currencyCode, int accountType, boolean includeInHomepage) {
         try {
-            Account account = new Account();
+            Account account = mAccount;
             String toastMessage;
 
             account.setName(name);
@@ -392,7 +412,6 @@ public class AddEditAccountActivity extends AppCompatActivity {
             account.setShowInDashboard(includeInHomepage);
             account.setType(accountType);
             account.setDefaultCurrency(currencyCode);
-            account.setBackgroundColor(mBgColor);
 
             mFAB.setEnabled(false);
             if (mAccountId == 0) {
