@@ -207,7 +207,6 @@ public class AccountsFragment extends MainNavigationFragment
     public void onItemInteraction(Account account) {
         Intent detailsIntent = new Intent(getContext(), AccountDetailsActivity.class);
         detailsIntent.putExtra(AccountDetailsActivity.EXTRA_ID, account.getId());
-        detailsIntent.putExtra(AccountDetailsActivity.EXTRA_BG_COLOR, account.getBackgroundColor());
 
         requireActivity().startActivity(detailsIntent);
     }
@@ -220,12 +219,6 @@ public class AccountsFragment extends MainNavigationFragment
             case R.id.account_card_modify:
                 Intent modifyAccountIntent = new Intent(getContext(), AddEditAccountActivity.class);
                 modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_ID, account.getId());
-                modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_BG_COLOR, account.getBackgroundColor());
-                modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_NAME, account.getName());
-                modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_INITIAL_VALUE, account.getInitialValue().toPlainString());
-                modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_INCLUDED_IN_SUM, account.isShowInDashboard());
-                modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_CURRENCY, account.getDefaultCurrency());
-                modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_TYPE, account.getType());
 
                 requireActivity().startActivity(modifyAccountIntent);
                 break;

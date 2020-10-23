@@ -19,10 +19,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.math.BigDecimal;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.R;
@@ -35,53 +37,46 @@ import io.github.alansanchezp.gnomy.viewmodel.account.AccountViewModel;
 
 public class AccountDetailsActivity extends AppCompatActivity {
     public static final String EXTRA_ID = "account_id";
-    public static final String EXTRA_BG_COLOR = "bg_color";
-    private int mBgColor;
-    private int mTextColor;
     private Toolbar mAppbar;
     private Drawable mUpArrow;
-    private AccountViewModel mAccountViewModel;
-    private Account mAccount;
-    private LiveData<BigDecimal> mLatestBalanceSum;
     private TextView mNameTV;
     private Menu mMenu;
     private FloatingActionButton mFAB;
     private Button mSeeMoreBtn;
+    private AccountViewModel mAccountViewModel;
+    private LiveData<BigDecimal> mLatestBalanceSum;
+    private Account mAccount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account_details);
 
-        mAppbar = findViewById(R.id.custom_appbar);
-        mAppbar.setTitle(getString(R.string.account_details));
-        setSupportActionBar(mAppbar);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        mUpArrow = getResources().getDrawable(R.drawable.abc_vector_test);
-
-        // We need to pass bgColor to apply color to elements.
-        // Otherwise there would be a visible delay that results unpleasant.
-        Intent intent = getIntent();
-        int accountId = intent.getIntExtra(EXTRA_ID, 0);
-        mBgColor = intent.getIntExtra(EXTRA_BG_COLOR, 0XFF);
-
-        mTextColor = ColorUtil.getTextColor(mBgColor);
-        mNameTV = findViewById(R.id.account_name);
-
-        mSeeMoreBtn = findViewById(R.id.account_see_more_button);
-        mFAB = findViewById(R.id.account_floating_action_button);
-        disableActions();
-
-        setColors();
-
         mAccountViewModel = new ViewModelProvider(this,
                 ViewModelProvider.AndroidViewModelFactory.getInstance(
                         this.getApplication()))
                 .get(AccountViewModel.class);
-        LiveData<Account> accountLiveData = mAccountViewModel.getAccount(accountId);
+
+        mAppbar = findViewById(R.id.custom_appbar);
+        // Prevent potential noticeable blink in color
+        mAppbar.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+        setSupportActionBar(mAppbar);
+        setTitle(getString(R.string.account_details));
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mUpArrow = ContextCompat.getDrawable(this, R.drawable.abc_vector_test);
+
+        mNameTV = findViewById(R.id.account_name);
+        mSeeMoreBtn = findViewById(R.id.account_see_more_button);
+        mFAB = findViewById(R.id.account_floating_action_button);
+
+        Intent intent = getIntent();
+        int accountId = intent.getIntExtra(EXTRA_ID, 0);
         disableActions();
-        accountLiveData.observe(this, account -> onAccountChanged(account));
+
+        LiveData<Account> accountLiveData = mAccountViewModel.getAccount(accountId);
+        accountLiveData.observe(this, this::onAccountChanged);
+
         mLatestBalanceSum = mAccountViewModel.getAccumulatedFromMonth(accountId, DateUtil.now());
         mLatestBalanceSum.observe(this, balance ->
                 updateBalanceSum(mAccount, balance));
@@ -95,18 +90,13 @@ public class AccountDetailsActivity extends AppCompatActivity {
         // TODO: Can (or should) we abstract this logic ?
         mMenu = menu;
 
-        menu.findItem(R.id.action_archive_account)
-                .getIcon()
-                .setTint(mTextColor);
-        menu.findItem(R.id.action_account_actions)
-                .getIcon()
-                .setTint(mTextColor);
-
         if (mAccount == null) {
             menu.findItem(R.id.action_account_actions)
                     .setEnabled(false);
             menu.findItem(R.id.action_archive_account)
                     .setEnabled(false);
+        } else {
+            tintMenuItems(ColorUtil.getTextColor(mAccount.getBackgroundColor()));
         }
 
         return super.onCreateOptionsMenu(menu);
@@ -114,6 +104,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
+        //noinspection SwitchStatementWithTooFewBranches
         switch (item.getItemId()) {
             case R.id.action_archive_account:
                 item.setEnabled(false);
@@ -162,12 +153,6 @@ public class AccountDetailsActivity extends AppCompatActivity {
 
         Intent modifyAccountIntent = new Intent(this, AddEditAccountActivity.class);
         modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_ID, mAccount.getId());
-        modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_BG_COLOR, mAccount.getBackgroundColor());
-        modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_NAME, mAccount.getName());
-        modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_INITIAL_VALUE, mAccount.getInitialValue().toPlainString());
-        modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_INCLUDED_IN_SUM, mAccount.isShowInDashboard());
-        modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_CURRENCY, mAccount.getDefaultCurrency());
-        modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_TYPE, mAccount.getType());
 
         startActivity(modifyAccountIntent);
     }
@@ -185,15 +170,15 @@ public class AccountDetailsActivity extends AppCompatActivity {
     }
 
     public void onAccountChanged(Account account) {
-        if (account == null) return;
+        if (account == null) {
+            Log.e("AccountDetails", "onAccountChanged: No account found. Finishing activity.");
+            finish();
+            return;
+        }
         mAccount = account;
         enableActions();
 
-        if (account.getBackgroundColor() != mBgColor) {
-            mBgColor = account.getBackgroundColor();
-            mTextColor = ColorUtil.getTextColor(mBgColor);
-            setColors();
-        }
+        tintElements(account.getBackgroundColor());
         if (mMenu != null) {
             mMenu.findItem(R.id.action_account_actions)
                     .setEnabled(true);
@@ -224,8 +209,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
         TextView typeTV = findViewById(R.id.account_type);
         ImageView includedInSumImage = findViewById(R.id.account_included_in_sum_icon);
         TextView includedInSumTV = findViewById(R.id.account_included_in_sum_text);
-
-        Drawable typeIcon = typeImage.getResources().getDrawable(
+        Drawable typeIcon = ContextCompat.getDrawable(this,
                 Account.getDrawableResourceId(account.getType()));
         String typeString = getString(
                 Account.getTypeNameResourceId(account.getType())
@@ -234,11 +218,11 @@ public class AccountDetailsActivity extends AppCompatActivity {
         String includedInSumString;
 
         if (account.isShowInDashboard()) {
-            includedInSumIcon = includedInSumImage.getResources().getDrawable(R.drawable.ic_check_black_24dp);
+            includedInSumIcon = ContextCompat.getDrawable(this, R.drawable.ic_check_black_24dp);
             includedInSumImage.setTag(R.drawable.ic_check_black_24dp);
             includedInSumString = getString(R.string.account_is_included_in_sum);
         } else {
-            includedInSumIcon = includedInSumImage.getResources().getDrawable(R.drawable.ic_close_black_24dp);
+            includedInSumIcon = ContextCompat.getDrawable(this, R.drawable.ic_close_black_24dp);
             includedInSumImage.setTag(R.drawable.ic_close_black_24dp);
             includedInSumString = getString(R.string.account_is_not_included_in_sum);
         }
@@ -256,37 +240,44 @@ public class AccountDetailsActivity extends AppCompatActivity {
         }
     }
 
-    private void setColors() {
-        mAppbar.setBackgroundColor(mBgColor);
-        mAppbar.setTitleTextColor(mTextColor);
-        mUpArrow.setColorFilter(mTextColor, PorterDuff.Mode.SRC_ATOP);
-
-        getSupportActionBar().setHomeAsUpIndicator(mUpArrow);
-        getWindow().setStatusBarColor(ColorUtil.getDarkVariant(mBgColor));
-
+    private void tintMenuItems(@ColorInt int color) {
         if (mMenu != null) {
-            mMenu.findItem(R.id.action_account_actions)
-                    .getIcon()
-                    .setTint(mTextColor);
             mMenu.findItem(R.id.action_archive_account)
                     .getIcon()
-                    .setTint(mTextColor);
+                    .setTint(color);
+            mMenu.findItem(R.id.action_account_actions)
+                    .getIcon()
+                    .setTint(color);
         }
+    }
+
+    private void tintElements(@ColorInt int bgColor) {
+        if (bgColor > 0) return;
+
+        int textColor = ColorUtil.getTextColor(bgColor);
+        mAppbar.setBackgroundColor(bgColor);
+        mAppbar.setTitleTextColor(textColor);
+
+        mUpArrow.setColorFilter(textColor, PorterDuff.Mode.SRC_ATOP);
+        getSupportActionBar().setHomeAsUpIndicator(mUpArrow);
+        getWindow().setStatusBarColor(ColorUtil.getDarkVariant(bgColor));
+
+        tintMenuItems(textColor);
 
         LinearLayout container = findViewById(R.id.account_details_container);
-        container.setBackgroundColor(mBgColor);
+        container.setBackgroundColor(bgColor);
 
-        mNameTV.setTextColor(mTextColor);
+        mNameTV.setTextColor(textColor);
 
-        int fabBgColor = ColorUtil.getVariantByFactor(mBgColor, 0.86f);
+        int fabBgColor = ColorUtil.getVariantByFactor(bgColor, 0.86f);
         int fabTextColor = ColorUtil.getTextColor(fabBgColor);
 
         mFAB.setBackgroundTintList(ColorStateList.valueOf(fabBgColor));
         mFAB.getDrawable().mutate().setTint(fabTextColor);
-        mFAB.setRippleColor(mTextColor);
+        mFAB.setRippleColor(textColor);
 
         TextView balanceHistoryTV = findViewById(R.id.account_balance_history_title);
-        balanceHistoryTV.setTextColor(mTextColor);
+        balanceHistoryTV.setTextColor(textColor);
 
         mSeeMoreBtn.setBackgroundColor(fabBgColor);
         mSeeMoreBtn.setTextColor(fabTextColor);

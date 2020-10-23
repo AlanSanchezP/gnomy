@@ -43,12 +43,6 @@ import java.util.Objects;
 
 public class AddEditAccountActivity extends AppCompatActivity {
     static final String EXTRA_ID = "account_id";
-    static final String EXTRA_BG_COLOR = "account_bg_color";
-    static final String EXTRA_NAME = "account_name";
-    static final String EXTRA_INITIAL_VALUE = "account_initial_value";
-    static final String EXTRA_INCLUDED_IN_SUM = "account_included_in_sum";
-    static final String EXTRA_CURRENCY = "account_currency";
-    static final String EXTRA_TYPE = "account_type";
     static final String TAG_PICKER_DIALOG = "color_picker_dialog";
     private AddEditAccountViewModel mAddEditAccountViewModel;
     private Account mAccount;
