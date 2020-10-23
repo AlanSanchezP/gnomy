@@ -17,6 +17,7 @@ import java.math.BigDecimal;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.R;
@@ -28,8 +29,11 @@ import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.viewmodel.account.AccountHistoryViewModel;
 
-public class AccountHistoryActivity extends AppCompatActivity {
+public class AccountBalanceHistoryActivity extends AppCompatActivity {
     public static final String EXTRA_ID = "account_id";
+    // Unlike DetailsActivity, account data is passed through Intent
+    // in order to avoid an extra query that we have already performed
+    // in what is likely to be the only reasonable path to get to this Activity
     public static final String EXTRA_NAME = "account_name";
     public static final String EXTRA_CURRENCY = "account_currency";
     public static final String EXTRA_BG_COLOR = "bg_color";
@@ -59,7 +63,7 @@ public class AccountHistoryActivity extends AppCompatActivity {
         setSupportActionBar(mAppBar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        mUpArrow = getResources().getDrawable(R.drawable.abc_vector_test);
+        mUpArrow = ContextCompat.getDrawable(this, R.drawable.abc_vector_test);
 
         AccountHistoryViewModel accountHistoryViewModel = new ViewModelProvider(this,
                 ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication()))
@@ -69,12 +73,12 @@ public class AccountHistoryActivity extends AppCompatActivity {
         accountHistoryViewModel.bindMonth(mMonthBar.getActiveMonth());
         setColors();
 
-        mMonthBar.getActiveMonth().observe(this, month -> onMonthChanged(month));
+        mMonthBar.getActiveMonth().observe(this, this::onMonthChanged);
 
         LiveData<BigDecimal> accumulatedBalance = accountHistoryViewModel.getAccumulatedFromMonth(accountId);
         LiveData<MonthlyBalance> monthBalance = accountHistoryViewModel.getBalanceFromMonth(accountId);
-        accumulatedBalance.observe(this, accumulated -> onAccumulatedBalanceChanged(accumulated));
-        monthBalance.observe(this, balance -> onBalanceChanged(balance));
+        accumulatedBalance.observe(this, this::onAccumulatedBalanceChanged);
+        monthBalance.observe(this, this::onBalanceChanged);
     }
 
     @Override
@@ -116,7 +120,7 @@ public class AccountHistoryActivity extends AppCompatActivity {
             pendingTitle = getString(R.string.unresolved_transactions);
         }
 
-        bottomLegend += pendingTitle + " " + getString(R.string.account_balance_not_included_legend);;
+        bottomLegend += pendingTitle + " " + getString(R.string.account_balance_not_included_legend);
 
         accumulatedTitleTV.setText(accumulatedTitle);
         confirmedTitleTV.setText(confirmedTitle);

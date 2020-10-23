@@ -16,7 +16,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
-import io.github.alansanchezp.gnomy.ui.account.AccountHistoryActivity;
+import io.github.alansanchezp.gnomy.ui.account.AccountBalanceHistoryActivity;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -33,7 +33,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 @RunWith(AndroidJUnit4.class)
-public class AccountHistoryActivityInstrumentedTest {
+public class AccountBalanceHistoryActivityInstrumentedTest {
     private static MonthlyBalance testBalance;
     private static final String accountTitle = "Test account";
 
@@ -43,12 +43,12 @@ public class AccountHistoryActivityInstrumentedTest {
     }
 
     private Intent intent = new Intent(
-            ApplicationProvider.getApplicationContext(), AccountHistoryActivity.class)
-            .putExtra(AccountHistoryActivity.EXTRA_ID, 1)
-            .putExtra(AccountHistoryActivity.EXTRA_NAME, accountTitle);
+            ApplicationProvider.getApplicationContext(), AccountBalanceHistoryActivity.class)
+            .putExtra(AccountBalanceHistoryActivity.EXTRA_ID, 1)
+            .putExtra(AccountBalanceHistoryActivity.EXTRA_NAME, accountTitle);
 
     @Rule
-    public ActivityScenarioRule<AccountHistoryActivity> activityRule =
+    public ActivityScenarioRule<AccountBalanceHistoryActivity> activityRule =
             new ActivityScenarioRule<>(intent);
 
     @Test

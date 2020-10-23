@@ -160,11 +160,11 @@ public class AccountDetailsActivity extends AppCompatActivity {
     public void onSeeMoreClick(View v) {
         disableActions();
 
-        Intent accountHistoryIntent = new Intent(this, AccountHistoryActivity.class);
-        accountHistoryIntent.putExtra(AccountHistoryActivity.EXTRA_ID, mAccount.getId());
-        accountHistoryIntent.putExtra(AccountHistoryActivity.EXTRA_BG_COLOR, mAccount.getBackgroundColor());
-        accountHistoryIntent.putExtra(AccountHistoryActivity.EXTRA_NAME, mAccount.getName());
-        accountHistoryIntent.putExtra(AccountHistoryActivity.EXTRA_CURRENCY, mAccount.getDefaultCurrency());
+        Intent accountHistoryIntent = new Intent(this, AccountBalanceHistoryActivity.class);
+        accountHistoryIntent.putExtra(AccountBalanceHistoryActivity.EXTRA_ID, mAccount.getId());
+        accountHistoryIntent.putExtra(AccountBalanceHistoryActivity.EXTRA_BG_COLOR, mAccount.getBackgroundColor());
+        accountHistoryIntent.putExtra(AccountBalanceHistoryActivity.EXTRA_NAME, mAccount.getName());
+        accountHistoryIntent.putExtra(AccountBalanceHistoryActivity.EXTRA_CURRENCY, mAccount.getDefaultCurrency());
 
         startActivity(accountHistoryIntent);
     }
