@@ -10,7 +10,7 @@ import androidx.lifecycle.SavedStateHandle;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 
-public class AccountAddEditViewModel extends AndroidViewModel {
+public class AddEditAccountViewModel extends AndroidViewModel {
     private static final String COLOR_TAG = "account-color";
     private static final String NAME_PRISTINE_TAG = "name-is-pristine";
     private static final String INITIAL_VALUE_PRISTINE_TAG = "initial-value-is-pristine";
@@ -19,7 +19,7 @@ public class AccountAddEditViewModel extends AndroidViewModel {
     private final MutableLiveData<Integer> mutableAccountColor;
     public final LiveData<Integer> accountColor;
 
-    public AccountAddEditViewModel (Application application, SavedStateHandle savedStateHandle) {
+    public AddEditAccountViewModel(Application application, SavedStateHandle savedStateHandle) {
         super(application);
         mRepository = new AccountRepository(application);
         mState = savedStateHandle;

@@ -16,7 +16,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior" >
 
         <LinearLayout
-            android:id="@+id/new_account_container"
+            android:id="@+id/addedit_account_container"
             android:layout_alignParentBottom="true"
             android:layout_alignParentTop="true"
             android:layout_width="match_parent"
@@ -24,7 +24,7 @@
             android:orientation="vertical" >
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/new_account_name"
+                android:id="@+id/addedit_account_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="36dp"
@@ -34,7 +34,7 @@
                 android:textDirection="locale" >
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/new_account_name_input"
+                    android:id="@+id/addedit_account_name_input"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:backgroundTint="@android:color/transparent"
@@ -56,13 +56,13 @@
                 app:contentPaddingBottom="100dp">
 
                 <LinearLayout
-                    android:id="@+id/new_account_box"
+                    android:id="@+id/addedit_account_box"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical" >
 
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/new_account_initial_value"
+                        android:id="@+id/addedit_account_initial_value"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textColorHint="@color/colorTextSecondary"
@@ -70,7 +70,7 @@
                         app:startIconDrawable="@drawable/ic_account_balance_wallet_black_24dp">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/new_account_initial_value_input"
+                            android:id="@+id/addedit_account_initial_value_input"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:backgroundTint="@android:color/transparent"
@@ -83,7 +83,7 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.jaredrummler.materialspinner.MaterialSpinner
-                        android:id="@+id/new_account_currency"
+                        android:id="@+id/addedit_account_currency"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="15dp"
@@ -99,7 +99,7 @@
                         app:ms_text_color="@color/colorTextHighlight" />
 
                     <com.jaredrummler.materialspinner.MaterialSpinner
-                        android:id="@+id/new_account_type"
+                        android:id="@+id/addedit_account_type"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="15dp"
@@ -114,7 +114,7 @@
                         app:ms_text_color="@color/colorTextHighlight" />
 
                     <Switch
-                        android:id="@+id/new_account_show_in_home"
+                        android:id="@+id/addedit_account_show_in_home"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="15dp"
@@ -134,7 +134,7 @@
                         android:orientation="horizontal">
 
                         <ImageButton
-                            android:id="@+id/new_account_color_button"
+                            android:id="@+id/addedit_account_color_button"
                             style="@style/Widget.AppCompat.ImageButton"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
@@ -159,7 +159,7 @@
     </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/new_account_ok"
+        android:id="@+id/addedit_account_FAB"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center|bottom"

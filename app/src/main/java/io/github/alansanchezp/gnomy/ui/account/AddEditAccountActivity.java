@@ -14,7 +14,7 @@ import io.github.alansanchezp.gnomy.util.android.InputFilterMinMax;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
-import io.github.alansanchezp.gnomy.viewmodel.account.AccountAddEditViewModel;
+import io.github.alansanchezp.gnomy.viewmodel.account.AddEditAccountViewModel;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -50,12 +50,18 @@ public class AddEditAccountActivity extends AppCompatActivity {
     static final String EXTRA_CURRENCY = "account_currency";
     static final String EXTRA_TYPE = "account_type";
     static final String TAG_PICKER_DIALOG = "color_picker_dialog";
+    private AddEditAccountViewModel mAddEditAccountViewModel;
     private Account mAccount;
     private Toolbar mAppbar;
     private Drawable mUpArrow;
+    private LinearLayout mBoxLayout;
+    private TextInputLayout mAccountNameTIL;
+    private TextInputLayout mInitialValueTIL;
     private TextInputEditText mAccountNameTIET;
     private TextInputEditText mInitialValueTIET;
-    private AccountAddEditViewModel mAccountViewModel;
+    private MaterialSpinner mCurrencySpinner;
+    private MaterialSpinner mTypeSpinner;
+    private Switch mShownInDashboardSwitch;
     private FloatingActionButton mFAB;
 
     @Override
@@ -63,50 +69,55 @@ public class AddEditAccountActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit_account);
 
-        mAppbar = (Toolbar) findViewById(R.id.custom_appbar);
-        setSupportActionBar(mAppbar);
-
-        mAccountViewModel = new ViewModelProvider(this,
+        mAddEditAccountViewModel = new ViewModelProvider(this,
                 new SavedStateViewModelFactory(
                         this.getApplication(), (SavedStateRegistryOwner) this))
-                .get(AccountAddEditViewModel.class);
+                .get(AddEditAccountViewModel.class);
 
-        mAccountNameTIET = findViewById(R.id.new_account_name_input);
-        mInitialValueTIET = findViewById(R.id.new_account_initial_value_input);
-
-        Intent intent = getIntent();
-        int accountId = intent.getIntExtra(EXTRA_ID, 0);
-        LiveData<Account> accountLD = mAccountViewModel.getAccount(accountId);
-
-        String activityTitle;
-        if (accountLD != null) {
-            activityTitle = getString(R.string.account_card_modify);
-            accountLD.observe(this, this::onAccountChanged);
-        } else {
-            activityTitle = getString(R.string.account_new);
-            mAccount = new Account();
-
-            // Only generate new color if viewModel doesn't have one stored already
-            if (Objects.requireNonNull(mAccountViewModel.accountColor.getValue()) == 1) {
-                mAccountViewModel.setAccountColor(ColorUtil.getRandomColor());
-            }
-        }
-
-
-        setTitle(activityTitle);
+        mAppbar = findViewById(R.id.custom_appbar);
+        // Prevent potential noticeable blink in color
+        mAppbar.setBackgroundColor(getResources().getColor(android.R.color.transparent));
         setSupportActionBar(mAppbar);
         mUpArrow = getResources().getDrawable(R.drawable.abc_vector_test);
-
         //noinspection ConstantConditions
         getSupportActionBar().setHomeAsUpIndicator(mUpArrow);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mFAB = (FloatingActionButton) findViewById(R.id.new_account_ok);
+        mBoxLayout = findViewById(R.id.addedit_account_box);
+        mAccountNameTIL = findViewById(R.id.addedit_account_name);
+        mInitialValueTIL = findViewById(R.id.addedit_account_initial_value);
+        mAccountNameTIET = findViewById(R.id.addedit_account_name_input);
+        mInitialValueTIET = findViewById(R.id.addedit_account_initial_value_input);
+        mCurrencySpinner = findViewById(R.id.addedit_account_currency);
+        mTypeSpinner = findViewById(R.id.addedit_account_type);
+        mShownInDashboardSwitch = findViewById(R.id.addedit_account_show_in_home);
+        mFAB = findViewById(R.id.addedit_account_FAB);
 
-        mAccountViewModel.accountColor.observe(this, this::onAccountColorChanged);
-        setLists(intent.getStringExtra(EXTRA_CURRENCY),
-                intent.getIntExtra(EXTRA_TYPE, 0));
-        setFilters();
+        initSpinners();
+        setInputFilters();
+
+        Intent intent = getIntent();
+        int accountId = intent.getIntExtra(EXTRA_ID, 0);
+        LiveData<Account> accountLD = mAddEditAccountViewModel.getAccount(accountId);
+
+        String activityTitle;
+        if (accountLD != null) {
+            activityTitle = getString(R.string.account_card_modify);
+            // Prevent potential noticeable blink in spinners
+            mBoxLayout.setVisibility(View.INVISIBLE);
+            accountLD.observe(this, this::onAccountChanged);
+        } else {
+            activityTitle = getString(R.string.account_new);
+            mAccount = new Account();
+            // Only generate new color if viewModel doesn't have one stored already
+            if (Objects.requireNonNull(mAddEditAccountViewModel.accountColor.getValue()) == 1) {
+                mAddEditAccountViewModel.setAccountColor(ColorUtil.getRandomColor());
+            }
+        }
+
+        setTitle(activityTitle);
+
+        mAddEditAccountViewModel.accountColor.observe(this, this::onAccountColorChanged);
 
         mAccountNameTIET.addTextChangedListener(new TextWatcher() {
             @Override
@@ -156,22 +167,28 @@ public class AddEditAccountActivity extends AppCompatActivity {
                 .show();
     }
 
-    public void onAccountChanged(Account account) {
+    private void onAccountChanged(Account account) {
         if (account == null) {
             Log.e("AddEditAccount", "onCreate: Account not found. Closing activity.");
             finish();
             return;
         }
         mAccount = account;
-        mAccountViewModel.setAccountColor(account.getBackgroundColor());
+        mAddEditAccountViewModel.setAccountColor(account.getBackgroundColor());
         mAccountNameTIET.setText(account.getName());
         mInitialValueTIET.setText(account.getInitialValue().toPlainString());
-        Switch includeInSwitch = (Switch) findViewById(R.id.new_account_show_in_home);
-        includeInSwitch.setChecked(account.isShowInDashboard());
+        mCurrencySpinner.setSelectedIndex(
+                Arrays.asList(CurrencyUtil.getCurrencies()).indexOf(mAccount.getDefaultCurrency())
+        );
+        mTypeSpinner.setSelectedIndex(mAccount.getType() - 1);
+        mShownInDashboardSwitch.setChecked(account.isShowInDashboard());
+        // Restore container visibility once all data has been initialized
+        // TODO: How can we prevent Switch animation from triggering?
+        mBoxLayout.setVisibility(View.VISIBLE);
     }
 
-    public void onAccountColorChanged(@ColorInt int color) {
-        // 1 is an invalid HEX number, no point in trying to color elements
+    private void onAccountColorChanged(@ColorInt int color) {
+        // 1 is an invalid HEX number, no point in trying to apply color to elements
         if (color == 1) return;
         // If account is null (null != empty) then no data has been received from Room.
         // That means that we will receive a second color pretty soon and therefore
@@ -179,6 +196,7 @@ public class AddEditAccountActivity extends AppCompatActivity {
         if (mAccount == null) return;
 
         int textColor = ColorUtil.getTextColor(color);
+
         mAccount.setBackgroundColor(color);
         mAppbar.setBackgroundColor(color);
         mAppbar.setTitleTextColor(textColor);
@@ -187,14 +205,11 @@ public class AddEditAccountActivity extends AppCompatActivity {
         //noinspection ConstantConditions
         getSupportActionBar().setHomeAsUpIndicator(mUpArrow);
         getWindow().setStatusBarColor(ColorUtil.getDarkVariant(color));
-        LinearLayout container = (LinearLayout) findViewById(R.id.new_account_container);
-        TextInputLayout nameTIL = (TextInputLayout) findViewById(R.id.new_account_name);
-        TextInputEditText nameTIET = (TextInputEditText) findViewById(R.id.new_account_name_input);
-        TextInputLayout valueTIL = (TextInputLayout) findViewById(R.id.new_account_initial_value);
-        Switch includeInSwitch = (Switch) findViewById(R.id.new_account_show_in_home);
-        ImageButton palette = (ImageButton) findViewById(R.id.new_account_color_button);
+        LinearLayout container = (LinearLayout) findViewById(R.id.addedit_account_container);
+        ImageButton palette = (ImageButton) findViewById(R.id.addedit_account_color_button);
 
         // Custom ColorStateLists
+        // TODO: Create util class to retrieve custom colorStateLists
         ColorStateList switchCSL = getSwitchColorStateList(color);
         ColorStateList nameCSL = getStrokeColorStateList(textColor);
         ColorStateList textCSL = ColorStateList.valueOf(textColor);
@@ -207,54 +222,43 @@ public class AddEditAccountActivity extends AppCompatActivity {
         mFAB.getDrawable().mutate().setTint(fabTextColor);
         mFAB.setRippleColor(textColor);
 
-        nameTIL.setBoxStrokeColorStateList(nameCSL);
-        nameTIL.setDefaultHintTextColor(textCSL);
-        nameTIET.setTextColor(textColor);
+        mAccountNameTIL.setBoxStrokeColorStateList(nameCSL);
+        mAccountNameTIL.setDefaultHintTextColor(textCSL);
+        mAccountNameTIET.setTextColor(textColor);
 
-        valueTIL.setBoxStrokeColor(color);
-        valueTIL.setHintTextColor(bgCSL);
+        mInitialValueTIL.setBoxStrokeColor(color);
+        mInitialValueTIL.setHintTextColor(bgCSL);
 
-        nameTIL.setErrorTextColor(textCSL);
-        nameTIL.setErrorIconTintList(textCSL);
-        nameTIL.setBoxStrokeErrorColor(textCSL);
+        mAccountNameTIL.setErrorTextColor(textCSL);
+        mAccountNameTIL.setErrorIconTintList(textCSL);
+        mAccountNameTIL.setBoxStrokeErrorColor(textCSL);
 
-        includeInSwitch.getThumbDrawable().setTintList(switchCSL);
-        includeInSwitch.getTrackDrawable().setTintList(switchCSL);
+        mShownInDashboardSwitch.getThumbDrawable().setTintList(switchCSL);
+        mShownInDashboardSwitch.getTrackDrawable().setTintList(switchCSL);
 
         palette.setBackgroundTintList(bgCSL);
         palette.getDrawable().mutate().setTint(textColor);
     }
 
-    protected void setLists(String currencyCode, int accountType) {
-        MaterialSpinner currencySpinner = (MaterialSpinner) findViewById(R.id.new_account_currency);
-        MaterialSpinner typeSpinner = (MaterialSpinner) findViewById(R.id.new_account_type);
-
+    private void initSpinners() {
         try {
             String[] currencies = CurrencyUtil.getDisplayArray();
             String[] accountTypes = getResources().getStringArray(R.array.account_types);
 
-            currencySpinner.setItems(currencies);
-            if (currencyCode != null) {
-                currencySpinner.setSelectedIndex(
-                        Arrays.asList(CurrencyUtil.getCurrencies()).indexOf(currencyCode)
-                );
-            }
-            typeSpinner.setItems(accountTypes);
-            if (accountType != 0) {
-                typeSpinner.setSelectedIndex(accountType - 1);
-            }
+            mCurrencySpinner.setItems(currencies);
+            mTypeSpinner.setItems(accountTypes);
         } catch (GnomyCurrencyException e) {
             // This shouldn't happen
             Log.wtf("AddEditAccount", "setLists: CURRENCIES array triggers error", e);
         }
     }
 
-    protected void setFilters() {
-        TextInputEditText valueTIET = (TextInputEditText) findViewById(R.id.new_account_initial_value_input);
+    private void setInputFilters() {
+        TextInputEditText valueTIET = (TextInputEditText) findViewById(R.id.addedit_account_initial_value_input);
         valueTIET.setFilters(new InputFilter[]{new InputFilterMinMax(Account.MIN_INITIAL, Account.MAX_INITIAL, Account.DECIMAL_SCALE)});
     }
 
-    protected ColorStateList getSwitchColorStateList(int color) {
+    private ColorStateList getSwitchColorStateList(int color) {
         return new ColorStateList(
             new int[][]{
                 new int[]{-android.R.attr.state_enabled},
@@ -271,7 +275,7 @@ public class AddEditAccountActivity extends AppCompatActivity {
         );
     }
 
-    protected ColorStateList getStrokeColorStateList(int color) {
+    private ColorStateList getStrokeColorStateList(int color) {
         return new ColorStateList(
             new int[][]{
                 new int[]{-android.R.attr.state_enabled},
@@ -292,13 +296,13 @@ public class AddEditAccountActivity extends AppCompatActivity {
     public void showColorPicker(View v) {
         new SpectrumDialog.Builder(this)
                 .setColors(ColorUtil.getColors())
-                .setSelectedColor(Objects.requireNonNull(mAccountViewModel.accountColor.getValue()))
+                .setSelectedColor(Objects.requireNonNull(mAddEditAccountViewModel.accountColor.getValue()))
                 .setDismissOnColorSelected(true)
                 .setOutlineWidth(0)
                 .setFixedColumnCount(5)
                 .setOnColorSelectedListener((positiveResult, color) -> {
                     if (positiveResult) {
-                        mAccountViewModel.setAccountColor(color);
+                        mAddEditAccountViewModel.setAccountColor(color);
                     }
                 }).build().show(getSupportFragmentManager(), TAG_PICKER_DIALOG);
     }
@@ -307,62 +311,56 @@ public class AddEditAccountActivity extends AppCompatActivity {
         boolean texFieldsAreValid = validateTextFields();
 
         if (texFieldsAreValid) {
-            Switch includeInSwitch = (Switch) findViewById(R.id.new_account_show_in_home);
-            MaterialSpinner currencySpinner = (MaterialSpinner) findViewById(R.id.new_account_currency);
-            MaterialSpinner typeSpinner = (MaterialSpinner) findViewById(R.id.new_account_type);
+            String currencyCode = CurrencyUtil.getCurrencyCode(
+                    mCurrencySpinner.getSelectedIndex());
+            int accountType = mTypeSpinner.getSelectedIndex() + 1;
+            boolean showInDashboard = mShownInDashboardSwitch.isChecked();
 
-            int currencyIndex = currencySpinner.getSelectedIndex();
-
-            int accountType = typeSpinner.getSelectedIndex() + 1;
-            String currencyCode = CurrencyUtil.getCurrencyCode(currencyIndex);
-            boolean includeInHomepage = includeInSwitch.isChecked();
-
-            saveData(currencyCode, accountType, includeInHomepage);
+            saveData(currencyCode, accountType, showInDashboard);
         } else {
             Toast.makeText(this, getResources().getString(R.string.form_error), Toast.LENGTH_LONG).show();
         }
     }
 
     private void onAccountNameEditTextChanges(String value) {
-        TextInputLayout nameTIL = (TextInputLayout) findViewById(R.id.new_account_name);
-        mAccount.setName(value);
+        if (mAccount != null) mAccount.setName(value);
 
         if (value.trim().length() == 0) {
-            if (mAccountViewModel.accountNameIsPristine()) return;
-            nameTIL.setError(getResources().getString(R.string.account_error_name));
+            if (mAddEditAccountViewModel.accountNameIsPristine()) return;
+            mAccountNameTIL.setError(getResources().getString(R.string.account_error_name));
         } else {
-            nameTIL.setErrorEnabled(false);
+            mAccountNameTIL.setErrorEnabled(false);
         }
 
-        mAccountViewModel.notifyAccountNameChanged();
+        mAddEditAccountViewModel.notifyAccountNameChanged();
     }
 
     private void onInitialValueEditTextChanges(String value) {
-        TextInputLayout valueTIL = (TextInputLayout) findViewById(R.id.new_account_initial_value);
-
         if (value.length() == 0) {
-            if (mAccountViewModel.initialValueIsPristine()) return;
-            valueTIL.setError(getResources().getString(R.string.account_error_initial_value));
+            if (mAddEditAccountViewModel.initialValueIsPristine()) return;
+            mInitialValueTIL.setError(getResources().getString(R.string.account_error_initial_value));
         } else {
-            mAccount.setInitialValue(value);
-            valueTIL.setErrorEnabled(false);
+            if (mAccount != null) mAccount.setInitialValue(value);
+            mInitialValueTIL.setErrorEnabled(false);
         }
 
-        mAccountViewModel.notifyInitialValueChanged();
+        mAddEditAccountViewModel.notifyInitialValueChanged();
     }
 
     @SuppressWarnings("ConstantConditions")
     private boolean validateTextFields() {
-        mAccountViewModel.notifyAccountNameChanged();
-        mAccountViewModel.notifyInitialValueChanged();
-        onAccountNameEditTextChanges(mAccountNameTIET.getText().toString());
-        onInitialValueEditTextChanges(mInitialValueTIET.getText().toString());
+        mAddEditAccountViewModel.notifyAccountNameChanged();
+        mAddEditAccountViewModel.notifyInitialValueChanged();
 
-        return mAccountNameTIET.getParent().toString().length() > 0 &&
-                mInitialValueTIET.getText().toString().length() > 0;
+        String accountName = mAccountNameTIET.getText().toString();
+        String initialValueString = mInitialValueTIET.getText().toString();
+        onAccountNameEditTextChanges(accountName);
+        onInitialValueEditTextChanges(initialValueString);
+
+        return accountName.length() > 0 && initialValueString.length() > 0;
     }
 
-    protected void saveData(String currencyCode, int accountType, boolean includeInHomepage) {
+    private void saveData(String currencyCode, int accountType, boolean includeInHomepage) {
         try {
             String toastMessage;
 
@@ -372,10 +370,10 @@ public class AddEditAccountActivity extends AppCompatActivity {
 
             mFAB.setEnabled(false);
             if (mAccount.getId() == 0) {
-                mAccountViewModel.insert(mAccount);
+                mAddEditAccountViewModel.insert(mAccount);
                 toastMessage = getResources().getString(R.string.account_message_saved);
             } else {
-                mAccountViewModel.update(mAccount);
+                mAddEditAccountViewModel.update(mAccount);
                 toastMessage = getResources().getString(R.string.account_message_updated);
             }
 
