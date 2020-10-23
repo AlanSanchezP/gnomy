@@ -22,8 +22,6 @@ public class ExampleInstrumentedTest {
     //  How do we test clickable status?
     //  Click actions are being tested on isolated fragments
     // TODO: Test AddEditAccountActivity
-    // TODO: Test AccountDetailsActivity
-    // TODO: Test AccountHistoryActivity
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();

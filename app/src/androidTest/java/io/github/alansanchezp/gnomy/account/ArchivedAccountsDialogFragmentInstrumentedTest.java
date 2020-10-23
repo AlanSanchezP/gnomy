@@ -54,10 +54,6 @@ public class ArchivedAccountsDialogFragmentInstrumentedTest {
         List<Account> accountsList = new ArrayList<>();
 
         // List size is 0 as initial state or LiveData hasn't returned any results
-        scenario.onFragment(fragment -> {
-            fragment.onAccountsListChanged(accountsList);
-        });
-
         onView(withId(R.id.archived_items_empty))
                 .check(matches(
                         withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)
@@ -67,7 +63,6 @@ public class ArchivedAccountsDialogFragmentInstrumentedTest {
                 .check(matches(
                         withEffectiveVisibility(ViewMatchers.Visibility.GONE)
                 ));
-
 
         // List grows
         accountsList.add(accounts[0]);

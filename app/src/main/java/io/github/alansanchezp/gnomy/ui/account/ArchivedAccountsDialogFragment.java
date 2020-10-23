@@ -1,11 +1,9 @@
 package io.github.alansanchezp.gnomy.ui.account;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
@@ -19,7 +17,6 @@ import android.widget.TextView;
 import java.util.List;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -52,7 +49,7 @@ public class ArchivedAccountsDialogFragment extends DialogFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mListViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.getActivity().getApplication())).get(AccountsListViewModel.class);
+        mListViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())).get(AccountsListViewModel.class);
         mAccounts = mListViewModel.getArchivedAccounts();
 
         setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Material_Light_Dialog);
@@ -62,10 +59,10 @@ public class ArchivedAccountsDialogFragment extends DialogFragment
     public void onStart() {
         super.onStart();
         try {
-            getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            getDialog().setTitle(getString(R.string.title_archived_accounts));
-        } catch(NullPointerException npe) {
-            Log.w("ArchivedAccountsDialog", "onStart: This should only happen during tests!", npe);
+            requireDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            requireDialog().setTitle(getString(R.string.title_archived_accounts));
+        } catch(IllegalStateException ise) {
+            Log.w("ArchivedAccountsDialog", "onStart: This should only happen during tests!", ise);
         }
     }
 
@@ -80,22 +77,14 @@ public class ArchivedAccountsDialogFragment extends DialogFragment
         recyclerView.setAdapter(mAdapter);
 
         mRestoreAllButton = (Button) view.findViewById(R.id.restore_all_accounts_button);
-        mRestoreAllButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mListViewModel.restoreAll();
-                dismiss();
-            }
+        mRestoreAllButton.setOnClickListener(v -> {
+            mListViewModel.restoreAll();
+            dismiss();
         });
 
         mEmptyListText = (TextView) view.findViewById(R.id.archived_items_empty);
 
-        mAccounts.observe(getViewLifecycleOwner(), new Observer<List<Account>>() {
-            @Override
-            public void onChanged(@Nullable final List<Account> accounts) {
-                onAccountsListChanged(accounts);
-            }
-        });
+        mAccounts.observe(getViewLifecycleOwner(), this::onAccountsListChanged);
 
         return view;
     }
@@ -127,16 +116,10 @@ public class ArchivedAccountsDialogFragment extends DialogFragment
     }
 
     public void deleteAccount(final Account account) {
-        new AlertDialog.Builder(getContext())
+        new AlertDialog.Builder(requireContext())
                 .setTitle(getString(R.string.account_card_delete))
                 .setMessage(getString(R.string.account_card_delete_warning))
-                .setPositiveButton(getString(R.string.confirmation_dialog_yes), new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        mListViewModel.delete(account);
-                    }
-                })
+                .setPositiveButton(getString(R.string.confirmation_dialog_yes), (dialog, which) -> mListViewModel.delete(account))
                 .setNegativeButton(getString(R.string.confirmation_dialog_no), null)
                 .show();
     }
