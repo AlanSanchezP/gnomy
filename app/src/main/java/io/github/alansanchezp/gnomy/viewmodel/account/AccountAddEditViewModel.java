@@ -12,7 +12,9 @@ import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 
 public class AccountAddEditViewModel extends AndroidViewModel {
     private static final String COLOR_TAG = "account-color";
-    private AccountRepository mRepository;
+    private static final String NAME_PRISTINE_TAG = "name-is-pristine";
+    private static final String INITIAL_VALUE_PRISTINE_TAG = "initial-value-is-pristine";
+    private final AccountRepository mRepository;
     private final SavedStateHandle mState;
     private final MutableLiveData<Integer> mutableAccountColor;
     public final LiveData<Integer> accountColor;
@@ -41,5 +43,25 @@ public class AccountAddEditViewModel extends AndroidViewModel {
 
     public void setAccountColor(@ColorInt int color) {
         mutableAccountColor.setValue(color);
+    }
+
+    public boolean accountNameIsPristine() {
+        if (mState.get(NAME_PRISTINE_TAG) == null) return true;
+        //noinspection ConstantConditions
+        return mState.get(NAME_PRISTINE_TAG);
+    }
+
+    public void notifyAccountNameChanged() {
+        mState.set(NAME_PRISTINE_TAG, false);
+    }
+
+    public boolean initialValueIsPristine() {
+        if (mState.get(INITIAL_VALUE_PRISTINE_TAG) == null) return true;
+        //noinspection ConstantConditions
+        return mState.get(INITIAL_VALUE_PRISTINE_TAG);
+    }
+
+    public void notifyInitialValueChanged() {
+        mState.set(INITIAL_VALUE_PRISTINE_TAG, false);
     }
 }

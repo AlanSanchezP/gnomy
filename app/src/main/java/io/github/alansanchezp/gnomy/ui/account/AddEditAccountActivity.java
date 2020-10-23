@@ -1,7 +1,6 @@
 package io.github.alansanchezp.gnomy.ui.account;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -27,7 +26,6 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.InflateException;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -44,7 +42,6 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class AddEditAccountActivity extends AppCompatActivity {
-    // TODO: Evaluate if onSaveInstanceState and onRestoreInstanceState should be replaced with ViewModel
     static final String EXTRA_ID = "account_id";
     static final String EXTRA_BG_COLOR = "account_bg_color";
     static final String EXTRA_NAME = "account_name";
@@ -52,24 +49,19 @@ public class AddEditAccountActivity extends AppCompatActivity {
     static final String EXTRA_INCLUDED_IN_SUM = "account_included_in_sum";
     static final String EXTRA_CURRENCY = "account_currency";
     static final String EXTRA_TYPE = "account_type";
-    static final String SAVED_NAME_PRISTINE = "name_is_pristine";
-    static final String SAVED_INITIAL_VALUE_PRISTINE = "initial_value_is_pristine";
     static final String TAG_PICKER_DIALOG = "color_picker_dialog";
     private Account mAccount;
-    private boolean mNameInputIsPristine = true;
-    private boolean mValueInputIsPristine = true;
     private Toolbar mAppbar;
     private Drawable mUpArrow;
+    private TextInputEditText mAccountNameTIET;
+    private TextInputEditText mInitialValueTIET;
     private AccountAddEditViewModel mAccountViewModel;
     private FloatingActionButton mFAB;
-    // Only used for edit purposes
-    protected int mAccountId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit_account);
-
 
         mAppbar = (Toolbar) findViewById(R.id.custom_appbar);
         setSupportActionBar(mAppbar);
@@ -79,31 +71,17 @@ public class AddEditAccountActivity extends AppCompatActivity {
                         this.getApplication(), (SavedStateRegistryOwner) this))
                 .get(AccountAddEditViewModel.class);
 
-        TextInputLayout nameTIL = findViewById(R.id.new_account_name);
-        TextInputLayout valueTIL = findViewById(R.id.new_account_initial_value);
-        if (nameTIL.getEditText() == null || valueTIL.getEditText() == null)
-            throw new InflateException("<R.id.new_account_name> and <R.id.new_account_initial_value> are expected to have a child TextInputEditText element.");
+        mAccountNameTIET = findViewById(R.id.new_account_name_input);
+        mInitialValueTIET = findViewById(R.id.new_account_initial_value_input);
 
         Intent intent = getIntent();
-        mAccountId = intent.getIntExtra(EXTRA_ID, 0);
-        LiveData<Account> accountLD = mAccountViewModel.getAccount(mAccountId);
+        int accountId = intent.getIntExtra(EXTRA_ID, 0);
+        LiveData<Account> accountLD = mAccountViewModel.getAccount(accountId);
 
         String activityTitle;
         if (accountLD != null) {
             activityTitle = getString(R.string.account_card_modify);
-            accountLD.observe(this, account -> {
-                if (account == null) {
-                    Log.e("AddEditAccount", "onCreate: Account not found. Closing activity.");
-                    finish();
-                    return;
-                }
-                mAccount = account;
-                mAccountViewModel.setAccountColor(account.getBackgroundColor());
-                nameTIL.getEditText().setText(account.getName());
-                valueTIL.getEditText().setText(account.getInitialValue().toPlainString());
-                Switch includeInSwitch = (Switch) findViewById(R.id.new_account_show_in_home);
-                includeInSwitch.setChecked(account.isShowInDashboard());
-            });
+            accountLD.observe(this, this::onAccountChanged);
         } else {
             activityTitle = getString(R.string.account_new);
             mAccount = new Account();
@@ -113,6 +91,7 @@ public class AddEditAccountActivity extends AppCompatActivity {
                 mAccountViewModel.setAccountColor(ColorUtil.getRandomColor());
             }
         }
+
 
         setTitle(activityTitle);
         setSupportActionBar(mAppbar);
@@ -124,68 +103,39 @@ public class AddEditAccountActivity extends AppCompatActivity {
 
         mFAB = (FloatingActionButton) findViewById(R.id.new_account_ok);
 
-        mAccountViewModel.accountColor.observe(this, this::setColors);
+        mAccountViewModel.accountColor.observe(this, this::onAccountColorChanged);
         setLists(intent.getStringExtra(EXTRA_CURRENCY),
                 intent.getIntExtra(EXTRA_TYPE, 0));
         setFilters();
 
-        //noinspection ConstantConditions
-        nameTIL.getEditText().addTextChangedListener(new TextWatcher() {
+        mAccountNameTIET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                validateName();
-                mNameInputIsPristine = false;
+                onAccountNameEditTextChanges(s.toString());
             }
 
             @Override
             public void afterTextChanged(Editable s) {
             }
         });
-        //noinspection ConstantConditions
-        valueTIL.getEditText().addTextChangedListener(new TextWatcher() {
+        mInitialValueTIET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                validateValueString();
-                mValueInputIsPristine = false;
+                onInitialValueEditTextChanges(s.toString());
             }
 
             @Override
             public void afterTextChanged(Editable s) {
             }
         });
-    }
-
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
-        savedInstanceState.putBoolean(SAVED_NAME_PRISTINE, mNameInputIsPristine);
-        savedInstanceState.putBoolean(SAVED_INITIAL_VALUE_PRISTINE, mValueInputIsPristine);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        boolean nameIsPristine = savedInstanceState.getBoolean(SAVED_NAME_PRISTINE);
-        boolean valueIsPristine = savedInstanceState.getBoolean(SAVED_INITIAL_VALUE_PRISTINE);
-
-        if (nameIsPristine) {
-            mNameInputIsPristine = true;
-            TextInputLayout nameTIL = (TextInputLayout) findViewById(R.id.new_account_name);
-            nameTIL.setErrorEnabled(false);
-        }
-        if (valueIsPristine) {
-            mValueInputIsPristine = true;
-            TextInputLayout valueTIL = (TextInputLayout) findViewById(R.id.new_account_initial_value);
-            valueTIL.setErrorEnabled(false);
-        }
     }
 
     @Override
@@ -206,7 +156,21 @@ public class AddEditAccountActivity extends AppCompatActivity {
                 .show();
     }
 
-    protected void setColors(@ColorInt int color) {
+    public void onAccountChanged(Account account) {
+        if (account == null) {
+            Log.e("AddEditAccount", "onCreate: Account not found. Closing activity.");
+            finish();
+            return;
+        }
+        mAccount = account;
+        mAccountViewModel.setAccountColor(account.getBackgroundColor());
+        mAccountNameTIET.setText(account.getName());
+        mInitialValueTIET.setText(account.getInitialValue().toPlainString());
+        Switch includeInSwitch = (Switch) findViewById(R.id.new_account_show_in_home);
+        includeInSwitch.setChecked(account.isShowInDashboard());
+    }
+
+    public void onAccountColorChanged(@ColorInt int color) {
         // 1 is an invalid HEX number, no point in trying to color elements
         if (color == 1) return;
         // If account is null (null != empty) then no data has been received from Room.
@@ -281,7 +245,7 @@ public class AddEditAccountActivity extends AppCompatActivity {
             }
         } catch (GnomyCurrencyException e) {
             // This shouldn't happen
-            Log.wtf("NewAccountActivity", "setLists: CURRENCIES array triggers error", e);
+            Log.wtf("AddEditAccount", "setLists: CURRENCIES array triggers error", e);
         }
     }
 
@@ -334,99 +298,91 @@ public class AddEditAccountActivity extends AppCompatActivity {
                 .setFixedColumnCount(5)
                 .setOnColorSelectedListener((positiveResult, color) -> {
                     if (positiveResult) {
-                        Log.d("AEAActivity", "showColorPicker: setting color " + color);
                         mAccountViewModel.setAccountColor(color);
                     }
                 }).build().show(getSupportFragmentManager(), TAG_PICKER_DIALOG);
     }
 
     public void processData(View v) {
-        boolean isValid = validateData();
+        boolean texFieldsAreValid = validateTextFields();
 
-        if (isValid) {
-            TextInputEditText nameTIET = (TextInputEditText) findViewById(R.id.new_account_name_input);
-            TextInputEditText valueTIET = (TextInputEditText) findViewById(R.id.new_account_initial_value_input);
+        if (texFieldsAreValid) {
             Switch includeInSwitch = (Switch) findViewById(R.id.new_account_show_in_home);
             MaterialSpinner currencySpinner = (MaterialSpinner) findViewById(R.id.new_account_currency);
             MaterialSpinner typeSpinner = (MaterialSpinner) findViewById(R.id.new_account_type);
 
             int currencyIndex = currencySpinner.getSelectedIndex();
 
-            String initialValueString = valueTIET.getText().toString();
-            String name = nameTIET.getText().toString();
             int accountType = typeSpinner.getSelectedIndex() + 1;
             String currencyCode = CurrencyUtil.getCurrencyCode(currencyIndex);
             boolean includeInHomepage = includeInSwitch.isChecked();
 
-            saveData(name, initialValueString, currencyCode, accountType, includeInHomepage);
+            saveData(currencyCode, accountType, includeInHomepage);
         } else {
             Toast.makeText(this, getResources().getString(R.string.form_error), Toast.LENGTH_LONG).show();
         }
     }
 
-    protected boolean validateName() {
+    private void onAccountNameEditTextChanges(String value) {
         TextInputLayout nameTIL = (TextInputLayout) findViewById(R.id.new_account_name);
-        try {
-            String name = nameTIL.getEditText().getText().toString();
+        mAccount.setName(value);
 
-            if (name.trim().length() == 0) {
-                nameTIL.setError(getResources().getString(R.string.account_error_name));
-                return false;
-            }
+        if (value.trim().length() == 0) {
+            if (mAccountViewModel.accountNameIsPristine()) return;
+            nameTIL.setError(getResources().getString(R.string.account_error_name));
+        } else {
             nameTIL.setErrorEnabled(false);
-            return true;
-        } catch (NullPointerException npe) {
-            Log.e("NewAccountActivity", "validateName: ", npe);
-            return false;
         }
+
+        mAccountViewModel.notifyAccountNameChanged();
     }
 
-    protected boolean validateValueString() {
+    private void onInitialValueEditTextChanges(String value) {
         TextInputLayout valueTIL = (TextInputLayout) findViewById(R.id.new_account_initial_value);
-        try {
-            String initialValueString = valueTIL.getEditText().getText().toString();
 
-            if (initialValueString.length() == 0) {
-                valueTIL.setError(getResources().getString(R.string.account_error_initial_value));
-                return false;
-            }
+        if (value.length() == 0) {
+            if (mAccountViewModel.initialValueIsPristine()) return;
+            valueTIL.setError(getResources().getString(R.string.account_error_initial_value));
+        } else {
+            mAccount.setInitialValue(value);
             valueTIL.setErrorEnabled(false);
-            return true;
-        } catch (NullPointerException npe) {
-            Log.e("NewAccountActivity", "validateValueString: ", npe);
-            return false;
         }
+
+        mAccountViewModel.notifyInitialValueChanged();
     }
 
-    protected boolean validateData() {
-        return validateName() && validateValueString();
+    @SuppressWarnings("ConstantConditions")
+    private boolean validateTextFields() {
+        mAccountViewModel.notifyAccountNameChanged();
+        mAccountViewModel.notifyInitialValueChanged();
+        onAccountNameEditTextChanges(mAccountNameTIET.getText().toString());
+        onInitialValueEditTextChanges(mInitialValueTIET.getText().toString());
+
+        return mAccountNameTIET.getParent().toString().length() > 0 &&
+                mInitialValueTIET.getText().toString().length() > 0;
     }
 
-    protected void saveData(String name, String initialValueString, String currencyCode, int accountType, boolean includeInHomepage) {
+    protected void saveData(String currencyCode, int accountType, boolean includeInHomepage) {
         try {
-            Account account = mAccount;
             String toastMessage;
 
-            account.setName(name);
-            account.setInitialValue(initialValueString);
-            account.setShowInDashboard(includeInHomepage);
-            account.setType(accountType);
-            account.setDefaultCurrency(currencyCode);
+            mAccount.setShowInDashboard(includeInHomepage);
+            mAccount.setType(accountType);
+            mAccount.setDefaultCurrency(currencyCode);
 
             mFAB.setEnabled(false);
-            if (mAccountId == 0) {
-                mAccountViewModel.insert(account);
+            if (mAccount.getId() == 0) {
+                mAccountViewModel.insert(mAccount);
                 toastMessage = getResources().getString(R.string.account_message_saved);
             } else {
-                account.setId(mAccountId);
-                mAccountViewModel.update(account);
+                mAccountViewModel.update(mAccount);
                 toastMessage = getResources().getString(R.string.account_message_updated);
             }
 
             Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
             finish();
         } catch(NumberFormatException nfe) {
-            Log.wtf("NewAccountActivity", "saveData: Initial value validation failed", nfe);
+            Log.wtf("AddEditAccount", "saveData: Initial value validation failed", nfe);
         }
     }
 }

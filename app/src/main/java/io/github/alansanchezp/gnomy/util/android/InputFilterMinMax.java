@@ -36,7 +36,7 @@ public class InputFilterMinMax implements InputFilter {
                 if (input.scale() <= this.decimalScale) return null;
             }
         } catch (NumberFormatException nfe) {
-            Log.e("InputFilterMinMax", "filter: Input is not a valid number", nfe);
+            Log.w("InputFilterMinMax", "filter: Input is not a valid number", nfe);
         }
         return "";
     }
