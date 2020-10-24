@@ -300,6 +300,7 @@ public class AddEditAccountActivity extends AppCompatActivity {
                 .setSelectedColor(Objects.requireNonNull(mAddEditAccountViewModel.accountColor.getValue()))
                 .setDismissOnColorSelected(true)
                 .setOutlineWidth(0)
+                .setTitle(R.string.account_pick_color_title)
                 .setFixedColumnCount(5)
                 .setOnColorSelectedListener((positiveResult, color) -> {
                     if (positiveResult) {

@@ -56,6 +56,7 @@
     <string name="account_type">Account type</string>
     <string name="account_include_in_sum">Include in homepage sum</string>
     <string name="account_pick_color">Pick a color to identify this account</string>
+    <string name="account_pick_color_title">Pick a color</string>
     <string name="account_error_name">Account name can\'t be empty</string>
 
     <string name="account_error_initial_value">Initial value is not a valid number.</string>
