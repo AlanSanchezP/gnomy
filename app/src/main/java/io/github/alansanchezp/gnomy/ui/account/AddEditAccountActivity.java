@@ -42,8 +42,8 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class AddEditAccountActivity extends AppCompatActivity {
-    static final String EXTRA_ID = "account_id";
-    static final String TAG_PICKER_DIALOG = "color_picker_dialog";
+    public static final String EXTRA_ID = "account_id";
+    private static final String TAG_PICKER_DIALOG = "color_picker_dialog";
     private AddEditAccountViewModel mAddEditAccountViewModel;
     private Account mAccount;
     private Toolbar mAppbar;

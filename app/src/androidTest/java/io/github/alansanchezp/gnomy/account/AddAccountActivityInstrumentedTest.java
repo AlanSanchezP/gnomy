@@ -13,7 +13,6 @@ import io.github.alansanchezp.gnomy.ui.account.AddEditAccountActivity;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.pressBack;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -150,8 +149,7 @@ public class AddAccountActivityInstrumentedTest {
                 .perform(replaceText("test"));
 
         onView(withId(R.id.addedit_account_initial_value_input))
-                .perform(replaceText("40"))
-                .perform(pressBack());
+                .perform(replaceText("40"));
 
         onView(withId(R.id.addedit_account_FAB))
                 .perform(click());
