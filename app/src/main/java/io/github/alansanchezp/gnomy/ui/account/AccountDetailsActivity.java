@@ -2,7 +2,6 @@ package io.github.alansanchezp.gnomy.ui.account;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,25 +21,22 @@ import java.math.BigDecimal;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.viewmodel.account.AccountViewModel;
 
-public class AccountDetailsActivity extends AppCompatActivity {
+public class AccountDetailsActivity
+        extends BackButtonActivity {
     public static final String EXTRA_ID = "account_id";
-    private Toolbar mAppbar;
-    private Drawable mUpArrow;
     private TextView mNameTV;
-    private Menu mMenu;
     private FloatingActionButton mFAB;
     private Button mSeeMoreBtn;
     private AccountViewModel mAccountViewModel;
@@ -50,7 +46,6 @@ public class AccountDetailsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_account_details);
 
         // TODO: Integrate MonthToolbarViewModel using inheritance
         //  Same for MainActivity. This will help to avoid
@@ -60,14 +55,8 @@ public class AccountDetailsActivity extends AppCompatActivity {
                         this.getApplication()))
                 .get(AccountViewModel.class);
 
-        mAppbar = findViewById(R.id.custom_appbar);
-        // Prevent potential noticeable blink in color
         mAppbar.setBackgroundColor(getResources().getColor(android.R.color.transparent));
-        setSupportActionBar(mAppbar);
         setTitle(getString(R.string.account_details));
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        mUpArrow = ContextCompat.getDrawable(this, R.drawable.abc_vector_test);
 
         mNameTV = findViewById(R.id.account_name);
         mSeeMoreBtn = findViewById(R.id.account_see_more_button);
@@ -88,21 +77,19 @@ public class AccountDetailsActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.account_details_menu, menu);
-        // We hold a reference to the menu in case onCreateOptionsMenu gets called
-        // before account query returns.
-        // TODO: Can (or should) we abstract this logic ?
-        mMenu = menu;
 
         if (mAccount == null || mAccount.getId() == 0) {
             menu.findItem(R.id.action_account_actions)
                     .setEnabled(false);
             menu.findItem(R.id.action_archive_account)
                     .setEnabled(false);
-        } else {
-            tintMenuItems(ColorUtil.getTextColor(mAccount.getBackgroundColor()));
+            return super.onCreateOptionsMenu(menu);
         }
 
-        return super.onCreateOptionsMenu(menu);
+        boolean parentResponse = super.onCreateOptionsMenu(menu);
+        tintMenuItems(ColorUtil.getTextColor(mAccount.getBackgroundColor()));
+
+        return parentResponse;
     }
 
     @Override
@@ -135,20 +122,24 @@ public class AccountDetailsActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        enableActions();
+    protected void disableActions() {
+        mSeeMoreBtn.setEnabled(false);
+        mFAB.setEnabled(false);
+        mFAB.setElevation(6f);
     }
 
     @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
+    protected void enableActions() {
+        mSeeMoreBtn.setEnabled(true);
+        mFAB.setEnabled(true);
     }
 
-    @Override
-    public void onBackPressed() {
-        finish();
+    protected int getLayoutResourceId() {
+        return R.layout.activity_account_details;
+    }
+
+    protected boolean displayDialogOnBackPress() {
+        return false;
     }
 
     public void onFABClick(View v) {
@@ -250,7 +241,7 @@ public class AccountDetailsActivity extends AppCompatActivity {
         }
     }
 
-    private void tintMenuItems(@ColorInt int color) {
+    protected void tintMenuItems(@ColorInt int color) {
         if (mMenu != null) {
             mMenu.findItem(R.id.action_archive_account)
                     .getIcon()
@@ -262,48 +253,24 @@ public class AccountDetailsActivity extends AppCompatActivity {
     }
 
     private void tintElements(@ColorInt int bgColor) {
-        if (bgColor > 0) return;
-
-        int textColor = ColorUtil.getTextColor(bgColor);
-        mAppbar.setBackgroundColor(bgColor);
-        mAppbar.setTitleTextColor(textColor);
-
-        mUpArrow.setColorFilter(textColor, PorterDuff.Mode.SRC_ATOP);
-        getSupportActionBar().setHomeAsUpIndicator(mUpArrow);
-        getWindow().setStatusBarColor(ColorUtil.getDarkVariant(bgColor));
-
-        tintMenuItems(textColor);
+        setThemeColor(bgColor);
 
         LinearLayout container = findViewById(R.id.account_details_container);
         container.setBackgroundColor(bgColor);
 
-        mNameTV.setTextColor(textColor);
+        mNameTV.setTextColor(mThemeTextColor);
 
         int fabBgColor = ColorUtil.getVariantByFactor(bgColor, 0.86f);
         int fabTextColor = ColorUtil.getTextColor(fabBgColor);
 
         mFAB.setBackgroundTintList(ColorStateList.valueOf(fabBgColor));
         mFAB.getDrawable().mutate().setTint(fabTextColor);
-        mFAB.setRippleColor(textColor);
+        mFAB.setRippleColor(mThemeTextColor);
 
         TextView balanceHistoryTV = findViewById(R.id.account_balance_history_title);
-        balanceHistoryTV.setTextColor(textColor);
+        balanceHistoryTV.setTextColor(mThemeTextColor);
 
         mSeeMoreBtn.setBackgroundColor(fabBgColor);
         mSeeMoreBtn.setTextColor(fabTextColor);
-    }
-
-    // TODO: Implement an interface and/or abstract class that defines
-    //  disableActions() and enableActions() for multiple activities. It probably
-    //  will also implement back button logic to avoid repeating the same code.
-    private void disableActions() {
-        mSeeMoreBtn.setEnabled(false);
-        mFAB.setEnabled(false);
-        mFAB.setElevation(6f);
-    }
-
-    private void enableActions() {
-        mSeeMoreBtn.setEnabled(true);
-        mFAB.setEnabled(true);
     }
 }

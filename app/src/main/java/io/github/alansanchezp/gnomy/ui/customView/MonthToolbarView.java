@@ -20,6 +20,7 @@ import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.savedstate.SavedStateRegistryOwner;
 import io.github.alansanchezp.gnomy.databinding.LayoutMonthToolbarBinding;
+import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
 
@@ -129,7 +130,15 @@ public class MonthToolbarView extends LinearLayout {
     }
 
     public void tintElements(int themeColor) {
+        tintElements(themeColor, ColorUtil.getTextColor(themeColor));
+    }
+
+    public void tintElements(int themeColor, int themeTextColor) {
         mBinding.monthToolbarInner.setBackgroundColor(themeColor);
+        mBinding.monthNameView.setTextColor(themeTextColor);
+        mBinding.prevMonthBtn.getDrawable().setTint(themeTextColor);
+        mBinding.nextMonthBtn.getDrawable().setTint(themeTextColor);
+        mBinding.returnToTodayBth.getDrawable().setTint(themeTextColor);
     }
 
     public LiveData<YearMonth> getActiveMonth() {

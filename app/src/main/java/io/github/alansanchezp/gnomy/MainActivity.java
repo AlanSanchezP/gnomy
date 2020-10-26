@@ -6,8 +6,6 @@ import androidx.annotation.NonNull;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 
 import android.os.Handler;
@@ -22,6 +20,7 @@ import java.time.YearMonth;
 import java.util.Objects;
 
 import androidx.lifecycle.LiveData;
+import io.github.alansanchezp.gnomy.ui.GnomyActivity;
 import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
 import io.github.alansanchezp.gnomy.ui.customView.MonthToolbarView;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
@@ -33,7 +32,8 @@ import io.github.alansanchezp.gnomy.util.ColorUtil;
 //  Turns out we don't have to worry about minSDK issues as those are handled by compileSDK
 // These TODOs are placed here just because MainActivity acts as a "root" file
 // even if they are not related to the class
-public class MainActivity extends AppCompatActivity
+public class MainActivity
+        extends GnomyActivity
         implements MainNavigationFragment.MainNavigationInteractionInterface {
     private static final String FRAGMENT_TAG = "GNOMY_MAIN_FRAGMENT";
     private static final int
@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity
             NOTIFICATIONS_FRAGMENT_INDEX = 4;
     private int mCurrentFragmentIndex = 0;
 
-    private Toolbar mAppBar;
     private MonthToolbarView mMonthBar;
     private FloatingActionButton mFAB;
 
@@ -67,11 +66,6 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_main);
-
-        mAppBar = (Toolbar) findViewById(R.id.custom_appbar);
-        setSupportActionBar(mAppBar);
-
         mMonthBar = (MonthToolbarView) findViewById(R.id.monthtoolbar);
         mFAB = (FloatingActionButton) findViewById(R.id.main_floating_action_button);
 
@@ -94,6 +88,21 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void tintMenuItems() {
+        super.tintMenuItems();
+        try {
+            Objects.requireNonNull(mAppbar.getOverflowIcon())
+                    .setTint(mThemeTextColor);
+        } catch (NullPointerException npe) {
+            Log.e("MainActivity", "tintNavigationElements: Why is menu not collapsed?", npe);
+        }
+    }
+
+    protected int getLayoutResourceId() {
+        return R.layout.activity_main;
     }
 
     public boolean switchFragment(int newIndex) {
@@ -137,25 +146,13 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void tintNavigationElements(int themeColor) {
-        int textColor = ColorUtil.getTextColor(themeColor);
+        setThemeColor(themeColor);
         int darkVariant =  ColorUtil.getDarkVariant(themeColor);
-
-        getWindow().setStatusBarColor(darkVariant);
-
-        mAppBar.setBackgroundColor(themeColor);
-        mAppBar.setTitleTextColor(textColor);
-
-        try {
-            Objects.requireNonNull(mAppBar.getOverflowIcon())
-                    .setTint(textColor);
-        } catch (NullPointerException npe) {
-            Log.e("MainActivity", "tintNavigationElements: Why is menu not collapsed?", npe);
-        }
 
         if (mMonthBar.isVisible()) mMonthBar.tintElements(themeColor);
         if (mFAB.getVisibility() == View.VISIBLE) {
             mFAB.setBackgroundTintList(ColorStateList.valueOf(darkVariant));
-            mFAB.getDrawable().mutate().setTint(textColor);
+            mFAB.getDrawable().mutate().setTint(mThemeTextColor);
         }
     }
 

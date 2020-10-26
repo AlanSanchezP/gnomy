@@ -1,15 +1,13 @@
 package io.github.alansanchezp.gnomy.ui.account;
 
 import androidx.annotation.ColorInt;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.savedstate.SavedStateRegistryOwner;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
 import io.github.alansanchezp.gnomy.util.android.InputFilterMinMax;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
@@ -19,8 +17,6 @@ import io.github.alansanchezp.gnomy.viewmodel.account.AddEditAccountViewModel;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -41,13 +37,12 @@ import com.thebluealliance.spectrum.SpectrumDialog;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class AddEditAccountActivity extends AppCompatActivity {
+public class AddEditAccountActivity
+        extends BackButtonActivity {
     public static final String EXTRA_ID = "account_id";
     private static final String TAG_PICKER_DIALOG = "color_picker_dialog";
     private AddEditAccountViewModel mAddEditAccountViewModel;
     private Account mAccount;
-    private Toolbar mAppbar;
-    private Drawable mUpArrow;
     private LinearLayout mBoxLayout;
     private TextInputLayout mAccountNameTIL;
     private TextInputLayout mInitialValueTIL;
@@ -61,21 +56,14 @@ public class AddEditAccountActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_edit_account);
 
         mAddEditAccountViewModel = new ViewModelProvider(this,
                 new SavedStateViewModelFactory(
                         this.getApplication(), (SavedStateRegistryOwner) this))
                 .get(AddEditAccountViewModel.class);
 
-        mAppbar = findViewById(R.id.custom_appbar);
         // Prevent potential noticeable blink in color
         mAppbar.setBackgroundColor(getResources().getColor(android.R.color.transparent));
-        setSupportActionBar(mAppbar);
-        mUpArrow = getResources().getDrawable(R.drawable.abc_vector_test);
-        //noinspection ConstantConditions
-        getSupportActionBar().setHomeAsUpIndicator(mUpArrow);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mBoxLayout = findViewById(R.id.addedit_account_box);
         mAccountNameTIL = findViewById(R.id.addedit_account_name);
@@ -144,21 +132,21 @@ public class AddEditAccountActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
+    protected void disableActions() {
+        mFAB.setEnabled(false);
     }
 
     @Override
-    public void onBackPressed() {
-        mFAB.setEnabled(false);
-        new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.confirmation_dialog_title))
-                .setMessage(getString(R.string.confirmation_dialog_description))
-                .setPositiveButton(getString(R.string.confirmation_dialog_yes), (dialog, which) -> finish())
-                .setNegativeButton(getString(R.string.confirmation_dialog_no),  null)
-                .setOnDismissListener(dialog -> mFAB.setEnabled(true))
-                .show();
+    protected void enableActions() {
+        mFAB.setEnabled(true);
+    }
+
+    protected int getLayoutResourceId() {
+        return R.layout.activity_add_edit_account;
+    }
+
+    protected boolean displayDialogOnBackPress() {
+        return true;
     }
 
     private void onAccountChanged(Account account) {
@@ -196,24 +184,17 @@ public class AddEditAccountActivity extends AppCompatActivity {
         // this first coloring can be skipped.
         if (mAccount == null) return;
 
-        int textColor = ColorUtil.getTextColor(color);
-
         mAccount.setBackgroundColor(color);
-        mAppbar.setBackgroundColor(color);
-        mAppbar.setTitleTextColor(textColor);
-        mUpArrow.setColorFilter(textColor, PorterDuff.Mode.SRC_ATOP);
+        setThemeColor(color);
 
-        //noinspection ConstantConditions
-        getSupportActionBar().setHomeAsUpIndicator(mUpArrow);
-        getWindow().setStatusBarColor(ColorUtil.getDarkVariant(color));
         LinearLayout container = (LinearLayout) findViewById(R.id.addedit_account_container);
         ImageButton palette = (ImageButton) findViewById(R.id.addedit_account_color_button);
 
         // Custom ColorStateLists
         // TODO: Create util class to retrieve custom colorStateLists
         ColorStateList switchCSL = getSwitchColorStateList(color);
-        ColorStateList nameCSL = getStrokeColorStateList(textColor);
-        ColorStateList textCSL = ColorStateList.valueOf(textColor);
+        ColorStateList nameCSL = getStrokeColorStateList(mThemeTextColor);
+        ColorStateList textCSL = ColorStateList.valueOf(mThemeTextColor);
         ColorStateList bgCSL = ColorStateList.valueOf(color);
         int fabBgColor = ColorUtil.getVariantByFactor(color, 0.86f);
         int fabTextColor = ColorUtil.getTextColor(fabBgColor);
@@ -221,11 +202,11 @@ public class AddEditAccountActivity extends AppCompatActivity {
         container.setBackgroundColor(color);
         mFAB.setBackgroundTintList(ColorStateList.valueOf(fabBgColor));
         mFAB.getDrawable().mutate().setTint(fabTextColor);
-        mFAB.setRippleColor(textColor);
+        mFAB.setRippleColor(mThemeTextColor);
 
         mAccountNameTIL.setBoxStrokeColorStateList(nameCSL);
         mAccountNameTIL.setDefaultHintTextColor(textCSL);
-        mAccountNameTIET.setTextColor(textColor);
+        mAccountNameTIET.setTextColor(mThemeTextColor);
 
         mInitialValueTIL.setBoxStrokeColor(color);
         mInitialValueTIL.setHintTextColor(bgCSL);
@@ -238,7 +219,7 @@ public class AddEditAccountActivity extends AppCompatActivity {
         mShownInDashboardSwitch.getTrackDrawable().setTintList(switchCSL);
 
         palette.setBackgroundTintList(bgCSL);
-        palette.getDrawable().mutate().setTint(textColor);
+        palette.getDrawable().mutate().setTint(mThemeTextColor);
     }
 
     private void initSpinners() {
@@ -379,6 +360,7 @@ public class AddEditAccountActivity extends AppCompatActivity {
                 toastMessage = getResources().getString(R.string.account_message_updated);
             }
 
+            // TODO: Handle properly, as there is no guaranty operations will succeed
             Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
             finish();
         } catch(NumberFormatException nfe) {
