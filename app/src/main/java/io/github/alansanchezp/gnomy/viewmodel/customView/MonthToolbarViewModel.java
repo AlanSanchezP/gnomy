@@ -1,24 +1,26 @@
 package io.github.alansanchezp.gnomy.viewmodel.customView;
 
+import android.app.Application;
 import android.util.Log;
 
 import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
 import java.util.Objects;
 
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
-import androidx.lifecycle.ViewModel;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 
-public class MonthToolbarViewModel extends ViewModel {
-    private SavedStateHandle mSavedState;
-    private static final String YEAR_MONTH_STRING = "active-month";
-    private MutableLiveData<YearMonth> mutableActiveMonth = new MutableLiveData<>();
+public class MonthToolbarViewModel extends AndroidViewModel {
+    protected SavedStateHandle mSavedState;
+    protected static final String YEAR_MONTH_STRING = "active-month";
+    protected MutableLiveData<YearMonth> mutableActiveMonth = new MutableLiveData<>();
     public final LiveData<YearMonth> activeMonth = (LiveData<YearMonth>) mutableActiveMonth;
 
-    public MonthToolbarViewModel(SavedStateHandle savedStateHandle) {
+    public MonthToolbarViewModel(Application application, SavedStateHandle savedStateHandle) {
+        super(application);
         mSavedState = savedStateHandle;
         try {
             if (mSavedState.get(YEAR_MONTH_STRING) == null)
@@ -33,7 +35,7 @@ public class MonthToolbarViewModel extends ViewModel {
         }
     }
 
-    private void updateMonthState(YearMonth month) {
+    protected void updateMonthState(YearMonth month) {
         mutableActiveMonth.setValue(month);
         mSavedState.set(YEAR_MONTH_STRING, month.toString());
     }

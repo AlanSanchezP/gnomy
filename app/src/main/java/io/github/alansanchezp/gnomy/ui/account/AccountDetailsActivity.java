@@ -47,9 +47,6 @@ public class AccountDetailsActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // TODO: Integrate MonthToolbarViewModel using inheritance
-        //  Same for MainActivity. This will help to avoid
-        //  creating the viewmodel directly in custom view
         mAccountViewModel = new ViewModelProvider(this,
                 ViewModelProvider.AndroidViewModelFactory.getInstance(
                         this.getApplication()))

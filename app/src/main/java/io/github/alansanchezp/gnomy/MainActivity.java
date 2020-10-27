@@ -20,11 +20,14 @@ import java.time.YearMonth;
 import java.util.Objects;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.SavedStateViewModelFactory;
+import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.ui.GnomyActivity;
 import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
 import io.github.alansanchezp.gnomy.ui.customView.MonthToolbarView;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
+import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
 
 // TODO: Add Javadoc comments to project
 // TODO: Write README.md contents
@@ -45,6 +48,7 @@ public class MainActivity
 
     private MonthToolbarView mMonthBar;
     private FloatingActionButton mFAB;
+    private MonthToolbarViewModel mViewModel;
 
     private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = item -> {
@@ -68,6 +72,14 @@ public class MainActivity
 
         mMonthBar = (MonthToolbarView) findViewById(R.id.monthtoolbar);
         mFAB = (FloatingActionButton) findViewById(R.id.main_floating_action_button);
+
+        mViewModel = new ViewModelProvider(
+                this,
+                new SavedStateViewModelFactory(
+                        getApplication(),
+                        this
+                )).get(MonthToolbarViewModel.class);
+        mMonthBar.setViewModel(mViewModel);
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -142,7 +154,7 @@ public class MainActivity
     }
 
     public LiveData<YearMonth> getActiveMonth() {
-        return mMonthBar.getActiveMonth();
+        return mViewModel.activeMonth;
     }
 
     public void tintNavigationElements(int themeColor) {

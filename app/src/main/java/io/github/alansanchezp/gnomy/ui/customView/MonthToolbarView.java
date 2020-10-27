@@ -15,10 +15,6 @@ import java.util.Calendar;
 import java.util.Objects;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.SavedStateViewModelFactory;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.savedstate.SavedStateRegistryOwner;
 import io.github.alansanchezp.gnomy.databinding.LayoutMonthToolbarBinding;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
@@ -50,20 +46,9 @@ public class MonthToolbarView extends LinearLayout {
                 context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mBinding = LayoutMonthToolbarBinding.inflate(Objects.requireNonNull(inflater),
                 this, true);
-        try {
-            setViewModel(
-                new ViewModelProvider(
-                        (AppCompatActivity) getContext(),
-                        new SavedStateViewModelFactory(
-                                ((AppCompatActivity) getContext()).getApplication(),
-                                (SavedStateRegistryOwner) getContext()
-                        )).get(MonthToolbarViewModel.class));
-        } catch (NullPointerException npe) {
-            Log.e("[Month Toolbar]", "initializeView: ", npe);
-        }
     }
 
-    private void setViewModel(MonthToolbarViewModel viewModel) {
+    public void setViewModel(MonthToolbarViewModel viewModel) {
         mBinding.setViewmodel(viewModel);
         mBinding.monthNameView.setOnClickListener(v -> onMonthPickerClick());
         mBinding.getViewmodel().activeMonth
@@ -139,9 +124,5 @@ public class MonthToolbarView extends LinearLayout {
         mBinding.prevMonthBtn.getDrawable().setTint(themeTextColor);
         mBinding.nextMonthBtn.getDrawable().setTint(themeTextColor);
         mBinding.returnToTodayBth.getDrawable().setTint(themeTextColor);
-    }
-
-    public LiveData<YearMonth> getActiveMonth() {
-        return mBinding.getViewmodel().activeMonth;
     }
 }

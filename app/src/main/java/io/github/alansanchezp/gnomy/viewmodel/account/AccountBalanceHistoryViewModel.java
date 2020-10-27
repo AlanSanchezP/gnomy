@@ -2,34 +2,29 @@ package io.github.alansanchezp.gnomy.viewmodel.account;
 
 import android.app.Application;
 
-import java.time.YearMonth;
-
 import java.math.BigDecimal;
 
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
+import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
 
-public class AccountHistoryViewModel extends AndroidViewModel {
+public class AccountBalanceHistoryViewModel
+        extends MonthToolbarViewModel {
     private AccountRepository mRepository;
     private LiveData<MonthlyBalance> mBalance;
     private LiveData<BigDecimal> mAccumulated;
-    private LiveData<YearMonth> mActiveMonth;
 
-    public AccountHistoryViewModel (Application application) {
-        super(application);
+    public AccountBalanceHistoryViewModel(Application application, SavedStateHandle savedStateHandle) {
+        super(application, savedStateHandle);
         mRepository = new AccountRepository(application);
-    }
-
-    public void bindMonth(LiveData<YearMonth> month) {
-        mActiveMonth = month;
     }
 
     public LiveData<BigDecimal> getAccumulatedFromMonth(final int accountId) {
         if (mAccumulated == null) {
-            mAccumulated = Transformations.switchMap(mActiveMonth,
+            mAccumulated = Transformations.switchMap(activeMonth,
                     month -> mRepository.getAccumulatedFromMonth(accountId, month));
         }
         return mAccumulated;
@@ -37,7 +32,7 @@ public class AccountHistoryViewModel extends AndroidViewModel {
 
     public LiveData<MonthlyBalance> getBalanceFromMonth(final int accountId) {
         if (mBalance == null) {
-            mBalance = Transformations.switchMap(mActiveMonth,
+            mBalance = Transformations.switchMap(activeMonth,
                     month -> mRepository.getBalanceFromMonth(accountId, month));
         }
         return mBalance;

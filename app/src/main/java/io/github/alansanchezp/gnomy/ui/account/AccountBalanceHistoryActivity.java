@@ -13,6 +13,7 @@ import java.time.YearMonth;
 import java.math.BigDecimal;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
@@ -21,7 +22,8 @@ import io.github.alansanchezp.gnomy.ui.customView.MonthToolbarView;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
-import io.github.alansanchezp.gnomy.viewmodel.account.AccountHistoryViewModel;
+import io.github.alansanchezp.gnomy.viewmodel.account.AccountBalanceHistoryViewModel;
+import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
 
 public class AccountBalanceHistoryActivity
         extends BackButtonActivity {
@@ -48,18 +50,21 @@ public class AccountBalanceHistoryActivity
 
         setTitle(accountName + " " + getString(R.string.account_balance_history_legend));
 
-        AccountHistoryViewModel accountHistoryViewModel = new ViewModelProvider(this,
-                ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication()))
-                .get(AccountHistoryViewModel.class);
+        AccountBalanceHistoryViewModel accountBalanceHistoryViewModel = new ViewModelProvider(
+                this,
+                new SavedStateViewModelFactory(
+                        getApplication(),
+                        this
+                )).get(AccountBalanceHistoryViewModel.class);
         MonthToolbarView monthBar = findViewById(R.id.monthtoolbar);
 
-        accountHistoryViewModel.bindMonth(monthBar.getActiveMonth());
+        monthBar.setViewModel((MonthToolbarViewModel) accountBalanceHistoryViewModel);
         monthBar.tintElements(mThemeColor, mThemeTextColor);
 
-        monthBar.getActiveMonth().observe(this, this::onMonthChanged);
+        accountBalanceHistoryViewModel.activeMonth.observe(this, this::onMonthChanged);
 
-        LiveData<BigDecimal> accumulatedBalance = accountHistoryViewModel.getAccumulatedFromMonth(accountId);
-        LiveData<MonthlyBalance> monthBalance = accountHistoryViewModel.getBalanceFromMonth(accountId);
+        LiveData<BigDecimal> accumulatedBalance = accountBalanceHistoryViewModel.getAccumulatedFromMonth(accountId);
+        LiveData<MonthlyBalance> monthBalance = accountBalanceHistoryViewModel.getBalanceFromMonth(accountId);
         accumulatedBalance.observe(this, this::onAccumulatedBalanceChanged);
         monthBalance.observe(this, this::onBalanceChanged);
     }
