@@ -12,11 +12,11 @@ import io.github.alansanchezp.gnomy.util.android.InputFilterMinMax;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
+import io.github.alansanchezp.gnomy.util.android.ViewTintingUtil;
 import io.github.alansanchezp.gnomy.viewmodel.account.AddEditAccountViewModel;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -73,6 +73,7 @@ public class AddEditAccountActivity
         mCurrencySpinner = findViewById(R.id.addedit_account_currency);
         mTypeSpinner = findViewById(R.id.addedit_account_type);
         mShownInDashboardSwitch = findViewById(R.id.addedit_account_show_in_home);
+        // TODO: FAB gets annoying on landscape mode
         mFAB = findViewById(R.id.addedit_account_FAB);
 
         initSpinners();
@@ -187,39 +188,26 @@ public class AddEditAccountActivity
         mAccount.setBackgroundColor(color);
         setThemeColor(color);
 
-        LinearLayout container = (LinearLayout) findViewById(R.id.addedit_account_container);
-        ImageButton palette = (ImageButton) findViewById(R.id.addedit_account_color_button);
-
-        // Custom ColorStateLists
-        // TODO: Create util class to retrieve custom colorStateLists
-        ColorStateList switchCSL = getSwitchColorStateList(color);
-        ColorStateList nameCSL = getStrokeColorStateList(mThemeTextColor);
-        ColorStateList textCSL = ColorStateList.valueOf(mThemeTextColor);
-        ColorStateList bgCSL = ColorStateList.valueOf(color);
         int fabBgColor = ColorUtil.getVariantByFactor(color, 0.86f);
         int fabTextColor = ColorUtil.getTextColor(fabBgColor);
 
-        container.setBackgroundColor(color);
-        mFAB.setBackgroundTintList(ColorStateList.valueOf(fabBgColor));
-        mFAB.getDrawable().mutate().setTint(fabTextColor);
-        mFAB.setRippleColor(mThemeTextColor);
+        findViewById(R.id.addedit_account_container)
+                .setBackgroundColor(color);
 
-        mAccountNameTIL.setBoxStrokeColorStateList(nameCSL);
-        mAccountNameTIL.setDefaultHintTextColor(textCSL);
-        mAccountNameTIET.setTextColor(mThemeTextColor);
+        ViewTintingUtil
+                .tintFAB(mFAB, fabBgColor, fabTextColor);
+        ViewTintingUtil
+                .monotintTextInputLayout(mAccountNameTIL, mThemeTextColor);
+        // TODO: Some colors make the hint barely readable, find a way to solve it
+        ViewTintingUtil
+                .tintTextInputLayout(mInitialValueTIL, mThemeColor);
+        ViewTintingUtil
+                .tintSwitch(mShownInDashboardSwitch, mThemeColor);
 
-        mInitialValueTIL.setBoxStrokeColor(color);
-        mInitialValueTIL.setHintTextColor(bgCSL);
-
-        mAccountNameTIL.setErrorTextColor(textCSL);
-        mAccountNameTIL.setErrorIconTintList(textCSL);
-        mAccountNameTIL.setBoxStrokeErrorColor(textCSL);
-
-        mShownInDashboardSwitch.getThumbDrawable().setTintList(switchCSL);
-        mShownInDashboardSwitch.getTrackDrawable().setTintList(switchCSL);
-
-        palette.setBackgroundTintList(bgCSL);
-        palette.getDrawable().mutate().setTint(mThemeTextColor);
+        // TODO: How can we unify the ripple color with the one from FAB?
+        ImageButton paletteImageButton = findViewById(R.id.addedit_account_color_button);
+        paletteImageButton.setBackgroundTintList(ColorStateList.valueOf(mThemeColor));
+        paletteImageButton.getDrawable().mutate().setTint(mThemeTextColor);
     }
 
     private void initSpinners() {
@@ -238,41 +226,6 @@ public class AddEditAccountActivity
     private void setInputFilters() {
         TextInputEditText valueTIET = (TextInputEditText) findViewById(R.id.addedit_account_initial_value_input);
         valueTIET.setFilters(new InputFilter[]{new InputFilterMinMax(Account.MIN_INITIAL, Account.MAX_INITIAL, Account.DECIMAL_SCALE)});
-    }
-
-    private ColorStateList getSwitchColorStateList(int color) {
-        return new ColorStateList(
-            new int[][]{
-                new int[]{-android.R.attr.state_enabled},
-                new int[]{-android.R.attr.state_checked},
-                new int[]{android.R.attr.state_enabled},
-                new int[]{}
-            },
-            new int[]{
-                Color.GRAY,
-                Color.LTGRAY,
-                color,
-                color,
-            }
-        );
-    }
-
-    private ColorStateList getStrokeColorStateList(int color) {
-        return new ColorStateList(
-            new int[][]{
-                new int[]{-android.R.attr.state_enabled},
-                new int[]{
-                    -android.R.attr.state_focused,
-                    android.R.attr.state_focused,
-                },
-                new int[]{}
-            },
-            new int[]{
-                Color.GRAY,
-                color,
-                color,
-            }
-        );
     }
 
     public void showColorPicker(View v) {

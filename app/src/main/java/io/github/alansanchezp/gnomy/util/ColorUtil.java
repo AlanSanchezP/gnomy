@@ -39,6 +39,12 @@ public class ColorUtil {
     }
 
     public static int getRippleVariant(int color) {
+        int[] rgb = getRGB(color);
+
+        double luminance = ( 0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2])/255;
+
+        if (luminance > 0.5) return getDarkVariant(color);
+        if (luminance > 0.3) return getLightVariant(color);
         return getVariantByFactor(color, 2.1f);
     }
 

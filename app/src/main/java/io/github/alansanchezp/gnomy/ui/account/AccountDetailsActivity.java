@@ -1,7 +1,6 @@
 package io.github.alansanchezp.gnomy.ui.account;
 
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -31,6 +30,7 @@ import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
+import io.github.alansanchezp.gnomy.util.android.ViewTintingUtil;
 import io.github.alansanchezp.gnomy.viewmodel.account.AccountViewModel;
 
 public class AccountDetailsActivity
@@ -240,12 +240,12 @@ public class AccountDetailsActivity
 
     protected void tintMenuItems(@ColorInt int color) {
         if (mMenu != null) {
-            mMenu.findItem(R.id.action_archive_account)
-                    .getIcon()
-                    .setTint(color);
-            mMenu.findItem(R.id.action_account_actions)
-                    .getIcon()
-                    .setTint(color);
+            ViewTintingUtil.tintMenuItems(
+                    mMenu,
+                    new int[]{
+                            R.id.action_archive_account,
+                            R.id.action_account_actions},
+                    color);
         }
     }
 
@@ -260,12 +260,10 @@ public class AccountDetailsActivity
         int fabBgColor = ColorUtil.getVariantByFactor(bgColor, 0.86f);
         int fabTextColor = ColorUtil.getTextColor(fabBgColor);
 
-        mFAB.setBackgroundTintList(ColorStateList.valueOf(fabBgColor));
-        mFAB.getDrawable().mutate().setTint(fabTextColor);
-        mFAB.setRippleColor(mThemeTextColor);
+        ViewTintingUtil.tintFAB(mFAB, fabBgColor, fabTextColor, mThemeTextColor);
 
-        TextView balanceHistoryTV = findViewById(R.id.account_balance_history_title);
-        balanceHistoryTV.setTextColor(mThemeTextColor);
+        ((TextView) findViewById(R.id.account_balance_history_title))
+                .setTextColor(mThemeTextColor);
 
         mSeeMoreBtn.setBackgroundColor(fabBgColor);
         mSeeMoreBtn.setTextColor(fabTextColor);

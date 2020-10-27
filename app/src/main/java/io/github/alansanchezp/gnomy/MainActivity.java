@@ -1,6 +1,5 @@
 package io.github.alansanchezp.gnomy;
 
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 
@@ -27,6 +26,7 @@ import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
 import io.github.alansanchezp.gnomy.ui.customView.MonthToolbarView;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
+import io.github.alansanchezp.gnomy.util.android.ViewTintingUtil;
 import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
 
 // TODO: Add Javadoc comments to project
@@ -163,8 +163,7 @@ public class MainActivity
 
         if (mMonthBar.isVisible()) mMonthBar.tintElements(themeColor);
         if (mFAB.getVisibility() == View.VISIBLE) {
-            mFAB.setBackgroundTintList(ColorStateList.valueOf(darkVariant));
-            mFAB.getDrawable().mutate().setTint(mThemeTextColor);
+            ViewTintingUtil.tintFAB(mFAB, darkVariant, mThemeTextColor);
         }
     }
 
