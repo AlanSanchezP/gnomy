@@ -23,7 +23,7 @@ public abstract class BackButtonActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // TODO: Copy asset to prevent this warning
-        mUpArrowDrawable = ContextCompat.getDrawable(this, R.drawable.abc_vector_test);
+        mUpArrowDrawable = ContextCompat.getDrawable(this, R.drawable.ic_baseline_arrow_back_24);
         //noinspection ConstantConditions
         getSupportActionBar().setHomeAsUpIndicator(mUpArrowDrawable);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -62,7 +62,7 @@ public abstract class BackButtonActivity
                         mHandlingBackButton = false;
                     })
                     .show();
-        } else {
+        } else if (!displayDialogOnBackPress()) {
             super.onBackPressed();
         }
     }
