@@ -66,9 +66,8 @@ public class AccountRecyclerViewHolderInstrumentedTest {
         onView(withId(R.id.account_card_projected_label))
                 .check(matches(withText(R.string.account_projected_balance)));
 
-        scenario.onActivity(activity -> {
-            holder[0].setAccountData(testAccount, YearMonth.now().minusMonths(1));
-        });
+        scenario.onActivity(activity ->
+                holder[0].setAccountData(testAccount, YearMonth.now().minusMonths(1)));
 
         onView(withId(R.id.account_card_current_label))
                 .check(matches(withText(R.string.account_current_balance)));
@@ -110,9 +109,8 @@ public class AccountRecyclerViewHolderInstrumentedTest {
 
         for (int type=Account.BANK; type <= Account.OTHER; type++) {
             testAccount.account.setType(type);
-            scenario.onActivity(activity -> {
-                holder[0].setAccountData(testAccount, YearMonth.now());
-            });
+            scenario.onActivity(activity ->
+                    holder[0].setAccountData(testAccount, YearMonth.now()));
             onView(withId(R.id.account_card_icon))
                     .check(matches(
                         withTagValue(

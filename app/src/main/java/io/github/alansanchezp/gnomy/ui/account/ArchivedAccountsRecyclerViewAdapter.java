@@ -67,10 +67,10 @@ public class ArchivedAccountsRecyclerViewAdapter
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mNameView = (TextView) view.findViewById(R.id.archived_account_card_name);
-            mIconView = (ImageView) view.findViewById(R.id.archived_account_card_icon);
-            mRestoreButton = (Button) view.findViewById(R.id.archived_account_restore_button);
-            mDeleteButton = (Button) view.findViewById(R.id.archived_account_delete_button);
+            mNameView = view.findViewById(R.id.archived_account_card_name);
+            mIconView = view.findViewById(R.id.archived_account_card_icon);
+            mRestoreButton = view.findViewById(R.id.archived_account_restore_button);
+            mDeleteButton = view.findViewById(R.id.archived_account_delete_button);
         }
 
         public void setAccountData(@NonNull Account account) {

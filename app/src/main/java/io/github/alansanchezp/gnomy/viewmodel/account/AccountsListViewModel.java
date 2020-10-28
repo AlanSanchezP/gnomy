@@ -39,12 +39,8 @@ public class AccountsListViewModel extends AndroidViewModel {
 
     public LiveData<List<AccountWithBalance>> getBalances() {
         if (mBalancesToDisplay == null) {
-            mBalancesToDisplay = Transformations.switchMap(mActiveMonth, new Function<YearMonth, LiveData<List<AccountWithBalance>>>() {
-                @Override
-                public LiveData<List<AccountWithBalance>> apply(YearMonth month) {
-                    return mRepository.getAllFromMonth(month);
-                }
-            });
+            mBalancesToDisplay = Transformations.switchMap(mActiveMonth,
+                    month -> mRepository.getAllFromMonth(month));
         }
         return mBalancesToDisplay;
     }

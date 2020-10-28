@@ -64,9 +64,8 @@ public class ArchivedAccountsDialogFragmentInstrumentedTest {
 
         // List grows
         accountsList.add(accounts[0]);
-        scenario.onFragment(fragment -> {
-            fragment.onAccountsListChanged(accountsList);
-        });
+        scenario.onFragment(fragment ->
+                fragment.onAccountsListChanged(accountsList));
 
         onView(withId(R.id.archived_items_empty))
                 .check(matches(
@@ -79,9 +78,8 @@ public class ArchivedAccountsDialogFragmentInstrumentedTest {
                 ));
 
         accountsList.add(accounts[1]);
-        scenario.onFragment(fragment -> {
-            fragment.onAccountsListChanged(accountsList);
-        });
+        scenario.onFragment(fragment ->
+                fragment.onAccountsListChanged(accountsList));
 
         onView(withId(R.id.archived_items_empty))
                 .check(matches(
@@ -95,9 +93,8 @@ public class ArchivedAccountsDialogFragmentInstrumentedTest {
 
         // List size is 0 as a result of restoring/deleting all items
         accountsList.clear();
-        scenario.onFragment(fragment -> {
-            fragment.onAccountsListChanged(accountsList);
-        });
+        scenario.onFragment(fragment ->
+                fragment.onAccountsListChanged(accountsList));
 
         try {
             onView(withId(R.id.archived_items_container))

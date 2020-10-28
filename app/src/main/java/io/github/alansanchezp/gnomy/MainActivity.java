@@ -32,8 +32,6 @@ import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
 
 // TODO: Add Javadoc comments to project
 // TODO: Write README.md contents
-// TODO: Use Lamda expressions and remove casting on findViewById()
-//  Turns out we don't have to worry about minSDK issues as those are handled by compileSDK
 // These TODOs are placed here just because MainActivity acts as a "root" file
 // even if they are not related to the class
 public class MainActivity

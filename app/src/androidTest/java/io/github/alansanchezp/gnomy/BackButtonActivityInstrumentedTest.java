@@ -42,9 +42,8 @@ public class BackButtonActivityInstrumentedTest {
 
     @Test
     public void enables_actions_only_if_no_pending_operations() {
-        activityRule.getScenario().onActivity(activity -> {
-           activity.simulatePendingOperations(false);
-        });
+        activityRule.getScenario().onActivity(activity ->
+                activity.simulatePendingOperations(false));
         onView(isRoot())
                 .perform(pressBack());
         onView(withText(R.string.confirmation_dialog_no))
@@ -52,23 +51,20 @@ public class BackButtonActivityInstrumentedTest {
                 .perform(click());
 
         boolean[] actionsEnabled = new boolean[1];
-        activityRule.getScenario().onActivity(activity -> {
-            actionsEnabled[0] = activity.actionsEnabled;
-        });
+        activityRule.getScenario().onActivity(activity ->
+                actionsEnabled[0] = activity.actionsEnabled);
         assertTrue(actionsEnabled[0]);
 
-        activityRule.getScenario().onActivity(activity -> {
-            activity.simulatePendingOperations(true);
-        });
+        activityRule.getScenario().onActivity(activity ->
+                activity.simulatePendingOperations(true));
         onView(isRoot())
                 .perform(pressBack());
         onView(withText(R.string.confirmation_dialog_no))
                 .inRoot(isDialog())
                 .perform(click());
 
-        activityRule.getScenario().onActivity(activity -> {
-            actionsEnabled[0] = activity.actionsEnabled;
-        });
+        activityRule.getScenario().onActivity(activity ->
+                actionsEnabled[0] = activity.actionsEnabled);
         assertFalse(actionsEnabled[0]);
     }
 }

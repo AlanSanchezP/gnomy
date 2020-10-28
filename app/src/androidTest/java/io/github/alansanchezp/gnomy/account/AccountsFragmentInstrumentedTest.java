@@ -71,9 +71,8 @@ public class AccountsFragmentInstrumentedTest {
                         withText(R.string.account_projected_balance)
                 ));
 
-        scenario.onFragment(fragment -> {
-            fragment.onMonthChanged(YearMonth.now().minusMonths(1));
-        });
+        scenario.onFragment(fragment ->
+                fragment.onMonthChanged(YearMonth.now().minusMonths(1)));
 
         onView(ViewMatchers.withId(R.id.total_projected_label))
                 .check(matches(
@@ -306,9 +305,8 @@ public class AccountsFragmentInstrumentedTest {
     @Test
     public void opens_new_account_activity() {
         FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class);
-        scenario.onFragment(fragment -> {
-            fragment.onFABClick(null);
-        });
+        scenario.onFragment(fragment ->
+                fragment.onFABClick(null));
         onView(withId(R.id.custom_appbar))
                 .check(matches(hasDescendant(
                         withText(R.string.account_new))

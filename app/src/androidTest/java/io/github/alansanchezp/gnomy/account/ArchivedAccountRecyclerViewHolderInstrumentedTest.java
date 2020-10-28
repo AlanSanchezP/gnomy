@@ -70,9 +70,8 @@ public class ArchivedAccountRecyclerViewHolderInstrumentedTest {
 
         for (int type=Account.BANK; type <= Account.OTHER; type++) {
             testAccount.setType(type);
-            scenario.onActivity(activity -> {
-                holder[0].setAccountData(testAccount);
-            });
+            scenario.onActivity(activity ->
+                    holder[0].setAccountData(testAccount));
             onView(withId(R.id.archived_account_card_icon))
                     .check(matches(
                         withTagValue(

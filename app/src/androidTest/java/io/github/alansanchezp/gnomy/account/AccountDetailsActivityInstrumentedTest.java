@@ -116,9 +116,8 @@ public class AccountDetailsActivityInstrumentedTest {
         String legend_string = InstrumentationRegistry.getInstrumentation().getTargetContext()
                 .getString(R.string.account_balance_history_legend);
 
-        activityRule.getScenario().onActivity(activity -> {
-                activity.onAccountChanged(testAccount);
-        });
+        activityRule.getScenario().onActivity(activity ->
+                activity.onAccountChanged(testAccount));
 
         onView(withId(R.id.account_see_more_button))
                 .perform(click());

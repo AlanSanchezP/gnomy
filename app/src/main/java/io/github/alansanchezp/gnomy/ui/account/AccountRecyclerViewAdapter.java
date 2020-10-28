@@ -107,12 +107,12 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mNameView = (TextView) view.findViewById(R.id.account_card_name);
-            mCurrentView = (TextView) view.findViewById(R.id.account_card_current);
-            mProjectedView = (TextView) view.findViewById(R.id.account_card_projected);
-            mProjectedLabelView = (TextView) view.findViewById(R.id.account_card_projected_label);
-            mButton = (ImageButton) view.findViewById(R.id.account_card_button);
-            mIconView = (ImageView) view.findViewById(R.id.account_card_icon);
+            mNameView = view.findViewById(R.id.account_card_name);
+            mCurrentView = view.findViewById(R.id.account_card_current);
+            mProjectedView = view.findViewById(R.id.account_card_projected);
+            mProjectedLabelView = view.findViewById(R.id.account_card_projected_label);
+            mButton = view.findViewById(R.id.account_card_button);
+            mIconView = view.findViewById(R.id.account_card_icon);
 
             popup = new PopupMenu(mView.getContext(), mButton);
             popup.inflate(R.menu.account_card);
