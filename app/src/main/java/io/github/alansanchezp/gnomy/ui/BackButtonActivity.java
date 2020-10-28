@@ -10,8 +10,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import io.github.alansanchezp.gnomy.R;
 
-// TODO: Test a dummy instance class of this
-//  - Dialog showing on back button
 public abstract class BackButtonActivity
         extends GnomyActivity {
 
@@ -22,7 +20,6 @@ public abstract class BackButtonActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // TODO: Copy asset to prevent this warning
         mUpArrowDrawable = ContextCompat.getDrawable(this, R.drawable.ic_baseline_arrow_back_24);
         //noinspection ConstantConditions
         getSupportActionBar().setHomeAsUpIndicator(mUpArrowDrawable);
@@ -52,6 +49,7 @@ public abstract class BackButtonActivity
         disableActions();
         if (displayDialogOnBackPress() && !mHandlingBackButton) {
             mHandlingBackButton = true;
+            // TODO: Use DialogFragment to recreate fragment on rotation
             new AlertDialog.Builder(this)
                     .setTitle(getString(R.string.confirmation_dialog_title))
                     .setMessage(getString(R.string.confirmation_dialog_description))
