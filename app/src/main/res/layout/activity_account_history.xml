@@ -88,7 +88,7 @@
                             android:layout_height="wrap_content"
                             android:contentDescription="@string/account_initial_value_icon"
                             android:src="@drawable/ic_trending_up_black_24dp"
-                            android:tint="@color/colorIncomes"
+                            app:tint="@color/colorIncomes"
                             app:layout_constraintTop_toTopOf="@id/account_history_confirmed_incomes_label"
                             app:layout_constraintBottom_toBottomOf="@id/account_history_confirmed_incomes_label"
                             app:layout_constraintStart_toStartOf="parent" />
@@ -117,7 +117,7 @@
                             android:layout_height="wrap_content"
                             android:contentDescription="@string/account_initial_value_icon"
                             android:src="@drawable/ic_trending_down_black_24dp"
-                            android:tint="@color/colorExpenses"
+                            app:tint="@color/colorExpenses"
                             app:layout_constraintTop_toTopOf="@id/account_history_confirmed_expenses_label"
                             app:layout_constraintBottom_toBottomOf="@id/account_history_confirmed_expenses_label"
                             app:layout_constraintStart_toStartOf="parent" />
@@ -193,7 +193,6 @@
                     android:layout_marginEnd="16dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:onClick="onCheckPendingTransactionsClick"
                     android:text="@string/account_balance_check_button"
                     app:layout_constraintBottom_toBottomOf="@id/account_history_pending_title"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -222,7 +221,7 @@
                             android:layout_height="wrap_content"
                             android:contentDescription="@string/account_initial_value_icon"
                             android:src="@drawable/ic_trending_up_black_24dp"
-                            android:tint="@color/colorIncomes"
+                            app:tint="@color/colorIncomes"
                             app:layout_constraintTop_toTopOf="@id/account_history_pending_incomes_label"
                             app:layout_constraintBottom_toBottomOf="@id/account_history_pending_incomes_label"
                             app:layout_constraintStart_toStartOf="parent" />
@@ -251,7 +250,7 @@
                             android:layout_height="wrap_content"
                             android:contentDescription="@string/account_initial_value_icon"
                             android:src="@drawable/ic_trending_down_black_24dp"
-                            android:tint="@color/colorExpenses"
+                            app:tint="@color/colorExpenses"
                             app:layout_constraintTop_toTopOf="@id/account_history_pending_expenses_label"
                             app:layout_constraintBottom_toBottomOf="@id/account_history_pending_expenses_label"
                             app:layout_constraintStart_toStartOf="parent" />

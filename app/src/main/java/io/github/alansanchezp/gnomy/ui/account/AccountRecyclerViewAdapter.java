@@ -1,6 +1,7 @@
 package io.github.alansanchezp.gnomy.ui.account;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import io.github.alansanchezp.gnomy.R;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -57,6 +58,7 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
         mAllowClicks = false;
     }
 
+    @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
@@ -65,9 +67,11 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         if (mValues != null) {
             holder.setAccountData(mValues.get(position), mMonth);
+            // ClickDisablerInterface is needed: SingleClickViewHolder cannot be used here
+            //  because blocked actions go beyond individual views scope.
             holder.setEventListeners(mListener, new ClickDisablerInterface() {
                 @Override
                 public void disableClicks() {
@@ -120,7 +124,7 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
             int accountColor = mItem.account.getBackgroundColor();
             int iconColor = ColorUtil.getTextColor(accountColor);
             int iconResId = Account.getDrawableResourceId(mItem.account.getType());
-            Drawable icon = (Drawable) mView.getResources().getDrawable(iconResId);
+            Drawable icon = ContextCompat.getDrawable(mView.getContext(), iconResId);
 
             ((GradientDrawable) mIconView.getBackground()).setColor(accountColor);
             mIconView.setImageDrawable(icon);
@@ -154,37 +158,21 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
         private void setEventListeners(OnListItemInteractionListener listener,
                                        ClickDisablerInterface clickInterface) {
             // TODO: Find a way to test if clicks are effectively disabled
-            mView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (clickInterface.clicksEnabled()) {
-                        clickInterface.disableClicks();
-                        listener.onItemInteraction(mItem.account);
-                    }
+            mView.setOnClickListener(v -> {
+                if (clickInterface.clicksEnabled()) {
+                    clickInterface.disableClicks();
+                    listener.onItemInteraction(mItem.account);
                 }
             });
 
-            popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    if (clickInterface.clicksEnabled()) {
-                        clickInterface.disableClicks();
-                        return listener.onItemMenuItemInteraction(mItem.account, item);
-                    }
-                    return false;
+            popup.setOnMenuItemClickListener(item -> {
+                if (clickInterface.clicksEnabled()) {
+                    clickInterface.disableClicks();
+                    return listener.onItemMenuItemInteraction(mItem.account, item);
                 }
+                return false;
             });
-            mButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    popup.show();
-                }
-            });
-        }
-
-        @Override
-        public String toString() {
-            return super.toString() + " '" + mNameView.getText() + "'";
+            mButton.setOnClickListener(v -> popup.show());
         }
     }
 

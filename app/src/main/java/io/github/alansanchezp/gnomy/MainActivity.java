@@ -26,6 +26,7 @@ import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
 import io.github.alansanchezp.gnomy.ui.customView.MonthToolbarView;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
+import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 import io.github.alansanchezp.gnomy.util.android.ViewTintingUtil;
 import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
 
@@ -47,7 +48,7 @@ public class MainActivity
     private int mCurrentFragmentIndex = 0;
 
     private MonthToolbarView mMonthBar;
-    private FloatingActionButton mFAB;
+    private SingleClickViewHolder<FloatingActionButton> mFABVH;
     private MonthToolbarViewModel mViewModel;
 
     private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -70,8 +71,9 @@ public class MainActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mMonthBar = (MonthToolbarView) findViewById(R.id.monthtoolbar);
-        mFAB = (FloatingActionButton) findViewById(R.id.main_floating_action_button);
+        mMonthBar = findViewById(R.id.monthtoolbar);
+        mFABVH = new SingleClickViewHolder<>(findViewById(R.id.main_floating_action_button));
+        mFABVH.setOnClickListener(this::onFABClick);
 
         mViewModel = new ViewModelProvider(
                 this,
@@ -81,14 +83,8 @@ public class MainActivity
                 )).get(MonthToolbarViewModel.class);
         mMonthBar.setViewModel(mViewModel);
 
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mFAB.setEnabled(true);
     }
 
     @Override
@@ -146,7 +142,6 @@ public class MainActivity
         if (currentFragment == null) return;
 
         currentFragment.onFABClick(v);
-        mFAB.setEnabled(false);
     }
 
     public void onFragmentChanged(int index) {
@@ -162,17 +157,19 @@ public class MainActivity
         int darkVariant =  ColorUtil.getDarkVariant(themeColor);
 
         if (mMonthBar.isVisible()) mMonthBar.tintElements(themeColor);
-        if (mFAB.getVisibility() == View.VISIBLE) {
-            ViewTintingUtil.tintFAB(mFAB, darkVariant, mThemeTextColor);
-        }
+        mFABVH.onView(v -> {
+            if (v.getVisibility() == View.VISIBLE) {
+                ViewTintingUtil.tintFAB(v, darkVariant, mThemeTextColor);
+            }
+        });
     }
 
     public void toggleOptionalNavigationElements(boolean showOptionalElements) {
         mMonthBar.toggleVisibility(showOptionalElements);
         if (showOptionalElements) {
-            mFAB.setVisibility(View.VISIBLE);
+            mFABVH.onView(v -> v.setVisibility(View.VISIBLE));
         } else {
-            mFAB.setVisibility(View.INVISIBLE);
+            mFABVH.onView(v -> v.setVisibility(View.INVISIBLE));
         }
     }
 }

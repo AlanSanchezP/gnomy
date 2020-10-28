@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.github.dewinjm.monthyearpicker.MonthYearPickerDialogFragment;
 
@@ -18,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import io.github.alansanchezp.gnomy.databinding.LayoutMonthToolbarBinding;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
+import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
 
 public class MonthToolbarView extends LinearLayout {
@@ -50,7 +52,8 @@ public class MonthToolbarView extends LinearLayout {
 
     public void setViewModel(MonthToolbarViewModel viewModel) {
         mBinding.setViewmodel(viewModel);
-        mBinding.monthNameView.setOnClickListener(v -> onMonthPickerClick());
+        SingleClickViewHolder<TextView> monthNameVH = new SingleClickViewHolder<>(mBinding.monthNameView);
+        monthNameVH.setOnClickListener(v -> onMonthPickerClick());
         mBinding.getViewmodel().activeMonth
                 .observe(((AppCompatActivity) getContext()), this::updateMonthText);
     }

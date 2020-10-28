@@ -11,9 +11,11 @@ import android.widget.TextView;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 
 public class ArchivedAccountsRecyclerViewAdapter
         extends RecyclerView.Adapter<ArchivedAccountsRecyclerViewAdapter.ViewHolder>{
@@ -29,6 +31,7 @@ public class ArchivedAccountsRecyclerViewAdapter
         notifyDataSetChanged();
     }
 
+    @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
@@ -37,7 +40,7 @@ public class ArchivedAccountsRecyclerViewAdapter
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         if (mValues != null) {
             holder.setAccountData(mValues.get(position));
             holder.setEventListeners(mListener);
@@ -74,7 +77,7 @@ public class ArchivedAccountsRecyclerViewAdapter
             mItem = account;
 
             int iconResId = Account.getDrawableResourceId(mItem.getType());
-            Drawable icon = (Drawable) mView.getResources().getDrawable(iconResId);
+            Drawable icon = ContextCompat.getDrawable(mView.getContext(), iconResId);
 
             mNameView.setText(mItem.getName());
             mIconView.setImageDrawable(icon);
@@ -83,19 +86,11 @@ public class ArchivedAccountsRecyclerViewAdapter
         }
 
         private void setEventListeners(OnArchivedItemInteractionListener listener) {
-            mRestoreButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.restoreAccount(mItem);
-                }
-            });
-
-            mDeleteButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.deleteAccount(mItem);
-                }
-            });
+            SingleClickViewHolder<Button> restoreVH = new SingleClickViewHolder<>(mRestoreButton);
+            SingleClickViewHolder<Button> deleteVH = new SingleClickViewHolder<>(mDeleteButton);
+            // TODO: Handle async nature of these calls
+            restoreVH.setOnClickListener(v -> listener.restoreAccount(mItem));
+            deleteVH.setOnClickListener(v -> listener.deleteAccount(mItem));
         }
     }
 

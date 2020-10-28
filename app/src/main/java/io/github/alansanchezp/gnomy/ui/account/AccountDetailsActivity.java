@@ -30,6 +30,7 @@ import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
+import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 import io.github.alansanchezp.gnomy.util.android.ViewTintingUtil;
 import io.github.alansanchezp.gnomy.viewmodel.account.AccountViewModel;
 
@@ -37,8 +38,8 @@ public class AccountDetailsActivity
         extends BackButtonActivity {
     public static final String EXTRA_ID = "account_id";
     private TextView mNameTV;
-    private FloatingActionButton mFAB;
-    private Button mSeeMoreBtn;
+    private SingleClickViewHolder<FloatingActionButton> mFABVH;
+    private SingleClickViewHolder<Button> mSeeMoreBtnVH;
     private AccountViewModel mAccountViewModel;
     private LiveData<BigDecimal> mLatestBalanceSum;
     private Account mAccount;
@@ -56,8 +57,11 @@ public class AccountDetailsActivity
         setTitle(getString(R.string.account_details));
 
         mNameTV = findViewById(R.id.account_name);
-        mSeeMoreBtn = findViewById(R.id.account_see_more_button);
-        mFAB = findViewById(R.id.account_floating_action_button);
+        mSeeMoreBtnVH = new SingleClickViewHolder<>(findViewById(R.id.account_see_more_button));
+        mSeeMoreBtnVH.setOnClickListener(this::onSeeMoreClick);
+
+        mFABVH = new SingleClickViewHolder<>(findViewById(R.id.account_floating_action_button));
+        mFABVH.setOnClickListener(this::onFABClick);
 
         Intent intent = getIntent();
         int accountId = intent.getIntExtra(EXTRA_ID, 0);
@@ -120,15 +124,14 @@ public class AccountDetailsActivity
 
     @Override
     protected void disableActions() {
-        mSeeMoreBtn.setEnabled(false);
-        mFAB.setEnabled(false);
-        mFAB.setElevation(6f);
+        mSeeMoreBtnVH.blockClicks();
+        mFABVH.blockClicks();
     }
 
     @Override
     protected void enableActions() {
-        mSeeMoreBtn.setEnabled(true);
-        mFAB.setEnabled(true);
+        mSeeMoreBtnVH.allowClicks();
+        mFABVH.allowClicks();
     }
 
     protected int getLayoutResourceId() {
@@ -140,8 +143,6 @@ public class AccountDetailsActivity
     }
 
     public void onFABClick(View v) {
-        disableActions();
-
         Intent modifyAccountIntent = new Intent(this, AddEditAccountActivity.class);
         modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_ID, mAccount.getId());
 
@@ -260,12 +261,15 @@ public class AccountDetailsActivity
         int fabBgColor = ColorUtil.getVariantByFactor(bgColor, 0.86f);
         int fabTextColor = ColorUtil.getTextColor(fabBgColor);
 
-        ViewTintingUtil.tintFAB(mFAB, fabBgColor, fabTextColor, mThemeTextColor);
+        mFABVH.onView(v ->
+                ViewTintingUtil.tintFAB(v, fabBgColor, fabTextColor, mThemeTextColor));
 
         ((TextView) findViewById(R.id.account_balance_history_title))
                 .setTextColor(mThemeTextColor);
 
-        mSeeMoreBtn.setBackgroundColor(fabBgColor);
-        mSeeMoreBtn.setTextColor(fabTextColor);
+        mSeeMoreBtnVH.onView(v -> {
+            v.setBackgroundColor(fabBgColor);
+            v.setTextColor(fabTextColor);
+        });
     }
 }

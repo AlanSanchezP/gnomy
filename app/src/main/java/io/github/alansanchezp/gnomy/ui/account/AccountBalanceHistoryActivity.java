@@ -22,6 +22,7 @@ import io.github.alansanchezp.gnomy.ui.customView.MonthToolbarView;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
+import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 import io.github.alansanchezp.gnomy.viewmodel.account.AccountBalanceHistoryViewModel;
 import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
 
@@ -34,6 +35,7 @@ public class AccountBalanceHistoryActivity
     public static final String EXTRA_NAME = "account_name";
     public static final String EXTRA_CURRENCY = "account_currency";
     public static final String EXTRA_BG_COLOR = "bg_color";
+    private SingleClickViewHolder<Button> mCheckPendingButtonVH;
     private String mAccountCurrency;
 
     @Override
@@ -43,6 +45,9 @@ public class AccountBalanceHistoryActivity
         Intent intent = getIntent();
         int accountId = intent.getIntExtra(EXTRA_ID, 0);
         if (accountId < 1) throw new RuntimeException("No account id was provided.");
+
+        mCheckPendingButtonVH = new SingleClickViewHolder<>(findViewById(R.id.account_history_check_btn));
+        mCheckPendingButtonVH.setOnClickListener(this::onCheckPendingTransactionsClick);
 
         String accountName = intent.getStringExtra(EXTRA_NAME);
         mAccountCurrency = intent.getStringExtra(EXTRA_CURRENCY);
@@ -132,8 +137,6 @@ public class AccountBalanceHistoryActivity
         TextView pendingExpensesTV = findViewById(R.id.account_history_pending_expenses);
         TextView pendingTotalTV = findViewById(R.id.account_history_pending_total);
 
-        Button checkMoreBtn = findViewById(R.id.account_history_check_btn);
-
         BigDecimal confirmedIncomes = null;
         BigDecimal confirmedExpenses = null;
         BigDecimal confirmedTotal = null;
@@ -175,10 +178,9 @@ public class AccountBalanceHistoryActivity
                 default:
                     break;
             }
-
-            checkMoreBtn.setVisibility(View.VISIBLE);
+            mCheckPendingButtonVH.onView(v -> v.setVisibility(View.VISIBLE));
         } else {
-            checkMoreBtn.setVisibility(View.GONE);
+            mCheckPendingButtonVH.onView(v -> v.setVisibility(View.GONE));
         }
 
         try {

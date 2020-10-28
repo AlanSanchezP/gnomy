@@ -141,7 +141,6 @@
                             android:contentDescription="@string/color_picker"
                             android:cropToPadding="false"
                             android:isScrollContainer="false"
-                            android:onClick="showColorPicker"
                             app:srcCompat="@drawable/ic_color_lens_black_24dp" />
 
                         <TextView
@@ -166,7 +165,6 @@
         android:layout_marginBottom="35dp"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="processData"
         app:srcCompat="@drawable/ic_check_black_24dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

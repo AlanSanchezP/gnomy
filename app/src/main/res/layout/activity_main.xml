@@ -54,7 +54,6 @@
         android:layout_marginBottom="72dp"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="onFABClick"
         android:layout_gravity="end|bottom"
         app:srcCompat="@drawable/ic_add_black_24dp" />
 

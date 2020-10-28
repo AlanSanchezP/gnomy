@@ -12,6 +12,7 @@ import io.github.alansanchezp.gnomy.util.android.InputFilterMinMax;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
+import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 import io.github.alansanchezp.gnomy.util.android.ViewTintingUtil;
 import io.github.alansanchezp.gnomy.viewmodel.account.AddEditAccountViewModel;
 
@@ -51,7 +52,8 @@ public class AddEditAccountActivity
     private MaterialSpinner mCurrencySpinner;
     private MaterialSpinner mTypeSpinner;
     private Switch mShownInDashboardSwitch;
-    private FloatingActionButton mFAB;
+    private SingleClickViewHolder<ImageButton> mColorPickerBtnVH;
+    private SingleClickViewHolder<FloatingActionButton> mFABVH;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +76,10 @@ public class AddEditAccountActivity
         mTypeSpinner = findViewById(R.id.addedit_account_type);
         mShownInDashboardSwitch = findViewById(R.id.addedit_account_show_in_home);
         // TODO: FAB gets annoying on landscape mode
-        mFAB = findViewById(R.id.addedit_account_FAB);
+        mFABVH = new SingleClickViewHolder<>(findViewById(R.id.addedit_account_FAB), true);
+        mFABVH.setOnClickListener(this::processData);
+        mColorPickerBtnVH = new SingleClickViewHolder<>(findViewById(R.id.addedit_account_color_button));
+        mColorPickerBtnVH.setOnClickListener(this::showColorPicker);
 
         initSpinners();
         setInputFilters();
@@ -132,16 +137,6 @@ public class AddEditAccountActivity
         });
     }
 
-    @Override
-    protected void disableActions() {
-        mFAB.setEnabled(false);
-    }
-
-    @Override
-    protected void enableActions() {
-        mFAB.setEnabled(true);
-    }
-
     protected int getLayoutResourceId() {
         return R.layout.activity_add_edit_account;
     }
@@ -194,8 +189,7 @@ public class AddEditAccountActivity
         findViewById(R.id.addedit_account_container)
                 .setBackgroundColor(color);
 
-        ViewTintingUtil
-                .tintFAB(mFAB, fabBgColor, fabTextColor);
+        mFABVH.onView(v -> ViewTintingUtil.tintFAB(v, fabBgColor, fabTextColor));
         ViewTintingUtil
                 .monotintTextInputLayout(mAccountNameTIL, mThemeTextColor);
         // TODO: Some colors make the hint barely readable, find a way to solve it
@@ -205,9 +199,10 @@ public class AddEditAccountActivity
                 .tintSwitch(mShownInDashboardSwitch, mThemeColor);
 
         // TODO: How can we unify the ripple color with the one from FAB?
-        ImageButton paletteImageButton = findViewById(R.id.addedit_account_color_button);
-        paletteImageButton.setBackgroundTintList(ColorStateList.valueOf(mThemeColor));
-        paletteImageButton.getDrawable().mutate().setTint(mThemeTextColor);
+        mColorPickerBtnVH.onView(v -> {
+            v.setBackgroundTintList(ColorStateList.valueOf(mThemeColor));
+            v.getDrawable().mutate().setTint(mThemeTextColor);
+        });
     }
 
     private void initSpinners() {
@@ -224,8 +219,7 @@ public class AddEditAccountActivity
     }
 
     private void setInputFilters() {
-        TextInputEditText valueTIET = (TextInputEditText) findViewById(R.id.addedit_account_initial_value_input);
-        valueTIET.setFilters(new InputFilter[]{new InputFilterMinMax(Account.MIN_INITIAL, Account.MAX_INITIAL, Account.DECIMAL_SCALE)});
+        mInitialValueTIET.setFilters(new InputFilter[]{new InputFilterMinMax(Account.MIN_INITIAL, Account.MAX_INITIAL, Account.DECIMAL_SCALE)});
     }
 
     public void showColorPicker(View v) {
@@ -255,6 +249,7 @@ public class AddEditAccountActivity
             saveData(currencyCode, accountType, showInDashboard);
         } else {
             Toast.makeText(this, getResources().getString(R.string.form_error), Toast.LENGTH_LONG).show();
+            mFABVH.notifyOnAsyncOperationFinished();
         }
     }
 
@@ -304,7 +299,6 @@ public class AddEditAccountActivity
             mAccount.setType(accountType);
             mAccount.setDefaultCurrency(currencyCode);
 
-            mFAB.setEnabled(false);
             if (mAccount.getId() == 0) {
                 mAddEditAccountViewModel.insert(mAccount);
                 toastMessage = getResources().getString(R.string.account_message_saved);
@@ -312,12 +306,12 @@ public class AddEditAccountActivity
                 mAddEditAccountViewModel.update(mAccount);
                 toastMessage = getResources().getString(R.string.account_message_updated);
             }
-
             // TODO: Handle properly, as there is no guaranty operations will succeed
             Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
             finish();
         } catch(NumberFormatException nfe) {
             Log.wtf("AddEditAccount", "saveData: Initial value validation failed", nfe);
+            mFABVH.notifyOnAsyncOperationFinished();
         }
     }
 }
