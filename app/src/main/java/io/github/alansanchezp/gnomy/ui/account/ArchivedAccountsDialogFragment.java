@@ -30,53 +30,22 @@ public class ArchivedAccountsDialogFragment extends DialogFragment {
 
     private ArchivedAccountsRecyclerViewAdapter mAdapter;
     private ArchivedAccountsDialogInterface mListener;
-    private LiveData<List<Account>> mAccounts;
     private SingleClickViewHolder<Button> mRestoreAllButtonVH;
     private TextView mEmptyListText;
     private int mListSize = -1;
 
     public ArchivedAccountsDialogFragment() {
-        // Required public constructor
-        if (mListener == null) {
-            Log.e("ArchivedAccountsDF", "(): Not listener provided. Fallback to dummy one. Should happen only during tests.");
-            mListener = new ArchivedAccountsDialogInterface() {
-                @Override
-                public LiveData<List<Account>> getArchivedAccounts() {
-                    MutableLiveData<List<Account>> mlv = new MutableLiveData<>();
-                    mlv.setValue(new ArrayList<>());
-                    return mlv;
-                }
-
-                @Override
-                public void restoreAllAccounts() {
-                }
-
-                @Override
-                public void restoreAccount(Account account) {
-                }
-
-                @Override
-                public void deleteAccount(Account account) {
-                }
-            };
-        }
-    }
-
-    public ArchivedAccountsDialogFragment(ArchivedAccountsDialogInterface listener) {
-        this();
-        mListener = listener;
+        // Required empty public constructor
     }
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        mAdapter = new ArchivedAccountsRecyclerViewAdapter(mListener);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAccounts = mListener.getArchivedAccounts();
 
         setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Material_Light_Dialog);
     }
@@ -98,6 +67,41 @@ public class ArchivedAccountsDialogFragment extends DialogFragment {
         View view = inflater.inflate(R.layout.fragment_archived_accounts_dialog, container, false);
         Context context = view.getContext();
 
+        try {
+            if (getParentFragment() == null) {
+                mListener = (ArchivedAccountsDialogInterface) context;
+            } else {
+                mListener = (ArchivedAccountsDialogInterface) getParentFragment();
+            }
+        } catch (NullPointerException npe) {
+            Log.wtf("ArchivedAccountsDF", "onCreateView(): ", npe);
+            throw new ClassCastException(npe.getMessage());
+        } catch (ClassCastException cce) {
+            Log.w("ArchivedAccountsDF", "onCreateView(): No listener was provided. Fallback to dummy listener.", cce);
+            mListener = new ArchivedAccountsDialogInterface() {
+                @Override
+                public LiveData<List<Account>> getArchivedAccounts() {
+                    MutableLiveData<List<Account>> mlv = new MutableLiveData<>();
+                    mlv.setValue(new ArrayList<>());
+                    return (LiveData<List<Account>>) mlv;
+                }
+
+                @Override
+                public void restoreAllAccounts() {
+                }
+
+                @Override
+                public void restoreAccount(Account account) {
+                }
+
+                @Override
+                public void deleteAccount(Account account) {
+                }
+            };
+        }
+
+        mAdapter = new ArchivedAccountsRecyclerViewAdapter(mListener);
+
         RecyclerView recyclerView = view.findViewById(R.id.archived_items_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(mAdapter);
@@ -110,7 +114,8 @@ public class ArchivedAccountsDialogFragment extends DialogFragment {
 
         mEmptyListText = view.findViewById(R.id.archived_items_empty);
 
-        mAccounts.observe(getViewLifecycleOwner(), this::onAccountsListChanged);
+        mListener.getArchivedAccounts()
+                .observe(getViewLifecycleOwner(), this::onAccountsListChanged);
 
         return view;
     }

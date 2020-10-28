@@ -33,8 +33,7 @@ public class ArchivedAccountsDialogFragmentInstrumentedTest {
     private static final Account[] accounts = new Account[2];
 
     @BeforeClass
-    public static void init_accounts_list_and_set_locale() {
-        Locale.setDefault(Locale.US);
+    public static void init_accounts_list() {
         accounts[0] = new Account();
         accounts[1] = new Account();
 
@@ -42,7 +41,7 @@ public class ArchivedAccountsDialogFragmentInstrumentedTest {
         accounts[0].setName("Test account 1");
 
         accounts[1] = new Account();
-        accounts[0].setName("Test account 2");
+        accounts[1].setName("Test account 2");
     }
 
     @Test

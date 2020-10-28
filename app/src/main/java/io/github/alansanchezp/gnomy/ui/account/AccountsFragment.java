@@ -48,7 +48,6 @@ public class AccountsFragment extends MainNavigationFragment
 
     private AccountRecyclerViewAdapter mAdapter;
     private AccountsListViewModel mListViewModel;
-    private LiveData<List<AccountWithBalance>> mAccountBalances;
     private TextView mBalance, mProjected;
 
     public AccountsFragment() {
@@ -83,7 +82,10 @@ public class AccountsFragment extends MainNavigationFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mListViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(this.requireActivity().getApplication())).get(AccountsListViewModel.class);
+        mListViewModel = new ViewModelProvider(this,
+                ViewModelProvider.AndroidViewModelFactory.getInstance(
+                        this.requireActivity().getApplication()))
+                .get(AccountsListViewModel.class);
     }
 
     @Override
@@ -101,20 +103,22 @@ public class AccountsFragment extends MainNavigationFragment
 
         recyclerView.setAdapter(mAdapter);
         recyclerView.setNestedScrollingEnabled(false);
-        mBalance = view.findViewById(R.id.total_balance);
-        mProjected = view.findViewById(R.id.total_projected);
+
+        mListViewModel.bindMonth(mNavigationInterface.getActiveMonth());
 
         return view;
     }
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mListViewModel.bindMonth(mNavigationInterface.getActiveMonth());
-        if (mAccountBalances == null) {
-            mAccountBalances = mListViewModel.getBalances();
-        }
-        setObservers();
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mBalance = view.findViewById(R.id.total_balance);
+        mProjected = view.findViewById(R.id.total_projected);
+
+        mNavigationInterface.getActiveMonth()
+                .observe(getViewLifecycleOwner(), this::onMonthChanged);
+        mListViewModel.getBalances()
+                .observe(getViewLifecycleOwner(), this::onAccountsListChanged);
     }
 
     @Override
@@ -244,15 +248,8 @@ public class AccountsFragment extends MainNavigationFragment
     private void displayArchivedAccounts() {
         if (getChildFragmentManager()
                 .findFragmentByTag(ArchivedAccountsDialogFragment.TAG) != null) return;
-        ArchivedAccountsDialogFragment dialog =
-                new ArchivedAccountsDialogFragment((ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface) this);
+        ArchivedAccountsDialogFragment dialog = new ArchivedAccountsDialogFragment();
         dialog.show(getChildFragmentManager(), ArchivedAccountsDialogFragment.TAG);
-    }
-
-    private void setObservers() {
-        mNavigationInterface.getActiveMonth().observe(getViewLifecycleOwner(), this::onMonthChanged);
-
-        mAccountBalances.observe(getViewLifecycleOwner(), this::onAccountsListChanged);
     }
 
     public void archiveAccount(Account account) {
