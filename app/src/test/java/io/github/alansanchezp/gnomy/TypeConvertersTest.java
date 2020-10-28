@@ -18,6 +18,7 @@ import java.util.TimeZone;
 
 import io.github.alansanchezp.gnomy.database.GnomyTypeConverters;
 
+@SuppressWarnings("ConstantConditions")
 public class TypeConvertersTest {
     static private ZoneId originalZoneId;
     static private OffsetDateTime dateTime;

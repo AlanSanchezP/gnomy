@@ -57,7 +57,7 @@ public class ArchivedAccountsRecyclerViewAdapter
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         private Account mItem;
-        private View mView;
+        private final View mView;
 
         private final TextView mNameView;
         private final ImageView mIconView;

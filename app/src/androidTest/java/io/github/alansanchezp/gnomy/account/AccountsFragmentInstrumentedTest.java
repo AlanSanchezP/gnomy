@@ -42,7 +42,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
  */
 @RunWith(AndroidJUnit4.class)
 public class AccountsFragmentInstrumentedTest {
-    private static AccountWithBalance[] accountsWithBalance = new AccountWithBalance[2];
+    private static final AccountWithBalance[] accountsWithBalance = new AccountWithBalance[2];
 
     @BeforeClass
     public static void init_accounts_list_and_set_locale() {

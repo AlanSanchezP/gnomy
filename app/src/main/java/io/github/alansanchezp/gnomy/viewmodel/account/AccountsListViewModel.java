@@ -6,7 +6,6 @@ import java.time.YearMonth;
 
 import java.util.List;
 
-import androidx.arch.core.util.Function;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
@@ -15,9 +14,8 @@ import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
 
 public class AccountsListViewModel extends AndroidViewModel {
-    private AccountRepository mRepository;
+    private final AccountRepository mRepository;
     private LiveData<YearMonth> mActiveMonth;
-    private LiveData<List<Account>> mAllAccounts;
     private LiveData<List<AccountWithBalance>> mBalancesToDisplay;
     private LiveData<List<Account>> mArchivedAccounts;
 
@@ -30,17 +28,9 @@ public class AccountsListViewModel extends AndroidViewModel {
         if (mActiveMonth == null) mActiveMonth = month;
     }
 
-    public LiveData<List<Account>> getAll() {
-        if (mAllAccounts == null) {
-            mAllAccounts = mRepository.getAll();
-        }
-        return mAllAccounts;
-    }
-
     public LiveData<List<AccountWithBalance>> getBalances() {
         if (mBalancesToDisplay == null) {
-            mBalancesToDisplay = Transformations.switchMap(mActiveMonth,
-                    month -> mRepository.getAllFromMonth(month));
+            mBalancesToDisplay = Transformations.switchMap(mActiveMonth, mRepository::getAllFromMonth);
         }
         return mBalancesToDisplay;
     }

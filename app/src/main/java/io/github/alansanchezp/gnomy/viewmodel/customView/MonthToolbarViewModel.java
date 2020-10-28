@@ -14,9 +14,9 @@ import androidx.lifecycle.SavedStateHandle;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 
 public class MonthToolbarViewModel extends AndroidViewModel {
-    protected SavedStateHandle mSavedState;
+    protected final SavedStateHandle mSavedState;
     protected static final String YEAR_MONTH_STRING = "active-month";
-    protected MutableLiveData<YearMonth> mutableActiveMonth = new MutableLiveData<>();
+    protected final MutableLiveData<YearMonth> mutableActiveMonth = new MutableLiveData<>();
     public final LiveData<YearMonth> activeMonth = (LiveData<YearMonth>) mutableActiveMonth;
 
     public MonthToolbarViewModel(Application application, SavedStateHandle savedStateHandle) {

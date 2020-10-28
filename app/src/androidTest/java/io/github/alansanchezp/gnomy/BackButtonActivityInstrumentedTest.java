@@ -27,7 +27,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(AndroidJUnit4.class)
 public class BackButtonActivityInstrumentedTest {
     @Rule
-    public ActivityScenarioRule<BackButtonDummyActivity> activityRule =
+    public final ActivityScenarioRule<BackButtonDummyActivity> activityRule =
             new ActivityScenarioRule<>(BackButtonDummyActivity.class);
 
     @Test

@@ -13,7 +13,7 @@ import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
 
 public class AccountBalanceHistoryViewModel
         extends MonthToolbarViewModel {
-    private AccountRepository mRepository;
+    private final AccountRepository mRepository;
     private LiveData<MonthlyBalance> mBalance;
     private LiveData<BigDecimal> mAccumulated;
 

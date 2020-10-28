@@ -12,7 +12,7 @@ import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 
 public class AccountViewModel extends AndroidViewModel {
-    private AccountRepository mRepository;
+    private final AccountRepository mRepository;
 
     public AccountViewModel (Application application) {
         super(application);
@@ -25,14 +25,6 @@ public class AccountViewModel extends AndroidViewModel {
 
     public LiveData<BigDecimal> getAccumulatedFromMonth(int accountId, YearMonth month) {
         return mRepository.getAccumulatedFromMonth(accountId, month);
-    }
-
-    public void insert(Account account) {
-        mRepository.insert(account);
-    }
-
-    public void update(Account account) {
-        mRepository.update(account);
     }
 
     public void archive(Account account) {

@@ -26,7 +26,7 @@ import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 
 public class ArchivedAccountsDialogFragment extends DialogFragment {
-    public static String TAG = "ARCHIVED-ACCOUNTS-DIALOG";
+    public static final String TAG = "ARCHIVED-ACCOUNTS-DIALOG";
 
     private ArchivedAccountsRecyclerViewAdapter mAdapter;
     private ArchivedAccountsDialogInterface mListener;
@@ -43,7 +43,7 @@ public class ArchivedAccountsDialogFragment extends DialogFragment {
                 @Override
                 public LiveData<List<Account>> getArchivedAccounts() {
                     MutableLiveData<List<Account>> mlv = new MutableLiveData<>();
-                    mlv.setValue(new ArrayList<Account>());
+                    mlv.setValue(new ArrayList<>());
                     return mlv;
                 }
 

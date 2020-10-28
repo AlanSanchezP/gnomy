@@ -2,6 +2,7 @@ package io.github.alansanchezp.gnomy.database.account;
 
 import java.math.BigDecimal;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
 
@@ -16,6 +17,7 @@ public class AccountWithBalance {
     @ColumnInfo(name="projected")
     public BigDecimal projectedBalance;
 
+    @NonNull
     public String toString() {
         return account.getName() + " " + accumulatedBalance.toString();
     }

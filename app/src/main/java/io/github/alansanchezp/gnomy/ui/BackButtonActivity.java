@@ -78,6 +78,7 @@ public abstract class BackButtonActivity
         Objects.requireNonNull(getSupportActionBar()).setHomeAsUpIndicator(mUpArrowDrawable);
     }
 
+    @SuppressWarnings("EmptyMethod")
     protected void finishPendingOperations() {
         // @Override to implement custom actions
     }

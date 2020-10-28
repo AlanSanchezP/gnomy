@@ -32,7 +32,7 @@ import static org.hamcrest.Matchers.not;
 @RunWith(AndroidJUnit4.class)
 public class AddAccountActivityInstrumentedTest {
     @Rule
-    public ActivityScenarioRule<AddEditAccountActivity> activityRule =
+    public final ActivityScenarioRule<AddEditAccountActivity> activityRule =
             new ActivityScenarioRule<>(AddEditAccountActivity.class);
 
     @Test

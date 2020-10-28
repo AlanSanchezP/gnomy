@@ -4,6 +4,8 @@ import android.content.Intent;
 
 import org.junit.rules.ExternalResource;
 
+import java.util.Objects;
+
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
@@ -32,6 +34,7 @@ import static androidx.test.internal.util.Checks.checkNotNull;
  *   }
  * }</pre>
  */
+@SuppressWarnings("ALL")
 public class ViewScenarioRule extends ExternalResource {
     interface Supplier<T> {
         T get();
@@ -56,7 +59,7 @@ public class ViewScenarioRule extends ExternalResource {
 
     @Override
     protected void after() {
-        scenario.close();
+        Objects.requireNonNull(scenario).close();
     }
 
     public ActivityScenario<DummyActivity> getScenario() {

@@ -77,8 +77,7 @@ public class CurrencyUtil {
 
     public static BigDecimal[] sumAccountListBalances(
             List<AccountWithBalance> awbList,
-            String baseCurrencyCode)
-            throws GnomyCurrencyException {
+            String baseCurrencyCode) {
         // TODO: Adjust logic when currency support is implemented
         //  This loop is here just so we can display something
         //  It's possible that the whole method (including signature) will change

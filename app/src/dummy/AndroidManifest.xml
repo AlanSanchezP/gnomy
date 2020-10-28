@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application>
-        <activity android:name="io.github.alansanchezp.gnomy.dummy.BackButtonDummyActivity"></activity>
+        <activity android:name="io.github.alansanchezp.gnomy.dummy.BackButtonDummyActivity" />
         <activity
             android:name="io.github.alansanchezp.gnomy.dummy.DummyActivity"
             tools:node="merge" />

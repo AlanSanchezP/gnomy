@@ -20,7 +20,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 @RunWith(AndroidJUnit4.class)
 public class EditAccountActivityInstrumentedTest {
-    private Intent intent = new Intent(
+    private final Intent intent = new Intent(
             ApplicationProvider.getApplicationContext(), AddEditAccountActivity.class)
             .putExtra(AddEditAccountActivity.EXTRA_ID, 1);
     @Rule

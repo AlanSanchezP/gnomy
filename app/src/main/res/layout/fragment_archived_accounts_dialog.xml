@@ -8,9 +8,11 @@
     tools:context=".ui.account.ArchivedAccountsDialogFragment"
     android:padding="14dp"
     android:paddingTop="0dp">
+
     <ScrollView
         android:layout_height="match_parent"
-        android:layout_width="match_parent" >
+        android:layout_width="match_parent"
+        tools:ignore="UselessParent">
 
     <LinearLayout
         android:orientation="vertical"

@@ -18,7 +18,8 @@
         <LinearLayout
             android:orientation="vertical"
             android:layout_height="match_parent"
-            android:layout_width="match_parent">
+            android:layout_width="match_parent"
+            tools:ignore="UselessParent">
 
             <io.github.alansanchezp.gnomy.ui.customView.MonthToolbarView
                 android:layout_height="wrap_content"

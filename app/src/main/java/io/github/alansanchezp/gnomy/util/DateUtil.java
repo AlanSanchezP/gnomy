@@ -10,7 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DateUtil {
-    private static Logger LOGGER = Logger.getLogger("tests");
+    private static final Logger LOGGER = Logger.getLogger("tests");
     private static Clock CLOCK;
 
     private static Clock getClock() {

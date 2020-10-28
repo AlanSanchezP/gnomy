@@ -31,10 +31,10 @@ import static org.hamcrest.CoreMatchers.equalTo;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class AccountRecyclerViewHolderInstrumentedTest {
-    static AccountWithBalance testAccount = new AccountWithBalance();
+    static final AccountWithBalance testAccount = new AccountWithBalance();
 
     @Rule
-    public ViewScenarioRule viewRule =
+    public final ViewScenarioRule viewRule =
             new ViewScenarioRule(R.layout.fragment_account_card);
 
     @BeforeClass
@@ -52,7 +52,7 @@ public class AccountRecyclerViewHolderInstrumentedTest {
     @Test
     public void dynamic_balance_labels_are_correct() {
         ActivityScenario<DummyActivity> scenario = viewRule.getScenario();
-        View view[] = new View[1];
+        View[] view = new View[1];
         AccountRecyclerViewAdapter.ViewHolder[] holder = new AccountRecyclerViewAdapter.ViewHolder[1];
         scenario.onActivity(activity -> {
             view[0] = (View) activity.findViewById(R.id.account_card);
@@ -79,7 +79,7 @@ public class AccountRecyclerViewHolderInstrumentedTest {
     @Test
     public void account_information_is_displayed_in_card() {
         ActivityScenario<DummyActivity> scenario = viewRule.getScenario();
-        View view[] = new View[1];
+        View[] view = new View[1];
         AccountRecyclerViewAdapter.ViewHolder[] holder = new AccountRecyclerViewAdapter.ViewHolder[1];
         scenario.onActivity(activity -> {
             view[0] = (View) activity.findViewById(R.id.account_card);
@@ -100,7 +100,7 @@ public class AccountRecyclerViewHolderInstrumentedTest {
     @Test
     public void account_icon_in_card_is_correct() {
         ActivityScenario<DummyActivity> scenario = viewRule.getScenario();
-        View view[] = new View[1];
+        View[] view = new View[1];
         AccountRecyclerViewAdapter.ViewHolder[] holder = new AccountRecyclerViewAdapter.ViewHolder[1];
         scenario.onActivity(activity -> {
             view[0] = (View) activity.findViewById(R.id.account_card);

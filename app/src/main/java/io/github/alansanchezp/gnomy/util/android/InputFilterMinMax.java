@@ -7,8 +7,9 @@ import android.util.Log;
 import java.math.BigDecimal;
 
 public class InputFilterMinMax implements InputFilter {
-    private BigDecimal min, max;
-    private int decimalScale;
+    private final BigDecimal min;
+    private final BigDecimal max;
+    private final int decimalScale;
 
     public InputFilterMinMax(BigDecimal min, BigDecimal max, int decimalScale) {
         this.min = min;
@@ -45,6 +46,7 @@ public class InputFilterMinMax implements InputFilter {
                                     BigDecimal limitB,
                                     BigDecimal target) {
         // limitB > limitA : limitA is lowest valid number
+        //noinspection ComparatorResultComparison
         if (limitB.compareTo(limitA) == 1) {
             // target >= limitA && target <= limitB
             return target.compareTo(limitA) >= 0 && target.compareTo(limitB) <= 0;

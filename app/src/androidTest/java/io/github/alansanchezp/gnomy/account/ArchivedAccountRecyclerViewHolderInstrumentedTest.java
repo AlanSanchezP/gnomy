@@ -26,10 +26,10 @@ import static org.hamcrest.CoreMatchers.equalTo;
 
 @RunWith(AndroidJUnit4.class)
 public class ArchivedAccountRecyclerViewHolderInstrumentedTest {
-    static Account testAccount = new Account();
+    static final Account testAccount = new Account();
 
     @Rule
-    public ViewScenarioRule viewRule =
+    public final ViewScenarioRule viewRule =
             new ViewScenarioRule(R.layout.fragment_archived_account_card);
 
     @BeforeClass
@@ -44,7 +44,7 @@ public class ArchivedAccountRecyclerViewHolderInstrumentedTest {
     @Test
     public void account_name_is_displayed_in_card() {
         ActivityScenario<DummyActivity> scenario = viewRule.getScenario();
-        View view[] = new View[1];
+        View[] view = new View[1];
         ArchivedAccountsRecyclerViewAdapter.ViewHolder[] holder
                 = new ArchivedAccountsRecyclerViewAdapter.ViewHolder[1];
         scenario.onActivity(activity -> {
@@ -60,7 +60,7 @@ public class ArchivedAccountRecyclerViewHolderInstrumentedTest {
     @Test
     public void account_icon_in_card_is_correct() {
         ActivityScenario<DummyActivity> scenario = viewRule.getScenario();
-        View view[] = new View[1];
+        View[] view = new View[1];
         ArchivedAccountsRecyclerViewAdapter.ViewHolder[] holder
                 = new ArchivedAccountsRecyclerViewAdapter.ViewHolder[1];
         scenario.onActivity(activity -> {

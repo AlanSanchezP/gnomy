@@ -22,7 +22,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 @RunWith(AndroidJUnit4.class)
 public class MonthToolbarInstrumentedTest {
     @Rule
-    public ViewScenarioRule viewRule =
+    public final ViewScenarioRule viewRule =
             new ViewScenarioRule(R.layout.d_activity_month_toolbar);
 
     @Test

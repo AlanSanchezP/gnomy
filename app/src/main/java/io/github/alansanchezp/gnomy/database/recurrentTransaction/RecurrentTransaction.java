@@ -22,10 +22,10 @@ import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 )
 public class RecurrentTransaction {
     @Ignore
-    public static String UNIT_DAYS = "days";
-    public static String UNIT_WEEKS = "weeks";
-    public static String UNIT_MONTHS = "months";
-    public static String UNIT_YEARS = "years";
+    public static final String UNIT_DAYS = "days";
+    public static final String UNIT_WEEKS = "weeks";
+    public static final String UNIT_MONTHS = "months";
+    public static final String UNIT_YEARS = "years";
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "recurrent_transaction_id")

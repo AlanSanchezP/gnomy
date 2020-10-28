@@ -81,55 +81,51 @@ public class CurrencyUtilTest {
 
     @Test
     public void sum_mixed_currencies() {
-        try {
-            // TODO: Adjust test when currency support is fully implemented
-            String baseCurrency = "USD";
-            List<AccountWithBalance> awbList = new ArrayList<>();
-            AccountWithBalance[] awbArray = new AccountWithBalance[3];
-            BigDecimal[] results;
+        // TODO: Adjust test when currency support is fully implemented
+        String baseCurrency = "USD";
+        List<AccountWithBalance> awbList = new ArrayList<>();
+        AccountWithBalance[] awbArray = new AccountWithBalance[3];
+        BigDecimal[] results;
 
-            awbArray[0] = new AccountWithBalance();
-            awbArray[0].account = new Account();
-            awbArray[0].account.setDefaultCurrency("USD");
-            awbArray[0].accumulatedBalance = new BigDecimal("710");
-            awbArray[0].projectedBalance = new BigDecimal("401.50");
+        awbArray[0] = new AccountWithBalance();
+        awbArray[0].account = new Account();
+        awbArray[0].account.setDefaultCurrency("USD");
+        awbArray[0].accumulatedBalance = new BigDecimal("710");
+        awbArray[0].projectedBalance = new BigDecimal("401.50");
 
-            awbArray[1] = new AccountWithBalance();
-            awbArray[1].account = new Account();
-            awbArray[1].account.setDefaultCurrency("MXN");
-            awbArray[1].accumulatedBalance = new BigDecimal("812.23");
-            awbArray[1].projectedBalance = new BigDecimal("600");
+        awbArray[1] = new AccountWithBalance();
+        awbArray[1].account = new Account();
+        awbArray[1].account.setDefaultCurrency("MXN");
+        awbArray[1].accumulatedBalance = new BigDecimal("812.23");
+        awbArray[1].projectedBalance = new BigDecimal("600");
 
-            awbArray[2] = new AccountWithBalance();
-            awbArray[2].account = new Account();
-            awbArray[2].account.setDefaultCurrency("EUR");
-            awbArray[2].accumulatedBalance = new BigDecimal("409.8");
-            awbArray[2].projectedBalance = new BigDecimal("100.01");
+        awbArray[2] = new AccountWithBalance();
+        awbArray[2].account = new Account();
+        awbArray[2].account.setDefaultCurrency("EUR");
+        awbArray[2].accumulatedBalance = new BigDecimal("409.8");
+        awbArray[2].projectedBalance = new BigDecimal("100.01");
 
-            results = CurrencyUtil.sumAccountListBalances(awbList, baseCurrency);
-            assertEquals(new BigDecimal("0"), results[0]);
-            assertNull("Projected balance is null if list is empty", results[1]);
+        results = CurrencyUtil.sumAccountListBalances(awbList, baseCurrency);
+        assertEquals(new BigDecimal("0"), results[0]);
+        assertNull("Projected balance is null if list is empty", results[1]);
 
-            awbList.add(awbArray[0]);
-            awbList.add(awbArray[1]);
-            awbList.add(awbArray[2]);
-            results = CurrencyUtil.sumAccountListBalances(awbList, baseCurrency);
+        awbList.add(awbArray[0]);
+        awbList.add(awbArray[1]);
+        awbList.add(awbArray[2]);
+        results = CurrencyUtil.sumAccountListBalances(awbList, baseCurrency);
 
-            assertEquals(new BigDecimal("1932.03"), results[0]);
-            assertEquals(new BigDecimal("1101.51"), results[1]);
+        assertEquals(new BigDecimal("1932.03"), results[0]);
+        assertEquals(new BigDecimal("1101.51"), results[1]);
 
-            awbArray[2].accumulatedBalance = null;
-            awbArray[2].projectedBalance = null;
-            awbList.clear();
-            awbList.add(awbArray[2]);
-            results = CurrencyUtil.sumAccountListBalances(awbList, baseCurrency);
+        awbArray[2].accumulatedBalance = null;
+        awbArray[2].projectedBalance = null;
+        awbList.clear();
+        awbList.add(awbArray[2]);
+        results = CurrencyUtil.sumAccountListBalances(awbList, baseCurrency);
 
-            assertEquals(new BigDecimal("0"), results[0]);
-            assertNull("Projected balance is null if individual " +
-                    "balances are null", results[1]);
+        assertEquals(new BigDecimal("0"), results[0]);
+        assertNull("Projected balance is null if individual " +
+                "balances are null", results[1]);
 
-        } catch(GnomyCurrencyException e) {
-            e.printStackTrace();
-        }
     }
 }

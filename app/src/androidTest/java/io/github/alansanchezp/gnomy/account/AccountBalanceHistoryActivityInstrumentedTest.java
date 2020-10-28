@@ -42,13 +42,13 @@ public class AccountBalanceHistoryActivityInstrumentedTest {
         testBalance = new MonthlyBalance();
     }
 
-    private Intent intent = new Intent(
+    private final Intent intent = new Intent(
             ApplicationProvider.getApplicationContext(), AccountBalanceHistoryActivity.class)
             .putExtra(AccountBalanceHistoryActivity.EXTRA_ID, 1)
             .putExtra(AccountBalanceHistoryActivity.EXTRA_NAME, accountTitle);
 
     @Rule
-    public ActivityScenarioRule<AccountBalanceHistoryActivity> activityRule =
+    public final ActivityScenarioRule<AccountBalanceHistoryActivity> activityRule =
             new ActivityScenarioRule<>(intent);
 
     @Test

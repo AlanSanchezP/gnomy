@@ -102,7 +102,7 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
         private final ImageView mIconView;
         private final ImageButton mButton;
         private AccountWithBalance mItem;
-        private PopupMenu popup;
+        private final PopupMenu popup;
 
         public ViewHolder(View view) {
             super(view);

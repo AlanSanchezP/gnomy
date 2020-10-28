@@ -45,7 +45,7 @@ public class AccountDetailsActivityInstrumentedTest {
     }
 
     @Rule
-    public ActivityScenarioRule<AccountDetailsActivity> activityRule =
+    public final ActivityScenarioRule<AccountDetailsActivity> activityRule =
             new ActivityScenarioRule<>(AccountDetailsActivity.class);
 
     @Test

@@ -30,7 +30,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
  */
 @RunWith(AndroidJUnit4.class)
 public class ArchivedAccountsDialogFragmentInstrumentedTest {
-    private static Account[] accounts = new Account[2];
+    private static final Account[] accounts = new Account[2];
 
     @BeforeClass
     public static void init_accounts_list_and_set_locale() {
