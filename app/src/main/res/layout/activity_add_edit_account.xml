@@ -96,7 +96,8 @@
                         android:textColorHint="@color/colorTextSecondary"
                         app:ms_padding_left="13dp"
                         app:ms_padding_right="13dp"
-                        app:ms_text_color="@color/colorTextHighlight" />
+                        app:ms_text_color="@color/colorTextHighlight"
+                        tools:ignore="RtlHardcoded" />
 
                     <com.jaredrummler.materialspinner.MaterialSpinner
                         android:id="@+id/addedit_account_type"
@@ -111,7 +112,8 @@
                         android:textColorHint="@color/colorTextSecondary"
                         app:ms_padding_left="13dp"
                         app:ms_padding_right="13dp"
-                        app:ms_text_color="@color/colorTextHighlight" />
+                        app:ms_text_color="@color/colorTextHighlight"
+                        tools:ignore="RtlHardcoded" />
 
                     <Switch
                         android:id="@+id/addedit_account_show_in_home"
@@ -124,7 +126,8 @@
                         android:paddingStart="14dp"
                         android:text="@string/account_include_in_sum"
                         android:textColor="@color/colorTextHighlight"
-                        android:textDirection="locale" />
+                        android:textDirection="locale"
+                        tools:ignore="RtlSymmetry" />
 
                     <LinearLayout
                         android:layout_width="match_parent"

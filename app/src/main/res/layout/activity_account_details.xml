@@ -172,7 +172,7 @@
                 android:layout_marginEnd="16dp"
                 android:clickable="true"
                 android:focusable="true"
-                app:srcCompat="@drawable/ic_edit_black_24dp" />
+                app:srcCompat="@drawable/ic_pencil_edit_black_24dp" />
 
             <TextView
                 android:id="@+id/account_balance_history_title"
@@ -186,7 +186,8 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
                 android:textAlignment="viewStart"
-                android:text="@string/account_balance_history"/>
+                android:text="@string/account_balance_history"
+                tools:ignore="RtlSymmetry" />
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"

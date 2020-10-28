@@ -13,7 +13,7 @@
     <string name="action_filter_expenses">Expenses</string>
     <string name="action_filter_incomes">Incomes</string>
     <string name="action_filter_transfers">Transfers</string>
-    <string name="action_filter_more">More...</string>
+    <string name="action_filter_more">More…</string>
 
     <string name="action_new_expense">Expense</string>
     <string name="action_new_income">Income</string>
