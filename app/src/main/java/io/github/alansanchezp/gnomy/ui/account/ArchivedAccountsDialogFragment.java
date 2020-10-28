@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import android.util.Log;
@@ -14,45 +13,70 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
-import io.github.alansanchezp.gnomy.viewmodel.account.AccountsListViewModel;
 
-public class ArchivedAccountsDialogFragment extends DialogFragment
-        implements ArchivedAccountsRecyclerViewAdapter.OnArchivedItemInteractionListener {
+public class ArchivedAccountsDialogFragment extends DialogFragment {
     public static String TAG = "ARCHIVED-ACCOUNTS-DIALOG";
 
     private ArchivedAccountsRecyclerViewAdapter mAdapter;
+    private ArchivedAccountsDialogInterface mListener;
     private LiveData<List<Account>> mAccounts;
-    private AccountsListViewModel mListViewModel;
     private SingleClickViewHolder<Button> mRestoreAllButtonVH;
     private TextView mEmptyListText;
     private int mListSize = -1;
 
     public ArchivedAccountsDialogFragment() {
-        // Required empty public constructor
+        // Required public constructor
+        if (mListener == null) {
+            Log.e("ArchivedAccountsDF", "(): Not listener provided. Fallback to dummy one. Should happen only during tests.");
+            mListener = new ArchivedAccountsDialogInterface() {
+                @Override
+                public LiveData<List<Account>> getArchivedAccounts() {
+                    MutableLiveData<List<Account>> mlv = new MutableLiveData<>();
+                    mlv.setValue(new ArrayList<Account>());
+                    return mlv;
+                }
+
+                @Override
+                public void restoreAllAccounts() {
+                }
+
+                @Override
+                public void restoreAccount(Account account) {
+                }
+
+                @Override
+                public void deleteAccount(Account account) {
+                }
+            };
+        }
+    }
+
+    public ArchivedAccountsDialogFragment(ArchivedAccountsDialogInterface listener) {
+        this();
+        mListener = listener;
     }
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        ArchivedAccountsRecyclerViewAdapter.OnArchivedItemInteractionListener listener = (ArchivedAccountsRecyclerViewAdapter.OnArchivedItemInteractionListener) this;
-        mAdapter = new ArchivedAccountsRecyclerViewAdapter(listener);
+        mAdapter = new ArchivedAccountsRecyclerViewAdapter(mListener);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mListViewModel = new ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())).get(AccountsListViewModel.class);
-        mAccounts = mListViewModel.getArchivedAccounts();
+        mAccounts = mListener.getArchivedAccounts();
 
         setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Material_Light_Dialog);
     }
@@ -80,7 +104,7 @@ public class ArchivedAccountsDialogFragment extends DialogFragment
 
         mRestoreAllButtonVH = new SingleClickViewHolder<>(view.findViewById(R.id.restore_all_accounts_button));
         mRestoreAllButtonVH.setOnClickListener(v -> {
-            mListViewModel.restoreAll();
+            mListener.restoreAllAccounts();
             dismiss();
         });
 
@@ -113,16 +137,9 @@ public class ArchivedAccountsDialogFragment extends DialogFragment
         mAdapter.setValues(accounts);
     }
 
-    public void restoreAccount(Account account) {
-        mListViewModel.restore(account);
-    }
-
-    public void deleteAccount(final Account account) {
-        new AlertDialog.Builder(requireContext())
-                .setTitle(getString(R.string.account_card_delete))
-                .setMessage(getString(R.string.account_card_delete_warning))
-                .setPositiveButton(getString(R.string.confirmation_dialog_yes), (dialog, which) -> mListViewModel.delete(account))
-                .setNegativeButton(getString(R.string.confirmation_dialog_no), null)
-                .show();
+    public interface ArchivedAccountsDialogInterface
+            extends ArchivedAccountsRecyclerViewAdapter.OnArchivedItemInteractionListener {
+        LiveData<List<Account>> getArchivedAccounts();
+        void restoreAllAccounts();
     }
 }

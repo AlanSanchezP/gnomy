@@ -19,11 +19,9 @@ import io.github.alansanchezp.gnomy.ui.account.ArchivedAccountsDialogFragment;
 import static androidx.fragment.app.testing.FragmentScenario.launchInContainer;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -109,25 +107,6 @@ public class ArchivedAccountsDialogFragmentInstrumentedTest {
             // Modal is not in hierarchy anymore
             assert(true);
         }
-    }
-
-    @Test
-    public void delete_button_shows_confirmation_modal() {
-        FragmentScenario<ArchivedAccountsDialogFragment> scenario = launchInContainer(
-                ArchivedAccountsDialogFragment.class, null, R.style.AppTheme, null);
-        List<Account> accountsList = new ArrayList<>();
-        accountsList.add(accounts[0]);
-        scenario.onFragment(fragment -> {
-            fragment.onAccountsListChanged(accountsList);
-            fragment.deleteAccount(accounts[0]);
-        });
-
-        onView(withText(R.string.account_card_delete))
-                .inRoot(isDialog())
-                .check(matches(isDisplayed()));
-        onView(withText(R.string.account_card_delete_warning))
-                .inRoot(isDialog())
-                .check(matches(isDisplayed()));
     }
 }
 

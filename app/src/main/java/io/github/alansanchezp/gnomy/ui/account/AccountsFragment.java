@@ -43,7 +43,8 @@ import io.github.alansanchezp.gnomy.viewmodel.account.AccountsListViewModel;
  * create an instance of this fragment.
  */
 public class AccountsFragment extends MainNavigationFragment
-        implements AccountRecyclerViewAdapter.OnListItemInteractionListener {
+        implements AccountRecyclerViewAdapter.OnListItemInteractionListener,
+        ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface {
 
     private AccountRecyclerViewAdapter mAdapter;
     private AccountsListViewModel mListViewModel;
@@ -90,7 +91,7 @@ public class AccountsFragment extends MainNavigationFragment
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_accounts, container, false);
         Context context = view.getContext();
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.items_list);
+        RecyclerView recyclerView = view.findViewById(R.id.items_list);
 
         if (mColumnCount <= 1) {
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
@@ -100,8 +101,8 @@ public class AccountsFragment extends MainNavigationFragment
 
         recyclerView.setAdapter(mAdapter);
         recyclerView.setNestedScrollingEnabled(false);
-        mBalance = (TextView) view.findViewById(R.id.total_balance);
-        mProjected = (TextView) view.findViewById(R.id.total_projected);
+        mBalance = view.findViewById(R.id.total_balance);
+        mProjected = view.findViewById(R.id.total_projected);
 
         return view;
     }
@@ -225,22 +226,10 @@ public class AccountsFragment extends MainNavigationFragment
             case R.id.account_card_transactions:
                 break;
             case R.id.account_card_archive:
-                new AlertDialog.Builder(requireContext())
-                        .setTitle(getString(R.string.account_card_archive))
-                        .setMessage(getString(R.string.account_card_archive_info))
-                        .setPositiveButton(getString(R.string.confirmation_dialog_yes), (dialog, which) -> archiveAccount(account))
-                        .setNegativeButton(getString(R.string.confirmation_dialog_no), null)
-                        .setOnDismissListener(dialog -> mAdapter.enableClicks())
-                        .show();
+                archiveAccount(account);
                 break;
             case R.id.account_card_delete:
-                new AlertDialog.Builder(requireContext())
-                        .setTitle(getString(R.string.account_card_delete))
-                        .setMessage(getString(R.string.account_card_delete_warning))
-                        .setPositiveButton(getString(R.string.confirmation_dialog_yes), (dialog, which) -> deleteAccount(account))
-                        .setNegativeButton(getString(R.string.confirmation_dialog_no), null)
-                        .setOnDismissListener(dialog -> mAdapter.enableClicks())
-                        .show();
+                deleteAccount(account);
                 break;
             default:
                 mAdapter.enableClicks();
@@ -253,7 +242,10 @@ public class AccountsFragment extends MainNavigationFragment
     /* FRAGMENT-SPECIFIC METHODS */
 
     private void displayArchivedAccounts() {
-        ArchivedAccountsDialogFragment dialog = new ArchivedAccountsDialogFragment();
+        if (getChildFragmentManager()
+                .findFragmentByTag(ArchivedAccountsDialogFragment.TAG) != null) return;
+        ArchivedAccountsDialogFragment dialog =
+                new ArchivedAccountsDialogFragment((ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface) this);
         dialog.show(getChildFragmentManager(), ArchivedAccountsDialogFragment.TAG);
     }
 
@@ -264,10 +256,46 @@ public class AccountsFragment extends MainNavigationFragment
     }
 
     public void archiveAccount(Account account) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle(getString(R.string.account_card_archive))
+                .setMessage(getString(R.string.account_card_archive_info))
+                .setPositiveButton(getString(R.string.confirmation_dialog_yes), (dialog, which) -> effectiveArchiveAccount(account))
+                .setNegativeButton(getString(R.string.confirmation_dialog_no), null)
+                .setOnDismissListener(dialog -> mAdapter.enableClicks())
+                .show();
+    }
+
+    private void effectiveArchiveAccount(Account account) {
         mListViewModel.archive(account);
     }
 
+    @Override
     public void deleteAccount(Account account) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle(getString(R.string.account_card_delete))
+                .setMessage(getString(R.string.account_card_delete_warning))
+                .setPositiveButton(getString(R.string.confirmation_dialog_yes), (dialog, which) -> effectiveDeleteAccount(account))
+                .setNegativeButton(getString(R.string.confirmation_dialog_no), null)
+                .setOnDismissListener(dialog -> mAdapter.enableClicks())
+                .show();
+    }
+
+    private void effectiveDeleteAccount(Account account) {
         mListViewModel.delete(account);
+    }
+
+    @Override
+    public void restoreAccount(Account account) {
+        mListViewModel.restore(account);
+    }
+
+    @Override
+    public LiveData<List<Account>> getArchivedAccounts() {
+        return mListViewModel.getArchivedAccounts();
+    }
+
+    @Override
+    public void restoreAllAccounts() {
+        mListViewModel.restoreAll();
     }
 }
