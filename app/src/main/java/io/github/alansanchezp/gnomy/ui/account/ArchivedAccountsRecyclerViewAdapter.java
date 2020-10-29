@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.ui.CustomDialogFragmentFactory;
 import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 
 public class ArchivedAccountsRecyclerViewAdapter
@@ -95,7 +96,8 @@ public class ArchivedAccountsRecyclerViewAdapter
     }
 
 
-    public interface OnArchivedItemInteractionListener {
+    public interface OnArchivedItemInteractionListener
+            extends CustomDialogFragmentFactory.CustomDialogFragmentInterface {
         void restoreAccount(Account account);
         void deleteAccount(Account account);
     }

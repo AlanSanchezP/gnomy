@@ -13,12 +13,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.alansanchezp.gnomy.R;
@@ -26,16 +24,21 @@ import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 
 public class ArchivedAccountsDialogFragment extends DialogFragment {
-    public static final String TAG = "ARCHIVED-ACCOUNTS-DIALOG";
+    public static final String TAG = "ArchivedAccountsDialogFragment.Dialog";
 
     private ArchivedAccountsRecyclerViewAdapter mAdapter;
-    private ArchivedAccountsDialogInterface mListener;
+    private final ArchivedAccountsDialogInterface mListener;
     private SingleClickViewHolder<Button> mRestoreAllButtonVH;
     private TextView mEmptyListText;
     private int mListSize = -1;
 
     public ArchivedAccountsDialogFragment() {
-        // Required empty public constructor
+        throw new IllegalArgumentException("This class must be provided with an ArchivedAccountsDialogInterface instance.");
+
+    }
+
+    public ArchivedAccountsDialogFragment(ArchivedAccountsDialogInterface _listener) {
+        mListener = _listener;
     }
 
     @Override
@@ -66,39 +69,6 @@ public class ArchivedAccountsDialogFragment extends DialogFragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_archived_accounts_dialog, container, false);
         Context context = view.getContext();
-
-        try {
-            if (getParentFragment() == null) {
-                mListener = (ArchivedAccountsDialogInterface) context;
-            } else {
-                mListener = (ArchivedAccountsDialogInterface) getParentFragment();
-            }
-        } catch (NullPointerException npe) {
-            Log.wtf("ArchivedAccountsDF", "onCreateView(): ", npe);
-            throw new ClassCastException(npe.getMessage());
-        } catch (ClassCastException cce) {
-            Log.w("ArchivedAccountsDF", "onCreateView(): No listener was provided. Fallback to dummy listener.", cce);
-            mListener = new ArchivedAccountsDialogInterface() {
-                @Override
-                public LiveData<List<Account>> getArchivedAccounts() {
-                    MutableLiveData<List<Account>> mlv = new MutableLiveData<>();
-                    mlv.setValue(new ArrayList<>());
-                    return (LiveData<List<Account>>) mlv;
-                }
-
-                @Override
-                public void restoreAllAccounts() {
-                }
-
-                @Override
-                public void restoreAccount(Account account) {
-                }
-
-                @Override
-                public void deleteAccount(Account account) {
-                }
-            };
-        }
 
         mAdapter = new ArchivedAccountsRecyclerViewAdapter(mListener);
 

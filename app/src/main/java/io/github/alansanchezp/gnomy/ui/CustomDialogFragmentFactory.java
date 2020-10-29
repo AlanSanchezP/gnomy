@@ -5,6 +5,7 @@ import java.util.Map;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentFactory;
+import io.github.alansanchezp.gnomy.ui.account.ArchivedAccountsDialogFragment;
 
 public class CustomDialogFragmentFactory extends FragmentFactory {
     private Map<Class<? extends Fragment>, CustomDialogFragmentInterface> mClassToInterfaceMapping;
@@ -26,6 +27,8 @@ public class CustomDialogFragmentFactory extends FragmentFactory {
             instance = super.instantiate(classLoader, className);
         } else if (interfaceToAttach instanceof ConfirmationDialogFragment.OnConfirmationDialogListener) {
             instance = new ConfirmationDialogFragment((ConfirmationDialogFragment.OnConfirmationDialogListener) interfaceToAttach);
+        } else if (interfaceToAttach instanceof ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface) {
+            instance = new ArchivedAccountsDialogFragment((ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface) interfaceToAttach);
         } else {
             throw new UnsupportedOperationException("No interface was provided for the requested DialogFragment class.");
         }

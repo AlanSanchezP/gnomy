@@ -1,5 +1,6 @@
 package io.github.alansanchezp.gnomy.ui.account;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
+import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
@@ -37,12 +39,14 @@ import io.github.alansanchezp.gnomy.viewmodel.account.AccountViewModel;
 public class AccountDetailsActivity
         extends BackButtonActivity {
     public static final String EXTRA_ID = "account_id";
+    public static final String TAG_ARCHIVE_DIALOG = "AccountDetailsActivity.ArchiveDialog";
     private TextView mNameTV;
     private SingleClickViewHolder<FloatingActionButton> mFABVH;
     private SingleClickViewHolder<Button> mSeeMoreBtnVH;
     private AccountViewModel mAccountViewModel;
     private LiveData<BigDecimal> mLatestBalanceSum;
     private Account mAccount;
+    private int mAccountId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,13 +68,13 @@ public class AccountDetailsActivity
         mFABVH.setOnClickListener(this::onFABClick);
 
         Intent intent = getIntent();
-        int accountId = intent.getIntExtra(EXTRA_ID, 0);
+        mAccountId = intent.getIntExtra(EXTRA_ID, 0);
         disableActions();
 
-        LiveData<Account> accountLiveData = mAccountViewModel.getAccount(accountId);
+        LiveData<Account> accountLiveData = mAccountViewModel.getAccount(mAccountId);
         accountLiveData.observe(this, this::onAccountChanged);
 
-        mLatestBalanceSum = mAccountViewModel.getAccumulatedFromMonth(accountId, DateUtil.now());
+        mLatestBalanceSum = mAccountViewModel.getAccumulatedFromMonth(mAccountId, DateUtil.now());
         mLatestBalanceSum.observe(this, balance ->
                 updateBalanceSum(mAccount, balance));
     }
@@ -98,28 +102,52 @@ public class AccountDetailsActivity
         //noinspection SwitchStatementWithTooFewBranches
         switch (item.getItemId()) {
             case R.id.action_archive_account:
-                item.setEnabled(false);
                 disableActions();
-                new AlertDialog.Builder(this)
-                        .setTitle(getString(R.string.account_card_archive))
-                        .setMessage(getString(R.string.account_card_archive_info))
-                        .setPositiveButton(getString(R.string.confirmation_dialog_yes), (dialog, which) -> {
-                            mAccountViewModel.archive(mAccount);
-                            Toast.makeText(AccountDetailsActivity.this, getString(R.string.account_message_archived), Toast.LENGTH_LONG).show();
-                            finish();
-                        })
-                        .setNegativeButton(getString(R.string.confirmation_dialog_no), null)
-                        .setOnDismissListener(dialog -> {
-                            item.setEnabled(true);
-                            enableActions();
-                        })
-                        .show();
+                if (getSupportFragmentManager()
+                        .findFragmentByTag(TAG_ARCHIVE_DIALOG) != null) {
+                    enableActions();
+                    break;
+                }
+                ConfirmationDialogFragment dialog
+                        = new ConfirmationDialogFragment((ConfirmationDialogFragment.OnConfirmationDialogListener) this);
+                Bundle args = new Bundle();
+                args.putString(ConfirmationDialogFragment.ARG_TITLE, getString(R.string.account_card_archive));
+                args.putString(ConfirmationDialogFragment.ARG_MESSAGE, getString(R.string.account_card_archive_info));
+                dialog.setArguments(args);
+                dialog.show(getSupportFragmentManager(), TAG_ARCHIVE_DIALOG);
                 break;
             default:
                 // TODO: Implement other actions when Transactions module is ready
                 return false;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onConfirmationDialogYes(DialogInterface dialog, String dialogTag, int which) {
+        if (dialogTag.equals(TAG_ARCHIVE_DIALOG)) {
+            if (mAccount == null) {
+                Log.wtf("AccountDetailsActivity", "onConfirmationDialogYes: MenuItems were enabled but no account was found");
+                Account toArchive = new Account();
+                toArchive.setId(mAccountId);
+                mAccountViewModel.archive(toArchive);
+            } else {
+                mAccountViewModel.archive(mAccount);
+            }
+            Toast.makeText(AccountDetailsActivity.this, getString(R.string.account_message_archived), Toast.LENGTH_LONG).show();
+            finish();
+        } else {
+            super.onConfirmationDialogYes(dialog, dialogTag, which);
+        }
+    }
+
+    @Override
+    public void onConfirmationDialogDismiss(DialogInterface dialog, String dialogTag) {
+        if (dialogTag.equals(TAG_ARCHIVE_DIALOG)) {
+            enableActions();
+        } else {
+            super.onConfirmationDialogDismiss(dialog, dialogTag);
+        }
     }
 
     @Override
