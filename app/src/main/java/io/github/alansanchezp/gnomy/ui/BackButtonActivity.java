@@ -1,18 +1,19 @@
 package io.github.alansanchezp.gnomy.ui;
 
+import android.content.DialogInterface;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import java.util.Objects;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import io.github.alansanchezp.gnomy.R;
 
 public abstract class BackButtonActivity
         extends GnomyActivity {
 
+    public static final String TAG_BACK_DIALOG = "BackButtonActivity.BackConfirmationDialog";
     protected Drawable mUpArrowDrawable;
     protected boolean mOperationsPending = false;
     protected boolean mHandlingBackButton = false;
@@ -49,17 +50,9 @@ public abstract class BackButtonActivity
         disableActions();
         if (displayDialogOnBackPress() && !mHandlingBackButton) {
             mHandlingBackButton = true;
-            // TODO: Use DialogFragment to recreate fragment on rotation
-            new AlertDialog.Builder(this)
-                    .setTitle(getString(R.string.confirmation_dialog_title))
-                    .setMessage(getString(R.string.confirmation_dialog_description))
-                    .setPositiveButton(getString(R.string.confirmation_dialog_yes), (dialog, which) -> super.onBackPressed())
-                    .setNegativeButton(getString(R.string.confirmation_dialog_no), null)
-                    .setOnDismissListener(dialog -> {
-                        if (!mOperationsPending) enableActions();
-                        mHandlingBackButton = false;
-                    })
-                    .show();
+            ConfirmationDialogFragment df = new ConfirmationDialogFragment(
+                    (ConfirmationDialogFragment.OnConfirmationDialogListener) this);
+            df.show(getSupportFragmentManager(), TAG_BACK_DIALOG);
         } else if (!displayDialogOnBackPress()) {
             super.onBackPressed();
         }
@@ -74,6 +67,20 @@ public abstract class BackButtonActivity
     protected void tintBackArrow() {
         mUpArrowDrawable.setColorFilter(mThemeTextColor, PorterDuff.Mode.SRC_ATOP);
         Objects.requireNonNull(getSupportActionBar()).setHomeAsUpIndicator(mUpArrowDrawable);
+    }
+
+    @Override
+    public void onConfirmationDialogYes(DialogInterface dialog, String dialogTag, int which) {
+        if (dialogTag.equals(TAG_BACK_DIALOG)) {
+            super.onBackPressed();
+        }
+    }
+    @Override
+    public void onConfirmationDialogDismiss(DialogInterface dialog, String dialogTag) {
+        if (dialogTag.equals(TAG_BACK_DIALOG)) {
+            if (!mOperationsPending) enableActions();
+            mHandlingBackButton = false;
+        }
     }
 
     @SuppressWarnings("EmptyMethod")
