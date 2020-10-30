@@ -1,6 +1,6 @@
 package io.github.alansanchezp.gnomy.database.account;
 
-import org.threeten.bp.OffsetDateTime;
+import java.time.OffsetDateTime;
 
 import java.math.BigDecimal;
 
@@ -9,10 +9,10 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
+import io.github.alansanchezp.gnomy.R;
 
 @Entity(tableName = "accounts")
 public class Account {
-    // TODO Icon handling
     @Ignore
     public static final int BANK = 1;
     @Ignore
@@ -25,6 +25,12 @@ public class Account {
     public static final int CREDIT_CARD = 5;
     @Ignore
     public static final int OTHER = 6;
+    @Ignore
+    public static final BigDecimal MIN_INITIAL = new BigDecimal("0");
+    @Ignore
+    public static final BigDecimal MAX_INITIAL = new BigDecimal("900000000000000");
+    @Ignore
+    public static final int DECIMAL_SCALE = 4;
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name="account_id")
@@ -56,8 +62,60 @@ public class Account {
     private boolean isArchived = false;
 
     @ColumnInfo(name="bg_color")
-    // TODO Apply color conversion logic for this field too
     private int backgroundColor;
+
+    public Account() {}
+
+    @Ignore
+    public static int getDrawableResourceId(int type) {
+        switch (type) {
+            case BANK:
+                return R.drawable.ic_account_balance_black_24dp;
+            case INFORMAL:
+                return R.drawable.ic_account_balance_piggy_black_24dp;
+            case SAVINGS:
+                return R.drawable.ic_account_balance_savings_black_24dp;
+            case INVERSIONS:
+                return R.drawable.ic_account_balance_inversion_black_24dp;
+            case CREDIT_CARD:
+                return R.drawable.ic_account_balance_credit_card_black_24dp;
+            case OTHER:
+            default:
+                return R.drawable.ic_account_balance_wallet_black_24dp;
+        }
+    }
+
+    @Ignore
+    public static int getTypeNameResourceId(int type) {
+        switch (type) {
+            case BANK:
+                return R.string.account_type_bank;
+            case INFORMAL:
+                return R.string.account_type_informal;
+            case SAVINGS:
+                return R.string.account_type_savings;
+            case INVERSIONS:
+                return R.string.account_type_inversions;
+            case CREDIT_CARD:
+                return R.string.account_type_credit_card;
+            case OTHER:
+            default:
+                return R.string.account_type_other;
+        }
+    }
+
+    @Ignore
+    public Account(Account original) {
+        this.id = original.getId();
+        this.name = original.getName();
+        this.createdAt = original.getCreatedAt();
+        this.initialValue = original.getInitialValue();
+        this.type = original.getType();
+        this.defaultCurrency = original.getDefaultCurrency();
+        this.showInDashboard = original.isShowInDashboard();
+        this.isArchived = original.isArchived();
+        this.backgroundColor = original.getBackgroundColor();
+    }
 
     public int getId() {
         return id;
@@ -132,6 +190,23 @@ public class Account {
     }
 
     public void setType(int type) {
-        this.type = type;
+        switch (type) {
+            case BANK:
+            case INFORMAL:
+            case SAVINGS:
+            case INVERSIONS:
+            case CREDIT_CARD:
+                this.type = type;
+                break;
+            case OTHER:
+            default:
+                this.type = OTHER;
+        }
+    }
+
+    // Custom Getters and setters
+    public void setInitialValue(String stringValue) throws NumberFormatException {
+        this.initialValue = new BigDecimal(stringValue)
+                .setScale(DECIMAL_SCALE, BigDecimal.ROUND_HALF_EVEN);
     }
 }

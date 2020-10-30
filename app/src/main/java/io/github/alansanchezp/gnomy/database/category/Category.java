@@ -9,11 +9,11 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "categories")
 public class Category {
     @Ignore
-    public static int EXPENSE_CATEGORY = 1;
+    public static final int EXPENSE_CATEGORY = 1;
     @Ignore
-    public static int INCOME_CATEGORY = 2;
+    public static final int INCOME_CATEGORY = 2;
     @Ignore
-    public static int BOTH_CATEGORY = 3;
+    public static final int BOTH_CATEGORY = 3;
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name="category_id")
@@ -29,8 +29,6 @@ public class Category {
 
     @ColumnInfo(name="category_type")
     private int type = EXPENSE_CATEGORY;
-
-    // TODO Handle color conversion
 
     @ColumnInfo(name="bg_color")
     private int backgroundColor;

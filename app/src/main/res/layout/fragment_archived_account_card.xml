@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/archived_account_card"
+    android:orientation="horizontal"
+    android:paddingTop="10dp"
+    android:paddingStart="10dp"
+    tools:ignore="RtlSymmetry">
+
+    <ImageView
+        android:id="@+id/archived_account_card_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:contentDescription="@string/account_icon"
+        android:src="@drawable/ic_account_balance_black_24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/archived_account_card_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_toEndOf="@+id/archived_account_card_icon"
+        android:textColor="@color/colorTextHighlight"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@id/archived_account_card_icon"
+        app:layout_constraintTop_toTopOf="@id/archived_account_card_icon" />
+
+    <Button
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:id="@+id/archived_account_restore_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/account_card_restore"
+        app:layout_constraintEnd_toStartOf="@id/archived_account_delete_button"
+        app:layout_constraintTop_toTopOf="@id/archived_account_delete_button" />
+
+    <Button
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:id="@+id/archived_account_delete_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/account_card_delete_short"
+        android:textColor="@color/colorError"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/archived_account_card_name"
+        app:rippleColor="@color/colorErrorLight" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+

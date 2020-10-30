@@ -1,6 +1,6 @@
 package io.github.alansanchezp.gnomy.database.transfer;
 
-import org.threeten.bp.OffsetDateTime;
+import java.time.OffsetDateTime;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;

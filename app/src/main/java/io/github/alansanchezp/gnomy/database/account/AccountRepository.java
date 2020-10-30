@@ -3,8 +3,9 @@ package io.github.alansanchezp.gnomy.database.account;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import org.threeten.bp.YearMonth;
+import java.time.YearMonth;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import androidx.lifecycle.LiveData;
@@ -27,8 +28,16 @@ public class AccountRepository {
         return allAccounts;
     }
 
-    public LiveData<Account> find(int accountId) {
+    public LiveData<List<Account>> getArchivedAccounts() {
+        return accountDAO.getArchivedAccounts();
+    }
+
+    public LiveData<Account> getAccount(int accountId) {
         return accountDAO.find(accountId);
+    }
+
+    public LiveData<BigDecimal> getAccumulatedFromMonth(int accountId, YearMonth month) {
+        return balanceDAO.getAccumulatedFromMonth(accountId, month);
     }
 
     public void insert(Account account) {
@@ -46,9 +55,24 @@ public class AccountRepository {
         task.execute(account);
     }
 
+    public void archive(Account account) {
+        ArchiveAsyncTask task = new ArchiveAsyncTask(accountDAO);
+        task.execute(account);
+    }
+
+    public void restore(Account account) {
+        RestoreAsyncTask task = new RestoreAsyncTask(accountDAO);
+        task.execute(account);
+    }
+
+    public void restoreAll() {
+        RestoreAllAsyncTask task = new RestoreAllAsyncTask(accountDAO);
+        task.execute();
+    }
+
     // Monthly balance methods
 
-    public LiveData<List<MonthlyBalance>> getAllFromMonth(YearMonth month) {
+    public LiveData<List<AccountWithBalance>> getAllFromMonth(YearMonth month) {
         return balanceDAO.getAllFromMonth(month);
     }
 
@@ -56,12 +80,14 @@ public class AccountRepository {
         return balanceDAO.getAllFromAccount(account.getId());
     }
 
-    public MonthlyBalance getBalanceFromMonth(Account account, YearMonth month) {
-        return balanceDAO.find(account.getId(), month);
+    public LiveData<MonthlyBalance> getBalanceFromMonth(int accountId, YearMonth month) {
+        return balanceDAO.find(accountId, month);
     }
 
+    /*
+    TODO: Find a way to automatically create monthly balances every month
     public void createMonthlyBalance(Account account) {
-        MonthlyBalance currentBalance = getBalanceFromMonth(account, YearMonth.now());
+        MonthlyBalance currentBalance = getBalanceFromMonth(account.getId(), YearMonth.now());
 
         if (currentBalance == null) {
             MonthlyBalance mb = new MonthlyBalance(account);
@@ -70,6 +96,7 @@ public class AccountRepository {
             asyncTask.execute(mb);
         }
     }
+    */
 
     // AsyncTask classes
 
@@ -98,7 +125,7 @@ public class AccountRepository {
 
         @Override
         protected Void doInBackground(final Account... params) {
-            asyncTaskDao.delete(params);
+            asyncTaskDao.delete(params[0]);
             return null;
         }
     }
@@ -129,6 +156,51 @@ public class AccountRepository {
         @Override
         protected Void doInBackground(final MonthlyBalance... params) {
             asyncTaskDao.insert(params[0]);
+            return null;
+        }
+    }
+
+    private static class ArchiveAsyncTask extends AsyncTask<Account, Void, Void> {
+
+        private AccountDAO asyncTaskDao;
+
+        ArchiveAsyncTask(AccountDAO dao) {
+            asyncTaskDao = dao;
+        }
+
+        @Override
+        protected Void doInBackground(final Account... accounts) {
+            asyncTaskDao.archive(accounts[0].getId());
+            return null;
+        }
+    }
+
+    private static class RestoreAsyncTask extends AsyncTask<Account, Void, Void> {
+
+        private AccountDAO asyncTaskDao;
+
+        RestoreAsyncTask(AccountDAO dao) {
+            asyncTaskDao = dao;
+        }
+
+        @Override
+        protected Void doInBackground(final Account... accounts) {
+            asyncTaskDao.restore(accounts[0].getId());
+            return null;
+        }
+    }
+
+    private static class RestoreAllAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        private AccountDAO asyncTaskDao;
+
+        RestoreAllAsyncTask(AccountDAO dao) {
+            asyncTaskDao = dao;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            asyncTaskDao.restoreAll();
             return null;
         }
     }

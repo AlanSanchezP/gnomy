@@ -1,6 +1,6 @@
 package io.github.alansanchezp.gnomy.database.account;
 
-import org.threeten.bp.YearMonth;
+import java.time.YearMonth;
 
 import java.math.BigDecimal;
 
@@ -32,17 +32,21 @@ public class MonthlyBalance {
     @NonNull
     private YearMonth date = YearMonth.now();
 
-    @ColumnInfo(name = "total_incomes")
+    @ColumnInfo(name = "total_incomes", defaultValue = "0")
     @NonNull
     private BigDecimal totalIncomes = new BigDecimal(0);
 
-    @ColumnInfo(name = "total_expenses")
+    @ColumnInfo(name = "total_expenses", defaultValue = "0")
     @NonNull
     private BigDecimal totalExpenses = new BigDecimal(0);
 
-    @ColumnInfo(name = "accumulated_before")
+    @ColumnInfo(name = "projected_incomes", defaultValue = "0")
     @NonNull
-    private BigDecimal accumulatedBefore = new BigDecimal(0);
+    private BigDecimal projectedIncomes = new BigDecimal(0);
+
+    @ColumnInfo(name = "projected_expenses", defaultValue = "0")
+    @NonNull
+    private BigDecimal projectedExpenses = new BigDecimal(0);
 
     @Ignore
     public MonthlyBalance(Account account) {
@@ -87,11 +91,20 @@ public class MonthlyBalance {
     }
 
     @NonNull
-    public BigDecimal getAccumulatedBefore() {
-        return accumulatedBefore;
+    public BigDecimal getProjectedIncomes() {
+        return projectedIncomes;
     }
 
-    public void setAccumulatedBefore(@NonNull BigDecimal accumulatedBefore) {
-        this.accumulatedBefore = accumulatedBefore;
+    public void setProjectedIncomes(@NonNull BigDecimal projectedIncomes) {
+        this.projectedIncomes = projectedIncomes;
+    }
+
+    @NonNull
+    public BigDecimal getProjectedExpenses() {
+        return projectedExpenses;
+    }
+
+    public void setProjectedExpenses(@NonNull BigDecimal projectedExpenses) {
+        this.projectedExpenses = projectedExpenses;
     }
 }

@@ -1,10 +1,10 @@
 package io.github.alansanchezp.gnomy.database;
 
-import org.threeten.bp.DateTimeException;
-import org.threeten.bp.Instant;
-import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.YearMonth;
-import org.threeten.bp.ZoneId;
+import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.YearMonth;
+import java.time.ZoneId;
 
 import java.math.BigDecimal;
 
@@ -33,7 +33,8 @@ public class GnomyTypeConverters {
     public static BigDecimal longToDecimal(Long longNumber) {
         if (longNumber != null) {
             return new BigDecimal(longNumber.toString())
-                    .divide(new BigDecimal(10000), 4, BigDecimal.ROUND_HALF_EVEN);
+                    .divide(new BigDecimal(10000), 4, BigDecimal.ROUND_HALF_EVEN)
+                    .stripTrailingZeros();
         }
         return null;
     }

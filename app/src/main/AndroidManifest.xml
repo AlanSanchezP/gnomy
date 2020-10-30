@@ -9,8 +9,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".ui.account.AddEditAccountActivity" />
+        <activity android:name=".ui.account.AccountDetailsActivity" />
+        <activity android:name=".ui.account.AccountBalanceHistoryActivity" />
         <activity
-            android:name="io.github.alansanchezp.gnomy.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

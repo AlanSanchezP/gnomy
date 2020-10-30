@@ -7,22 +7,50 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Transaction;
 import androidx.room.Update;
 
 @Dao
-public interface AccountDAO  {
-    @Query("SELECT * FROM accounts")
-    LiveData<List<Account>> getAll();
+public abstract class AccountDAO  {
+    @Query("SELECT * FROM accounts WHERE is_archived = 0")
+    abstract LiveData<List<Account>> getAll();
+
+    @Query("SELECT * FROM accounts WHERE is_archived = 1")
+    abstract LiveData<List<Account>> getArchivedAccounts();
 
     @Query("SELECT * FROM accounts WHERE account_id = :id")
-    LiveData<Account> find(int id);
+    abstract LiveData<Account> find(int id);
+
+    @Query("SELECT * FROM accounts WHERE account_id = :id")
+    abstract Account findSync(int id);
 
     @Insert
-    void insert(Account... accounts);
+    abstract void insert(Account... accounts);
 
     @Delete
-    void delete(Account... accounts);
+    abstract void delete(Account... accounts);
+
+    @Transaction
+    public void update(Account account) {
+        Account original = findSync(account.getId());
+
+        if (!original.getDefaultCurrency().equals(account.getDefaultCurrency())) {
+            // TODO: recalculation of calculated values.
+            //  See GnomyDatabase's TODOs
+        }
+
+        _update(account);
+    }
 
     @Update
-    void update(Account account);
+    protected abstract void _update(Account account);
+
+    @Query("UPDATE OR ABORT accounts SET is_archived = 1 WHERE account_id = :id")
+    abstract void archive(int id);
+
+    @Query("UPDATE OR ABORT accounts SET is_archived = 0 WHERE account_id = :id")
+    abstract void restore(int id);
+
+    @Query("UPDATE OR ABORT accounts SET is_archived = 0 WHERE is_archived = 1")
+    abstract void restoreAll();
 }
