@@ -21,17 +21,22 @@ public class CustomDialogFragmentFactory extends FragmentFactory {
     @NonNull
     @Override
     public Fragment instantiate(@NonNull ClassLoader classLoader, @NonNull String className) {
-        CustomDialogFragmentInterface interfaceToAttach = mClassToInterfaceMapping.get(loadFragmentClass(classLoader, className));
         Fragment instance;
+        Class<? extends Fragment> fragmentClass
+                = loadFragmentClass(classLoader, className);
+        CustomDialogFragmentInterface interfaceToAttach
+                = mClassToInterfaceMapping.get(loadFragmentClass(classLoader, className));
+
         if (interfaceToAttach == null) {
             instance = super.instantiate(classLoader, className);
-        } else if (interfaceToAttach instanceof ConfirmationDialogFragment.OnConfirmationDialogListener) {
-            instance = new ConfirmationDialogFragment((ConfirmationDialogFragment.OnConfirmationDialogListener) interfaceToAttach);
-        } else if (interfaceToAttach instanceof ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface) {
+        } else if (fragmentClass.equals(ArchivedAccountsDialogFragment.class)) {
             instance = new ArchivedAccountsDialogFragment((ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface) interfaceToAttach);
+        } else if (fragmentClass.equals(ConfirmationDialogFragment.class)) {
+            instance = new ConfirmationDialogFragment((ConfirmationDialogFragment.OnConfirmationDialogListener) interfaceToAttach);
         } else {
             throw new UnsupportedOperationException("No interface was provided for the requested DialogFragment class.");
         }
+
         return instance;
     }
 }
