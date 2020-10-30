@@ -91,10 +91,6 @@ public class AccountDetailsActivityInstrumentedTest {
         onView(withText(R.string.account_card_archive))
                 .inRoot(isDialog())
                 .check(matches(isDisplayed()));
-
-        // TODO: Dismiss open dialogs when activity is destroyed
-        //  Debugging shows this error Activity io.github.alansanchezp.gnomy.ui.account.AccountDetailsActivity has leaked window <...>
-        //  See this stackoverflow thread https://stackoverflow.com/questions/2850573/activity-has-leaked-window-that-was-originally-added#2850597
     }
 
     @Test

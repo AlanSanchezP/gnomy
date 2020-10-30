@@ -48,6 +48,10 @@ public class AddEditAccountActivity
     private TextInputLayout mInitialValueTIL;
     private TextInputEditText mAccountNameTIET;
     private TextInputEditText mInitialValueTIET;
+    // TODO: (When currency support is implemented) (only edit mode)
+    //  Monitor currency change and display
+    //  an alert to either preserve ALL transactions values or convert them to their equivalents
+    //  on the new selected currency (and perform this operation until submitting the new data)
     private MaterialSpinner mCurrencySpinner;
     private MaterialSpinner mTypeSpinner;
     private Switch mShownInDashboardSwitch;
@@ -74,7 +78,8 @@ public class AddEditAccountActivity
         mCurrencySpinner = findViewById(R.id.addedit_account_currency);
         mTypeSpinner = findViewById(R.id.addedit_account_type);
         mShownInDashboardSwitch = findViewById(R.id.addedit_account_show_in_home);
-        // TODO: FAB gets annoying on landscape mode
+        // TODO: Either dynamically show/hide FAB on landscape or find a better UI behavior for it
+        //  It makes UX unpleasant on landscape because it overlays with other elements
         mFABVH = new SingleClickViewHolder<>(findViewById(R.id.addedit_account_FAB), true);
         mFABVH.setOnClickListener(this::processData);
         mColorPickerBtnVH = new SingleClickViewHolder<>(findViewById(R.id.addedit_account_color_button));
@@ -180,6 +185,7 @@ public class AddEditAccountActivity
         mShownInDashboardSwitch.setChecked(account.isShowInDashboard());
         // Restore container visibility once all data has been initialized
         // TODO: How can we prevent Switch animation from triggering?
+        //  When on edit mode, the animation is triggered if account.isShowInDashboard() is true
         mBoxLayout.setVisibility(View.VISIBLE);
     }
 
@@ -203,13 +209,17 @@ public class AddEditAccountActivity
         mFABVH.onView(v -> ViewTintingUtil.tintFAB(v, fabBgColor, fabTextColor));
         ViewTintingUtil
                 .monotintTextInputLayout(mAccountNameTIL, mThemeTextColor);
-        // TODO: Some colors make the hint barely readable, find a way to solve it
+        // TODO: Lighter colors make the hint barely readable
+        //  Possible solutions:
+        //      A) Use a darker variant of the selected color
+        //      B) Change UI of this element (any ideas?)
+        //      C) Is it possible to add a shadow or border to the hint text?
         ViewTintingUtil
                 .tintTextInputLayout(mInitialValueTIL, mThemeColor);
         ViewTintingUtil
                 .tintSwitch(mShownInDashboardSwitch, mThemeColor);
 
-        // TODO: How can we unify the ripple color with the one from FAB?
+        // TODO: (Wishlist, not a big deal) How can we unify the ripple color with the one from FAB?
         mColorPickerBtnVH.onView(v -> {
             v.setBackgroundTintList(ColorStateList.valueOf(mThemeColor));
             v.getDrawable().mutate().setTint(mThemeTextColor);
