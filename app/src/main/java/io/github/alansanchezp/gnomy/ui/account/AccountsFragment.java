@@ -234,7 +234,7 @@ public class AccountsFragment extends MainNavigationFragment
 
     public void onItemInteraction(Account account) {
         Intent detailsIntent = new Intent(getContext(), AccountDetailsActivity.class);
-        detailsIntent.putExtra(AccountDetailsActivity.EXTRA_ID, account.getId());
+        detailsIntent.putExtra(AccountDetailsActivity.EXTRA_ACCOUNT_ID, account.getId());
 
         requireActivity().startActivity(detailsIntent);
     }
@@ -246,7 +246,7 @@ public class AccountsFragment extends MainNavigationFragment
                 break;
             case R.id.account_card_modify:
                 Intent modifyAccountIntent = new Intent(getContext(), AddEditAccountActivity.class);
-                modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_ID, account.getId());
+                modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_ACCOUNT_ID, account.getId());
 
                 requireActivity().startActivity(modifyAccountIntent);
                 break;
@@ -270,11 +270,11 @@ public class AccountsFragment extends MainNavigationFragment
 
     private void displayArchivedAccounts() {
         FragmentManager fm = getChildFragmentManager();
-        if (fm.findFragmentByTag(ArchivedAccountsDialogFragment.TAG) != null) return;
+        if (fm.findFragmentByTag(ArchivedAccountsDialogFragment.TAG_ARCHIVED_ACCOUNTS_DIALOG) != null) return;
         ArchivedAccountsDialogFragment dialog = (ArchivedAccountsDialogFragment)
                 fm.getFragmentFactory().instantiate(
                         requireContext().getClassLoader(), ArchivedAccountsDialogFragment.class.getName());
-        dialog.show(fm, ArchivedAccountsDialogFragment.TAG);
+        dialog.show(fm, ArchivedAccountsDialogFragment.TAG_ARCHIVED_ACCOUNTS_DIALOG);
     }
 
     public void archiveAccount(Account account) {

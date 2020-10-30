@@ -22,7 +22,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 public class EditAccountActivityInstrumentedTest {
     private final Intent intent = new Intent(
             ApplicationProvider.getApplicationContext(), AddEditAccountActivity.class)
-            .putExtra(AddEditAccountActivity.EXTRA_ID, 1);
+            .putExtra(AddEditAccountActivity.EXTRA_ACCOUNT_ID, 1);
     @Rule
     public ActivityScenarioRule<AddEditAccountActivity> activityRule =
             new ActivityScenarioRule<>(intent);

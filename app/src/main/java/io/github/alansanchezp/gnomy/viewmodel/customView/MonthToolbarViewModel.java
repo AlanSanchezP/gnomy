@@ -15,18 +15,18 @@ import io.github.alansanchezp.gnomy.util.DateUtil;
 
 public class MonthToolbarViewModel extends AndroidViewModel {
     protected final SavedStateHandle mSavedState;
-    protected static final String YEAR_MONTH_STRING = "active-month";
+    protected static final String TAG_YEAR_MONTH_STRING = "MonthToolbarVM.YearMonthString";
     protected final MutableLiveData<YearMonth> mutableActiveMonth = new MutableLiveData<>();
-    public final LiveData<YearMonth> activeMonth = (LiveData<YearMonth>) mutableActiveMonth;
+    public final LiveData<YearMonth> activeMonth = mutableActiveMonth;
 
     public MonthToolbarViewModel(Application application, SavedStateHandle savedStateHandle) {
         super(application);
         mSavedState = savedStateHandle;
         try {
-            if (mSavedState.get(YEAR_MONTH_STRING) == null)
+            if (mSavedState.get(TAG_YEAR_MONTH_STRING) == null)
                 throw new IllegalArgumentException("Uninitialized string representation of YearMonth.");
             mutableActiveMonth.setValue(YearMonth.parse(
-                    mSavedState.get(YEAR_MONTH_STRING)));
+                    mSavedState.get(TAG_YEAR_MONTH_STRING)));
         } catch(DateTimeParseException dtpe) {
             throw new IllegalArgumentException("Invalid string representation of YearMonth.");
         } catch(IllegalArgumentException iae) {
@@ -37,7 +37,7 @@ public class MonthToolbarViewModel extends AndroidViewModel {
 
     protected void updateMonthState(YearMonth month) {
         mutableActiveMonth.setValue(month);
-        mSavedState.set(YEAR_MONTH_STRING, month.toString());
+        mSavedState.set(TAG_YEAR_MONTH_STRING, month.toString());
     }
 
     public void prevMonth() {

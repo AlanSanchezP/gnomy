@@ -24,17 +24,16 @@ import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 import io.github.alansanchezp.gnomy.viewmodel.account.AccountBalanceHistoryViewModel;
-import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
 
 public class AccountBalanceHistoryActivity
         extends BackButtonActivity {
-    public static final String EXTRA_ID = "account_id";
+    public static final String EXTRA_ACCOUNT_ID = "AccountBalanceHistoryActivity.AccountId";
     // Unlike DetailsActivity, account data is passed through Intent
     // in order to avoid an extra query that we have already performed
     // in what is likely to be the only reasonable path to get to this Activity
-    public static final String EXTRA_NAME = "account_name";
-    public static final String EXTRA_CURRENCY = "account_currency";
-    public static final String EXTRA_BG_COLOR = "bg_color";
+    public static final String EXTRA_NAME = "AccountBalanceHistoryActivity.AccountName";
+    public static final String EXTRA_CURRENCY = "AccountBalanceHistoryActivity.AccountCurrency";
+    public static final String EXTRA_BG_COLOR = "AccountBalanceHistoryActivity.BgColor";
     private SingleClickViewHolder<Button> mCheckPendingButtonVH;
     private String mAccountCurrency;
 
@@ -43,7 +42,7 @@ public class AccountBalanceHistoryActivity
         super.onCreate(savedInstanceState);
 
         Intent intent = getIntent();
-        int accountId = intent.getIntExtra(EXTRA_ID, 0);
+        int accountId = intent.getIntExtra(EXTRA_ACCOUNT_ID, 0);
         if (accountId < 1) throw new RuntimeException("No account id was provided.");
 
         mCheckPendingButtonVH = new SingleClickViewHolder<>(findViewById(R.id.account_history_check_btn));
@@ -63,7 +62,7 @@ public class AccountBalanceHistoryActivity
                 )).get(AccountBalanceHistoryViewModel.class);
         MonthToolbarView monthBar = findViewById(R.id.monthtoolbar);
 
-        monthBar.setViewModel((MonthToolbarViewModel) accountBalanceHistoryViewModel);
+        monthBar.setViewModel(accountBalanceHistoryViewModel);
         monthBar.tintElements(mThemeColor, mThemeTextColor);
 
         accountBalanceHistoryViewModel.activeMonth.observe(this, this::onMonthChanged);

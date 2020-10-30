@@ -24,7 +24,7 @@ import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 
 public class ArchivedAccountsDialogFragment extends DialogFragment {
-    public static final String TAG = "ArchivedAccountsDialogFragment.Dialog";
+    public static final String TAG_ARCHIVED_ACCOUNTS_DIALOG = "ArchivedAccountsDialogFragment.Dialog";
 
     private ArchivedAccountsRecyclerViewAdapter mAdapter;
     private final ArchivedAccountsDialogInterface mListener;

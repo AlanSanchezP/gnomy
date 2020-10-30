@@ -10,7 +10,6 @@ import java.util.Objects;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.ui.account.ArchivedAccountsDialogFragment;
 
 public abstract class BackButtonActivity
         extends GnomyActivity {

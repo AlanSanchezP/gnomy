@@ -37,7 +37,7 @@ import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
 public class MainActivity
         extends GnomyActivity
         implements MainNavigationFragment.MainNavigationInteractionInterface {
-    private static final String FRAGMENT_TAG = "GNOMY_MAIN_FRAGMENT";
+    private static final String TAG_ACTIVE_FRAGMENT = "MainActivity.ActiveFragment";
     private static final int
             SUMMARY_FRAGMENT_INDEX = 1,
             TRANSACTIONS_FRAGMENT_INDEX = 2,
@@ -129,14 +129,14 @@ public class MainActivity
         // TODO: Is there a better way to prevent animation lag?
         //  Can this delay cause any undesired behavior?
         new Handler().postDelayed(() -> manager.beginTransaction()
-                .replace(R.id.main_container, fragment, FRAGMENT_TAG)
+                .replace(R.id.main_container, fragment, TAG_ACTIVE_FRAGMENT)
                 .commit(), 230);
 
         return true;
     }
 
     public void onFABClick(View v) {
-        MainNavigationFragment currentFragment = (MainNavigationFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
+        MainNavigationFragment currentFragment = (MainNavigationFragment) getSupportFragmentManager().findFragmentByTag(TAG_ACTIVE_FRAGMENT);
         if (currentFragment == null) return;
 
         currentFragment.onFABClick(v);

@@ -4,7 +4,6 @@ import androidx.annotation.ColorInt;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.savedstate.SavedStateRegistryOwner;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
@@ -40,8 +39,8 @@ import java.util.Objects;
 
 public class AddEditAccountActivity
         extends BackButtonActivity {
-    public static final String EXTRA_ID = "account_id";
-    private static final String TAG_PICKER_DIALOG = "color_picker_dialog";
+    public static final String EXTRA_ACCOUNT_ID = "AddEditAccountActivity.AccountId";
+    private static final String TAG_PICKER_DIALOG = "AddEditAccountActivity.ColorPickerDialog";
     private AddEditAccountViewModel mAddEditAccountViewModel;
     private Account mAccount;
     private LinearLayout mBoxLayout;
@@ -61,7 +60,7 @@ public class AddEditAccountActivity
 
         mAddEditAccountViewModel = new ViewModelProvider(this,
                 new SavedStateViewModelFactory(
-                        this.getApplication(), (SavedStateRegistryOwner) this))
+                        this.getApplication(), this))
                 .get(AddEditAccountViewModel.class);
 
         // Prevent potential noticeable blink in color
@@ -85,7 +84,7 @@ public class AddEditAccountActivity
         setInputFilters();
 
         Intent intent = getIntent();
-        int accountId = intent.getIntExtra(EXTRA_ID, 0);
+        int accountId = intent.getIntExtra(EXTRA_ACCOUNT_ID, 0);
         LiveData<Account> accountLD = mAddEditAccountViewModel.getAccount(accountId);
 
         String activityTitle;

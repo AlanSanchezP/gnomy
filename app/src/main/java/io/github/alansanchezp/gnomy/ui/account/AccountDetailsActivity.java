@@ -38,7 +38,7 @@ import io.github.alansanchezp.gnomy.viewmodel.account.AccountViewModel;
 
 public class AccountDetailsActivity
         extends BackButtonActivity {
-    public static final String EXTRA_ID = "account_id";
+    public static final String EXTRA_ACCOUNT_ID = "AccountDetailsActivity.AccountId";
     public static final String TAG_ARCHIVE_DIALOG = "AccountDetailsActivity.ArchiveDialog";
     private TextView mNameTV;
     private SingleClickViewHolder<FloatingActionButton> mFABVH;
@@ -68,7 +68,7 @@ public class AccountDetailsActivity
         mFABVH.setOnClickListener(this::onFABClick);
 
         Intent intent = getIntent();
-        mAccountId = intent.getIntExtra(EXTRA_ID, 0);
+        mAccountId = intent.getIntExtra(EXTRA_ACCOUNT_ID, 0);
         disableActions();
 
         LiveData<Account> accountLiveData = mAccountViewModel.getAccount(mAccountId);
@@ -173,7 +173,7 @@ public class AccountDetailsActivity
 
     public void onFABClick(View v) {
         Intent modifyAccountIntent = new Intent(this, AddEditAccountActivity.class);
-        modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_ID, mAccount.getId());
+        modifyAccountIntent.putExtra(AddEditAccountActivity.EXTRA_ACCOUNT_ID, mAccount.getId());
 
         startActivity(modifyAccountIntent);
     }
@@ -182,7 +182,7 @@ public class AccountDetailsActivity
         disableActions();
 
         Intent accountHistoryIntent = new Intent(this, AccountBalanceHistoryActivity.class);
-        accountHistoryIntent.putExtra(AccountBalanceHistoryActivity.EXTRA_ID, mAccount.getId());
+        accountHistoryIntent.putExtra(AccountBalanceHistoryActivity.EXTRA_ACCOUNT_ID, mAccount.getId());
         accountHistoryIntent.putExtra(AccountBalanceHistoryActivity.EXTRA_BG_COLOR, mAccount.getBackgroundColor());
         accountHistoryIntent.putExtra(AccountBalanceHistoryActivity.EXTRA_NAME, mAccount.getName());
         accountHistoryIntent.putExtra(AccountBalanceHistoryActivity.EXTRA_CURRENCY, mAccount.getDefaultCurrency());

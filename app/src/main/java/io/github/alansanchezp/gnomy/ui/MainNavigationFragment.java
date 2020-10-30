@@ -19,8 +19,8 @@ import java.time.YearMonth;
 public abstract class MainNavigationFragment
         extends Fragment {
 
-    public static final String ARG_COLUMN_COUNT = "column-count";
-    public static final String ARG_NAVIGATION_INDEX = "navigation-index";
+    public static final String ARG_COLUMN_COUNT = "MainNavigationFragment.ColumnCount";
+    public static final String ARG_NAVIGATION_INDEX = "MainNavigationFragment.NavigationIndex";
 
     protected MainNavigationInteractionInterface mNavigationInterface;
 

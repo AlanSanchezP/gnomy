@@ -44,7 +44,7 @@ public class AccountBalanceHistoryActivityInstrumentedTest {
 
     private final Intent intent = new Intent(
             ApplicationProvider.getApplicationContext(), AccountBalanceHistoryActivity.class)
-            .putExtra(AccountBalanceHistoryActivity.EXTRA_ID, 1)
+            .putExtra(AccountBalanceHistoryActivity.EXTRA_ACCOUNT_ID, 1)
             .putExtra(AccountBalanceHistoryActivity.EXTRA_NAME, accountTitle);
 
     @Rule

@@ -11,9 +11,9 @@ import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 
 public class AddEditAccountViewModel extends AndroidViewModel {
-    private static final String COLOR_TAG = "account-color";
-    private static final String NAME_PRISTINE_TAG = "name-is-pristine";
-    private static final String INITIAL_VALUE_PRISTINE_TAG = "initial-value-is-pristine";
+    private static final String TAG_SELECTED_COLOR = "AddEditAccountVM.SelectedColor";
+    private static final String TAG_IS_NAME_PRISTINE = "AddEditAccountVM.IsNamePristine";
+    private static final String TAG_IS_INITIAL_VALUE_PRISTINE = "AddEditAccountVM.IsInitialValuePristine";
     private final AccountRepository mRepository;
     private final SavedStateHandle mState;
     private final MutableLiveData<Integer> mutableAccountColor;
@@ -24,8 +24,8 @@ public class AddEditAccountViewModel extends AndroidViewModel {
         mRepository = new AccountRepository(application);
         mState = savedStateHandle;
 
-        mutableAccountColor = mState.getLiveData(COLOR_TAG, 1);
-        accountColor = (LiveData<Integer>) mutableAccountColor;
+        mutableAccountColor = mState.getLiveData(TAG_SELECTED_COLOR, 1);
+        accountColor = mutableAccountColor;
     }
 
     public LiveData<Account> getAccount(int id) {
@@ -46,22 +46,22 @@ public class AddEditAccountViewModel extends AndroidViewModel {
     }
 
     public boolean accountNameIsPristine() {
-        if (mState.get(NAME_PRISTINE_TAG) == null) return true;
+        if (mState.get(TAG_IS_NAME_PRISTINE) == null) return true;
         //noinspection ConstantConditions
-        return mState.get(NAME_PRISTINE_TAG);
+        return mState.get(TAG_IS_NAME_PRISTINE);
     }
 
     public void notifyAccountNameChanged() {
-        mState.set(NAME_PRISTINE_TAG, false);
+        mState.set(TAG_IS_NAME_PRISTINE, false);
     }
 
     public boolean initialValueIsPristine() {
-        if (mState.get(INITIAL_VALUE_PRISTINE_TAG) == null) return true;
+        if (mState.get(TAG_IS_INITIAL_VALUE_PRISTINE) == null) return true;
         //noinspection ConstantConditions
-        return mState.get(INITIAL_VALUE_PRISTINE_TAG);
+        return mState.get(TAG_IS_INITIAL_VALUE_PRISTINE);
     }
 
     public void notifyInitialValueChanged() {
-        mState.set(INITIAL_VALUE_PRISTINE_TAG, false);
+        mState.set(TAG_IS_INITIAL_VALUE_PRISTINE, false);
     }
 }
