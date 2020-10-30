@@ -1,14 +1,18 @@
 package io.github.alansanchezp.gnomy.ui;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import io.github.alansanchezp.gnomy.R;
+import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 
 public class ConfirmationDialogFragment extends DialogFragment {
     public static final String ARG_TITLE = "ConfirmationDialog.Title";
@@ -16,6 +20,7 @@ public class ConfirmationDialogFragment extends DialogFragment {
     public static final String ARG_YES_STRING = "ConfirmationDialog.YesString";
     public static final String ARG_NO_STRING = "ConfirmationDialog.NoString";
     private final OnConfirmationDialogListener mListener;
+    private String mTitle, mMessage, mYesString, mNoString;
 
     public ConfirmationDialogFragment() {
         throw new IllegalArgumentException("This class must be provided with an OnConfirmationDialogListener instance.");
@@ -25,33 +30,59 @@ public class ConfirmationDialogFragment extends DialogFragment {
         mListener = listener;
     }
 
-    @NonNull
     @Override
-    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         Bundle args = getArguments();
-        String title = null;
-        String message = null;
-        String yesString = null;
-        String noString = null;
         if (args != null) {
-            title = args.getString(ARG_TITLE);
-            message = args.getString(ARG_MESSAGE);
-            yesString  = args.getString(ARG_YES_STRING);
-            noString  = args.getString(ARG_NO_STRING);
+            mTitle = args.getString(ARG_TITLE);
+            mMessage = args.getString(ARG_MESSAGE);
+            mYesString  = args.getString(ARG_YES_STRING);
+            mNoString  = args.getString(ARG_NO_STRING);
         }
-        if (title == null) title = getString(R.string.confirmation_dialog_title);
-        if (message == null) message = getString(R.string.confirmation_dialog_description);
-        if (yesString == null) yesString = getString(R.string.confirmation_dialog_yes);
-        if (noString == null) noString = getString(R.string.confirmation_dialog_no);
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton(yesString, (dialog, which) ->
-                    mListener.onConfirmationDialogYes(dialog, getDialogTag(), which))
-                .setNegativeButton(noString, (dialog, which) ->
-                        mListener.onConfirmationDialogNo(dialog, getDialogTag(), which));
-        return builder.create();
+        if (mTitle == null) mTitle = getString(R.string.confirmation_dialog_title);
+        if (mMessage == null) mMessage = getString(R.string.confirmation_dialog_description);
+        if (mYesString == null) mYesString = getString(R.string.confirmation_dialog_yes);
+        if (mNoString == null) mNoString = getString(R.string.confirmation_dialog_no);
+
+        setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Material_Light_Dialog);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_confirmation_dialog, container, false);
+        Dialog dialog = getDialog();
+
+        ((TextView)view.findViewById(R.id.confirmation_dialog_message))
+                .setText(mMessage);
+
+        SingleClickViewHolder<Button> yesBtn
+                = new SingleClickViewHolder<>(view.findViewById(R.id.confirmation_dialog_yes));
+        SingleClickViewHolder<Button> noBtn
+                = new SingleClickViewHolder<>(view.findViewById(R.id.confirmation_dialog_no));
+        yesBtn.onView(v -> v.setText(mYesString));
+        noBtn.onView(v -> v.setText(mNoString));
+
+        if (dialog != null) {
+            dialog.setTitle(mTitle);
+
+            yesBtn.setOnClickListener(v -> {
+                mListener.onConfirmationDialogYes(dialog, getDialogTag(), Dialog.BUTTON_POSITIVE);
+                dialog.dismiss();
+            });
+
+            noBtn.setOnClickListener(v -> {
+                mListener.onConfirmationDialogNo(dialog, getDialogTag(), Dialog.BUTTON_NEGATIVE);
+                dialog.cancel();
+            });
+        }
+        return view;
+    }
+
+    @Override
+    public void onCancel(@NonNull DialogInterface dialog) {
+        super.onCancel(dialog);
     }
 
     @Override
