@@ -45,8 +45,7 @@ public abstract class GnomyActivity
         Map<Class<? extends Fragment>, CustomDialogFragmentInterface>
                 interfacesMapping = new HashMap<>();
         interfacesMapping.put(
-                ConfirmationDialogFragment.class,
-                (ConfirmationDialogFragment.OnConfirmationDialogListener) this);
+                ConfirmationDialogFragment.class, this);
         return interfacesMapping;
     }
 

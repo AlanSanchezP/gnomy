@@ -8,6 +8,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
@@ -30,7 +31,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import androidx.savedstate.SavedStateRegistryOwner;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
@@ -84,11 +84,9 @@ public class AccountsFragment extends MainNavigationFragment
         Map<Class<? extends Fragment>, CustomDialogFragmentFactory.CustomDialogFragmentInterface>
                 interfacesMapping = new HashMap<>();
         interfacesMapping.put(
-                ArchivedAccountsDialogFragment.class,
-                (ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface) this);
+                ArchivedAccountsDialogFragment.class, this);
         interfacesMapping.put(
-                ConfirmationDialogFragment.class,
-                (ConfirmationDialogFragment.OnConfirmationDialogListener) this);
+                ConfirmationDialogFragment.class, this);
         return interfacesMapping;
     }
 
@@ -97,7 +95,7 @@ public class AccountsFragment extends MainNavigationFragment
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        AccountRecyclerViewAdapter.OnListItemInteractionListener listener = (AccountRecyclerViewAdapter.OnListItemInteractionListener) this;
+        AccountRecyclerViewAdapter.OnListItemInteractionListener listener = this;
         mAdapter = new AccountRecyclerViewAdapter(listener);
     }
 
@@ -109,7 +107,7 @@ public class AccountsFragment extends MainNavigationFragment
         mListViewModel = new ViewModelProvider(this,
                 new SavedStateViewModelFactory(
                         this.requireActivity().getApplication(),
-                        (SavedStateRegistryOwner) this.requireActivity()))
+                        this.requireActivity()))
                 .get(AccountsListViewModel.class);
     }
 
@@ -271,24 +269,26 @@ public class AccountsFragment extends MainNavigationFragment
     /* FRAGMENT-SPECIFIC METHODS */
 
     private void displayArchivedAccounts() {
-        if (getChildFragmentManager()
-                .findFragmentByTag(ArchivedAccountsDialogFragment.TAG) != null) return;
-        ArchivedAccountsDialogFragment dialog
-                = new ArchivedAccountsDialogFragment((ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface) this);
-        dialog.show(getChildFragmentManager(), ArchivedAccountsDialogFragment.TAG);
+        FragmentManager fm = getChildFragmentManager();
+        if (fm.findFragmentByTag(ArchivedAccountsDialogFragment.TAG) != null) return;
+        ArchivedAccountsDialogFragment dialog = (ArchivedAccountsDialogFragment)
+                fm.getFragmentFactory().instantiate(
+                        requireContext().getClassLoader(), ArchivedAccountsDialogFragment.class.getName());
+        dialog.show(fm, ArchivedAccountsDialogFragment.TAG);
     }
 
     public void archiveAccount(Account account) {
-        if (getChildFragmentManager()
-                .findFragmentByTag(TAG_ARCHIVE_ACCOUNT_DIALOG) != null) return;
+        FragmentManager fm = getChildFragmentManager();
+        if (fm.findFragmentByTag(TAG_ARCHIVE_ACCOUNT_DIALOG) != null) return;
         mListViewModel.setTargetIdToArchive(account.getId());
-        ConfirmationDialogFragment df = new ConfirmationDialogFragment(
-                (ConfirmationDialogFragment.OnConfirmationDialogListener) this);
+        ConfirmationDialogFragment dialog = (ConfirmationDialogFragment)
+                fm.getFragmentFactory().instantiate(
+                        requireContext().getClassLoader(), ConfirmationDialogFragment.class.getName());
         Bundle args = new Bundle();
         args.putString(ConfirmationDialogFragment.ARG_TITLE, getString(R.string.account_card_archive));
         args.putString(ConfirmationDialogFragment.ARG_MESSAGE, getString(R.string.account_card_archive_info));
-        df.setArguments(args);
-        df.show(getChildFragmentManager(), TAG_ARCHIVE_ACCOUNT_DIALOG);
+        dialog.setArguments(args);
+        dialog.show(fm, TAG_ARCHIVE_ACCOUNT_DIALOG);
     }
 
     private void effectiveArchiveAccount(Account account) {
@@ -297,16 +297,17 @@ public class AccountsFragment extends MainNavigationFragment
 
     @Override
     public void deleteAccount(Account account) {
-        if (getChildFragmentManager()
-                .findFragmentByTag(TAG_DELETE_ACCOUNT_DIALOG) != null) return;
+        FragmentManager fm = getChildFragmentManager();
+        if (fm.findFragmentByTag(TAG_DELETE_ACCOUNT_DIALOG) != null) return;
         mListViewModel.setTargetIdToDelete(account.getId());
-        ConfirmationDialogFragment df = new ConfirmationDialogFragment(
-                (ConfirmationDialogFragment.OnConfirmationDialogListener) this);
+        ConfirmationDialogFragment dialog = (ConfirmationDialogFragment)
+                fm.getFragmentFactory().instantiate(
+                        requireContext().getClassLoader(), ConfirmationDialogFragment.class.getName());
         Bundle args = new Bundle();
         args.putString(ConfirmationDialogFragment.ARG_TITLE, getString(R.string.account_card_delete));
         args.putString(ConfirmationDialogFragment.ARG_MESSAGE, getString(R.string.account_card_delete_warning));
-        df.setArguments(args);
-        df.show(getChildFragmentManager(), TAG_DELETE_ACCOUNT_DIALOG);
+        dialog.setArguments(args);
+        dialog.show(fm, TAG_DELETE_ACCOUNT_DIALOG);
     }
 
     private void effectiveDeleteAccount(Account account) {

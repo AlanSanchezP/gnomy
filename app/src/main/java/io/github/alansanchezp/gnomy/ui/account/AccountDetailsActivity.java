@@ -20,8 +20,8 @@ import java.math.BigDecimal;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.R;
@@ -103,13 +103,14 @@ public class AccountDetailsActivity
         switch (item.getItemId()) {
             case R.id.action_archive_account:
                 disableActions();
-                if (getSupportFragmentManager()
-                        .findFragmentByTag(TAG_ARCHIVE_DIALOG) != null) {
+                FragmentManager fm = getSupportFragmentManager();
+                if (fm.findFragmentByTag(TAG_ARCHIVE_DIALOG) != null) {
                     enableActions();
                     break;
                 }
-                ConfirmationDialogFragment dialog
-                        = new ConfirmationDialogFragment((ConfirmationDialogFragment.OnConfirmationDialogListener) this);
+                ConfirmationDialogFragment dialog = (ConfirmationDialogFragment)
+                        fm.getFragmentFactory().instantiate(
+                                getClassLoader(), ConfirmationDialogFragment.class.getName());
                 Bundle args = new Bundle();
                 args.putString(ConfirmationDialogFragment.ARG_TITLE, getString(R.string.account_card_archive));
                 args.putString(ConfirmationDialogFragment.ARG_MESSAGE, getString(R.string.account_card_archive_info));

@@ -1,12 +1,13 @@
 package io.github.alansanchezp.gnomy.ui.account;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +15,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.List;
-import java.util.Objects;
 
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -56,12 +56,17 @@ public class ArchivedAccountsDialogFragment extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-        try {
-            Objects.requireNonNull(requireDialog().getWindow()).setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            requireDialog().setTitle(getString(R.string.title_archived_accounts));
-        } catch(IllegalStateException ise) {
-            Log.w("ArchivedAccountsDialog", "onStart: This should only happen during tests!", ise);
+        if (getDialog() != null && getDialog().getWindow() != null) {
+            getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         }
+    }
+
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        dialog.setTitle(getString(R.string.title_archived_accounts));
+        return dialog;
     }
 
     @Override
@@ -86,7 +91,6 @@ public class ArchivedAccountsDialogFragment extends DialogFragment {
 
         mListener.getArchivedAccounts()
                 .observe(getViewLifecycleOwner(), this::onAccountsListChanged);
-
         return view;
     }
 

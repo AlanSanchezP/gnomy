@@ -8,7 +8,9 @@ import android.os.Bundle;
 import java.util.Objects;
 
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
 import io.github.alansanchezp.gnomy.R;
+import io.github.alansanchezp.gnomy.ui.account.ArchivedAccountsDialogFragment;
 
 public abstract class BackButtonActivity
         extends GnomyActivity {
@@ -50,9 +52,12 @@ public abstract class BackButtonActivity
         disableActions();
         if (displayDialogOnBackPress() && !mHandlingBackButton) {
             mHandlingBackButton = true;
-            ConfirmationDialogFragment df = new ConfirmationDialogFragment(
-                    (ConfirmationDialogFragment.OnConfirmationDialogListener) this);
-            df.show(getSupportFragmentManager(), TAG_BACK_DIALOG);
+            FragmentManager fm = getSupportFragmentManager();
+            if (fm.findFragmentByTag(TAG_BACK_DIALOG) != null) return;
+            ConfirmationDialogFragment dialog = (ConfirmationDialogFragment)
+                    fm.getFragmentFactory().instantiate(
+                            getClassLoader(), ConfirmationDialogFragment.class.getName());
+            dialog.show(fm, TAG_BACK_DIALOG);
         } else if (!displayDialogOnBackPress()) {
             super.onBackPressed();
         }
