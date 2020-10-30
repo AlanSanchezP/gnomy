@@ -91,6 +91,10 @@ public abstract class GnomyActivity
         // @Override to implement custom actions
     }
     @Override
+    public void onConfirmationDialogCancel(DialogInterface dialog, String dialogTag) {
+        // @Override to implement custom actions
+    }
+    @Override
     public void onConfirmationDialogDismiss(DialogInterface dialog, String dialogTag) {
         // @Override to implement custom actions
     }

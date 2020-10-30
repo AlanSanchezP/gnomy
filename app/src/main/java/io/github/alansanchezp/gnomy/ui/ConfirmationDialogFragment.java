@@ -82,6 +82,7 @@ public class ConfirmationDialogFragment extends DialogFragment {
 
     @Override
     public void onCancel(@NonNull DialogInterface dialog) {
+        mListener.onConfirmationDialogCancel(dialog, getDialogTag());
         super.onCancel(dialog);
     }
 
@@ -101,6 +102,7 @@ public class ConfirmationDialogFragment extends DialogFragment {
             extends CustomDialogFragmentFactory.CustomDialogFragmentInterface {
         void onConfirmationDialogYes(DialogInterface dialog, String dialogTag, int which);
         void onConfirmationDialogNo(DialogInterface dialog, String dialogTag, int which);
+        void onConfirmationDialogCancel(DialogInterface dialog, String dialogTag);
         void onConfirmationDialogDismiss(DialogInterface dialog, String dialogTag);
     }
 

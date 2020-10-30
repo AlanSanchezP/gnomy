@@ -144,6 +144,18 @@ public class AddEditAccountActivity
         return true;
     }
 
+    @Override
+    protected void disableActions() {
+        super.disableActions();
+        mFABVH.blockClicks();
+    }
+
+    @Override
+    protected void enableActions() {
+        super.enableActions();
+        mFABVH.allowClicks();
+    }
+
     private void onAccountChanged(Account account) {
         if (account == null) {
             try {

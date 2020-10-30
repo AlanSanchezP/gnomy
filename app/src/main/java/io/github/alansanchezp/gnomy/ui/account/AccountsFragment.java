@@ -363,6 +363,10 @@ public class AccountsFragment extends MainNavigationFragment
     }
 
     @Override
+    public void onConfirmationDialogCancel(DialogInterface dialog, String dialogTag) {
+    }
+
+    @Override
     public void onConfirmationDialogDismiss(DialogInterface dialog, String dialogTag) {
         mAdapter.enableClicks();
     }

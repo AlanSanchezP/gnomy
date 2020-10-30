@@ -17,7 +17,6 @@ public abstract class BackButtonActivity
     public static final String TAG_BACK_DIALOG = "BackButtonActivity.BackConfirmationDialog";
     protected Drawable mUpArrowDrawable;
     protected boolean mOperationsPending = false;
-    protected boolean mHandlingBackButton = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +48,7 @@ public abstract class BackButtonActivity
     @Override
     public void onBackPressed() {
         disableActions();
-        if (displayDialogOnBackPress() && !mHandlingBackButton) {
-            mHandlingBackButton = true;
+        if (displayDialogOnBackPress()) {
             FragmentManager fm = getSupportFragmentManager();
             if (fm.findFragmentByTag(TAG_BACK_DIALOG) != null) return;
             ConfirmationDialogFragment dialog = (ConfirmationDialogFragment)
@@ -79,11 +77,11 @@ public abstract class BackButtonActivity
             super.onBackPressed();
         }
     }
+
     @Override
-    public void onConfirmationDialogDismiss(DialogInterface dialog, String dialogTag) {
+    public void onConfirmationDialogCancel(DialogInterface dialog, String dialogTag) {
         if (dialogTag.equals(TAG_BACK_DIALOG)) {
             if (!mOperationsPending) enableActions();
-            mHandlingBackButton = false;
         }
     }
 
