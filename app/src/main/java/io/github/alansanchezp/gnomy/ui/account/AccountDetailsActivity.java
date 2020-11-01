@@ -35,6 +35,8 @@ import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 import io.github.alansanchezp.gnomy.util.android.ViewTintingUtil;
 import io.github.alansanchezp.gnomy.viewmodel.account.AccountViewModel;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class AccountDetailsActivity
         extends BackButtonActivity {
@@ -129,14 +131,20 @@ public class AccountDetailsActivity
         if (dialogTag.equals(TAG_ARCHIVE_DIALOG)) {
             if (mAccount == null) {
                 Log.wtf("AccountDetailsActivity", "onConfirmationDialogYes: MenuItems were enabled but no account was found");
-                Account toArchive = new Account();
-                toArchive.setId(mAccountId);
-                mAccountViewModel.archive(toArchive);
-            } else {
-                mAccountViewModel.archive(mAccount);
             }
-            Toast.makeText(AccountDetailsActivity.this, getString(R.string.account_message_archived), Toast.LENGTH_LONG).show();
-            finish();
+            mCompositeDisposable.add(
+                mAccountViewModel.archive(mAccountId)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            integer -> {
+                                Toast.makeText(AccountDetailsActivity.this, getString(R.string.account_message_archived), Toast.LENGTH_LONG).show();
+                                finish();
+                            },
+                            throwable ->
+                                Toast.makeText(this, R.string.generic_data_error, Toast.LENGTH_LONG).show()
+                            ));
+
         } else {
             super.onConfirmationDialogYes(dialog, dialogTag, which);
         }

@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
+import io.reactivex.Single;
 
 public class AddEditAccountViewModel extends AndroidViewModel {
     private static final String TAG_SELECTED_COLOR = "AddEditAccountVM.SelectedColor";
@@ -33,12 +34,12 @@ public class AddEditAccountViewModel extends AndroidViewModel {
         return mRepository.getAccount(id);
     }
 
-    public void insert(Account account) {
-        mRepository.insert(account);
+    public Single<Long[]> insert(Account account) {
+        return mRepository.insert(account);
     }
 
-    public void update(Account account) {
-        mRepository.update(account);
+    public Single<Integer> update(Account account) {
+        return mRepository.update(account);
     }
 
     public void setAccountColor(@ColorInt int color) {

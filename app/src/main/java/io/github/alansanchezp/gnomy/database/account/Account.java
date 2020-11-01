@@ -3,6 +3,7 @@ package io.github.alansanchezp.gnomy.database.account;
 import java.time.OffsetDateTime;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
@@ -102,6 +103,11 @@ public class Account {
             default:
                 return R.string.account_type_other;
         }
+    }
+
+    @Ignore
+    public Account(int accountId) {
+        this.id = accountId;
     }
 
     @Ignore
@@ -207,6 +213,28 @@ public class Account {
     // Custom Getters and setters
     public void setInitialValue(String stringValue) throws NumberFormatException {
         this.initialValue = new BigDecimal(stringValue)
-                .setScale(DECIMAL_SCALE, BigDecimal.ROUND_HALF_EVEN);
+                .setScale(DECIMAL_SCALE, BigDecimal.ROUND_HALF_EVEN)
+                .stripTrailingZeros();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Account account = (Account) o;
+        return id == account.id &&
+                type == account.type &&
+                showInDashboard == account.showInDashboard &&
+                isArchived == account.isArchived &&
+                backgroundColor == account.backgroundColor &&
+                name.equals(account.name) &&
+                createdAt.equals(account.createdAt) &&
+                initialValue.equals(account.initialValue) &&
+                defaultCurrency.equals(account.defaultCurrency);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, createdAt, initialValue, type, defaultCurrency, showInDashboard, isArchived, backgroundColor);
     }
 }

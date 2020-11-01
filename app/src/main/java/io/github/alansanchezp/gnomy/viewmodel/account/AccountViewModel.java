@@ -10,6 +10,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
+import io.reactivex.Single;
 
 public class AccountViewModel extends AndroidViewModel {
     private final AccountRepository mRepository;
@@ -27,7 +28,7 @@ public class AccountViewModel extends AndroidViewModel {
         return mRepository.getAccumulatedFromMonth(accountId, month);
     }
 
-    public void archive(Account account) {
-        mRepository.archive(account);
+    public Single<Integer> archive(int accountId) {
+        return mRepository.archive(accountId);
     }
 }

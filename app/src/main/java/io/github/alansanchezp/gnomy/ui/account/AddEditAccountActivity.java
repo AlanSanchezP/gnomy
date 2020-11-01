@@ -15,6 +15,10 @@ import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 import io.github.alansanchezp.gnomy.util.android.ViewTintingUtil;
 import io.github.alansanchezp.gnomy.viewmodel.account.AddEditAccountViewModel;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
@@ -48,10 +52,6 @@ public class AddEditAccountActivity
     private TextInputLayout mInitialValueTIL;
     private TextInputEditText mAccountNameTIET;
     private TextInputEditText mInitialValueTIET;
-    // TODO: (When currency support is implemented) (only edit mode)
-    //  Monitor currency change and display
-    //  an alert to either preserve ALL transactions values or convert them to their equivalents
-    //  on the new selected currency (and perform this operation until submitting the new data)
     private MaterialSpinner mCurrencySpinner;
     private MaterialSpinner mTypeSpinner;
     private Switch mShownInDashboardSwitch;
@@ -61,7 +61,6 @@ public class AddEditAccountActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         mAddEditAccountViewModel = new ViewModelProvider(this,
                 new SavedStateViewModelFactory(
                         this.getApplication(), this))
@@ -97,6 +96,14 @@ public class AddEditAccountActivity
             activityTitle = getString(R.string.account_card_modify);
             // Prevent potential noticeable blink in spinners
             mBoxLayout.setVisibility(View.INVISIBLE);
+
+            // TODO: (When currency support is implemented) (only edit mode)
+            //  update: Do we even want this behavior? Analyze it, maybe we are fine just disabling the spinner on edit mode
+            /*
+             Monitor currency change and display an alert to either preserve ALL transactions values or convert them to their equivalents
+             on the new selected currency (and perform this operation until submitting the new data)
+            */
+            mCurrencySpinner.setEnabled(false);
             accountLD.observe(this, this::onAccountChanged);
         } else {
             activityTitle = getString(R.string.account_new);
@@ -314,22 +321,41 @@ public class AddEditAccountActivity
 
     private void saveData(String currencyCode, int accountType, boolean includeInHomepage) {
         try {
-            String toastMessage;
+            Disposable disposable;
 
             mAccount.setShowInDashboard(includeInHomepage);
             mAccount.setType(accountType);
             mAccount.setDefaultCurrency(currencyCode);
 
             if (mAccount.getId() == 0) {
-                mAddEditAccountViewModel.insert(mAccount);
-                toastMessage = getResources().getString(R.string.account_message_saved);
+                disposable = mAddEditAccountViewModel.insert(mAccount)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                            longs -> {
+                                Toast.makeText(this, R.string.account_message_saved, Toast.LENGTH_LONG).show();
+                                finish();
+                            },
+                            throwable -> {
+                                Toast.makeText(this, R.string.generic_data_error, Toast.LENGTH_LONG).show();
+                                mFABVH.notifyOnAsyncOperationFinished();
+                            });
+
             } else {
-                mAddEditAccountViewModel.update(mAccount);
-                toastMessage = getResources().getString(R.string.account_message_updated);
+                disposable = mAddEditAccountViewModel.update(mAccount)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                            integer -> {
+                                Toast.makeText(this, R.string.account_message_updated, Toast.LENGTH_LONG).show();
+                                finish();
+                            },
+                            throwable -> {
+                                Toast.makeText(this, R.string.generic_data_error, Toast.LENGTH_LONG).show();
+                                mFABVH.notifyOnAsyncOperationFinished();
+                            });
             }
-            // TODO: Handle properly, as there is no guaranty operations will succeed
-            Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
-            finish();
+            mCompositeDisposable.add(disposable);
         } catch(NumberFormatException nfe) {
             Log.wtf("AddEditAccount", "saveData: Initial value validation failed", nfe);
             mFABVH.notifyOnAsyncOperationFinished();
