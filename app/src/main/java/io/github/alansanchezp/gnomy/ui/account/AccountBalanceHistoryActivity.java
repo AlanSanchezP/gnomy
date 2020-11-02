@@ -85,8 +85,6 @@ public class AccountBalanceHistoryActivity
         // TODO: Implement pending transactions list when Transactions module is ready
         Toast.makeText(this, getString(R.string.wip), Toast.LENGTH_LONG).show();
     }
-    // TODO: Insert elements directly to db in tests to avoid exposing these methods as public
-    //  This includes all activities
 
     public void onMonthChanged(YearMonth month) {
         TextView accumulatedTitleTV = findViewById(R.id.account_history_accumulated_balance_label);
@@ -127,7 +125,7 @@ public class AccountBalanceHistoryActivity
         }
     }
 
-    public void onBalanceChanged(MonthlyBalance balance) {
+    private void onBalanceChanged(MonthlyBalance balance) {
         TextView confirmedIncomesTV = findViewById(R.id.account_history_confirmed_incomes);
         TextView confirmedExpensesTV = findViewById(R.id.account_history_confirmed_expenses);
         TextView confirmedTotalTV = findViewById(R.id.account_history_confirmed_total);

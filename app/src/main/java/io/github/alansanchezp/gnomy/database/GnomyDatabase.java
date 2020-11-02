@@ -24,6 +24,8 @@ import android.content.Context;
 import net.sqlcipher.database.SupportFactory;
 import net.sqlcipher.database.SQLiteDatabase;
 
+import java.util.concurrent.Executors;
+
 @Database(entities = {
     Category.class,
     Account.class,
@@ -50,23 +52,38 @@ public abstract class GnomyDatabase extends RoomDatabase {
     private static GnomyDatabase buildDatabaseInstance(Context context, String userEnteredPassphrase) {
         byte[] passphrase = SQLiteDatabase.getBytes(userEnteredPassphrase.toCharArray());
         SupportFactory factory = new SupportFactory(passphrase);
+        Builder<GnomyDatabase> builder;
+        try {
+            // Database for testing purposes
+            // TODO: Change for DEBUG flag?
+            Class.forName("io.github.alansanchezp.gnomy.MainNavigationInstrumentedTest");
+            builder = Room.inMemoryDatabaseBuilder(context,
+                    GnomyDatabase.class)
+                    .setTransactionExecutor(Executors.newSingleThreadExecutor())
+                    .allowMainThreadQueries();
+        } catch (ClassNotFoundException cnfe) {
+            builder = Room.databaseBuilder(context,
+                    GnomyDatabase.class,
+                    "gnomy.db");
+        }
 
-        return Room.databaseBuilder(context,
-                GnomyDatabase.class,
-                "gnomy.db")
+        builder = builder
                 .openHelperFactory(factory)
-                // TODO: create migrations
+                // TODO: Create migrations
+                // TODO: Remove once migrations are implemented
                 .fallbackToDestructiveMigration()
-                // TODO: prepopulate categories
-                // TODO: evaluate if balance adjustment should be done using triggers or as part of repository code
-                .addCallback(triggersCallback)
-                .build();
+                // TODO: Prepopulate categories
+                // TODO: Evaluate if balance adjustment should be done using triggers or as part of repository code
+                .addCallback(TRIGGERS_CALLBACK);
+
+        return builder.build();
     }
 
     private static RoomDatabase.Callback triggersCallback = new RoomDatabase.Callback(){
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
             super.onCreate(db);
+            // TODO: Maybe rename trigger to 'create_first_monthly_balance'?
             db.execSQL(
                 "CREATE TRIGGER on_account_created " +
                 "AFTER INSERT ON accounts FOR EACH ROW " +
@@ -91,6 +108,7 @@ public abstract class GnomyDatabase extends RoomDatabase {
 
     public abstract TransferDAO transferDAO();
 
+    // TODO: Research why did we need this? Where should we be using it?
     public static void cleanUp(){
         INSTANCE = null;
     }

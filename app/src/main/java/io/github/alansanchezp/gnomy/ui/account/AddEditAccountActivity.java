@@ -170,16 +170,9 @@ public class AddEditAccountActivity
 
     private void onAccountChanged(Account account) {
         if (account == null) {
-            try {
-                // TODO: REALLY FIND A WAY TO INSERT TO TEST DATABASE TO AVOID DOING THIS
-                Class.forName("io.github.alansanchezp.gnomy.MainNavigationInstrumentedTest");
-                Log.d("AddEditAccount", "onAccountChanged: Test environment. Setting empty account..");
-                account = new Account();
-            } catch (ClassNotFoundException cnfe) {
-                Log.e("AddEditAccount", "onAccountChanged: Account not found. Closing activity.");
-                finish();
-                return;
-            }
+            Log.e("AddEditAccount", "onAccountChanged: Account not found. Closing activity.");
+            finish();
+            return;
         }
         mAccount = account;
         mAddEditAccountViewModel.setAccountColor(account.getBackgroundColor());

@@ -12,18 +12,17 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.math.BigDecimal;
 import java.time.YearMonth;
-import java.util.Locale;
 
 import androidx.fragment.app.testing.FragmentScenario;
 import static androidx.fragment.app.testing.FragmentScenario.launchInContainer;
 
+import androidx.lifecycle.MutableLiveData;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import io.github.alansanchezp.gnomy.R;
+import io.github.alansanchezp.gnomy.database.MockRepositoryUtility;
 import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -34,6 +33,10 @@ import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -42,23 +45,19 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
  */
 @RunWith(AndroidJUnit4.class)
 public class AccountsFragmentInstrumentedTest {
-    private static final AccountWithBalance[] accountsWithBalance = new AccountWithBalance[2];
-
+    // Needed so that ViewModel instance doesn't crash
     @BeforeClass
-    public static void init_accounts_list_and_set_locale() {
-        Locale.setDefault(Locale.US);
-        accountsWithBalance[0] = new AccountWithBalance();
-        accountsWithBalance[1] = new AccountWithBalance();
-
-        accountsWithBalance[0].account = new Account();
-        accountsWithBalance[0].account.setInitialValue("0");
-        accountsWithBalance[0].accumulatedBalance = new BigDecimal("20");
-        accountsWithBalance[0].projectedBalance = new BigDecimal("30");
-
-        accountsWithBalance[1].account = new Account();
-        accountsWithBalance[1].account.setInitialValue("0");
-        accountsWithBalance[1].accumulatedBalance = new BigDecimal("40");
-        accountsWithBalance[1].projectedBalance = new BigDecimal("50");
+    public static void init_mocks() {
+        final MockRepositoryUtility.MockableAccountDAO mockAccountDAO = mock(MockRepositoryUtility.MockableAccountDAO.class);
+        final MockRepositoryUtility.MockableMonthlyBalanceDAO mockBalanceDAO = mock(MockRepositoryUtility.MockableMonthlyBalanceDAO.class);
+        MockRepositoryUtility.setAccountDAO(mockAccountDAO);
+        MockRepositoryUtility.setBalanceDAO(mockBalanceDAO);
+        when(mockAccountDAO.getArchivedAccounts())
+                .thenReturn(new MutableLiveData<>());
+        when(mockAccountDAO.find(anyInt()))
+                .thenReturn(new MutableLiveData<>());
+        when(mockBalanceDAO.getAccumulatedFromMonth(anyInt(), any(YearMonth.class)))
+                .thenReturn(new MutableLiveData<>());
     }
 
     @Test

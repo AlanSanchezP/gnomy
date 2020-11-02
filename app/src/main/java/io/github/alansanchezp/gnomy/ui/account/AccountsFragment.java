@@ -217,7 +217,7 @@ public class AccountsFragment extends MainNavigationFragment
         mCurrentMonth = month;
     }
 
-    public void onAccountsListChanged(List<AccountWithBalance> accounts) {
+    private void onAccountsListChanged(List<AccountWithBalance> accounts) {
         if (mCurrentMonth == null) return;
         mAdapter.setValues(accounts, mCurrentMonth);
 

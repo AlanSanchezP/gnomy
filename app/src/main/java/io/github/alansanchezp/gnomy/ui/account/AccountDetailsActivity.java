@@ -85,6 +85,7 @@ public class AccountDetailsActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.account_details_menu, menu);
 
+        Log.d("DETAILSACT", "onCreateOptionsMenu: mAccount SHOULD BE NULL RIGHT NOW " + mAccount);
         if (mAccount == null || mAccount.getId() == 0) {
             menu.findItem(R.id.action_account_actions)
                     .setEnabled(false);
@@ -198,18 +199,11 @@ public class AccountDetailsActivity
         startActivity(accountHistoryIntent);
     }
 
-    public void onAccountChanged(Account account) {
+    private void onAccountChanged(Account account) {
         if (account == null) {
-            try {
-                // TODO: REALLY FIND A WAY TO INSERT TO TEST DATABASE TO AVOID DOING THIS
-                Class.forName("io.github.alansanchezp.gnomy.MainNavigationInstrumentedTest");
-                Log.d("AccountDetailsActivity", "onAccountChangedA: Test environment. Setting empty account to prevent errors.");
-                account = new Account();
-            } catch (ClassNotFoundException cnfe) {
-                Log.e("AccountDetailsActivity", "onAccountChanged: No account found. Finishing activity.");
-                finish();
-                return;
-            }
+            Log.e("AccountDetailsActivity", "onAccountChanged: No account found. Finishing activity.");
+            finish();
+            return;
         }
         mAccount = account;
         enableActions();

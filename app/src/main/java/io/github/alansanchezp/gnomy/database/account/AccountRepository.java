@@ -11,17 +11,28 @@ import androidx.lifecycle.LiveData;
 import io.github.alansanchezp.gnomy.database.GnomyDatabase;
 import io.reactivex.Single;
 
+// !! IMPORTANT !!
+// DO NOT IMPLEMENT ON MAIN SOURCESET, TEST-ONLY CLASS
+import io.github.alansanchezp.gnomy.database.MockRepositoryUtility;
+
 public class AccountRepository {
     private LiveData<List<Account>> allAccounts;
     private AccountDAO accountDAO;
     private MonthlyBalanceDAO balanceDAO;
 
     public AccountRepository(Context context) {
-        GnomyDatabase db;
-        db = GnomyDatabase.getInstance(context, "");
-        accountDAO = db.accountDAO();
-        balanceDAO = db.monthlyBalanceDAO();
-        allAccounts = accountDAO.getAll();
+        try {
+            // TODO: Change for DEBUG flag?
+            Class.forName("io.github.alansanchezp.gnomy.MainNavigationInstrumentedTest");
+            accountDAO = MockRepositoryUtility.getAccountDAO();
+            balanceDAO = MockRepositoryUtility.getBalanceDAO();
+        } catch (ClassNotFoundException cnfe) {
+            GnomyDatabase db;
+            db = GnomyDatabase.getInstance(context, "");
+            accountDAO = db.accountDAO();
+            balanceDAO = db.monthlyBalanceDAO();
+            allAccounts = accountDAO.getAll();
+        }
     }
 
     public LiveData<List<Account>> getAll() {
