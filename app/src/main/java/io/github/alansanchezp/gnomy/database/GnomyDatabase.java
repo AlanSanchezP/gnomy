@@ -81,7 +81,7 @@ public abstract class GnomyDatabase extends RoomDatabase {
                 .fallbackToDestructiveMigration()
                 // TODO: Prepopulate categories
                 // TODO: Evaluate if balance adjustment should be done using triggers or as part of repository code
-                .addCallback(TRIGGERS_CALLBACK);
+                .addCallback(triggersCallback);
 
         return builder.build();
     }
