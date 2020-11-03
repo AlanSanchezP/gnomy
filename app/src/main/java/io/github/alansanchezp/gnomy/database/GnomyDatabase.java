@@ -62,11 +62,13 @@ public abstract class GnomyDatabase extends RoomDatabase {
             // DO NOT IMPLEMENT THIS CLASS IN MAIN SOURCE SET
             // IT EXISTS ONLY FOR TESTING PURPOSES
             MockRepositoryUtility = Class.forName("io.github.alansanchezp.gnomy.database.MockRepositoryUtility");
+            Log.w("GnomyDatabase", "buildDatabaseInstance: This message should only appear during tests.");
             builder = Room.inMemoryDatabaseBuilder(context,
                     GnomyDatabase.class)
                     .setTransactionExecutor(Executors.newSingleThreadExecutor())
                     .allowMainThreadQueries();
         } catch (ClassNotFoundException cnfe) {
+            Log.d("GnomyDatabase", "buildDatabaseInstance: Getting persistent database.");
             builder = Room.databaseBuilder(context,
                     GnomyDatabase.class,
                     "gnomy.db");

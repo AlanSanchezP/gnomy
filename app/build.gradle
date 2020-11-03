@@ -65,15 +65,6 @@ android {
             includeAndroidResources = true
         }
     }
-    flavorDimensions 'dimension'
-    productFlavors {
-        dummy {
-            dimension 'dimension'
-        }
-        prod {
-            dimension 'dimension'
-        }
-    }
 }
 
 dependencies {
