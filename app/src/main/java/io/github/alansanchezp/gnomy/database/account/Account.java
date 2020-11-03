@@ -1,5 +1,7 @@
 package io.github.alansanchezp.gnomy.database.account;
 
+import android.util.Log;
+
 import java.time.OffsetDateTime;
 
 import java.math.BigDecimal;
@@ -66,6 +68,7 @@ public class Account {
     private int backgroundColor;
 
     public Account() {
+        Log.d("", "Account: empty constructor");
         setInitialValue("0");
     }
 
@@ -109,6 +112,7 @@ public class Account {
 
     @Ignore
     public Account(int accountId) {
+        this();
         this.id = accountId;
     }
 
@@ -157,6 +161,7 @@ public class Account {
     }
 
     public void setInitialValue(@NonNull BigDecimal initialValue) {
+        Log.d("", "Account: setInitialValue" + initialValue);
         this.initialValue = initialValue;
     }
 

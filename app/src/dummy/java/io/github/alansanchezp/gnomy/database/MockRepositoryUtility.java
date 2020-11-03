@@ -15,6 +15,11 @@ import io.reactivex.Single;
 public class MockRepositoryUtility {
     private static MockableAccountDAO accountDAO;
     private static MockableMonthlyBalanceDAO balanceDAO;
+    private static boolean useMocks = true;
+
+    public static void disableMocking() {
+        useMocks = false;
+    }
 
     public static void setAccountDAO(MockableAccountDAO dao) {
         accountDAO = dao;
@@ -22,6 +27,7 @@ public class MockRepositoryUtility {
 
 
     public static MockableAccountDAO getAccountDAO() {
+        if (!useMocks) throw new IllegalStateException("Mocking DAOs was disabled for this test.");
         if (accountDAO == null) throw new RuntimeException("Mock DAO has not been initialized.");
         return accountDAO;
     }
@@ -32,6 +38,7 @@ public class MockRepositoryUtility {
 
 
     public static MockableMonthlyBalanceDAO getBalanceDAO() {
+        if (!useMocks) throw new IllegalStateException("Mocking DAOs was disabled for this test.");
         if (balanceDAO == null) throw new RuntimeException("Mock DAO has not been initialized.");
         return balanceDAO;
     }

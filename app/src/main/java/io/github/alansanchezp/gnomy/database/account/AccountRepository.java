@@ -1,6 +1,7 @@
 package io.github.alansanchezp.gnomy.database.account;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.time.YearMonth;
 
@@ -26,7 +27,8 @@ public class AccountRepository {
             Class.forName("io.github.alansanchezp.gnomy.MainNavigationInstrumentedTest");
             accountDAO = MockRepositoryUtility.getAccountDAO();
             balanceDAO = MockRepositoryUtility.getBalanceDAO();
-        } catch (ClassNotFoundException cnfe) {
+        } catch (ClassNotFoundException|IllegalStateException ex) {
+            if (ex instanceof IllegalStateException) Log.w("AccountRepository", "(): ", ex);
             GnomyDatabase db;
             db = GnomyDatabase.getInstance(context, "");
             accountDAO = db.accountDAO();

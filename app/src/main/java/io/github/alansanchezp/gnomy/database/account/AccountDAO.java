@@ -44,9 +44,7 @@ public abstract class AccountDAO  {
             @Override
             protected void subscribeActual(SingleObserver<? super Integer> observer) {
                 try {
-                    int result = syncSafeUpdate(account);
-                    observer.onSuccess(result);
-                    if (result == -1) observer.onError(new Throwable("It is not allowed to change an account's currency"));
+                    observer.onSuccess(syncSafeUpdate(account));
                 } catch (Throwable throwable) {
                     observer.onError(throwable);
                 }
@@ -77,7 +75,6 @@ public abstract class AccountDAO  {
                 account.getDefaultCurrency())) {
             return syncUpdate(account);
         }
-
-        return -1;
+        throw new IllegalArgumentException("It is not allowed to change an account's currency");
     }
 }
