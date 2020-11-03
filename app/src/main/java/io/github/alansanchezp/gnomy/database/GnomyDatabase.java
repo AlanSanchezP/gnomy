@@ -39,7 +39,7 @@ import java.util.concurrent.Executors;
 @TypeConverters({GnomyTypeConverters.class})
 public abstract class GnomyDatabase extends RoomDatabase {
     private static GnomyDatabase INSTANCE;
-    private static Class<?> MockRepositoryUtility = null;
+    private static Class<?> MockDatabaseOperationsUtil = null;
 
     public static GnomyDatabase getInstance(Context context, String userEnteredPassphrase) {
         if (INSTANCE == null) {
@@ -61,7 +61,7 @@ public abstract class GnomyDatabase extends RoomDatabase {
             // Database for testing purposes
             // DO NOT IMPLEMENT THIS CLASS IN MAIN SOURCE SET
             // IT EXISTS ONLY FOR TESTING PURPOSES
-            MockRepositoryUtility = Class.forName("io.github.alansanchezp.gnomy.database.MockRepositoryUtility");
+            MockDatabaseOperationsUtil = Class.forName("io.github.alansanchezp.gnomy.database.MockDatabaseOperationsUtil");
             Log.w("GnomyDatabase", "buildDatabaseInstance: This message should only appear during tests.");
             builder = Room.inMemoryDatabaseBuilder(context,
                     GnomyDatabase.class)
@@ -104,7 +104,7 @@ public abstract class GnomyDatabase extends RoomDatabase {
 
     private Object getMockDAO(String getDAO_methodName, Class<?> DAO_class) {
         try {
-            return DAO_class.cast( MockRepositoryUtility
+            return DAO_class.cast(MockDatabaseOperationsUtil
                     .getMethod(getDAO_methodName).invoke(null));
         } catch (IllegalAccessException |
                 InvocationTargetException |

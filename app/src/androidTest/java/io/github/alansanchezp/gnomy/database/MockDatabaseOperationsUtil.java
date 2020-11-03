@@ -12,7 +12,7 @@ import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
 import io.github.alansanchezp.gnomy.database.account.MonthlyBalanceDAO;
 import io.reactivex.Single;
 
-public class MockRepositoryUtility {
+public class MockDatabaseOperationsUtil {
     private static MockableAccountDAO accountDAO;
     private static MockableMonthlyBalanceDAO balanceDAO;
     private static boolean useMocks = true;

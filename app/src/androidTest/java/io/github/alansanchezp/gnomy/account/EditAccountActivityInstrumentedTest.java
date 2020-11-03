@@ -12,7 +12,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.database.MockRepositoryUtility;
+import io.github.alansanchezp.gnomy.database.MockDatabaseOperationsUtil;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.ui.account.AddEditAccountActivity;
 import io.reactivex.Single;
@@ -39,11 +39,11 @@ public class EditAccountActivityInstrumentedTest {
 
     @BeforeClass
     public static void init_mocks() {
-        final MockRepositoryUtility.MockableAccountDAO mockAccountDAO = mock(MockRepositoryUtility.MockableAccountDAO.class);
+        final MockDatabaseOperationsUtil.MockableAccountDAO mockAccountDAO = mock(MockDatabaseOperationsUtil.MockableAccountDAO.class);
         // Needed so that ViewModel instance doesn't crash
-        final MockRepositoryUtility.MockableMonthlyBalanceDAO mockBalanceDAO = mock(MockRepositoryUtility.MockableMonthlyBalanceDAO.class);
-        MockRepositoryUtility.setAccountDAO(mockAccountDAO);
-        MockRepositoryUtility.setBalanceDAO(mockBalanceDAO);
+        final MockDatabaseOperationsUtil.MockableMonthlyBalanceDAO mockBalanceDAO = mock(MockDatabaseOperationsUtil.MockableMonthlyBalanceDAO.class);
+        MockDatabaseOperationsUtil.setAccountDAO(mockAccountDAO);
+        MockDatabaseOperationsUtil.setBalanceDAO(mockBalanceDAO);
         when(mockAccountDAO.find(anyInt()))
                 .thenReturn(new MutableLiveData<>());
         when(mockAccountDAO.update(any(Account.class)))

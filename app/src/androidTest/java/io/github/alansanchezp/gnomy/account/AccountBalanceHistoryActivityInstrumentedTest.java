@@ -18,7 +18,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.database.MockRepositoryUtility;
+import io.github.alansanchezp.gnomy.database.MockDatabaseOperationsUtil;
 import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
 import io.github.alansanchezp.gnomy.ui.account.AccountBalanceHistoryActivity;
 import io.github.alansanchezp.gnomy.util.DateUtil;
@@ -59,10 +59,10 @@ public class AccountBalanceHistoryActivityInstrumentedTest {
     @BeforeClass
     public static void init_mocks() {
         // Needed so that ViewModel instance doesn't crash
-        final MockRepositoryUtility.MockableAccountDAO mockAccountDAO = mock(MockRepositoryUtility.MockableAccountDAO.class);
-        final MockRepositoryUtility.MockableMonthlyBalanceDAO mockBalanceDAO = mock(MockRepositoryUtility.MockableMonthlyBalanceDAO.class);
-        MockRepositoryUtility.setAccountDAO(mockAccountDAO);
-        MockRepositoryUtility.setBalanceDAO(mockBalanceDAO);
+        final MockDatabaseOperationsUtil.MockableAccountDAO mockAccountDAO = mock(MockDatabaseOperationsUtil.MockableAccountDAO.class);
+        final MockDatabaseOperationsUtil.MockableMonthlyBalanceDAO mockBalanceDAO = mock(MockDatabaseOperationsUtil.MockableMonthlyBalanceDAO.class);
+        MockDatabaseOperationsUtil.setAccountDAO(mockAccountDAO);
+        MockDatabaseOperationsUtil.setBalanceDAO(mockBalanceDAO);
 
         when(mockBalanceDAO.getAccumulatedFromMonth(anyInt(), any(YearMonth.class)))
                 .thenReturn(mutableBigDecimal);
