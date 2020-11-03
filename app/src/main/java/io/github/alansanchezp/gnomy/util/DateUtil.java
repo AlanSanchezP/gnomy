@@ -2,6 +2,7 @@ package io.github.alansanchezp.gnomy.util;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -39,6 +40,10 @@ public class DateUtil {
 
     public static YearMonth now() {
         return YearMonth.now(getClock());
+    }
+
+    public static OffsetDateTime OffsetDateTimeNow() {
+        return OffsetDateTime.now(getClock());
     }
 
     public static String getYearMonthString(YearMonth yearMonth) {

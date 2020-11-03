@@ -11,6 +11,7 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import io.github.alansanchezp.gnomy.R;
+import io.github.alansanchezp.gnomy.util.DateUtil;
 
 @Entity(tableName = "accounts")
 public class Account {
@@ -43,11 +44,10 @@ public class Account {
 
     @ColumnInfo(name="created_at")
     @NonNull
-    private OffsetDateTime createdAt = OffsetDateTime.now();
+    private OffsetDateTime createdAt = DateUtil.OffsetDateTimeNow();
 
     @ColumnInfo(name="initial_value")
-    @NonNull
-    private BigDecimal initialValue = new BigDecimal(0);
+    private BigDecimal initialValue;
 
     @ColumnInfo(name="account_type")
     private int type = BANK;
@@ -65,7 +65,9 @@ public class Account {
     @ColumnInfo(name="bg_color")
     private int backgroundColor;
 
-    public Account() {}
+    public Account() {
+        setInitialValue("0");
+    }
 
     @Ignore
     public static int getDrawableResourceId(int type) {
@@ -222,6 +224,7 @@ public class Account {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Account account = (Account) o;
+
         return id == account.id &&
                 type == account.type &&
                 showInDashboard == account.showInDashboard &&
