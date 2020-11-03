@@ -1,7 +1,6 @@
 package io.github.alansanchezp.gnomy.account;
 
 import android.content.Intent;
-import android.util.Log;
 
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -107,7 +106,6 @@ public class AccountBalanceHistoryActivityInstrumentedTest {
     @Test
     public void total_balances_color_is_dynamic() {
         // Totals are 0
-        Log.d("MOCKITOTEST", "total_balances_color_is_dynamic: total is 0");
         mutableMonthlyBalance.postValue(testBalance);
         onView(withId(R.id.account_history_confirmed_total))
                 .check(matches(
@@ -120,7 +118,6 @@ public class AccountBalanceHistoryActivityInstrumentedTest {
                 ));
 
         // Totals are > 0
-        Log.d("MOCKITOTEST", "total_balances_color_is_dynamic: total is > 0");
         testBalance.setTotalIncomes(new BigDecimal("1"));
         testBalance.setProjectedIncomes(new BigDecimal("1"));
         mutableMonthlyBalance.postValue(testBalance);
@@ -136,7 +133,6 @@ public class AccountBalanceHistoryActivityInstrumentedTest {
                 ));
 
         // Totals are < 0
-        Log.d("MOCKITOTEST", "total_balances_color_is_dynamic: total is < 0");
         testBalance.setTotalExpenses(new BigDecimal("2"));
         testBalance.setProjectedExpenses(new BigDecimal("2"));
         mutableMonthlyBalance.postValue(testBalance);

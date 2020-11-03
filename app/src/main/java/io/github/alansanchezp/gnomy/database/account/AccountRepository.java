@@ -1,7 +1,6 @@
 package io.github.alansanchezp.gnomy.database.account;
 
 import android.content.Context;
-import android.util.Log;
 
 import java.time.YearMonth;
 
@@ -12,33 +11,19 @@ import androidx.lifecycle.LiveData;
 import io.github.alansanchezp.gnomy.database.GnomyDatabase;
 import io.reactivex.Single;
 
-// !! IMPORTANT !!
-// DO NOT IMPLEMENT ON MAIN SOURCESET, TEST-ONLY CLASS
-import io.github.alansanchezp.gnomy.database.MockRepositoryUtility;
-
 public class AccountRepository {
-    private LiveData<List<Account>> allAccounts;
     private AccountDAO accountDAO;
     private MonthlyBalanceDAO balanceDAO;
 
     public AccountRepository(Context context) {
-        try {
-            // TODO: Change for DEBUG flag?
-            Class.forName("io.github.alansanchezp.gnomy.MainNavigationInstrumentedTest");
-            accountDAO = MockRepositoryUtility.getAccountDAO();
-            balanceDAO = MockRepositoryUtility.getBalanceDAO();
-        } catch (ClassNotFoundException|IllegalStateException ex) {
-            if (ex instanceof IllegalStateException) Log.w("AccountRepository", "(): ", ex);
-            GnomyDatabase db;
-            db = GnomyDatabase.getInstance(context, "");
-            accountDAO = db.accountDAO();
-            balanceDAO = db.monthlyBalanceDAO();
-            allAccounts = accountDAO.getAll();
-        }
+        GnomyDatabase db;
+        db = GnomyDatabase.getInstance(context, "");
+        accountDAO = db.accountDAO();
+        balanceDAO = db.monthlyBalanceDAO();
     }
 
     public LiveData<List<Account>> getAll() {
-        return allAccounts;
+        return accountDAO.getAll();
     }
 
     public LiveData<List<Account>> getArchivedAccounts() {
