@@ -5,11 +5,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.time.YearMonth;
+
+import androidx.lifecycle.MutableLiveData;
 import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import io.github.alansanchezp.gnomy.R;
+import io.github.alansanchezp.gnomy.database.MockDatabaseOperationsUtil;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.ui.account.AccountDetailsActivity;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
@@ -27,6 +31,10 @@ import static androidx.test.espresso.matcher.ViewMatchers.withTagValue;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -35,13 +43,22 @@ import static org.hamcrest.Matchers.not;
  */
 @RunWith(AndroidJUnit4.class)
 public class AccountDetailsActivityInstrumentedTest {
-    private static Account testAccount;
+    private static final Account testAccount = new Account(1);
+    private static final MutableLiveData<Account> mutableAccount = new MutableLiveData<>();
 
     @BeforeClass
-    public static void setup() {
-        testAccount = new Account();
-        testAccount.setId(1);
+    public static void init_mocks() {
+        final MockDatabaseOperationsUtil.MockableAccountDAO mockAccountDAO = mock(MockDatabaseOperationsUtil.MockableAccountDAO.class);
+        // Needed so that ViewModel instance doesn't crash
+        final MockDatabaseOperationsUtil.MockableMonthlyBalanceDAO mockBalanceDAO = mock(MockDatabaseOperationsUtil.MockableMonthlyBalanceDAO.class);
+        MockDatabaseOperationsUtil.setAccountDAO(mockAccountDAO);
+        MockDatabaseOperationsUtil.setBalanceDAO(mockBalanceDAO);
+
         testAccount.setBackgroundColor(ColorUtil.getRandomColor());
+        when(mockAccountDAO.find(anyInt()))
+                .thenReturn(mutableAccount);
+        when(mockBalanceDAO.getAccumulatedFromMonth(anyInt(), any(YearMonth.class)))
+                .thenReturn(new MutableLiveData<>());
     }
 
     @Rule
@@ -50,14 +67,18 @@ public class AccountDetailsActivityInstrumentedTest {
 
     @Test
     public void menu_items_get_enabled_dynamically() {
-        onView(withId(R.id.action_archive_account))
-                .check(matches(not(isEnabled())));
+        // These asserts will only be true if the test is the first one being executed
+        // and we shouldn't force a postValue(null) call as that will force finish
+        // the activity
+        if (mutableAccount.getValue() == null) {
+            onView(withId(R.id.action_archive_account))
+                    .check(matches(not(isEnabled())));
 
-        onView(withId(R.id.action_account_actions))
-                .check(matches(not(isEnabled())));
+            onView(withId(R.id.action_account_actions))
+                    .check(matches(not(isEnabled())));
+        }
 
-        activityRule.getScenario().onActivity(activity ->
-                activity.onAccountChanged(testAccount));
+        mutableAccount.postValue(testAccount);
 
         onView(withId(R.id.action_archive_account))
                 .check(matches(isEnabled()));
@@ -69,8 +90,7 @@ public class AccountDetailsActivityInstrumentedTest {
     // TODO: Implement other actions when Transactions module is ready
     @Test
     public void archived_menu_item_opens_dialog() {
-        activityRule.getScenario().onActivity(activity ->
-                activity.onAccountChanged(testAccount));
+        mutableAccount.postValue(testAccount);
 
         onView(withId(R.id.action_archive_account))
                 .perform(click());
@@ -95,8 +115,7 @@ public class AccountDetailsActivityInstrumentedTest {
 
     @Test
     public void FAB_opens_addedit_activity() {
-        activityRule.getScenario().onActivity(activity ->
-                activity.onAccountChanged(testAccount));
+        mutableAccount.postValue(testAccount);
 
         onView(withId(R.id.account_floating_action_button))
                 .perform(click());
@@ -112,8 +131,7 @@ public class AccountDetailsActivityInstrumentedTest {
         String legend_string = InstrumentationRegistry.getInstrumentation().getTargetContext()
                 .getString(R.string.account_balance_history_legend);
 
-        activityRule.getScenario().onActivity(activity ->
-                activity.onAccountChanged(testAccount));
+        mutableAccount.postValue(testAccount);
 
         onView(withId(R.id.account_see_more_button))
                 .perform(click());
@@ -126,8 +144,7 @@ public class AccountDetailsActivityInstrumentedTest {
 
     @Test
     public void shows_icon_and_label_for_showInDashboard_field() {
-        activityRule.getScenario().onActivity(activity ->
-                activity.onAccountChanged(testAccount));
+        mutableAccount.postValue(testAccount);
 
         onView(withId(R.id.account_included_in_sum_text))
                 .check(matches(
@@ -140,8 +157,7 @@ public class AccountDetailsActivityInstrumentedTest {
                 ));
 
         testAccount.setShowInDashboard(false);
-        activityRule.getScenario().onActivity(activity ->
-                activity.onAccountChanged(testAccount));
+        mutableAccount.postValue(testAccount);
 
         onView(withId(R.id.account_included_in_sum_text))
                 .check(matches(

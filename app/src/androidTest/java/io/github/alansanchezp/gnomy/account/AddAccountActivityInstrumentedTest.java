@@ -2,6 +2,7 @@ package io.github.alansanchezp.gnomy.account;
 
 import android.content.pm.ActivityInfo;
 
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,7 +10,10 @@ import org.junit.runner.RunWith;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import io.github.alansanchezp.gnomy.R;
+import io.github.alansanchezp.gnomy.database.MockDatabaseOperationsUtil;
+import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.ui.account.AddEditAccountActivity;
+import io.reactivex.Single;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -23,6 +27,9 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.not;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -34,6 +41,17 @@ public class AddAccountActivityInstrumentedTest {
     @Rule
     public final ActivityScenarioRule<AddEditAccountActivity> activityRule =
             new ActivityScenarioRule<>(AddEditAccountActivity.class);
+
+    // Needed so that ViewModel instance doesn't crash
+    @BeforeClass
+    public static void init_mocks() {
+        final MockDatabaseOperationsUtil.MockableAccountDAO mockAccountDAO = mock(MockDatabaseOperationsUtil.MockableAccountDAO.class);
+        final MockDatabaseOperationsUtil.MockableMonthlyBalanceDAO mockBalanceDAO = mock(MockDatabaseOperationsUtil.MockableMonthlyBalanceDAO.class);
+        MockDatabaseOperationsUtil.setAccountDAO(mockAccountDAO);
+        MockDatabaseOperationsUtil.setBalanceDAO(mockBalanceDAO);
+        when(mockAccountDAO.insert(any(Account.class)))
+                .thenReturn(Single.just(new Long[1]));
+    }
 
     @Test
     public void dynamic_title_is_correct() {

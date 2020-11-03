@@ -37,6 +37,7 @@
     <string name="confirmation_dialog_description">Are you sure you want to do this? Your changes will be discarded.</string>
     <string name="confirmation_dialog_yes">Yes</string>
     <string name="confirmation_dialog_no">No</string>
+    <string name="generic_data_error">An error occurred while processing your data.</string>
 
     <!--  Accounts fragment  -->
     <string name="accounts_test_month">September 2020</string>

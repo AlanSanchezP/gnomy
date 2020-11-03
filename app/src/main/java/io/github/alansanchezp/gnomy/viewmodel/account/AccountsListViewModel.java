@@ -13,6 +13,7 @@ import androidx.lifecycle.Transformations;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
+import io.reactivex.Single;
 
 public class AccountsListViewModel extends AndroidViewModel {
     private static final String TAG_TARGET_TO_ARCHIVE = "account-id-to-archive";
@@ -71,19 +72,19 @@ public class AccountsListViewModel extends AndroidViewModel {
         mState.set(TAG_TARGET_TO_DELETE, targetId);
     }
 
-    public void delete(Account account) {
-        mRepository.delete(account);
+    public Single<Integer> delete(Account account) {
+        return mRepository.delete(account);
     }
 
-    public void archive(Account account) {
-        mRepository.archive(account);
+    public Single<Integer> archive(int accountId) {
+        return mRepository.archive(accountId);
     }
 
-    public void restore(Account account) {
-        mRepository.restore(account);
+    public Single<Integer> restore(int accountId) {
+        return mRepository.restore(accountId);
     }
 
-    public void restoreAll() {
-        mRepository.restoreAll();
+    public Single<Integer> restoreAll() {
+        return mRepository.restoreAll();
     }
 }

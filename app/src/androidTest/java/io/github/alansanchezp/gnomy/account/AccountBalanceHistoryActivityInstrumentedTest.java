@@ -8,13 +8,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.math.BigDecimal;
+import java.time.YearMonth;
 
+import androidx.lifecycle.MutableLiveData;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
+
 import io.github.alansanchezp.gnomy.R;
+import io.github.alansanchezp.gnomy.database.MockDatabaseOperationsUtil;
 import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
 import io.github.alansanchezp.gnomy.ui.account.AccountBalanceHistoryActivity;
 import io.github.alansanchezp.gnomy.util.DateUtil;
@@ -26,6 +30,10 @@ import static androidx.test.espresso.matcher.ViewMatchers.hasTextColor;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -34,13 +42,10 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
  */
 @RunWith(AndroidJUnit4.class)
 public class AccountBalanceHistoryActivityInstrumentedTest {
-    private static MonthlyBalance testBalance;
+    private static MonthlyBalance testBalance = new MonthlyBalance();
     private static final String accountTitle = "Test account";
-
-    @BeforeClass
-    public static void setup() {
-        testBalance = new MonthlyBalance();
-    }
+    private static final MutableLiveData<MonthlyBalance> mutableMonthlyBalance = new MutableLiveData<>();
+    private static final MutableLiveData<BigDecimal> mutableBigDecimal = new MutableLiveData<>();
 
     private final Intent intent = new Intent(
             ApplicationProvider.getApplicationContext(), AccountBalanceHistoryActivity.class)
@@ -50,6 +55,20 @@ public class AccountBalanceHistoryActivityInstrumentedTest {
     @Rule
     public final ActivityScenarioRule<AccountBalanceHistoryActivity> activityRule =
             new ActivityScenarioRule<>(intent);
+
+    @BeforeClass
+    public static void init_mocks() {
+        // Needed so that ViewModel instance doesn't crash
+        final MockDatabaseOperationsUtil.MockableAccountDAO mockAccountDAO = mock(MockDatabaseOperationsUtil.MockableAccountDAO.class);
+        final MockDatabaseOperationsUtil.MockableMonthlyBalanceDAO mockBalanceDAO = mock(MockDatabaseOperationsUtil.MockableMonthlyBalanceDAO.class);
+        MockDatabaseOperationsUtil.setAccountDAO(mockAccountDAO);
+        MockDatabaseOperationsUtil.setBalanceDAO(mockBalanceDAO);
+
+        when(mockBalanceDAO.getAccumulatedFromMonth(anyInt(), any(YearMonth.class)))
+                .thenReturn(mutableBigDecimal);
+        when(mockBalanceDAO.find(anyInt(), any(YearMonth.class)))
+                .thenReturn(mutableMonthlyBalance);
+    }
 
     @Test
     public void title_is_shown() {
@@ -87,9 +106,7 @@ public class AccountBalanceHistoryActivityInstrumentedTest {
     @Test
     public void total_balances_color_is_dynamic() {
         // Totals are 0
-        activityRule.getScenario().onActivity(activity ->
-                activity.onBalanceChanged(testBalance));
-
+        mutableMonthlyBalance.postValue(testBalance);
         onView(withId(R.id.account_history_confirmed_total))
                 .check(matches(
                         hasTextColor(R.color.colorText)
@@ -103,8 +120,7 @@ public class AccountBalanceHistoryActivityInstrumentedTest {
         // Totals are > 0
         testBalance.setTotalIncomes(new BigDecimal("1"));
         testBalance.setProjectedIncomes(new BigDecimal("1"));
-        activityRule.getScenario().onActivity(activity ->
-                activity.onBalanceChanged(testBalance));
+        mutableMonthlyBalance.postValue(testBalance);
 
         onView(withId(R.id.account_history_confirmed_total))
                 .check(matches(
@@ -119,8 +135,7 @@ public class AccountBalanceHistoryActivityInstrumentedTest {
         // Totals are < 0
         testBalance.setTotalExpenses(new BigDecimal("2"));
         testBalance.setProjectedExpenses(new BigDecimal("2"));
-        activityRule.getScenario().onActivity(activity ->
-                activity.onBalanceChanged(testBalance));
+        mutableMonthlyBalance.postValue(testBalance);
 
         onView(withId(R.id.account_history_confirmed_total))
                 .check(matches(
@@ -184,15 +199,11 @@ public class AccountBalanceHistoryActivityInstrumentedTest {
 
     @Test
     public void check_them_button_is_hidden_if_no_balance() {
-        activityRule.getScenario().onActivity(activity ->
-                activity.onBalanceChanged(testBalance));
-
+        mutableMonthlyBalance.postValue(testBalance);
         onView(withId(R.id.account_history_check_btn))
                 .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
 
-        activityRule.getScenario().onActivity(activity ->
-                activity.onBalanceChanged(null));
-
+        mutableMonthlyBalance.postValue(null);
         onView(withId(R.id.account_history_check_btn))
                 .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }

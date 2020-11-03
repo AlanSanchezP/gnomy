@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import io.github.alansanchezp.gnomy.util.DateUtil;
+import io.reactivex.disposables.CompositeDisposable;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -27,6 +28,8 @@ public abstract class MainNavigationFragment
     protected int mColumnCount = 1;
     protected int mFragmentIndex = 0;
     protected YearMonth mCurrentMonth;
+    protected final CompositeDisposable mCompositeDisposable
+            = new CompositeDisposable();
 
     /* ANDROID LIFECYCLE METHODS */
 
@@ -54,7 +57,7 @@ public abstract class MainNavigationFragment
                 public LiveData<YearMonth> getActiveMonth() {
                     MutableLiveData<YearMonth> mutableActiveMonth = new MutableLiveData<>();
                     mutableActiveMonth.postValue(DateUtil.now());
-                    return (LiveData<YearMonth>) mutableActiveMonth;
+                    return mutableActiveMonth;
                 }
             };
         }
@@ -94,6 +97,12 @@ public abstract class MainNavigationFragment
     public void onDetach() {
         super.onDetach();
         mNavigationInterface = null;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mCompositeDisposable.dispose();
     }
 
     /* ABSTRACT METHODS */

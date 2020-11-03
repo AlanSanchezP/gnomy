@@ -39,7 +39,9 @@ public class SingleClickViewHolder<T extends View> {
     }
 
     public void onView(OnViewActionPerformer<T> performer) {
-        performer.onView(mView);
+        // TODO: Is there a better way to achieve this?
+        //  If not running on UI, it throws android.view.ViewRootImpl$CalledFromWrongThreadException during tests
+        mView.post(() -> performer.onView(mView));
     }
 
     public void setOnClickListener(View.OnClickListener listener) {

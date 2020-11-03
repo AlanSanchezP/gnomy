@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.testing.FragmentScenario;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.espresso.NoMatchingViewException;
@@ -35,6 +34,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 @RunWith(AndroidJUnit4.class)
 public class ArchivedAccountsDialogFragmentInstrumentedTest {
     private static final Account[] accounts = new Account[2];
+    private static final MutableLiveData<List<Account>> mutableAccountsList = new MutableLiveData<>();
     private static CustomDialogFragmentFactory factory;
 
     @BeforeClass
@@ -53,9 +53,7 @@ public class ArchivedAccountsDialogFragmentInstrumentedTest {
 
             @Override
             public LiveData<List<Account>> getArchivedAccounts() {
-                MutableLiveData<List<Account>> mlv = new MutableLiveData<>();
-                mlv.setValue(new ArrayList<>());
-                return (LiveData<List<Account>>) mlv;
+                return mutableAccountsList;
             }
 
             @Override
@@ -63,9 +61,6 @@ public class ArchivedAccountsDialogFragmentInstrumentedTest {
             }
         });
         factory = new CustomDialogFragmentFactory(mapper);
-
-        accounts[0] = new Account();
-        accounts[1] = new Account();
 
         accounts[0] = new Account();
         accounts[0].setName("Test account 1");
@@ -76,9 +71,10 @@ public class ArchivedAccountsDialogFragmentInstrumentedTest {
 
     @Test
     public void dynamically_shown_ui_elements_according_to_list_size() {
-        FragmentScenario<ArchivedAccountsDialogFragment> scenario = launchInContainer(
+        launchInContainer(
                 ArchivedAccountsDialogFragment.class, null, R.style.AppTheme, factory);
         List<Account> accountsList = new ArrayList<>();
+        mutableAccountsList.postValue(accountsList);
 
         // List size is 0 as initial state or LiveData hasn't returned any results
         onView(withId(R.id.archived_items_empty))
@@ -93,8 +89,7 @@ public class ArchivedAccountsDialogFragmentInstrumentedTest {
 
         // List grows
         accountsList.add(accounts[0]);
-        scenario.onFragment(fragment ->
-                fragment.onAccountsListChanged(accountsList));
+        mutableAccountsList.postValue(accountsList);
 
         onView(withId(R.id.archived_items_empty))
                 .check(matches(
@@ -107,8 +102,7 @@ public class ArchivedAccountsDialogFragmentInstrumentedTest {
                 ));
 
         accountsList.add(accounts[1]);
-        scenario.onFragment(fragment ->
-                fragment.onAccountsListChanged(accountsList));
+        mutableAccountsList.postValue(accountsList);
 
         onView(withId(R.id.archived_items_empty))
                 .check(matches(
@@ -122,8 +116,7 @@ public class ArchivedAccountsDialogFragmentInstrumentedTest {
 
         // List size is 0 as a result of restoring/deleting all items
         accountsList.clear();
-        scenario.onFragment(fragment ->
-                fragment.onAccountsListChanged(accountsList));
+        mutableAccountsList.postValue(accountsList);
 
         try {
             onView(withId(R.id.archived_items_container))

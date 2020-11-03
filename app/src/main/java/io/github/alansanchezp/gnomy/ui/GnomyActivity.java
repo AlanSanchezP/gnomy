@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.ui.CustomDialogFragmentFactory.CustomDialogFragmentInterface;
+import io.reactivex.disposables.CompositeDisposable;
 
 public abstract class GnomyActivity
         extends AppCompatActivity
@@ -23,6 +24,8 @@ public abstract class GnomyActivity
     protected Menu mMenu;
     protected int mThemeColor;
     protected int mThemeTextColor;
+    protected final CompositeDisposable mCompositeDisposable
+            = new CompositeDisposable();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +41,12 @@ public abstract class GnomyActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         mMenu = menu;
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mCompositeDisposable.dispose();
     }
 
     protected Map<Class<? extends Fragment>,CustomDialogFragmentInterface>

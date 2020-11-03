@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.time.YearMonth;
 
@@ -41,6 +42,8 @@ import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.viewmodel.account.AccountsListViewModel;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 
 /**
@@ -214,7 +217,7 @@ public class AccountsFragment extends MainNavigationFragment
         mCurrentMonth = month;
     }
 
-    public void onAccountsListChanged(List<AccountWithBalance> accounts) {
+    private void onAccountsListChanged(List<AccountWithBalance> accounts) {
         if (mCurrentMonth == null) return;
         mAdapter.setValues(accounts, mCurrentMonth);
 
@@ -291,8 +294,16 @@ public class AccountsFragment extends MainNavigationFragment
         dialog.show(fm, TAG_ARCHIVE_ACCOUNT_DIALOG);
     }
 
-    private void effectiveArchiveAccount(Account account) {
-        mListViewModel.archive(account);
+    private void effectiveArchiveAccount(int accountId) {
+        mCompositeDisposable.add(
+                mListViewModel.archive(accountId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                integer ->
+                                        mListViewModel.setTargetIdToArchive(0),
+                                throwable ->
+                                        Toast.makeText(getContext(), R.string.generic_data_error, Toast.LENGTH_LONG).show()));
     }
 
     @Override
@@ -311,12 +322,27 @@ public class AccountsFragment extends MainNavigationFragment
     }
 
     private void effectiveDeleteAccount(Account account) {
-        mListViewModel.delete(account);
+        mCompositeDisposable.add(
+                mListViewModel.delete(account)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                integer ->
+                                        mListViewModel.setTargetIdToDelete(0),
+                                throwable ->
+                                        Toast.makeText(getContext(), R.string.generic_data_error, Toast.LENGTH_LONG).show()));
     }
 
     @Override
     public void restoreAccount(Account account) {
-        mListViewModel.restore(account);
+        mCompositeDisposable.add(
+                mListViewModel.restore(account.getId())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                integer -> {},
+                                throwable ->
+                                        Toast.makeText(getContext(), R.string.generic_data_error, Toast.LENGTH_LONG).show()));
     }
 
     @Override
@@ -326,7 +352,14 @@ public class AccountsFragment extends MainNavigationFragment
 
     @Override
     public void restoreAllAccounts() {
-        mListViewModel.restoreAll();
+        mCompositeDisposable.add(
+                mListViewModel.restoreAll()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                integer -> {},
+                                throwable ->
+                                        Toast.makeText(getContext(), R.string.generic_data_error, Toast.LENGTH_LONG).show()));
     }
 
     @Override
@@ -337,18 +370,14 @@ public class AccountsFragment extends MainNavigationFragment
                 Log.wtf("AccountsFragment", "onConfirmationDialogYes: Trying to archive null object.");
                 return;
             }
-            Account toArchive = new Account();
-            toArchive.setId(idToArchive);
-            effectiveArchiveAccount(toArchive);
+            effectiveArchiveAccount(idToArchive);
         } else if (dialogTag.equals(TAG_DELETE_ACCOUNT_DIALOG)) {
             int idToDelete = mListViewModel.getTargetIdToDelete();
             if (idToDelete == 0)  {
                 Log.wtf("AccountsFragment", "onConfirmationDialogYes: Trying to delete null object.");
                 return;
             }
-            Account toDelete = new Account();
-            toDelete.setId(idToDelete);
-            effectiveDeleteAccount(toDelete);
+            effectiveDeleteAccount(new Account(idToDelete));
         }
 
     }

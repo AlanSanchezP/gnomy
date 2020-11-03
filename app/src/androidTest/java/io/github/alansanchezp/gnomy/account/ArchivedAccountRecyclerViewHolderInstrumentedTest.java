@@ -34,7 +34,6 @@ public class ArchivedAccountRecyclerViewHolderInstrumentedTest {
 
     @BeforeClass
     public static void init_test_account() {
-        Locale.setDefault(Locale.US);
         testAccount.setName("Test account 1");
         testAccount.setType(Account.BANK);
         testAccount.setBackgroundColor(0xFF4D7C4F);

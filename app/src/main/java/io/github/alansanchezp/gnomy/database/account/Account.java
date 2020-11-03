@@ -3,6 +3,7 @@ package io.github.alansanchezp.gnomy.database.account;
 import java.time.OffsetDateTime;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
@@ -10,6 +11,7 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import io.github.alansanchezp.gnomy.R;
+import io.github.alansanchezp.gnomy.util.DateUtil;
 
 @Entity(tableName = "accounts")
 public class Account {
@@ -42,11 +44,10 @@ public class Account {
 
     @ColumnInfo(name="created_at")
     @NonNull
-    private OffsetDateTime createdAt = OffsetDateTime.now();
+    private OffsetDateTime createdAt = DateUtil.OffsetDateTimeNow();
 
     @ColumnInfo(name="initial_value")
-    @NonNull
-    private BigDecimal initialValue = new BigDecimal(0);
+    private BigDecimal initialValue;
 
     @ColumnInfo(name="account_type")
     private int type = BANK;
@@ -64,7 +65,9 @@ public class Account {
     @ColumnInfo(name="bg_color")
     private int backgroundColor;
 
-    public Account() {}
+    public Account() {
+        setInitialValue("0");
+    }
 
     @Ignore
     public static int getDrawableResourceId(int type) {
@@ -102,6 +105,12 @@ public class Account {
             default:
                 return R.string.account_type_other;
         }
+    }
+
+    @Ignore
+    public Account(int accountId) {
+        this();
+        this.id = accountId;
     }
 
     @Ignore
@@ -207,6 +216,29 @@ public class Account {
     // Custom Getters and setters
     public void setInitialValue(String stringValue) throws NumberFormatException {
         this.initialValue = new BigDecimal(stringValue)
-                .setScale(DECIMAL_SCALE, BigDecimal.ROUND_HALF_EVEN);
+                .setScale(DECIMAL_SCALE, BigDecimal.ROUND_HALF_EVEN)
+                .stripTrailingZeros();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Account account = (Account) o;
+
+        return id == account.id &&
+                type == account.type &&
+                showInDashboard == account.showInDashboard &&
+                isArchived == account.isArchived &&
+                backgroundColor == account.backgroundColor &&
+                name.equals(account.name) &&
+                createdAt.equals(account.createdAt) &&
+                initialValue.equals(account.initialValue) &&
+                defaultCurrency.equals(account.defaultCurrency);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, createdAt, initialValue, type, defaultCurrency, showInDashboard, isArchived, backgroundColor);
     }
 }

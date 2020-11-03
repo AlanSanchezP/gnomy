@@ -9,48 +9,72 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
+import io.reactivex.Single;
+import io.reactivex.SingleObserver;
 
 @Dao
 public abstract class AccountDAO  {
+
     @Query("SELECT * FROM accounts WHERE is_archived = 0")
-    abstract LiveData<List<Account>> getAll();
+    protected abstract LiveData<List<Account>> getAll();
 
     @Query("SELECT * FROM accounts WHERE is_archived = 1")
-    abstract LiveData<List<Account>> getArchivedAccounts();
+    protected abstract LiveData<List<Account>> getArchivedAccounts();
 
     @Query("SELECT * FROM accounts WHERE account_id = :id")
-    abstract LiveData<Account> find(int id);
-
-    @Query("SELECT * FROM accounts WHERE account_id = :id")
-    abstract Account findSync(int id);
+    protected abstract LiveData<Account> find(int id);
 
     @Insert
-    abstract void insert(Account... accounts);
+    protected abstract Single<Long[]> insert(Account... accounts);
 
     @Delete
-    abstract void delete(Account... accounts);
-
-    @Transaction
-    public void update(Account account) {
-        Account original = findSync(account.getId());
-
-        if (!original.getDefaultCurrency().equals(account.getDefaultCurrency())) {
-            // TODO: recalculation of calculated values.
-            //  See GnomyDatabase's TODOs
-        }
-
-        _update(account);
-    }
-
-    @Update
-    protected abstract void _update(Account account);
+    protected abstract Single<Integer> delete(Account... accounts);
 
     @Query("UPDATE OR ABORT accounts SET is_archived = 1 WHERE account_id = :id")
-    abstract void archive(int id);
+    protected abstract Single<Integer> archive(int id);
 
     @Query("UPDATE OR ABORT accounts SET is_archived = 0 WHERE account_id = :id")
-    abstract void restore(int id);
+    protected abstract Single<Integer> restore(int id);
 
     @Query("UPDATE OR ABORT accounts SET is_archived = 0 WHERE is_archived = 1")
-    abstract void restoreAll();
+    protected abstract Single<Integer> restoreAll();
+
+    public Single<Integer> update(Account account) {
+        return new Single<Integer>() {
+            @Override
+            protected void subscribeActual(SingleObserver<? super Integer> observer) {
+                try {
+                    observer.onSuccess(syncSafeUpdate(account));
+                } catch (Throwable throwable) {
+                    observer.onError(throwable);
+                }
+            }
+        };
+    }
+
+    // SYNCHRONOUS OPERATIONS, NEVER USE DIRECTLY FROM REPOSITORY
+    // WITHOUT WRAPPING THEM IN Single<> METHODS
+
+    @Query("SELECT * FROM accounts WHERE account_id = :id")
+    protected abstract Account syncFind(int id);
+
+    @Update
+    protected abstract int syncUpdate(Account account);
+
+    // TODO: Test the (hopefully) few manually implemented db operations
+    //  Current implementation blocks this possibility as Repositories
+    //  always use mocked DAOs directly
+    @Transaction
+    protected int syncSafeUpdate(Account account) {
+        Account original = syncFind(account.getId());
+        if (original.equals(account)) return 0;
+
+        // TODO: Analyze what we should do here
+        //  Current behavior: Reject update if it contains altered currency
+        if (original.getDefaultCurrency().equals(
+                account.getDefaultCurrency())) {
+            return syncUpdate(account);
+        }
+        throw new IllegalArgumentException("It is not allowed to change an account's currency");
+    }
 }

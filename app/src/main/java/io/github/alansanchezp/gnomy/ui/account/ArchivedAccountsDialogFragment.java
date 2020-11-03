@@ -94,7 +94,7 @@ public class ArchivedAccountsDialogFragment extends DialogFragment {
         return view;
     }
 
-    public void onAccountsListChanged(List<Account> accounts) {
+    private void onAccountsListChanged(List<Account> accounts) {
         int itemsCount = accounts.size();
         if (mListSize != -1 && itemsCount == 0) {
             dismiss();

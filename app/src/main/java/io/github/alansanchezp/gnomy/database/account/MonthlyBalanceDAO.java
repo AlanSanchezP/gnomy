@@ -64,7 +64,7 @@ public abstract class MonthlyBalanceDAO {
             "WHERE accounts.is_archived = 0")
     protected abstract LiveData<List<AccountWithBalance>> _getAllFromMonth(YearMonth month);
 
-    public LiveData<List<AccountWithBalance>> getAllFromMonth(YearMonth month) {
+    protected LiveData<List<AccountWithBalance>> getAllFromMonth(YearMonth month) {
         if (DateUtil.now().equals(month)) {
             return _getAllLatest();
         } else {
@@ -84,7 +84,7 @@ public abstract class MonthlyBalanceDAO {
                 ") as _monthly_balances " +
             "ON accounts.account_id = _monthly_balances.account_id " +
             "WHERE accounts.account_id = :accountId")
-    abstract LiveData<BigDecimal> getAccumulatedFromMonth(int accountId, YearMonth month);
+    protected abstract LiveData<BigDecimal> getAccumulatedFromMonth(int accountId, YearMonth month);
 
     @Transaction
     @Query("SELECT monthly_balances.* " +
@@ -93,10 +93,10 @@ public abstract class MonthlyBalanceDAO {
             "ON accounts.account_id = monthly_balances.account_id " +
             "WHERE monthly_balances.account_id = :accountId " +
             "AND accounts.is_archived = 0")
-    abstract LiveData<List<MonthlyBalance>> getAllFromAccount(int accountId);
+    protected abstract LiveData<List<MonthlyBalance>> getAllFromAccount(int accountId);
 
     @Query("SELECT * FROM monthly_balances WHERE account_id = :accountId AND balance_date = :month")
-    abstract LiveData<MonthlyBalance> find(int accountId, YearMonth month);
+    protected abstract LiveData<MonthlyBalance> find(int accountId, YearMonth month);
 
     @Insert
     protected abstract void insert(MonthlyBalance... balances);
