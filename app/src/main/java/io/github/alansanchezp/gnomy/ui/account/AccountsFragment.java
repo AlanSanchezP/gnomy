@@ -42,6 +42,7 @@ import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.viewmodel.account.AccountsListViewModel;
+
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
@@ -328,9 +329,9 @@ public class AccountsFragment extends MainNavigationFragment
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
                                 integer ->
-                                        mListViewModel.setTargetIdToDelete(0),
+                                    mListViewModel.setTargetIdToDelete(0),
                                 throwable ->
-                                        Toast.makeText(getContext(), R.string.generic_data_error, Toast.LENGTH_LONG).show()));
+                                    Toast.makeText(getContext(), R.string.generic_data_error, Toast.LENGTH_LONG).show()));
     }
 
     @Override
@@ -377,6 +378,15 @@ public class AccountsFragment extends MainNavigationFragment
                 Log.wtf("AccountsFragment", "onConfirmationDialogYes: Trying to delete null object.");
                 return;
             }
+
+            ArchivedAccountsDialogFragment archivedAccountsDialog
+                    = (ArchivedAccountsDialogFragment) getChildFragmentManager()
+                        .findFragmentByTag(ArchivedAccountsDialogFragment.TAG_ARCHIVED_ACCOUNTS_DIALOG);
+            if (archivedAccountsDialog != null &&
+                    getArchivedAccounts().getValue().size() == 1) {
+                archivedAccountsDialog.dismiss();
+            }
+
             effectiveDeleteAccount(new Account(idToDelete));
         }
 

@@ -89,7 +89,6 @@ public class ArchivedAccountsRecyclerViewAdapter
         private void setEventListeners(OnArchivedItemInteractionListener listener) {
             SingleClickViewHolder<Button> restoreVH = new SingleClickViewHolder<>(mRestoreButton);
             SingleClickViewHolder<Button> deleteVH = new SingleClickViewHolder<>(mDeleteButton);
-            // TODO: Handle async nature of these calls
             restoreVH.setOnClickListener(v -> listener.restoreAccount(mItem));
             deleteVH.setOnClickListener(v -> listener.deleteAccount(mItem));
         }
