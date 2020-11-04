@@ -48,7 +48,7 @@ public class ConfirmationDialogFragment extends DialogFragment {
         if (mYesString == null) mYesString = getString(R.string.confirmation_dialog_yes);
         if (mNoString == null) mNoString = getString(R.string.confirmation_dialog_no);
 
-        setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Material_Light_Dialog);
+        setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Material_Light_Dialog_Alert);
     }
 
     @Override
