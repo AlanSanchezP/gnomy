@@ -28,6 +28,7 @@ public abstract class MainNavigationFragment
     protected int mColumnCount = 1;
     protected int mFragmentIndex = 0;
     protected YearMonth mCurrentMonth;
+    protected Menu mMenu;
     protected final CompositeDisposable mCompositeDisposable
             = new CompositeDisposable();
 
@@ -75,10 +76,17 @@ public abstract class MainNavigationFragment
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        if (mMenu != null) tintMenuIcons();
+    }
+
+    @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
-        inflater.inflate(getMenuResourceId(), menu);
-        tintMenuIcons(menu);
         super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(getMenuResourceId(), menu);
+        mMenu = menu;
+        tintMenuIcons();
     }
 
     @Override
@@ -117,7 +125,7 @@ public abstract class MainNavigationFragment
 
     protected abstract String getTitle();
 
-    protected abstract void tintMenuIcons(Menu menu);
+    protected abstract void tintMenuIcons();
 
     /* ABSTRACT CUSTOM LISTENERS */
 

@@ -18,7 +18,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +30,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
@@ -191,8 +191,8 @@ public class AccountsFragment extends MainNavigationFragment
         return getResources().getString(R.string.title_accounts);
     }
 
-    protected void tintMenuIcons(Menu menu) {
-        menu.findItem(R.id.action_show_archived)
+    protected void tintMenuIcons() {
+        mMenu.findItem(R.id.action_show_archived)
                 .getIcon()
                 .setTint(getResources().getColor(R.color.colorTextInverse));
     }
@@ -383,7 +383,7 @@ public class AccountsFragment extends MainNavigationFragment
                     = (ArchivedAccountsDialogFragment) getChildFragmentManager()
                         .findFragmentByTag(ArchivedAccountsDialogFragment.TAG_ARCHIVED_ACCOUNTS_DIALOG);
             if (archivedAccountsDialog != null &&
-                    getArchivedAccounts().getValue().size() == 1) {
+                    Objects.requireNonNull(getArchivedAccounts().getValue()).size() == 1) {
                 archivedAccountsDialog.dismiss();
             }
 
