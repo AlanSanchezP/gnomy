@@ -206,6 +206,8 @@ public class AddEditAccountActivity
         findViewById(R.id.addedit_account_container)
                 .setBackgroundColor(color);
 
+        // TODO: There is a blink in both FAB and color picker button
+        //  that is sometimes noticeable.
         mFABVH.onView(v -> ViewTintingUtil.tintFAB(v, fabBgColor, fabTextColor));
         ViewTintingUtil
                 .monotintTextInputLayout(mAccountNameTIL, mThemeTextColor);

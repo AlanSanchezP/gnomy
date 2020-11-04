@@ -168,6 +168,7 @@
         android:layout_marginBottom="35dp"
         android:clickable="true"
         android:focusable="true"
+        app:backgroundTint="#00000000"
         app:srcCompat="@drawable/ic_check_black_24dp" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

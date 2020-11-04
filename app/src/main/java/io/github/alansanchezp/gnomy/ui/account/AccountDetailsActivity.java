@@ -81,23 +81,16 @@ public class AccountDetailsActivity
                 updateBalanceSum(mAccount, balance));
     }
 
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        boolean superResponse = super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.account_details_menu, menu);
+        toggleMenuItems();
+        tintMenuItems();
 
-        Log.d("DETAILSACT", "onCreateOptionsMenu: mAccount SHOULD BE NULL RIGHT NOW " + mAccount);
-        if (mAccount == null || mAccount.getId() == 0) {
-            menu.findItem(R.id.action_account_actions)
-                    .setEnabled(false);
-            menu.findItem(R.id.action_archive_account)
-                    .setEnabled(false);
-            return super.onCreateOptionsMenu(menu);
-        }
-
-        boolean parentResponse = super.onCreateOptionsMenu(menu);
-        tintMenuItems(ColorUtil.getTextColor(mAccount.getBackgroundColor()));
-
-        return parentResponse;
+        return superResponse;
     }
 
     @Override
@@ -209,12 +202,7 @@ public class AccountDetailsActivity
         enableActions();
 
         tintElements(account.getBackgroundColor());
-        if (mMenu != null) {
-            mMenu.findItem(R.id.action_account_actions)
-                    .setEnabled(true);
-            mMenu.findItem(R.id.action_archive_account)
-                    .setEnabled(true);
-        }
+        toggleMenuItems();
 
         updateInfo(account);
     }
@@ -270,15 +258,26 @@ public class AccountDetailsActivity
         }
     }
 
-    protected void tintMenuItems(@ColorInt int color) {
-        if (mMenu != null) {
-            ViewTintingUtil.tintMenuItems(
-                    mMenu,
-                    new int[]{
-                            R.id.action_archive_account,
-                            R.id.action_account_actions},
-                    color);
-        }
+    private void toggleMenuItems() {
+        if (mMenu == null) return;
+
+        boolean enableActions = (mAccount != null);
+        mMenu.findItem(R.id.action_account_actions)
+                .setEnabled(enableActions);
+        mMenu.findItem(R.id.action_archive_account)
+                .setEnabled(enableActions);
+    }
+
+    @Override
+    protected void tintMenuItems() {
+        super.tintMenuItems();
+        if (mMenu == null || mAccount == null) return;
+        ViewTintingUtil.tintMenuItems(
+                mMenu,
+                new int[]{
+                        R.id.action_archive_account,
+                        R.id.action_account_actions},
+                mThemeTextColor);
     }
 
     private void tintElements(@ColorInt int bgColor) {
