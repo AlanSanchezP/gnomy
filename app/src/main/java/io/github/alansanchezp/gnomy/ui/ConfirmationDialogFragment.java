@@ -19,8 +19,10 @@ public class ConfirmationDialogFragment extends DialogFragment {
     public static final String ARG_MESSAGE = "ConfirmationDialog.Message";
     public static final String ARG_YES_STRING = "ConfirmationDialog.YesString";
     public static final String ARG_NO_STRING = "ConfirmationDialog.NoString";
+    public static final String ARG_IS_ASYNC = "ConfirmationDialog.IsAsync";
     private final OnConfirmationDialogListener mListener;
     private String mTitle, mMessage, mYesString, mNoString;
+    private boolean mIsAsync = false;
 
     public ConfirmationDialogFragment() {
         throw new IllegalArgumentException("This class must be provided with an OnConfirmationDialogListener instance.");
@@ -39,6 +41,7 @@ public class ConfirmationDialogFragment extends DialogFragment {
             mMessage = args.getString(ARG_MESSAGE);
             mYesString  = args.getString(ARG_YES_STRING);
             mNoString  = args.getString(ARG_NO_STRING);
+            mIsAsync = args.getBoolean(ARG_IS_ASYNC, false);
         }
         if (mTitle == null) mTitle = getString(R.string.confirmation_dialog_title);
         if (mMessage == null) mMessage = getString(R.string.confirmation_dialog_description);
@@ -69,7 +72,7 @@ public class ConfirmationDialogFragment extends DialogFragment {
 
             yesBtn.setOnClickListener(v -> {
                 mListener.onConfirmationDialogYes(dialog, getDialogTag(), Dialog.BUTTON_POSITIVE);
-                dialog.dismiss();
+                if(!mIsAsync) dialog.dismiss();
             });
 
             noBtn.setOnClickListener(v -> {
