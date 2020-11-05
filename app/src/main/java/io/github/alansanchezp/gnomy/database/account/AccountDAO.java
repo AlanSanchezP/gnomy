@@ -7,10 +7,9 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
-import androidx.room.Transaction;
 import androidx.room.Update;
+
 import io.reactivex.Single;
-import io.reactivex.SingleObserver;
 
 @Dao
 public abstract class AccountDAO  {
@@ -24,9 +23,6 @@ public abstract class AccountDAO  {
     @Query("SELECT * FROM accounts WHERE account_id = :id")
     protected abstract LiveData<Account> find(int id);
 
-    @Insert
-    protected abstract Single<Long[]> insert(Account... accounts);
-
     @Delete
     protected abstract Single<Integer> delete(Account... accounts);
 
@@ -39,42 +35,15 @@ public abstract class AccountDAO  {
     @Query("UPDATE OR ABORT accounts SET is_archived = 0 WHERE is_archived = 1")
     protected abstract Single<Integer> restoreAll();
 
-    public Single<Integer> update(Account account) {
-        return new Single<Integer>() {
-            @Override
-            protected void subscribeActual(SingleObserver<? super Integer> observer) {
-                try {
-                    observer.onSuccess(syncSafeUpdate(account));
-                } catch (Throwable throwable) {
-                    observer.onError(throwable);
-                }
-            }
-        };
-    }
-
     // SYNCHRONOUS OPERATIONS, NEVER USE DIRECTLY FROM REPOSITORY
     // WITHOUT WRAPPING THEM IN Single<> METHODS
 
     @Query("SELECT * FROM accounts WHERE account_id = :id")
-    protected abstract Account syncFind(int id);
+    protected abstract Account _find(int id);
+
+    @Insert
+    protected abstract Long _insert(Account account);
 
     @Update
-    protected abstract int syncUpdate(Account account);
-
-    // TODO: Test the (hopefully) few manually implemented db operations
-    //  Current implementation blocks this possibility as Repositories
-    //  always use mocked DAOs directly
-    @Transaction
-    protected int syncSafeUpdate(Account account) {
-        Account original = syncFind(account.getId());
-        if (original.equals(account)) return 0;
-
-        // TODO: Analyze what we should do here
-        //  Current behavior: Reject update if it contains altered currency
-        if (original.getDefaultCurrency().equals(
-                account.getDefaultCurrency())) {
-            return syncUpdate(account);
-        }
-        throw new IllegalArgumentException("It is not allowed to change an account's currency");
-    }
+    protected abstract int _update(Account account);
 }

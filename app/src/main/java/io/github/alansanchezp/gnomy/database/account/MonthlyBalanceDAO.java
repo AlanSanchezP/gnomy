@@ -11,7 +11,6 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
-import io.github.alansanchezp.gnomy.util.DateUtil;
 
 
 @Dao
@@ -117,9 +116,12 @@ public abstract class MonthlyBalanceDAO {
     @Query("SELECT * FROM monthly_balances WHERE account_id = :accountId AND balance_date = :month")
     protected abstract LiveData<MonthlyBalance> find(int accountId, YearMonth month);
 
+    // SYNCHRONOUS OPERATIONS, NEVER USE DIRECTLY FROM REPOSITORY
+    // WITHOUT WRAPPING THEM IN Single<> METHODS
+
     @Insert
-    protected abstract void insert(MonthlyBalance... balances);
+    protected abstract void _insert(MonthlyBalance... balances);
 
     @Update
-    protected abstract void update(MonthlyBalance balance);
+    protected abstract void _update(MonthlyBalance balance);
 }

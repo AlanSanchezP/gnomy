@@ -15,7 +15,6 @@ import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.MockDatabaseOperationsUtil;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.ui.account.AddEditAccountActivity;
-import io.reactivex.Single;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -46,8 +45,8 @@ public class EditAccountActivityInstrumentedTest {
         MockDatabaseOperationsUtil.setBalanceDAO(mockBalanceDAO);
         when(mockAccountDAO.find(anyInt()))
                 .thenReturn(new MutableLiveData<>());
-        when(mockAccountDAO.update(any(Account.class)))
-                .thenReturn(Single.just(1));
+        when(mockAccountDAO._update(any(Account.class)))
+                .thenReturn(1);
     }
 
     @Test

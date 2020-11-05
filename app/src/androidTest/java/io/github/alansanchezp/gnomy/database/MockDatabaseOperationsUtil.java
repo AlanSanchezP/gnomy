@@ -77,11 +77,15 @@ public class MockDatabaseOperationsUtil {
             return null;
         }
 
-        protected Account syncFind(int id) {
+        public Account _find(int id) {
             return null;
         }
 
-        protected int syncUpdate(Account account) {
+        public Long _insert(Account account) {
+            return null;
+        }
+
+        public int _update(Account account) {
             return 1;
         }
     }
@@ -103,10 +107,10 @@ public class MockDatabaseOperationsUtil {
             return null;
         }
 
-        public void insert(MonthlyBalance... balances) {
+        public void _insert(MonthlyBalance... balances) {
         }
 
-        public void update(MonthlyBalance balance) {
+        public void _update(MonthlyBalance balance) {
         }
     }
 }

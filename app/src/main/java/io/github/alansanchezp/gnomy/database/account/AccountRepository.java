@@ -9,14 +9,15 @@ import java.util.List;
 
 import androidx.lifecycle.LiveData;
 import io.github.alansanchezp.gnomy.database.GnomyDatabase;
+import io.github.alansanchezp.gnomy.database.GnomyIllegalQueryException;
 import io.reactivex.Single;
 
 public class AccountRepository {
-    private AccountDAO accountDAO;
-    private MonthlyBalanceDAO balanceDAO;
+    private final GnomyDatabase db;
+    private final AccountDAO accountDAO;
+    private final MonthlyBalanceDAO balanceDAO;
 
     public AccountRepository(Context context) {
-        GnomyDatabase db;
         db = GnomyDatabase.getInstance(context, "");
         accountDAO = db.accountDAO();
         balanceDAO = db.monthlyBalanceDAO();
@@ -38,16 +39,39 @@ public class AccountRepository {
         return balanceDAO.getAccumulatedFromMonth(accountId, month);
     }
 
-    public Single<Long[]> insert(Account account) {
-        return accountDAO.insert(account);
+    public Single<Long> insert(Account account) {
+        return db.toSingleInTransaction(() -> {
+            Long inserted_id = accountDAO._insert(account);
+            MonthlyBalance initial_balance = new MonthlyBalance();
+            initial_balance.setDate(YearMonth.from(account.getCreatedAt()));
+            initial_balance.setAccountId((int)(long)inserted_id);
+            balanceDAO._insert(initial_balance);
+            return inserted_id;
+        });
     }
 
     public Single<Integer> delete(Account account) {
         return accountDAO.delete(account);
     }
 
+    // TODO: Test the (hopefully) few manually implemented db operations
     public Single<Integer> update(Account account) {
-        return accountDAO.update(account);
+        return db.toSingleInTransaction(() -> {
+            Account original = accountDAO._find(account.getId());
+            // TODO: Analyze what we should do here
+            //  Current behavior: Reject update if it contains altered currency
+            try {
+                if (original.equals(account)) return 0;
+                if (original.getDefaultCurrency().equals(
+                        account.getDefaultCurrency())) {
+                    return accountDAO._update(account);
+                }
+
+                throw new GnomyIllegalQueryException("It is not allowed to change an account's currency.");
+            } catch (NullPointerException e) {
+                throw new GnomyIllegalQueryException("Trying to update non-existent account.", e);
+            }
+        });
     }
 
     public Single<Integer> archive(int accountId) {

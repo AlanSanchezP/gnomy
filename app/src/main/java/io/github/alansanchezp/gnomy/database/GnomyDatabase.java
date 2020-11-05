@@ -2,6 +2,7 @@ package io.github.alansanchezp.gnomy.database;
 
 import androidx.annotation.NonNull;
 import androidx.room.Database;
+import androidx.room.EmptyResultSetException;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
@@ -18,6 +19,7 @@ import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionDAO;
 import io.github.alansanchezp.gnomy.database.transfer.Transfer;
 import io.github.alansanchezp.gnomy.database.transfer.TransferDAO;
+import io.reactivex.Single;
 
 import android.content.Context;
 import android.util.Log;
@@ -26,6 +28,7 @@ import net.sqlcipher.database.SupportFactory;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 
 @Database(entities = {
@@ -79,28 +82,31 @@ public abstract class GnomyDatabase extends RoomDatabase {
                 // TODO: Create migrations
                 // TODO: Remove once migrations are implemented
                 .fallbackToDestructiveMigration()
-                // TODO: Prepopulate categories
-                // TODO: Evaluate if balance adjustment should be done using triggers or as part of repository code
-                .addCallback(triggersCallback);
+                .addCallback(PREPOPULATE_CATEGORIES_CALLBACK);
 
         return builder.build();
     }
 
-    private static RoomDatabase.Callback triggersCallback = new RoomDatabase.Callback(){
+    private static final RoomDatabase.Callback PREPOPULATE_CATEGORIES_CALLBACK = new RoomDatabase.Callback(){
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
             super.onCreate(db);
-            // TODO: Maybe rename trigger to 'create_first_monthly_balance'?
-            db.execSQL(
-                "CREATE TRIGGER on_account_created " +
-                "AFTER INSERT ON accounts FOR EACH ROW " +
-                "BEGIN " +
-                    "INSERT INTO monthly_balances (account_id, balance_date) " +
-                    "VALUES(NEW.account_id, strftime(\"%Y%m\", datetime(NEW.created_at/1000, 'unixepoch')));" +
-                "END"
-            );
+            // TODO: Prepopulate categories
         }
     };
+
+    public <T> Single<T> toSingleInTransaction(@NonNull Callable<T> callable) {
+        return Single.create(emitter -> {
+            try {
+                T result = GnomyDatabase.super.runInTransaction(callable);
+                if (result != null) emitter.onSuccess(result);
+                else throw new EmptyResultSetException("Composite transaction returned null object.");
+            } catch (EmptyResultSetException |
+                    GnomyIllegalQueryException e) {
+                emitter.onError(e);
+            }
+        });
+    }
 
     private Object getMockDAO(String getDAO_methodName, Class<?> DAO_class) {
         try {

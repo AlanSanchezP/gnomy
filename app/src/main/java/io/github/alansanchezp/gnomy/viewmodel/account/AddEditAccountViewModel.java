@@ -34,7 +34,7 @@ public class AddEditAccountViewModel extends AndroidViewModel {
         return mRepository.getAccount(id);
     }
 
-    public Single<Long[]> insert(Account account) {
+    public Single<Long> insert(Account account) {
         return mRepository.insert(account);
     }
 

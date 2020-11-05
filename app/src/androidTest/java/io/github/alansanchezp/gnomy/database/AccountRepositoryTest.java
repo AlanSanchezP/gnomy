@@ -23,6 +23,7 @@ import io.github.alansanchezp.gnomy.util.DateUtil;
 
 import static org.hamcrest.Matchers.comparesEqualTo;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -48,6 +49,32 @@ public class AccountRepositoryTest {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
+    public void generates_first_monthly_balance() throws InterruptedException {
+        // In-memory database is empty before this test
+        assertNull(LiveDataTestUtil.getOrAwaitValue(
+                repository.getAccount(1)));
+        assertNull(LiveDataTestUtil.getOrAwaitValue(
+                repository.getBalanceFromMonth(1, DateUtil.now())));
+
+        Account account = new Account();
+        repository.insert(account).blockingGet();
+
+        // Actual assertion
+        assertNotNull(LiveDataTestUtil.getOrAwaitValue(
+                repository.getBalanceFromMonth(1, DateUtil.now())));
+
+        account.setCreatedAt(DateUtil.OffsetDateTimeNow().minusMonths(2));
+        repository.insert(account).blockingGet();
+
+        assertNull(LiveDataTestUtil.getOrAwaitValue(
+                repository.getBalanceFromMonth(2, DateUtil.now())));
+
+        assertNotNull(LiveDataTestUtil.getOrAwaitValue(
+                repository.getBalanceFromMonth(2, DateUtil.now().minusMonths(2))));
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    @Test
     public void custom_update_method_works() {
         Account account = new Account();
         account.setName("Test account");
@@ -55,31 +82,31 @@ public class AccountRepositoryTest {
         account.setBackgroundColor(ColorUtil.getRandomColor());
         account.setType(Account.INFORMAL);
 
-        Long[] result = repository.insert(account).blockingGet();
-        account.setId((int)(long)result[0]);
+        Long result = repository.insert(account).blockingGet();
+        account.setId((int)(long)result);
         assertEquals(Integer.valueOf(0), repository.update(account).blockingGet());
 
         try {
             account.setId(3);
             repository.update(account).blockingGet();
             assert false;
-        } catch (NullPointerException npe) {
+        } catch (GnomyIllegalQueryException e) {
             // Didn't update as there is no matching account
             assert true;
         }
 
         try {
-            account.setId((int)(long)result[0]);
+            account.setId((int)(long)result);
             account.setDefaultCurrency(CurrencyUtil.getCurrencyCode(0));
             repository.update(account).blockingGet();
             assert false;
-        } catch (IllegalArgumentException iae) {
+        } catch (GnomyIllegalQueryException e) {
             // Didn't update as there are conflicts
             assert true;
         }
 
         // Reset to avoid exceptions
-        account.setId((int)(long)result[0]);
+        account.setId((int)(long)result);
         account.setDefaultCurrency(CurrencyUtil.getCurrencyCode(1));
         // Change to avoid a matching equals() call
         account.setName("Other name");
