@@ -87,11 +87,7 @@ public class MockDatabaseOperationsUtil {
     }
 
     public static class MockableMonthlyBalanceDAO extends MonthlyBalanceDAO {
-        protected LiveData<List<AccountWithBalance>> _getAllLatest() {
-            return null;
-        }
-
-        protected LiveData<List<AccountWithBalance>> _getAllFromMonth(YearMonth month) {
+        protected LiveData<List<AccountWithBalance>> getAllFromMonth(YearMonth month) {
             return null;
         }
 

@@ -8,7 +8,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.math.BigDecimal;
-import java.time.YearMonth;
 import java.util.Locale;
 
 import androidx.test.core.app.ActivityScenario;
@@ -20,6 +19,7 @@ import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
 import io.github.alansanchezp.gnomy.dummy.DummyActivity;
 import io.github.alansanchezp.gnomy.ui.account.AccountRecyclerViewAdapter;
+import io.github.alansanchezp.gnomy.util.DateUtil;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -45,8 +45,8 @@ public class AccountRecyclerViewHolderInstrumentedTest {
         testAccount.account.setType(Account.BANK);
         testAccount.account.setBackgroundColor(0xFF4D7C4F);
         testAccount.account.setInitialValue("0");
-        testAccount.accumulatedBalance = new BigDecimal("20");
-        testAccount.projectedBalance = new BigDecimal("30");
+        testAccount.currentBalance = new BigDecimal("20");
+        testAccount.endOfMonthBalance = new BigDecimal("30");
     }
 
     @Test
@@ -55,9 +55,9 @@ public class AccountRecyclerViewHolderInstrumentedTest {
         View[] view = new View[1];
         AccountRecyclerViewAdapter.ViewHolder[] holder = new AccountRecyclerViewAdapter.ViewHolder[1];
         scenario.onActivity(activity -> {
-            view[0] = (View) activity.findViewById(R.id.account_card);
+            view[0] = activity.findViewById(R.id.account_card);
             holder[0] = new AccountRecyclerViewAdapter.ViewHolder(view[0]);
-            holder[0].setAccountData(testAccount, YearMonth.now());
+            holder[0].setAccountData(testAccount, DateUtil.now());
         });
 
         onView(withId(R.id.account_card_current_label))
@@ -67,13 +67,22 @@ public class AccountRecyclerViewHolderInstrumentedTest {
                 .check(matches(withText(R.string.account_projected_balance)));
 
         scenario.onActivity(activity ->
-                holder[0].setAccountData(testAccount, YearMonth.now().minusMonths(1)));
+                holder[0].setAccountData(testAccount, DateUtil.now().minusMonths(1)));
 
         onView(withId(R.id.account_card_current_label))
                 .check(matches(withText(R.string.account_current_balance)));
 
         onView(withId(R.id.account_card_projected_label))
-                .check(matches(withText(R.string.account_accumulated_balance)));
+                .check(matches(withText(R.string.account_balance_end_of_month)));
+
+        scenario.onActivity(activity ->
+                holder[0].setAccountData(testAccount, DateUtil.now().plusMonths(1)));
+
+        onView(withId(R.id.account_card_current_label))
+                .check(matches(withText(R.string.account_current_balance)));
+
+        onView(withId(R.id.account_card_projected_label))
+                .check(matches(withText(R.string.account_projected_balance)));
     }
 
     @Test
@@ -82,9 +91,9 @@ public class AccountRecyclerViewHolderInstrumentedTest {
         View[] view = new View[1];
         AccountRecyclerViewAdapter.ViewHolder[] holder = new AccountRecyclerViewAdapter.ViewHolder[1];
         scenario.onActivity(activity -> {
-            view[0] = (View) activity.findViewById(R.id.account_card);
+            view[0] = activity.findViewById(R.id.account_card);
             holder[0] = new AccountRecyclerViewAdapter.ViewHolder(view[0]);
-            holder[0].setAccountData(testAccount, YearMonth.now());
+            holder[0].setAccountData(testAccount, DateUtil.now());
         });
 
         onView(withId(R.id.account_card_name))
@@ -103,14 +112,14 @@ public class AccountRecyclerViewHolderInstrumentedTest {
         View[] view = new View[1];
         AccountRecyclerViewAdapter.ViewHolder[] holder = new AccountRecyclerViewAdapter.ViewHolder[1];
         scenario.onActivity(activity -> {
-            view[0] = (View) activity.findViewById(R.id.account_card);
+            view[0] = activity.findViewById(R.id.account_card);
             holder[0] = new AccountRecyclerViewAdapter.ViewHolder(view[0]);
         });
 
         for (int type=Account.BANK; type <= Account.OTHER; type++) {
             testAccount.account.setType(type);
             scenario.onActivity(activity ->
-                    holder[0].setAccountData(testAccount, YearMonth.now()));
+                    holder[0].setAccountData(testAccount, DateUtil.now()));
             onView(withId(R.id.account_card_icon))
                     .check(matches(
                         withTagValue(

@@ -21,6 +21,7 @@ import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.MockDatabaseOperationsUtil;
 import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
 import io.github.alansanchezp.gnomy.ui.account.AccountBalanceHistoryActivity;
+import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -30,6 +31,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.hasTextColor;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -46,11 +48,14 @@ public class AccountBalanceHistoryActivityInstrumentedTest {
     private static final String accountTitle = "Test account";
     private static final MutableLiveData<MonthlyBalance> mutableMonthlyBalance = new MutableLiveData<>();
     private static final MutableLiveData<BigDecimal> mutableBigDecimal = new MutableLiveData<>();
+    private final YearMonth testCreationDate = DateUtil.now().minusMonths(4);
 
     private final Intent intent = new Intent(
             ApplicationProvider.getApplicationContext(), AccountBalanceHistoryActivity.class)
             .putExtra(AccountBalanceHistoryActivity.EXTRA_ACCOUNT_ID, 1)
-            .putExtra(AccountBalanceHistoryActivity.EXTRA_NAME, accountTitle);
+            .putExtra(AccountBalanceHistoryActivity.EXTRA_NAME, accountTitle)
+            .putExtra(AccountBalanceHistoryActivity.EXTRA_CURRENCY, "USD")
+            .putExtra(AccountBalanceHistoryActivity.EXTRA_ACCOUNT_CREATION_MONTH, testCreationDate.toString());
 
     @Rule
     public final ActivityScenarioRule<AccountBalanceHistoryActivity> activityRule =
@@ -68,6 +73,135 @@ public class AccountBalanceHistoryActivityInstrumentedTest {
                 .thenReturn(mutableBigDecimal);
         when(mockBalanceDAO.find(anyInt(), any(YearMonth.class)))
                 .thenReturn(mutableMonthlyBalance);
+    }
+
+    @Test
+    public void null_numbers_only_if_month_predates_account_creation() {
+        String nullString = CurrencyUtil.NULL_NUMBER_STRING;
+        activityRule.getScenario().onActivity(activity ->
+                activity.onMonthChanged(DateUtil.now()));
+        mutableMonthlyBalance.postValue(null);
+        mutableBigDecimal.postValue(null);
+
+        // Current month
+        onView(withId(R.id.account_history_accumulated_balance))
+                .check(matches(
+                        not(withText(nullString))
+                ));
+        onView(withId(R.id.account_history_confirmed_incomes))
+                .check(matches(
+                        not(withText(nullString))
+                ));
+        onView(withId(R.id.account_history_confirmed_expenses))
+                .check(matches(
+                        not(withText(nullString))
+                ));
+        onView(withId(R.id.account_history_confirmed_total))
+                .check(matches(
+                        not(withText(nullString))
+                ));
+        onView(withId(R.id.account_history_pending_incomes))
+                .check(matches(
+                        not(withText(nullString))
+                ));
+        onView(withId(R.id.account_history_pending_expenses))
+                .check(matches(
+                        not(withText(nullString))
+                ));
+        onView(withId(R.id.account_history_pending_total))
+                .check(matches(
+                        not(withText(nullString))
+                ));
+
+        // Future months
+        activityRule.getScenario().onActivity(activity ->
+                activity.onMonthChanged(DateUtil.now().plusMonths(3)));
+        mutableMonthlyBalance.postValue(null);
+        mutableBigDecimal.postValue(null);
+        onView(withId(R.id.account_history_accumulated_balance))
+                .check(matches(
+                        not(withText(nullString))
+                ));
+        onView(withId(R.id.account_history_pending_incomes))
+                .check(matches(
+                        not(withText(nullString))
+                ));
+        onView(withId(R.id.account_history_pending_expenses))
+                .check(matches(
+                        not(withText(nullString))
+                ));
+        onView(withId(R.id.account_history_pending_total))
+                .check(matches(
+                        not(withText(nullString))
+                ));
+
+        // Past months, but after account creation
+        activityRule.getScenario().onActivity(activity ->
+                activity.onMonthChanged(DateUtil.now().minusMonths(3)));
+        mutableMonthlyBalance.postValue(null);
+        mutableBigDecimal.postValue(null);
+        onView(withId(R.id.account_history_accumulated_balance))
+                .check(matches(
+                        not(withText(nullString))
+                ));
+        onView(withId(R.id.account_history_confirmed_incomes))
+                .check(matches(
+                        not(withText(nullString))
+                ));
+        onView(withId(R.id.account_history_confirmed_expenses))
+                .check(matches(
+                        not(withText(nullString))
+                ));
+        onView(withId(R.id.account_history_confirmed_total))
+                .check(matches(
+                        not(withText(nullString))
+                ));
+        onView(withId(R.id.account_history_pending_incomes))
+                .check(matches(
+                        not(withText(nullString))
+                ));
+        onView(withId(R.id.account_history_pending_expenses))
+                .check(matches(
+                        not(withText(nullString))
+                ));
+        onView(withId(R.id.account_history_pending_total))
+                .check(matches(
+                        not(withText(nullString))
+                ));
+
+        // Months before account creation
+        activityRule.getScenario().onActivity(activity ->
+                activity.onMonthChanged(DateUtil.now().minusMonths(6)));
+        mutableMonthlyBalance.postValue(null);
+        mutableBigDecimal.postValue(null);
+        onView(withId(R.id.account_history_accumulated_balance))
+                .check(matches(
+                        withText(nullString)
+                ));
+        onView(withId(R.id.account_history_confirmed_incomes))
+                .check(matches(
+                        withText(nullString)
+                ));
+        onView(withId(R.id.account_history_confirmed_expenses))
+                .check(matches(
+                        withText(nullString)
+                ));
+        onView(withId(R.id.account_history_confirmed_total))
+                .check(matches(
+                        withText(nullString)
+                ));
+        onView(withId(R.id.account_history_pending_incomes))
+                .check(matches(
+                        withText(nullString)
+                ));
+        onView(withId(R.id.account_history_pending_expenses))
+                .check(matches(
+                        withText(nullString)
+                ));
+        onView(withId(R.id.account_history_pending_total))
+                .check(matches(
+                        withText(nullString)
+                ));
     }
 
     @Test
@@ -195,15 +329,58 @@ public class AccountBalanceHistoryActivityInstrumentedTest {
                 .check(matches(
                         withText("* " + unresolved_transactions_legend + " " + not_included_legend)
                 ));
+
+        // Future months
+        activityRule.getScenario().onActivity(activity ->
+                activity.onMonthChanged(DateUtil.now().plusMonths(1)));
+
+        onView(withId(R.id.account_history_accumulated_balance_label))
+                .check(matches(
+                        withText(R.string.account_accumulated_balance)
+                ));
+        onView(withId(R.id.account_history_pending_title))
+                .check(matches(
+                        withText(R.string.pending_transactions)
+                ));
+        onView(withId(R.id.account_history_bottom_legend))
+                .check(matches(
+                        withText("* " + pending_transactions_legend + " " + not_included_legend)
+                ));
     }
 
     @Test
-    public void check_them_button_is_hidden_if_no_balance() {
+    public void confirmed_balance_box_is_hidden_in_future_months() {
+        activityRule.getScenario().onActivity(activity ->
+                activity.onMonthChanged(DateUtil.now().plusMonths(1)));
+        onView(withId(R.id.account_history_confirmed_card))
+                .check(matches(
+                        withEffectiveVisibility(ViewMatchers.Visibility.GONE)
+                ));
+        onView(withId(R.id.account_history_confirmed_title))
+                .check(matches(
+                        withEffectiveVisibility(ViewMatchers.Visibility.GONE)
+                ));
+    }
+
+    @Test
+    public void check_them_button_is_hidden_if_no_balance_or_0_pending_transactions() {
         mutableMonthlyBalance.postValue(testBalance);
         onView(withId(R.id.account_history_check_btn))
                 .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
 
         mutableMonthlyBalance.postValue(null);
+        onView(withId(R.id.account_history_check_btn))
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+
+        testBalance.setProjectedIncomes(new BigDecimal("0"));
+        testBalance.setProjectedExpenses(new BigDecimal("0"));
+        mutableMonthlyBalance.postValue(testBalance);
+        onView(withId(R.id.account_history_check_btn))
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+
+        testBalance.setProjectedIncomes(new BigDecimal("50"));
+        testBalance.setProjectedExpenses(new BigDecimal("50"));
+        mutableMonthlyBalance.postValue(testBalance);
         onView(withId(R.id.account_history_check_btn))
                 .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
     }

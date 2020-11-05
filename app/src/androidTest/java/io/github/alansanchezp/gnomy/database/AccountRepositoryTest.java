@@ -91,6 +91,9 @@ public class AccountRepositoryTest {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     public void filters_AccountWithBalance_by_month() throws InterruptedException {
+        // TODO: Really make sure this test and the one below it are satisfying
+        //  all possible cases of the massive query. The fact that it didn't throw any
+        //  assertion error at all after the refactor bothers me a bit
         Account account = new Account();
         account.setInitialValue("50");
         repository.insert(account).blockingGet();
@@ -111,28 +114,28 @@ public class AccountRepositoryTest {
                 repository.getAllFromMonth(DateUtil.now().minusMonths(2)));
 
         assertEquals(3, todayResults.size());
-        assertThat(new BigDecimal("50"), comparesEqualTo(todayResults.get(0).projectedBalance));
-        assertThat(new BigDecimal("50"), comparesEqualTo(todayResults.get(0).accumulatedBalance));
-        assertThat(new BigDecimal("70"), comparesEqualTo(todayResults.get(1).projectedBalance));
-        assertThat(new BigDecimal("70"), comparesEqualTo(todayResults.get(1).accumulatedBalance));
-        assertThat(new BigDecimal("80"), comparesEqualTo(todayResults.get(2).projectedBalance));
-        assertThat(new BigDecimal("80"), comparesEqualTo(todayResults.get(2).accumulatedBalance));
+        assertThat(new BigDecimal("50"), comparesEqualTo(todayResults.get(0).endOfMonthBalance));
+        assertThat(new BigDecimal("50"), comparesEqualTo(todayResults.get(0).currentBalance));
+        assertThat(new BigDecimal("70"), comparesEqualTo(todayResults.get(1).endOfMonthBalance));
+        assertThat(new BigDecimal("70"), comparesEqualTo(todayResults.get(1).currentBalance));
+        assertThat(new BigDecimal("80"), comparesEqualTo(todayResults.get(2).endOfMonthBalance));
+        assertThat(new BigDecimal("80"), comparesEqualTo(todayResults.get(2).currentBalance));
 
         assertEquals(3, minus1MonthResults.size());
-        assertNull(minus1MonthResults.get(0).projectedBalance);
-        assertThat(new BigDecimal("50"), comparesEqualTo(minus1MonthResults.get(0).accumulatedBalance));
-        assertThat(new BigDecimal("70"), comparesEqualTo(minus1MonthResults.get(1).projectedBalance));
-        assertThat(new BigDecimal("70"), comparesEqualTo(minus1MonthResults.get(1).accumulatedBalance));
-        assertThat(new BigDecimal("80"), comparesEqualTo(minus1MonthResults.get(2).projectedBalance));
-        assertThat(new BigDecimal("80"), comparesEqualTo(minus1MonthResults.get(2).accumulatedBalance));
+        assertNull(minus1MonthResults.get(0).endOfMonthBalance);
+        assertThat(new BigDecimal("50"), comparesEqualTo(minus1MonthResults.get(0).currentBalance));
+        assertThat(new BigDecimal("70"), comparesEqualTo(minus1MonthResults.get(1).endOfMonthBalance));
+        assertThat(new BigDecimal("70"), comparesEqualTo(minus1MonthResults.get(1).currentBalance));
+        assertThat(new BigDecimal("80"), comparesEqualTo(minus1MonthResults.get(2).endOfMonthBalance));
+        assertThat(new BigDecimal("80"), comparesEqualTo(minus1MonthResults.get(2).currentBalance));
 
         assertEquals(3, minus2MonthsResults.size());
-        assertNull(minus2MonthsResults.get(0).projectedBalance);
-        assertThat(new BigDecimal("50"), comparesEqualTo(minus2MonthsResults.get(0).accumulatedBalance));
-        assertNull(minus2MonthsResults.get(1).projectedBalance);
-        assertThat(new BigDecimal("70"), comparesEqualTo(minus2MonthsResults.get(1).accumulatedBalance));
-        assertThat(new BigDecimal("80"), comparesEqualTo(minus2MonthsResults.get(2).projectedBalance));
-        assertThat(new BigDecimal("80"), comparesEqualTo(minus2MonthsResults.get(2).accumulatedBalance));
+        assertNull(minus2MonthsResults.get(0).endOfMonthBalance);
+        assertThat(new BigDecimal("50"), comparesEqualTo(minus2MonthsResults.get(0).currentBalance));
+        assertNull(minus2MonthsResults.get(1).endOfMonthBalance);
+        assertThat(new BigDecimal("70"), comparesEqualTo(minus2MonthsResults.get(1).currentBalance));
+        assertThat(new BigDecimal("80"), comparesEqualTo(minus2MonthsResults.get(2).endOfMonthBalance));
+        assertThat(new BigDecimal("80"), comparesEqualTo(minus2MonthsResults.get(2).currentBalance));
 
     }
 

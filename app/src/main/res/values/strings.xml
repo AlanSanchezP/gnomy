@@ -97,7 +97,7 @@
     <string name="account_balance_check_button">Check them</string>
     <string name="account_balance_total">Total</string>
     <string name="account_current_accumulated_balance">Current accumulated balance</string>
-    <string name="account_balance_end_of_month">End of month balance</string>
+    <string name="account_balance_end_of_month">End of month</string>
     <string name="pending_transactions">Pending transactions</string>
     <string name="unresolved_transactions">Unresolved transactions</string>
     <string name="account_balance_not_included_legend">are not included on the accumulated balance.</string>

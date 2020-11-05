@@ -33,9 +33,12 @@ public class AccountBalanceHistoryActivity
     // in what is likely to be the only reasonable path to get to this Activity
     public static final String EXTRA_NAME = "AccountBalanceHistoryActivity.AccountName";
     public static final String EXTRA_CURRENCY = "AccountBalanceHistoryActivity.AccountCurrency";
+    public static final String EXTRA_ACCOUNT_CREATION_MONTH = "AccountBalanceHistoryActivity.AccountCreationMonth";
     public static final String EXTRA_BG_COLOR = "AccountBalanceHistoryActivity.BgColor";
     private SingleClickViewHolder<Button> mCheckPendingButtonVH;
     private String mAccountCurrency;
+    private YearMonth mAccountCreationMonth;
+    private boolean mAfterAccountCreation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +53,9 @@ public class AccountBalanceHistoryActivity
 
         String accountName = intent.getStringExtra(EXTRA_NAME);
         mAccountCurrency = intent.getStringExtra(EXTRA_CURRENCY);
+        // App will crash if you don't provide this as YearMonth.parse() will
+        //  throw a RuntimeException
+        mAccountCreationMonth = YearMonth.parse(intent.getStringExtra(EXTRA_ACCOUNT_CREATION_MONTH));
         setThemeColor(intent.getIntExtra(EXTRA_BG_COLOR, 0XFF));
 
         setTitle(accountName + " " + getString(R.string.account_balance_history_legend));
@@ -87,21 +93,35 @@ public class AccountBalanceHistoryActivity
     }
 
     public void onMonthChanged(YearMonth month) {
+        // TODO: Display some helpful information if month predates account creation
+        //  current behavior just shows '---' on everything
+        mAfterAccountCreation = !month.isBefore(mAccountCreationMonth);
+
         TextView accumulatedTitleTV = findViewById(R.id.account_history_accumulated_balance_label);
         TextView confirmedTitleTV = findViewById(R.id.account_history_confirmed_title);
+        View confirmedTransactionsCard = findViewById(R.id.account_history_confirmed_card);
         TextView pendingTitleTV = findViewById(R.id.account_history_pending_title);
         TextView bottomLegendTV = findViewById(R.id.account_history_bottom_legend);
 
         String accumulatedTitle;
-        String confirmedTitle;
+        String confirmedTitle = null;
         String pendingTitle;
         String bottomLegend = "* ";
 
-        if (month.equals(DateUtil.now())) {
+        if (month.isAfter(DateUtil.now())) {
+            confirmedTitleTV.setVisibility(View.GONE);
+            confirmedTransactionsCard.setVisibility(View.GONE);
+            accumulatedTitle = getString(R.string.account_accumulated_balance);
+            pendingTitle = getString(R.string.pending_transactions);
+        } else if (month.equals(DateUtil.now())) {
+            confirmedTitleTV.setVisibility(View.VISIBLE);
+            confirmedTransactionsCard.setVisibility(View.VISIBLE);
             accumulatedTitle = getString(R.string.account_current_accumulated_balance);
             confirmedTitle = getString(R.string.account_confirmed_balance);
             pendingTitle = getString(R.string.pending_transactions);
         } else {
+            confirmedTitleTV.setVisibility(View.VISIBLE);
+            confirmedTransactionsCard.setVisibility(View.VISIBLE);
             accumulatedTitle = getString(R.string.account_accumulated_balance);
             confirmedTitle = getString(R.string.account_balance_end_of_month);
             pendingTitle = getString(R.string.unresolved_transactions);
@@ -117,6 +137,11 @@ public class AccountBalanceHistoryActivity
 
     private void onAccumulatedBalanceChanged(BigDecimal accumulated) {
         TextView accumulatedTV = findViewById(R.id.account_history_accumulated_balance);
+        // Not sure if this code will be reached outside of tests
+        //  but who knows
+        if (mAfterAccountCreation && accumulated == null) {
+            accumulated = new BigDecimal("0");
+        }
 
         try {
             accumulatedTV.setText(CurrencyUtil.format(accumulated, mAccountCurrency));
@@ -162,12 +187,14 @@ public class AccountBalanceHistoryActivity
                 default:
                     break;
             }
+            mCheckPendingButtonVH.onView(v -> v.setVisibility(View.VISIBLE));
             switch (pendingTotal.compareTo(BigDecimal.ZERO)) {
                 case -1:
                     pendingTotalTV.setTextColor(getResources().getColor(R.color.colorExpenses));
                     break;
                 case 0:
                     pendingTotalTV.setTextColor(getResources().getColor(R.color.colorText));
+                    mCheckPendingButtonVH.onView(v -> v.setVisibility(View.GONE));
                     break;
                 case 1:
                     pendingTotalTV.setTextColor(getResources().getColor(R.color.colorIncomes));
@@ -175,9 +202,17 @@ public class AccountBalanceHistoryActivity
                 default:
                     break;
             }
-            mCheckPendingButtonVH.onView(v -> v.setVisibility(View.VISIBLE));
         } else {
             mCheckPendingButtonVH.onView(v -> v.setVisibility(View.GONE));
+
+            if (mAfterAccountCreation) {
+                confirmedIncomes = new BigDecimal("0");
+                confirmedExpenses = confirmedIncomes;
+                confirmedTotal = confirmedIncomes;
+                pendingIncomes = confirmedIncomes;
+                pendingExpenses = confirmedIncomes;
+                pendingTotal = confirmedIncomes;
+            }
         }
 
         try {

@@ -7,8 +7,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Locale;
-
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import io.github.alansanchezp.gnomy.R;
@@ -47,7 +45,7 @@ public class ArchivedAccountRecyclerViewHolderInstrumentedTest {
         ArchivedAccountsRecyclerViewAdapter.ViewHolder[] holder
                 = new ArchivedAccountsRecyclerViewAdapter.ViewHolder[1];
         scenario.onActivity(activity -> {
-            view[0] = (View) activity.findViewById(R.id.archived_account_card);
+            view[0] = activity.findViewById(R.id.archived_account_card);
             holder[0] = new ArchivedAccountsRecyclerViewAdapter.ViewHolder(view[0]);
             holder[0].setAccountData(testAccount);
         });
@@ -63,7 +61,7 @@ public class ArchivedAccountRecyclerViewHolderInstrumentedTest {
         ArchivedAccountsRecyclerViewAdapter.ViewHolder[] holder
                 = new ArchivedAccountsRecyclerViewAdapter.ViewHolder[1];
         scenario.onActivity(activity -> {
-            view[0] = (View) activity.findViewById(R.id.archived_account_card);
+            view[0] = activity.findViewById(R.id.archived_account_card);
             holder[0] = new ArchivedAccountsRecyclerViewAdapter.ViewHolder(view[0]);
         });
 

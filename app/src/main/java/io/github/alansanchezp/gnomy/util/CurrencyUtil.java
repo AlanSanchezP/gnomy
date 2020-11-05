@@ -87,12 +87,12 @@ public class CurrencyUtil {
         totals[0] = new BigDecimal("0");
 
         for (AccountWithBalance awb : awbList) {
-            if (awb.accumulatedBalance != null) {
-                totals[0] = totals[0].add(awb.accumulatedBalance);
+            if (awb.currentBalance != null) {
+                totals[0] = totals[0].add(awb.currentBalance);
             }
-            if (awb.projectedBalance != null) {
+            if (awb.endOfMonthBalance != null) {
                 if (totals[1] == null) totals[1] = new BigDecimal("0");
-                totals[1] = totals[1].add(awb.projectedBalance);
+                totals[1] = totals[1].add(awb.endOfMonthBalance);
             }
         }
 

@@ -24,6 +24,7 @@ import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.MockDatabaseOperationsUtil;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
+import io.github.alansanchezp.gnomy.util.DateUtil;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
@@ -65,17 +66,28 @@ public class AccountsFragmentInstrumentedTest {
         FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class,
                 null, R.style.AppTheme, null);
 
+        scenario.onFragment(fragment ->
+                fragment.onMonthChanged(DateUtil.now()));
+
         onView(withId(R.id.total_projected_label))
                 .check(matches(
                         withText(R.string.account_projected_balance)
                 ));
 
         scenario.onFragment(fragment ->
-                fragment.onMonthChanged(YearMonth.now().minusMonths(1)));
+                fragment.onMonthChanged(DateUtil.now().minusMonths(1)));
 
         onView(ViewMatchers.withId(R.id.total_projected_label))
                 .check(matches(
-                        withText(R.string.account_accumulated_balance)
+                        withText(R.string.account_balance_end_of_month)
+                ));
+
+        scenario.onFragment(fragment ->
+                fragment.onMonthChanged(DateUtil.now().plusMonths(1)));
+
+        onView(ViewMatchers.withId(R.id.total_projected_label))
+                .check(matches(
+                        withText(R.string.account_projected_balance)
                 ));
     }
 

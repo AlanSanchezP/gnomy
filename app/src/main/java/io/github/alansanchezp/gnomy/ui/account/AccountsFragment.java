@@ -209,10 +209,10 @@ public class AccountsFragment extends MainNavigationFragment
         if (month == null) return;
         View v = getView();
         assert v != null;
-        if (month.equals(DateUtil.now())) {
-            ((TextView) v.findViewById(R.id.total_projected_label)).setText(R.string.account_projected_balance);
+        if (month.isBefore(DateUtil.now())) {
+            ((TextView) v.findViewById(R.id.total_projected_label)).setText(R.string.account_balance_end_of_month);
         } else {
-            ((TextView) v.findViewById(R.id.total_projected_label)).setText(R.string.account_accumulated_balance);
+            ((TextView) v.findViewById(R.id.total_projected_label)).setText(R.string.account_projected_balance);
         }
 
         mCurrentMonth = month;
@@ -225,7 +225,9 @@ public class AccountsFragment extends MainNavigationFragment
         // TODO: Use global user currency when implemented
         String userCurrencyCode = "USD";
         try {
-            BigDecimal[] totalBalances = CurrencyUtil.sumAccountListBalances(accounts, userCurrencyCode);
+            BigDecimal[] totalBalances = CurrencyUtil.sumAccountListBalances(
+                    accounts,
+                    userCurrencyCode);
             mBalance.setText(CurrencyUtil.format(totalBalances[0], userCurrencyCode));
             mProjected.setText(CurrencyUtil.format(totalBalances[1], userCurrencyCode));
         } catch (GnomyCurrencyException e) {

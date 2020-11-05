@@ -133,8 +133,8 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
 
             mNameView.setText(mItem.account.getName());
 
-            if (!month.equals(DateUtil.now())) {
-                mProjectedLabelView.setText(R.string.account_accumulated_balance);
+            if (month.isBefore(DateUtil.now())) {
+                mProjectedLabelView.setText(R.string.account_balance_end_of_month);
             } else {
                 mProjectedLabelView.setText(R.string.account_projected_balance);
             }
@@ -142,12 +142,12 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
             try {
                 mCurrentView.setText(
                         CurrencyUtil.format(
-                                mItem.accumulatedBalance,
+                                mItem.currentBalance,
                                 mItem.account.getDefaultCurrency()))
                 ;
                 mProjectedView.setText(
                         CurrencyUtil.format(
-                                mItem.projectedBalance,
+                                mItem.endOfMonthBalance,
                                 mItem.account.getDefaultCurrency())
                 );
             } catch (GnomyCurrencyException e) {

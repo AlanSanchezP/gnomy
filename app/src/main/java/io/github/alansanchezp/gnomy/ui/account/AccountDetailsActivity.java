@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.math.BigDecimal;
+import java.time.YearMonth;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -188,6 +189,7 @@ public class AccountDetailsActivity
         accountHistoryIntent.putExtra(AccountBalanceHistoryActivity.EXTRA_BG_COLOR, mAccount.getBackgroundColor());
         accountHistoryIntent.putExtra(AccountBalanceHistoryActivity.EXTRA_NAME, mAccount.getName());
         accountHistoryIntent.putExtra(AccountBalanceHistoryActivity.EXTRA_CURRENCY, mAccount.getDefaultCurrency());
+        accountHistoryIntent.putExtra(AccountBalanceHistoryActivity.EXTRA_ACCOUNT_CREATION_MONTH, YearMonth.from(mAccount.getCreatedAt()).toString());
 
         startActivity(accountHistoryIntent);
     }
