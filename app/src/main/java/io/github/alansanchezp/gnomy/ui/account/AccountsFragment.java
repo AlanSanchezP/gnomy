@@ -272,6 +272,11 @@ public class AccountsFragment extends MainNavigationFragment
         return true;
     }
 
+    public void onUnresolvedTransactions(Account account, YearMonth month) {
+        // TODO: Implement when Transactions module is ready
+        mAdapter.enableClicks();
+    }
+
     /* FRAGMENT-SPECIFIC METHODS */
 
     private void displayArchivedAccounts() {

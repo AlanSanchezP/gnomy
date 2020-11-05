@@ -55,6 +55,24 @@
             app:layout_constraintStart_toStartOf="parent"
             app:tint="#FFFFFF" />
 
+        <ImageView
+            android:id="@+id/account_card_alert_icon"
+            android:visibility="gone"
+            android:layout_width="30dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_height="30dp"
+            android:layout_marginStart="15dp"
+            android:background="@drawable/shape_circle"
+            android:backgroundTint="@color/colorError"
+            android:contentDescription="@string/account_icon"
+            android:padding="8dp"
+            android:src="@drawable/ic_warning_black_24dp"
+            android:elevation="5dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:tint="#ffffff" />
+
         <TextView
             android:id="@+id/account_card_name"
             android:layout_width="wrap_content"

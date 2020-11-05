@@ -100,9 +100,11 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
         private final TextView mProjectedView;
         private final TextView mProjectedLabelView;
         private final ImageView mIconView;
+        private final ImageView mAlertView;
         private final ImageButton mButton;
         private AccountWithBalance mItem;
         private final PopupMenu popup;
+        private YearMonth mMonth;
 
         public ViewHolder(View view) {
             super(view);
@@ -113,6 +115,7 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
             mProjectedLabelView = view.findViewById(R.id.account_card_projected_label);
             mButton = view.findViewById(R.id.account_card_button);
             mIconView = view.findViewById(R.id.account_card_icon);
+            mAlertView = view.findViewById(R.id.account_card_alert_icon);
 
             popup = new PopupMenu(mView.getContext(), mButton);
             popup.inflate(R.menu.account_card);
@@ -120,6 +123,13 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
 
         public void setAccountData(@NonNull AccountWithBalance awb, @NonNull YearMonth month) {
             mItem = awb;
+            mMonth = month;
+
+            if (mItem.unresolvedTransactions == null) {
+                mAlertView.setVisibility(View.GONE);
+            } else {
+                mAlertView.setVisibility(View.VISIBLE);
+            }
 
             int accountColor = mItem.account.getBackgroundColor();
             int iconColor = ColorUtil.getTextColor(accountColor);
@@ -165,6 +175,13 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
                 }
             });
 
+            mAlertView.setOnClickListener(v -> {
+                if (clickInterface.clicksEnabled()) {
+                    clickInterface.disableClicks();
+                    listener.onUnresolvedTransactions(mItem.account, mMonth);
+                }
+            });
+
             popup.setOnMenuItemClickListener(item -> {
                 if (clickInterface.clicksEnabled()) {
                     clickInterface.disableClicks();
@@ -189,6 +206,7 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
     public interface OnListItemInteractionListener {
         void onItemInteraction(Account account);
         boolean onItemMenuItemInteraction(Account account, MenuItem menuItem);
+        void onUnresolvedTransactions(Account account, YearMonth month);
     }
 
     private interface ClickDisablerInterface {

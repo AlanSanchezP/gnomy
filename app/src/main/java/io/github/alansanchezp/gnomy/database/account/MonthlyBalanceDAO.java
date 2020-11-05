@@ -49,7 +49,7 @@ public abstract class MonthlyBalanceDAO {
                 "AS end_of_month, " +
                 // Both current and future months are not expected to
                 //  trigger any alert if there are still pending operations
-                "CASE WHEN strftime(\"%Y%m\", \"now\") >= :month " +
+                "CASE WHEN strftime(\"%Y%m\", \"now\") <= :month " +
                 "THEN null " +
                 // Only alert the user if PAST operations are unresolved
                 "ELSE sum_until_target_month.pending " +
