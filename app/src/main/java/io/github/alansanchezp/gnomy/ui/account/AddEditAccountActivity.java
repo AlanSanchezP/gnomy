@@ -104,6 +104,8 @@ public class AddEditAccountActivity
              on the new selected currency (and perform this operation until submitting the new data)
             */
             mCurrencySpinner.setEnabled(false);
+            findViewById(R.id.addedit_account_currency_cannot_change)
+                    .setVisibility(View.VISIBLE);
             accountLD.observe(this, this::onAccountChanged);
         } else {
             activityTitle = getString(R.string.account_new);

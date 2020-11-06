@@ -54,6 +54,7 @@
     <string name="account_initial_value">Initial value</string>
 
     <string name="account_currency">Account currency</string>
+    <string name="account_currency_cannot_change">You cannot change an account\'s currency</string>
     <string name="account_type">Account type</string>
     <string name="account_include_in_sum">Include in homepage sum</string>
     <string name="account_pick_color">Pick a color to identify this account</string>

@@ -99,6 +99,16 @@
                         app:ms_text_color="@color/colorTextHighlight"
                         tools:ignore="RtlHardcoded" />
 
+                    <TextView
+                        android:id="@+id/addedit_account_currency_cannot_change"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColorHint="@color/colorTextSecondary"
+                        android:text="@string/account_currency_cannot_change"
+                        android:textSize="12sp"
+                        android:visibility="gone"
+                        android:layout_marginStart="16dp" />
+
                     <com.jaredrummler.materialspinner.MaterialSpinner
                         android:id="@+id/addedit_account_type"
                         android:layout_width="match_parent"
