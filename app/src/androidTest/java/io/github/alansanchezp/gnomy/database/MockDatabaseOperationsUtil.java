@@ -107,10 +107,11 @@ public class MockDatabaseOperationsUtil {
             return null;
         }
 
-        public void _insert(MonthlyBalance... balances) {
+        public void _insert(MonthlyBalance balance) {
         }
 
-        public void _update(MonthlyBalance balance) {
+        public int _update(MonthlyBalance balance) {
+            return 0;
         }
     }
 }

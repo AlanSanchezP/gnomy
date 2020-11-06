@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import java.math.BigDecimal;
 import java.time.YearMonth;
 
 import io.github.alansanchezp.gnomy.database.account.Account;
@@ -125,7 +126,8 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
             mItem = awb;
             mMonth = month;
 
-            if (mItem.unresolvedTransactions == null) {
+            if (mItem.unresolvedTransactions == null ||
+                    mItem.unresolvedTransactions.compareTo(new BigDecimal("0")) == 0) {
                 mAlertView.setVisibility(View.GONE);
             } else {
                 mAlertView.setVisibility(View.VISIBLE);

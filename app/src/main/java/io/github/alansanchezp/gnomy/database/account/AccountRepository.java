@@ -97,6 +97,19 @@ public class AccountRepository {
     }
 
     // Monthly balance methods
+    // TODO: Remove this method when transactions module is ready
+    //  so that we can test using actual insertion of individual
+    //  transactions, right now we are just dummy updating balances
+    public Single<Integer> insert(MonthlyBalance balance) {
+        return db.toSingleInTransaction(()-> {
+            balanceDAO._insert(balance);
+            return 1;
+        });
+    }
+
+    public Single<Integer> update(MonthlyBalance balance) {
+        return db.toSingleInTransaction(()-> balanceDAO._update(balance));
+    }
 
     public LiveData<List<AccountWithBalance>> getAllFromMonth(YearMonth month) {
         return balanceDAO.getAllFromMonth(month);

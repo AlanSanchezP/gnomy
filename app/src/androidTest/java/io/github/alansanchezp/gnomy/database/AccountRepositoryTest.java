@@ -17,6 +17,7 @@ import io.github.alansanchezp.gnomy.LiveDataTestUtil;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
+import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
@@ -29,7 +30,7 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(AndroidJUnit4.class)
 public class AccountRepositoryTest {
-    // TODO: Evaluate if should be using DAOs directly instead
+
     private AccountRepository repository;
 
     @Rule
@@ -118,51 +119,214 @@ public class AccountRepositoryTest {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     public void filters_AccountWithBalance_by_month() throws InterruptedException {
-        // TODO: Really make sure this test and the one below it are satisfying
-        //  all possible cases of the massive query. The fact that it didn't throw any
-        //  assertion error at all after the refactor bothers me a bit
-        Account account = new Account();
-        account.setInitialValue("50");
-        repository.insert(account).blockingGet();
-        account.setCreatedAt(DateUtil.OffsetDateTimeNow().minusMonths(1));
-        account.setInitialValue("70");
-        repository.insert(account).blockingGet();
-        account.setCreatedAt(DateUtil.OffsetDateTimeNow().minusMonths(2));
-        account.setInitialValue("80");
-        repository.insert(account).blockingGet();
-        account.setArchived(true);
-        repository.insert(account).blockingGet();
+        // TEST description:
+        //  Will test 4 accounts [A,B,C,D] across 7 months, from 4 months
+        //  previous to "today" and 2 in the future
+        //  (P is past, T is today and F is future)
+        //  [P4,P3,P2,P1,T,F1,F2].
+        //  Across those past 4 months, some monthly balances will be inserted
+        //  to emulate real transactions
+        //   (incomes: +, expenses: -, confirmed: #, projected: ?)
+        //   [#+, #-, ?+, ?-]
+        //  and and see how the query responds to the
+        //  absence of balances in some of those months.
+        //  The furthest month is expected to return null numbers
+        //  as it will predate the creation of all 4 accounts.
+        //  Calculations are represented as
+        //  [Current: [T], End of month/projected: [E], Unresolved: [!]]
+        //  Example of operations:
+        //      Account creation: [A=20] for initial balance
+        //      Account balance update: A#+100 for confirmed incomes
+        //
+        // TEST flow:
+        //   |    P4    |    P3    |    P2    |    P1    |    T     |    F1    |    F2    |
+        //   ------------------------------------------------------------------------------
+        // O |          | [A=104]  | A#+10    |          | A?-10    |          | B?+10    |
+        // P |          | [B=62]   | A?+20    |  [D=135] | C#+20    |          |          |
+        // E |          | B?-50    | [C=135]  |          | C?+10    |          |          |
+        // R.|          |          |          |          | B#+20    |          |          |
+        //   ------------------------------------------------------------------------------
+        // A |A[T]=114  |A[T]=114  |A[T]=114  |A[T]=114  |A[T]=114  |A[T]=114  |A[T]=114  |
+        // C |A[E]=null |A[E]=104  |A[E]=114  |A[E]=114  |A[E]=124  |A[E]=124  |A[E]=124  |
+        // C |A[!]=null |A[!]=null |A[!]=20   |A[!]=20   |A[!]=null |A[!]=null |A[!]=null |
+        // O |B[T]=82   |B[T]=82   |B[T]=82   |B[T]=82   |B[T]=82   |B[T]=82   |B[T]=82   |
+        // U |B[E]=null |B[E]=62   |B[E]=62   |B[E]=62   |B[E]=32   |B[E]=32   |B[E]=42   |
+        // N |B[!]=null |B[!]=-50  |B[!]=-50  |B[!]=-50  |B[!]=null |B[!]=null |B[!]=null |
+        // T |C[T]=155  |C[T]=155  |C[T]=155  |C[T]=155  |C[T]=155  |C[T]=155  |C[T]=155  |
+        // S |C[E]=null |C[E]=null |C[E]=135  |C[E]=135  |C[E]=165  |C[E]=165  |C[E]=165  |
+        //   |C[!]=null |C[!]=null |C[!]=null |C[!]=null |C[!]=null |C[!]=null |C[!]=null |
+        //   ------------------------------------------------------------------------------
+        // TODO: Fix weird behavior: "Today" doesn't display any alert if there are PAST
+        //  unresolved transactions
+        Account[] testAccounts = new Account[4];
+        testAccounts[0] = new Account();
+        testAccounts[0].setInitialValue("104");
+        testAccounts[0].setCreatedAt(DateUtil.OffsetDateTimeNow().minusMonths(3));
+        testAccounts[1] = new Account();
+        testAccounts[1].setInitialValue("62");
+        testAccounts[1].setCreatedAt(DateUtil.OffsetDateTimeNow().minusMonths(3));
+        testAccounts[2] = new Account();
+        testAccounts[2].setInitialValue("135");
+        testAccounts[2].setCreatedAt(DateUtil.OffsetDateTimeNow().minusMonths(2));
+        // Archived account that shouldn't get included in calculations
+        testAccounts[3] = new Account();
+        testAccounts[3].setInitialValue("135");
+        testAccounts[3].setCreatedAt(DateUtil.OffsetDateTimeNow().minusMonths(1));
+        testAccounts[3].setArchived(true);
 
+        repository.insert(testAccounts[0]).blockingGet(); // ID should be 1
+        repository.insert(testAccounts[1]).blockingGet(); // ID should be 2
+        repository.insert(testAccounts[2]).blockingGet(); // ID should be 3
+        repository.insert(testAccounts[3]).blockingGet(); // ID should be 4
+
+        MonthlyBalance[] testBalances = new MonthlyBalance[6];
+        testBalances[0] = new MonthlyBalance();
+        // Here we will just replace the already generated balance
+        testBalances[0].setAccountId(2);
+        testBalances[0].setDate(DateUtil.now().minusMonths(3));
+        testBalances[0].setTotalIncomes(new BigDecimal("0"));
+        testBalances[0].setTotalExpenses(new BigDecimal("0"));
+        testBalances[0].setProjectedIncomes(new BigDecimal("0"));
+        testBalances[0].setProjectedExpenses(new BigDecimal("50"));
+        testBalances[1] = new MonthlyBalance();
+        testBalances[1].setAccountId(1);
+        testBalances[1].setDate(DateUtil.now().minusMonths(2));
+        testBalances[1].setTotalIncomes(new BigDecimal("10"));
+        testBalances[1].setProjectedIncomes(new BigDecimal("20"));
+        testBalances[2] = new MonthlyBalance();
+        testBalances[2].setAccountId(1);
+        testBalances[2].setDate(DateUtil.now());
+        testBalances[2].setProjectedExpenses(new BigDecimal("10"));
+        testBalances[3] = new MonthlyBalance();
+        testBalances[3].setAccountId(3);
+        testBalances[3].setDate(DateUtil.now());
+        testBalances[3].setProjectedIncomes(new BigDecimal("10"));
+        testBalances[3].setTotalIncomes(new BigDecimal("20"));
+        testBalances[4] = new MonthlyBalance();
+        testBalances[4].setAccountId(2);
+        testBalances[4].setDate(DateUtil.now());
+        testBalances[4].setTotalIncomes(new BigDecimal("20"));
+        testBalances[5] = new MonthlyBalance();
+        testBalances[5].setAccountId(2);
+        testBalances[5].setDate(DateUtil.now().plusMonths(2));
+        testBalances[5].setProjectedIncomes(new BigDecimal("10"));
+
+        // We will insert some pending and confirmed transactions to get more accurate data
+        repository.update(testBalances[0]).blockingGet();
+        repository.insert(testBalances[1]).blockingGet();
+        repository.insert(testBalances[2]).blockingGet();
+        repository.insert(testBalances[3]).blockingGet();
+        repository.insert(testBalances[4]).blockingGet();
+        repository.insert(testBalances[5]).blockingGet();
+
+        // Get all results
         List<AccountWithBalance> todayResults = LiveDataTestUtil.getOrAwaitValue(
                 repository.getAllFromMonth(DateUtil.now()));
         List<AccountWithBalance> minus1MonthResults = LiveDataTestUtil.getOrAwaitValue(
                 repository.getAllFromMonth(DateUtil.now().minusMonths(1)));
         List<AccountWithBalance> minus2MonthsResults = LiveDataTestUtil.getOrAwaitValue(
                 repository.getAllFromMonth(DateUtil.now().minusMonths(2)));
+        List<AccountWithBalance> minus3MonthsResults = LiveDataTestUtil.getOrAwaitValue(
+                repository.getAllFromMonth(DateUtil.now().minusMonths(3)));
+        List<AccountWithBalance> minus4MonthsResults = LiveDataTestUtil.getOrAwaitValue(
+                repository.getAllFromMonth(DateUtil.now().minusMonths(4)));
+        List<AccountWithBalance>plus1MonthResults = LiveDataTestUtil.getOrAwaitValue(
+                repository.getAllFromMonth(DateUtil.now().plusMonths(1)));
+        List<AccountWithBalance>plus2MonthsResults = LiveDataTestUtil.getOrAwaitValue(
+                repository.getAllFromMonth(DateUtil.now().plusMonths(2)));
 
+        // Assert that, despite there being 4 accounts in the database,
+        //  the archived one is never included in these calculations
         assertEquals(3, todayResults.size());
-        assertThat(new BigDecimal("50"), comparesEqualTo(todayResults.get(0).endOfMonthBalance));
-        assertThat(new BigDecimal("50"), comparesEqualTo(todayResults.get(0).currentBalance));
-        assertThat(new BigDecimal("70"), comparesEqualTo(todayResults.get(1).endOfMonthBalance));
-        assertThat(new BigDecimal("70"), comparesEqualTo(todayResults.get(1).currentBalance));
-        assertThat(new BigDecimal("80"), comparesEqualTo(todayResults.get(2).endOfMonthBalance));
-        assertThat(new BigDecimal("80"), comparesEqualTo(todayResults.get(2).currentBalance));
-
         assertEquals(3, minus1MonthResults.size());
-        assertNull(minus1MonthResults.get(0).endOfMonthBalance);
-        assertThat(new BigDecimal("50"), comparesEqualTo(minus1MonthResults.get(0).currentBalance));
-        assertThat(new BigDecimal("70"), comparesEqualTo(minus1MonthResults.get(1).endOfMonthBalance));
-        assertThat(new BigDecimal("70"), comparesEqualTo(minus1MonthResults.get(1).currentBalance));
-        assertThat(new BigDecimal("80"), comparesEqualTo(minus1MonthResults.get(2).endOfMonthBalance));
-        assertThat(new BigDecimal("80"), comparesEqualTo(minus1MonthResults.get(2).currentBalance));
-
         assertEquals(3, minus2MonthsResults.size());
-        assertNull(minus2MonthsResults.get(0).endOfMonthBalance);
-        assertThat(new BigDecimal("50"), comparesEqualTo(minus2MonthsResults.get(0).currentBalance));
-        assertNull(minus2MonthsResults.get(1).endOfMonthBalance);
-        assertThat(new BigDecimal("70"), comparesEqualTo(minus2MonthsResults.get(1).currentBalance));
-        assertThat(new BigDecimal("80"), comparesEqualTo(minus2MonthsResults.get(2).endOfMonthBalance));
-        assertThat(new BigDecimal("80"), comparesEqualTo(minus2MonthsResults.get(2).currentBalance));
+        assertEquals(3, minus3MonthsResults.size());
+        assertEquals(3, minus4MonthsResults.size());
+        assertEquals(3, plus1MonthResults.size());
+        assertEquals(3, plus2MonthsResults.size());
+
+
+        // Assertions for P4
+        assertThat(new BigDecimal("114"), comparesEqualTo(minus4MonthsResults.get(0).currentBalance));
+        assertNull(minus4MonthsResults.get(0).endOfMonthBalance);
+        assertNull(minus4MonthsResults.get(0).unresolvedTransactions);
+        assertThat(new BigDecimal("82"), comparesEqualTo(minus4MonthsResults.get(1).currentBalance));
+        assertNull(minus4MonthsResults.get(1).endOfMonthBalance);
+        assertNull(minus4MonthsResults.get(1).unresolvedTransactions);
+        assertThat(new BigDecimal("155"), comparesEqualTo(minus4MonthsResults.get(2).currentBalance));
+        assertNull(minus4MonthsResults.get(2).endOfMonthBalance);
+        assertNull(minus4MonthsResults.get(2).unresolvedTransactions);
+
+        // Assertions for P3
+        assertThat(new BigDecimal("114"), comparesEqualTo(minus3MonthsResults.get(0).currentBalance));
+        assertThat(new BigDecimal("104"), comparesEqualTo(minus3MonthsResults.get(0).endOfMonthBalance));
+        assertNull(minus4MonthsResults.get(0).unresolvedTransactions);
+        assertThat(new BigDecimal("82"), comparesEqualTo(minus3MonthsResults.get(1).currentBalance));
+        assertThat(new BigDecimal("62"), comparesEqualTo(minus3MonthsResults.get(1).endOfMonthBalance));
+        assertThat(new BigDecimal("-50"), comparesEqualTo(minus3MonthsResults.get(1).unresolvedTransactions));
+        assertThat(new BigDecimal("155"), comparesEqualTo(minus3MonthsResults.get(2).currentBalance));
+        assertNull(minus3MonthsResults.get(2).endOfMonthBalance);
+        assertNull(minus3MonthsResults.get(2).unresolvedTransactions);
+
+        // Assertions for P2
+
+        assertThat(new BigDecimal("114"), comparesEqualTo(minus2MonthsResults.get(0).currentBalance));
+        assertThat(new BigDecimal("114"), comparesEqualTo(minus2MonthsResults.get(0).endOfMonthBalance));
+        assertThat(new BigDecimal("20"), comparesEqualTo(minus2MonthsResults.get(0).unresolvedTransactions));
+        assertThat(new BigDecimal("82"), comparesEqualTo(minus2MonthsResults.get(1).currentBalance));
+        assertThat(new BigDecimal("62"), comparesEqualTo(minus2MonthsResults.get(1).endOfMonthBalance));
+        assertThat(new BigDecimal("-50"), comparesEqualTo(minus2MonthsResults.get(1).unresolvedTransactions));
+        assertThat(new BigDecimal("155"), comparesEqualTo(minus2MonthsResults.get(2).currentBalance));
+        assertThat(new BigDecimal("135"), comparesEqualTo(minus2MonthsResults.get(2).endOfMonthBalance));
+        assertThat(new BigDecimal("0"), comparesEqualTo(minus2MonthsResults.get(2).unresolvedTransactions));
+
+        // Assertions for P1
+
+        assertThat(new BigDecimal("114"), comparesEqualTo(minus1MonthResults.get(0).currentBalance));
+        assertThat(new BigDecimal("114"), comparesEqualTo(minus1MonthResults.get(0).endOfMonthBalance));
+        assertThat(new BigDecimal("20"), comparesEqualTo(minus1MonthResults.get(0).unresolvedTransactions));
+        assertThat(new BigDecimal("82"), comparesEqualTo(minus1MonthResults.get(1).currentBalance));
+        assertThat(new BigDecimal("62"), comparesEqualTo(minus1MonthResults.get(1).endOfMonthBalance));
+        assertThat(new BigDecimal("-50"), comparesEqualTo(minus1MonthResults.get(1).unresolvedTransactions));
+        assertThat(new BigDecimal("155"), comparesEqualTo(minus1MonthResults.get(2).currentBalance));
+        assertThat(new BigDecimal("135"), comparesEqualTo(minus1MonthResults.get(2).endOfMonthBalance));
+        assertThat(new BigDecimal("0"), comparesEqualTo(minus1MonthResults.get(2).unresolvedTransactions));
+
+        // Assertions for T
+
+        assertThat(new BigDecimal("114"), comparesEqualTo(todayResults.get(0).currentBalance));
+        assertThat(new BigDecimal("124"), comparesEqualTo(todayResults.get(0).endOfMonthBalance));
+        assertNull(todayResults.get(0).unresolvedTransactions);
+        assertThat(new BigDecimal("82"), comparesEqualTo(todayResults.get(1).currentBalance));
+        assertThat(new BigDecimal("32"), comparesEqualTo(todayResults.get(1).endOfMonthBalance));
+        assertNull(todayResults.get(1).unresolvedTransactions);
+        assertThat(new BigDecimal("155"), comparesEqualTo(todayResults.get(2).currentBalance));
+        assertThat(new BigDecimal("165"), comparesEqualTo(todayResults.get(2).endOfMonthBalance));
+        assertNull(todayResults.get(2).unresolvedTransactions);
+
+        // Assertions for F1
+
+        assertThat(new BigDecimal("114"), comparesEqualTo(plus1MonthResults.get(0).currentBalance));
+        assertThat(new BigDecimal("124"), comparesEqualTo(plus1MonthResults.get(0).endOfMonthBalance));
+        assertNull(plus1MonthResults.get(0).unresolvedTransactions);
+        assertThat(new BigDecimal("82"), comparesEqualTo(plus1MonthResults.get(1).currentBalance));
+        assertThat(new BigDecimal("32"), comparesEqualTo(plus1MonthResults.get(1).endOfMonthBalance));
+        assertNull(plus1MonthResults.get(1).unresolvedTransactions);
+        assertThat(new BigDecimal("155"), comparesEqualTo(plus1MonthResults.get(2).currentBalance));
+        assertThat(new BigDecimal("165"), comparesEqualTo(plus1MonthResults.get(2).endOfMonthBalance));
+        assertNull(plus1MonthResults.get(2).unresolvedTransactions);
+
+        // Assertions for F2
+
+        assertThat(new BigDecimal("114"), comparesEqualTo(plus2MonthsResults.get(0).currentBalance));
+        assertThat(new BigDecimal("124"), comparesEqualTo(plus2MonthsResults.get(0).endOfMonthBalance));
+        assertNull(plus2MonthsResults.get(0).unresolvedTransactions);
+        assertThat(new BigDecimal("82"), comparesEqualTo(plus2MonthsResults.get(1).currentBalance));
+        assertThat(new BigDecimal("42"), comparesEqualTo(plus2MonthsResults.get(1).endOfMonthBalance));
+        assertNull(plus2MonthsResults.get(1).unresolvedTransactions);
+        assertThat(new BigDecimal("155"), comparesEqualTo(plus2MonthsResults.get(2).currentBalance));
+        assertThat(new BigDecimal("165"), comparesEqualTo(plus2MonthsResults.get(2).endOfMonthBalance));
+        assertNull(plus2MonthsResults.get(2).unresolvedTransactions);
 
     }
 
@@ -171,14 +335,19 @@ public class AccountRepositoryTest {
     public void returns_correct_accumulated_balance() throws InterruptedException {
         Account account = new Account();
         account.setInitialValue("40");
+        account.setCreatedAt(DateUtil.OffsetDateTimeNow().minusMonths(3));
         repository.insert(account).blockingGet();
 
         assertThat(new BigDecimal("40"), comparesEqualTo(LiveDataTestUtil.getOrAwaitValue(
                 repository.getAccumulatedFromMonth(1, DateUtil.now()))));
+        assertThat(new BigDecimal("40"), comparesEqualTo(LiveDataTestUtil.getOrAwaitValue(
+                repository.getAccumulatedFromMonth(1, DateUtil.now().minusMonths(1)))));
+        assertThat(new BigDecimal("40"), comparesEqualTo(LiveDataTestUtil.getOrAwaitValue(
+                repository.getAccumulatedFromMonth(1, DateUtil.now().plusMonths(2)))));
+        assertThat(new BigDecimal("40"), comparesEqualTo(LiveDataTestUtil.getOrAwaitValue(
+                repository.getAccumulatedFromMonth(1, DateUtil.now().minusMonths(3)))));
         assertNull(LiveDataTestUtil.getOrAwaitValue(
-                repository.getAccumulatedFromMonth(1, DateUtil.now().minusMonths(1))));
-        assertNull(LiveDataTestUtil.getOrAwaitValue(
-                repository.getAccumulatedFromMonth(1, DateUtil.now().minusMonths(2))));
+                repository.getAccumulatedFromMonth(1, DateUtil.now().minusMonths(4))));
     }
 
 

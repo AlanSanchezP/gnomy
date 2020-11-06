@@ -120,8 +120,8 @@ public abstract class MonthlyBalanceDAO {
     // WITHOUT WRAPPING THEM IN Single<> METHODS
 
     @Insert
-    protected abstract void _insert(MonthlyBalance... balances);
+    protected abstract void _insert(MonthlyBalance balance);
 
     @Update
-    protected abstract void _update(MonthlyBalance balance);
+    protected abstract int _update(MonthlyBalance balance);
 }
