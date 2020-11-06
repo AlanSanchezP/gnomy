@@ -225,12 +225,14 @@ public class AccountDetailsActivity
         mNameTV.setText(account.getName());
 
         TextView initialValueTV = findViewById(R.id.account_initial_value);
+        TextView createdAtTV = findViewById(R.id.account_created_at_text);
         ImageView typeImage = findViewById(R.id.account_type_icon);
         TextView typeTV = findViewById(R.id.account_type);
         ImageView includedInSumImage = findViewById(R.id.account_included_in_sum_icon);
         TextView includedInSumTV = findViewById(R.id.account_included_in_sum_text);
         Drawable typeIcon = ContextCompat.getDrawable(this,
                 Account.getDrawableResourceId(account.getType()));
+        String createdAtString = account.getCreatedAt().toLocalDate().toString();
         String typeString = getString(
                 Account.getTypeNameResourceId(account.getType())
         );
@@ -247,6 +249,7 @@ public class AccountDetailsActivity
             includedInSumString = getString(R.string.account_is_not_included_in_sum);
         }
 
+        createdAtTV.setText(createdAtString);
         typeImage.setImageDrawable(typeIcon);
         typeTV.setText(typeString);
         includedInSumImage.setImageDrawable(includedInSumIcon);

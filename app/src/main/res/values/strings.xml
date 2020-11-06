@@ -89,6 +89,8 @@
     <string name="account_details">Account details</string>
 
     <string name="account_details_actions">Create new…</string>
+    <string name="account_created_at">Created at</string>
+    <string name="account_created_at_icon">Calendar icon</string>
     <string name="account_is_included_in_sum">Included in homepage sum</string>
     <string name="account_is_not_included_in_sum">Not included in homepage sum</string>
     <string name="account_balance_history">Balance history</string>
