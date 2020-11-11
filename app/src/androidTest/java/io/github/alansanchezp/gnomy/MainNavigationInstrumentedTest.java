@@ -45,6 +45,10 @@ public class MainNavigationInstrumentedTest {
 
         when(mockAccountDAO.getArchivedAccounts())
                 .thenReturn(new MutableLiveData<>());
+        when(mockAccountDAO.getTodayAccumulatesList())
+                .thenReturn(new MutableLiveData<>());
+        when(mockAccountDAO.getAccumulatesListAtMonth(any(YearMonth.class)))
+                .thenReturn(new MutableLiveData<>());
         when(mockAccountDAO.find(anyInt()))
                 .thenReturn(new MutableLiveData<>());
         when(mockBalanceDAO.getAccumulatedFromMonth(anyInt(), any(YearMonth.class)))

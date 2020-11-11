@@ -5,6 +5,8 @@ import android.app.Application;
 import java.time.YearMonth;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -12,7 +14,7 @@ import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
-import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
+import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
 import io.reactivex.Single;
 
 public class AccountsListViewModel extends AndroidViewModel {
@@ -21,7 +23,8 @@ public class AccountsListViewModel extends AndroidViewModel {
     private final AccountRepository mRepository;
     private final SavedStateHandle mState;
     private LiveData<YearMonth> mActiveMonth;
-    private LiveData<List<AccountWithBalance>> mBalancesToDisplay;
+    private LiveData<List<AccountWithAccumulated>> mAccumulatesToday;
+    private LiveData<List<AccountWithAccumulated>> mAccumulates;
     private LiveData<List<Account>> mArchivedAccounts;
 
     public AccountsListViewModel(Application application, SavedStateHandle savedStateHandle) {
@@ -34,11 +37,24 @@ public class AccountsListViewModel extends AndroidViewModel {
         if (mActiveMonth == null) mActiveMonth = month;
     }
 
-    public LiveData<List<AccountWithBalance>> getBalances() {
-        if (mBalancesToDisplay == null) {
-            mBalancesToDisplay = Transformations.switchMap(mActiveMonth, mRepository::getAllFromMonth);
+    public Map<Integer,AccountWithAccumulated> getAccumulatesMapFromList(List<AccountWithAccumulated> list) {
+        return list.stream().collect(Collectors.toMap(
+                balance -> balance.account.getId(),
+                balance -> balance));
+    }
+
+    public LiveData<List<AccountWithAccumulated>> getTodayAccumulatesList() {
+        if (mAccumulatesToday == null) {
+            mAccumulatesToday = mRepository.getTodayAccumulatesList();
         }
-        return mBalancesToDisplay;
+        return mAccumulatesToday;
+    }
+
+    public LiveData<List<AccountWithAccumulated>> getAccumulatesListAtMonth() {
+        if (mAccumulates == null) {
+            mAccumulates = Transformations.switchMap(mActiveMonth, mRepository::getAccumulatesListAtMonth);
+        }
+        return mAccumulates;
     }
 
     public  LiveData<List<Account>> getArchivedAccounts() {

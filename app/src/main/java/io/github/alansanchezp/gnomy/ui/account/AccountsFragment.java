@@ -34,7 +34,7 @@ import java.util.Objects;
 
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
+import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
 import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
 import io.github.alansanchezp.gnomy.ui.CustomDialogFragmentFactory;
 import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
@@ -61,6 +61,7 @@ public class AccountsFragment extends MainNavigationFragment
     public static final String TAG_DELETE_ACCOUNT_DIALOG = "AccountsFragment.DeleteAccountDialog";
     private AccountRecyclerViewAdapter mAdapter;
     private AccountsListViewModel mListViewModel;
+    private Map<Integer, AccountWithAccumulated> mTodayAccumulatesMap;
     private TextView mBalance, mProjected;
 
     public AccountsFragment() {
@@ -131,6 +132,7 @@ public class AccountsFragment extends MainNavigationFragment
         recyclerView.setAdapter(mAdapter);
         recyclerView.setNestedScrollingEnabled(false);
 
+        // TODO: Can we move this to onCreate without bugs?
         mListViewModel.bindMonth(mNavigationInterface.getActiveMonth());
 
         return view;
@@ -144,8 +146,10 @@ public class AccountsFragment extends MainNavigationFragment
 
         mNavigationInterface.getActiveMonth()
                 .observe(getViewLifecycleOwner(), this::onMonthChanged);
-        mListViewModel.getBalances()
-                .observe(getViewLifecycleOwner(), this::onAccountsListChanged);
+        mListViewModel.getTodayAccumulatesList()
+                .observe(getViewLifecycleOwner(), this::onTodayAccumulatesListChanged);
+        mListViewModel.getAccumulatesListAtMonth()
+                .observe(getViewLifecycleOwner(), this::onAccumulatesListChanged);
     }
 
     @Override
@@ -218,18 +222,35 @@ public class AccountsFragment extends MainNavigationFragment
         mCurrentMonth = month;
     }
 
-    private void onAccountsListChanged(List<AccountWithBalance> accounts) {
+    private void onTodayAccumulatesListChanged(List<AccountWithAccumulated> accumulates) {
+        mTodayAccumulatesMap = mListViewModel.getAccumulatesMapFromList(accumulates);
+        mAdapter.notifyTodayAccumulatesAreAvailable(mTodayAccumulatesMap.size());
+        // TODO: Use global user currency when implemented
+        String userCurrencyCode = "USD";
+        try {
+            BigDecimal totalAccumulates = CurrencyUtil.sumAccountAccumulates(
+                    true,
+                    accumulates,
+                    userCurrencyCode);
+            mBalance.setText(CurrencyUtil.format(totalAccumulates, userCurrencyCode));
+        } catch (GnomyCurrencyException e) {
+            // This shouldn't happen
+            Log.wtf("AccountsFragment", "setObserver: ", e);
+        }
+    }
+
+    private void onAccumulatesListChanged(List<AccountWithAccumulated> accumulates) {
         if (mCurrentMonth == null) return;
-        mAdapter.setValues(accounts, mCurrentMonth);
+        mAdapter.setValues(accumulates);
 
         // TODO: Use global user currency when implemented
         String userCurrencyCode = "USD";
         try {
-            BigDecimal[] totalBalances = CurrencyUtil.sumAccountListBalances(
-                    accounts,
+            BigDecimal totalEndOfMonth = CurrencyUtil.sumAccountAccumulates(
+                    false,
+                    accumulates,
                     userCurrencyCode);
-            mBalance.setText(CurrencyUtil.format(totalBalances[0], userCurrencyCode));
-            mProjected.setText(CurrencyUtil.format(totalBalances[1], userCurrencyCode));
+            mProjected.setText(CurrencyUtil.format(totalEndOfMonth, userCurrencyCode));
         } catch (GnomyCurrencyException e) {
             // This shouldn't happen
             Log.wtf("AccountsFragment", "setObserver: ", e);
@@ -237,6 +258,9 @@ public class AccountsFragment extends MainNavigationFragment
     }
 
     /* INTERFACE METHODS */
+    public AccountWithAccumulated getTodayAccumulatedFromAccount(int accountId) {
+        return mTodayAccumulatesMap.get(accountId);
+    }
 
     public void onItemInteraction(Account account) {
         Intent detailsIntent = new Intent(getContext(), AccountDetailsActivity.class);

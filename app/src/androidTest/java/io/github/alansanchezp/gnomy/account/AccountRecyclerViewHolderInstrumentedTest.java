@@ -16,7 +16,7 @@ import androidx.test.filters.LargeTest;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.ViewScenarioRule;
 import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
+import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
 import io.github.alansanchezp.gnomy.dummy.DummyActivity;
 import io.github.alansanchezp.gnomy.ui.account.AccountRecyclerViewAdapter;
 import io.github.alansanchezp.gnomy.util.DateUtil;
@@ -27,11 +27,14 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withTagValue;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class AccountRecyclerViewHolderInstrumentedTest {
-    static final AccountWithBalance testAccount = new AccountWithBalance();
+    static final AccountWithAccumulated testAccumulated = mock(AccountWithAccumulated.class);
+    static final AccountWithAccumulated testTodayAccumulated = mock(AccountWithAccumulated.class);
 
     @Rule
     public final ViewScenarioRule viewRule =
@@ -40,13 +43,17 @@ public class AccountRecyclerViewHolderInstrumentedTest {
     @BeforeClass
     public static void init_test_account_and_set_locale() {
         Locale.setDefault(Locale.US);
-        testAccount.account = new Account();
-        testAccount.account.setName("Test account 1");
-        testAccount.account.setType(Account.BANK);
-        testAccount.account.setBackgroundColor(0xFF4D7C4F);
-        testAccount.account.setInitialValue("0");
-        testAccount.currentBalance = new BigDecimal("20");
-        testAccount.endOfMonthBalance = new BigDecimal("30");
+        testAccumulated.account = mock(Account.class);
+        testTodayAccumulated.targetMonth = DateUtil.now();
+        testTodayAccumulated.account = testAccumulated.account;
+        when(testAccumulated.account.getName())
+                .thenReturn("Test account");
+        when(testAccumulated.account.getDefaultCurrency())
+                .thenReturn("USD");
+        when(testAccumulated.getBalanceAtEndOfMonth())
+                .thenReturn(BigDecimal.ONE);
+        when(testTodayAccumulated.getConfirmedAccumulatedBalanceAtMonth())
+                .thenReturn(BigDecimal.TEN);
     }
 
     @Test
@@ -54,10 +61,11 @@ public class AccountRecyclerViewHolderInstrumentedTest {
         ActivityScenario<DummyActivity> scenario = viewRule.getScenario();
         View[] view = new View[1];
         AccountRecyclerViewAdapter.ViewHolder[] holder = new AccountRecyclerViewAdapter.ViewHolder[1];
+        testAccumulated.targetMonth = DateUtil.now();
         scenario.onActivity(activity -> {
             view[0] = activity.findViewById(R.id.account_card);
             holder[0] = new AccountRecyclerViewAdapter.ViewHolder(view[0]);
-            holder[0].setAccountData(testAccount, DateUtil.now());
+            holder[0].setAccountData(testAccumulated, testTodayAccumulated);
         });
 
         onView(withId(R.id.account_card_current_label))
@@ -66,8 +74,9 @@ public class AccountRecyclerViewHolderInstrumentedTest {
         onView(withId(R.id.account_card_projected_label))
                 .check(matches(withText(R.string.account_projected_balance)));
 
+        testAccumulated.targetMonth = DateUtil.now().minusMonths(1);
         scenario.onActivity(activity ->
-                holder[0].setAccountData(testAccount, DateUtil.now().minusMonths(1)));
+                holder[0].setAccountData(testAccumulated, testTodayAccumulated));
 
         onView(withId(R.id.account_card_current_label))
                 .check(matches(withText(R.string.account_current_balance)));
@@ -75,8 +84,9 @@ public class AccountRecyclerViewHolderInstrumentedTest {
         onView(withId(R.id.account_card_projected_label))
                 .check(matches(withText(R.string.account_balance_end_of_month)));
 
+        testAccumulated.targetMonth = DateUtil.now().plusMonths(1);
         scenario.onActivity(activity ->
-                holder[0].setAccountData(testAccount, DateUtil.now().plusMonths(1)));
+                holder[0].setAccountData(testAccumulated, testTodayAccumulated));
 
         onView(withId(R.id.account_card_current_label))
                 .check(matches(withText(R.string.account_current_balance)));
@@ -90,20 +100,21 @@ public class AccountRecyclerViewHolderInstrumentedTest {
         ActivityScenario<DummyActivity> scenario = viewRule.getScenario();
         View[] view = new View[1];
         AccountRecyclerViewAdapter.ViewHolder[] holder = new AccountRecyclerViewAdapter.ViewHolder[1];
+        testAccumulated.targetMonth = DateUtil.now();
         scenario.onActivity(activity -> {
             view[0] = activity.findViewById(R.id.account_card);
             holder[0] = new AccountRecyclerViewAdapter.ViewHolder(view[0]);
-            holder[0].setAccountData(testAccount, DateUtil.now());
+            holder[0].setAccountData(testAccumulated, testTodayAccumulated);
         });
 
         onView(withId(R.id.account_card_name))
-                .check(matches(withText(testAccount.account.getName())));
+                .check(matches(withText(testAccumulated.account.getName())));
 
         onView(withId(R.id.account_card_current))
-                .check(matches(withText("$20.00")));
+                .check(matches(withText("$10.00")));
 
         onView(withId(R.id.account_card_projected))
-                .check(matches(withText("$30.00")));
+                .check(matches(withText("$1.00")));
     }
 
     @Test
@@ -117,9 +128,10 @@ public class AccountRecyclerViewHolderInstrumentedTest {
         });
 
         for (int type=Account.BANK; type <= Account.OTHER; type++) {
-            testAccount.account.setType(type);
+            when(testAccumulated.account.getType()).thenReturn(type);
+            testAccumulated.targetMonth = DateUtil.now();
             scenario.onActivity(activity ->
-                    holder[0].setAccountData(testAccount, DateUtil.now()));
+                    holder[0].setAccountData(testAccumulated, testTodayAccumulated));
             onView(withId(R.id.account_card_icon))
                     .check(matches(
                         withTagValue(

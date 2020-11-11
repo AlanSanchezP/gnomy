@@ -15,6 +15,9 @@ import io.reactivex.Single;
 public class AccountRepository {
     private final GnomyDatabase db;
     private final AccountDAO accountDAO;
+    // TODO: Eliminate direct usages of MonthlyBalanceDAO and use inheritance
+    //  to provide update and insert methods in AccountDAO and MoneyTransactionDAO
+    //  as operations on both models require the manipulation of balances
     private final MonthlyBalanceDAO balanceDAO;
 
     public AccountRepository(Context context) {
@@ -34,6 +37,19 @@ public class AccountRepository {
     public LiveData<Account> getAccount(int accountId) {
         return accountDAO.find(accountId);
     }
+
+    public LiveData<List<AccountWithAccumulated>> getAccumulatesListAtMonth(YearMonth month) {
+        return accountDAO.getAccumulatesListAtMonth(month);
+    }
+
+    public LiveData<List<AccountWithAccumulated>> getTodayAccumulatesList() {
+        return accountDAO.getTodayAccumulatesList();
+    }
+
+    public LiveData<AccountWithAccumulated> getAccumulatedAtMonth(int accountId, YearMonth targetMonth) {
+        return accountDAO.getAccumulatedAtMonth(accountId, targetMonth);
+    }
+
 
     public LiveData<BigDecimal> getAccumulatedFromMonth(int accountId, YearMonth month) {
         return balanceDAO.getAccumulatedFromMonth(accountId, month);
@@ -122,18 +138,4 @@ public class AccountRepository {
     public LiveData<MonthlyBalance> getBalanceFromMonth(int accountId, YearMonth month) {
         return balanceDAO.find(accountId, month);
     }
-
-    /*
-    TODO: Find a way to automatically create monthly balances every month
-    public void createMonthlyBalance(Account account) {
-        MonthlyBalance currentBalance = getBalanceFromMonth(account.getId(), YearMonth.now());
-
-        if (currentBalance == null) {
-            MonthlyBalance mb = new MonthlyBalance(account);
-
-            InsertBalanceAsyncTask asyncTask = new InsertBalanceAsyncTask(balanceDAO);
-            asyncTask.execute(mb);
-        }
-    }
-    */
 }

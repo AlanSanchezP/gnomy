@@ -1,5 +1,6 @@
 package io.github.alansanchezp.gnomy.util;
 
+
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Arrays;
@@ -7,7 +8,7 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
 
-import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
+import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
 
 public class CurrencyUtil {
     // TODO generate complete set of currencies
@@ -75,27 +76,24 @@ public class CurrencyUtil {
        }
     }
 
-    public static BigDecimal[] sumAccountListBalances(
-            List<AccountWithBalance> awbList,
+    public static BigDecimal sumAccountAccumulates(
+            boolean forceConfirmedOnly,
+            List<AccountWithAccumulated> awaList,
             String baseCurrencyCode) {
         // TODO: Adjust logic when currency support is implemented
         //  This loop is here just so we can display something
         //  It's possible that the whole method (including signature) will change
-        // totals[0] represents accumulated/current balance
-        // totals[1] represents projected/past balance
-        BigDecimal[] totals = {null,null};
-        totals[0] = new BigDecimal("0");
+        BigDecimal total = null;
+        if (awaList.size() > 0) total = BigDecimal.ZERO;
 
-        for (AccountWithBalance awb : awbList) {
-            if (awb.currentBalance != null) {
-                totals[0] = totals[0].add(awb.currentBalance);
-            }
-            if (awb.endOfMonthBalance != null) {
-                if (totals[1] == null) totals[1] = new BigDecimal("0");
-                totals[1] = totals[1].add(awb.endOfMonthBalance);
+        for (AccountWithAccumulated awa : awaList) {
+            if (forceConfirmedOnly) {
+                total = total.add(awa.getConfirmedAccumulatedBalanceAtMonth());
+            } else {
+                total = total.add(awa.getBalanceAtEndOfMonth());
             }
         }
 
-        return totals;
+        return total;
     }
 }

@@ -7,6 +7,7 @@ import java.util.List;
 import androidx.lifecycle.LiveData;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountDAO;
+import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
 import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
 import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
 import io.github.alansanchezp.gnomy.database.account.MonthlyBalanceDAO;
@@ -47,6 +48,18 @@ public class MockDatabaseOperationsUtil {
 
 
     public static class MockableAccountDAO extends AccountDAO {
+        public LiveData<List<AccountWithAccumulated>> getAccumulatesListAtMonth(YearMonth targetMonth) {
+            return null;
+        }
+
+        public LiveData<List<AccountWithAccumulated>> getTodayAccumulatesList() {
+            return null;
+        }
+
+        public LiveData<AccountWithAccumulated> getAccumulatedAtMonth(int accountId, YearMonth targetMonth) {
+            return null;
+        }
+
         public LiveData<List<Account>> getAll() {return null;}
 
         public LiveData<List<Account>> getArchivedAccounts() {
