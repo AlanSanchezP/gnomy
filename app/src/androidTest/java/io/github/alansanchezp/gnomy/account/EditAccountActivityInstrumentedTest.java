@@ -40,9 +40,7 @@ public class EditAccountActivityInstrumentedTest {
     public static void init_mocks() {
         final MockDatabaseOperationsUtil.MockableAccountDAO mockAccountDAO = mock(MockDatabaseOperationsUtil.MockableAccountDAO.class);
         // Needed so that ViewModel instance doesn't crash
-        final MockDatabaseOperationsUtil.MockableMonthlyBalanceDAO mockBalanceDAO = mock(MockDatabaseOperationsUtil.MockableMonthlyBalanceDAO.class);
         MockDatabaseOperationsUtil.setAccountDAO(mockAccountDAO);
-        MockDatabaseOperationsUtil.setBalanceDAO(mockBalanceDAO);
         when(mockAccountDAO.find(anyInt()))
                 .thenReturn(new MutableLiveData<>());
         when(mockAccountDAO._update(any(Account.class)))

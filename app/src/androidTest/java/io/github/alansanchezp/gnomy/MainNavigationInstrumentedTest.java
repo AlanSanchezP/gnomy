@@ -39,9 +39,7 @@ public class MainNavigationInstrumentedTest {
     @BeforeClass
     public static void init_mocks() {
         final MockDatabaseOperationsUtil.MockableAccountDAO mockAccountDAO = mock(MockDatabaseOperationsUtil.MockableAccountDAO.class);
-        final MockDatabaseOperationsUtil.MockableMonthlyBalanceDAO mockBalanceDAO = mock(MockDatabaseOperationsUtil.MockableMonthlyBalanceDAO.class);
         MockDatabaseOperationsUtil.setAccountDAO(mockAccountDAO);
-        MockDatabaseOperationsUtil.setBalanceDAO(mockBalanceDAO);
 
         when(mockAccountDAO.getArchivedAccounts())
                 .thenReturn(new MutableLiveData<>());
@@ -50,8 +48,6 @@ public class MainNavigationInstrumentedTest {
         when(mockAccountDAO.getAccumulatesListAtMonth(any(YearMonth.class)))
                 .thenReturn(new MutableLiveData<>());
         when(mockAccountDAO.find(anyInt()))
-                .thenReturn(new MutableLiveData<>());
-        when(mockBalanceDAO.getAccumulatedFromMonth(anyInt(), any(YearMonth.class)))
                 .thenReturn(new MutableLiveData<>());
     }
 

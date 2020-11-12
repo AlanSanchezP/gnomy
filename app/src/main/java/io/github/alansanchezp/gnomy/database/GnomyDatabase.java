@@ -136,14 +136,6 @@ public abstract class GnomyDatabase extends RoomDatabase {
         return _accountDAO();
     }
 
-    public MonthlyBalanceDAO monthlyBalanceDAO() {
-        MonthlyBalanceDAO mockDAO = (MonthlyBalanceDAO) getMockDAO(
-                "getBalanceDAO", MonthlyBalanceDAO.class);
-        if (mockDAO != null) return mockDAO;
-
-        return _monthlyBalanceDAO();
-    }
-
     public CategoryDAO categoryDAO() {
         return _categoryDAO();
     }
@@ -153,8 +145,6 @@ public abstract class GnomyDatabase extends RoomDatabase {
     protected abstract AccountDAO _accountDAO();
 
     protected abstract MoneyTransactionDAO _transactionDAO();
-
-    protected abstract MonthlyBalanceDAO _monthlyBalanceDAO();
 
     protected abstract RecurrentTransactionDAO _recurrentTransactionDAO();
 

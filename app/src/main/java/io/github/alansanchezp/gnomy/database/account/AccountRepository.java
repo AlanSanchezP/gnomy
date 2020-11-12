@@ -14,15 +14,10 @@ import io.reactivex.Single;
 public class AccountRepository {
     private final GnomyDatabase db;
     private final AccountDAO accountDAO;
-    // TODO: Eliminate direct usages of MonthlyBalanceDAO and use inheritance
-    //  to provide update and insert methods in AccountDAO and MoneyTransactionDAO
-    //  as operations on both models require the manipulation of balances
-    private final MonthlyBalanceDAO balanceDAO;
 
     public AccountRepository(Context context) {
         db = GnomyDatabase.getInstance(context, "");
         accountDAO = db.accountDAO();
-        balanceDAO = db.monthlyBalanceDAO();
     }
 
     public LiveData<List<Account>> getAll() {
@@ -55,7 +50,7 @@ public class AccountRepository {
             MonthlyBalance initial_balance = new MonthlyBalance();
             initial_balance.setDate(YearMonth.from(account.getCreatedAt()));
             initial_balance.setAccountId((int)(long)inserted_id);
-            balanceDAO._insert(initial_balance);
+            accountDAO._insertOrIgnoreBalance(initial_balance);
             return inserted_id;
         });
     }
@@ -107,25 +102,24 @@ public class AccountRepository {
     }
 
     // Monthly balance methods
+
     // TODO: Remove this method when transactions module is ready
     //  so that we can test using actual insertion of individual
     //  transactions, right now we are just dummy updating balances
     public Single<Integer> insert(MonthlyBalance balance) {
         return db.toSingleInTransaction(()-> {
-            balanceDAO._insert(balance);
+            accountDAO._insertOrIgnoreBalance(balance);
             return 1;
         });
     }
 
+    // TODO: When transactions module is ready, evaluate if this is still needed
     public Single<Integer> update(MonthlyBalance balance) {
-        return db.toSingleInTransaction(()-> balanceDAO._update(balance));
+        return db.toSingleInTransaction(()-> accountDAO._updateBalance(balance));
     }
 
-    public LiveData<List<MonthlyBalance>> getAllFromAccount(Account account) {
-        return balanceDAO.getAllFromAccount(account.getId());
-    }
-
+    // TODO: This method is used only in tests so far, evaluate deleting it later
     public LiveData<MonthlyBalance> getBalanceFromMonth(int accountId, YearMonth month) {
-        return balanceDAO.find(accountId, month);
+        return accountDAO.findBalance(accountId, month);
     }
 }

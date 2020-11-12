@@ -13,7 +13,6 @@ import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.MockDatabaseOperationsUtil;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.ui.account.AddEditAccountActivity;
-import io.reactivex.Single;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -46,11 +45,9 @@ public class AddAccountActivityInstrumentedTest {
     @BeforeClass
     public static void init_mocks() {
         final MockDatabaseOperationsUtil.MockableAccountDAO mockAccountDAO = mock(MockDatabaseOperationsUtil.MockableAccountDAO.class);
-        final MockDatabaseOperationsUtil.MockableMonthlyBalanceDAO mockBalanceDAO = mock(MockDatabaseOperationsUtil.MockableMonthlyBalanceDAO.class);
         MockDatabaseOperationsUtil.setAccountDAO(mockAccountDAO);
-        MockDatabaseOperationsUtil.setBalanceDAO(mockBalanceDAO);
-        when(mockAccountDAO.insert(any(Account.class)))
-                .thenReturn(Single.just(new Long[1]));
+        when(mockAccountDAO._insert(any(Account.class)))
+                .thenReturn(1L);
     }
 
     @Test

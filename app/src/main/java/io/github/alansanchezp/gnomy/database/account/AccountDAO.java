@@ -13,7 +13,7 @@ import androidx.room.Update;
 import io.reactivex.Single;
 
 @Dao
-public abstract class AccountDAO  {
+public abstract class AccountDAO implements MonthlyBalanceDAO {
 
     @Query("SELECT " +
             "accounts.*, " +
