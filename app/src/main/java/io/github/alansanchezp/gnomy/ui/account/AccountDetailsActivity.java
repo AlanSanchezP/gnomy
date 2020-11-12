@@ -16,22 +16,20 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.math.BigDecimal;
 import java.time.YearMonth;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
 import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
 import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
-import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 import io.github.alansanchezp.gnomy.util.android.ViewTintingUtil;
@@ -47,9 +45,7 @@ public class AccountDetailsActivity
     private SingleClickViewHolder<FloatingActionButton> mFABVH;
     private SingleClickViewHolder<Button> mSeeMoreBtnVH;
     private AccountViewModel mAccountViewModel;
-    private LiveData<BigDecimal> mLatestBalanceSum;
     private Account mAccount;
-    private int mAccountId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,15 +67,11 @@ public class AccountDetailsActivity
         mFABVH.setOnClickListener(this::onFABClick);
 
         Intent intent = getIntent();
-        mAccountId = intent.getIntExtra(EXTRA_ACCOUNT_ID, 0);
+        int accountId = intent.getIntExtra(EXTRA_ACCOUNT_ID, 0);
         disableActions();
 
-        LiveData<Account> accountLiveData = mAccountViewModel.getAccount(mAccountId);
-        accountLiveData.observe(this, this::onAccountChanged);
-
-        mLatestBalanceSum = mAccountViewModel.getAccumulatedFromMonth(mAccountId, DateUtil.now());
-        mLatestBalanceSum.observe(this, balance ->
-                updateBalanceSum(mAccount, balance));
+        mAccountViewModel.getAccountWithAccumulated(accountId)
+                .observe(this, this::onDataChanged);
     }
 
 
@@ -128,7 +120,7 @@ public class AccountDetailsActivity
                 Log.wtf("AccountDetailsActivity", "onConfirmationDialogYes: MenuItems were enabled but no account was found");
             }
             mCompositeDisposable.add(
-                mAccountViewModel.archive(mAccountId)
+                mAccountViewModel.archive(mAccount.getId())
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
@@ -194,36 +186,25 @@ public class AccountDetailsActivity
         startActivity(accountHistoryIntent);
     }
 
-    private void onAccountChanged(Account account) {
-        if (account == null) {
+    private void onDataChanged(AccountWithAccumulated awa) {
+        if (awa.account == null) {
             Log.e("AccountDetailsActivity", "onAccountChanged: No account found. Finishing activity.");
             finish();
             return;
         }
-        mAccount = account;
+        mAccount = awa.account;
         enableActions();
 
-        tintElements(account.getBackgroundColor());
+        tintElements(mAccount.getBackgroundColor());
         toggleMenuItems();
 
-        updateInfo(account);
+        updateInfo(awa);
     }
 
-    private void updateBalanceSum(Account account, BigDecimal balanceSum) {
-        if (account == null || balanceSum == null) return;
+    private void updateInfo(AccountWithAccumulated awa) {
+        mNameTV.setText(awa.account.getName());
 
         TextView currentBalanceTV = findViewById(R.id.account_latest_balance);
-
-        try {
-            currentBalanceTV.setText(CurrencyUtil.format(balanceSum, mAccount.getDefaultCurrency()));
-        } catch (GnomyCurrencyException gce) {
-            Log.wtf("AccountDetailsActivity", "updateBalance: ", gce);
-        }
-    }
-
-    private void updateInfo(Account account) {
-        mNameTV.setText(account.getName());
-
         TextView initialValueTV = findViewById(R.id.account_initial_value);
         TextView createdAtTV = findViewById(R.id.account_created_at_text);
         ImageView typeImage = findViewById(R.id.account_type_icon);
@@ -231,15 +212,15 @@ public class AccountDetailsActivity
         ImageView includedInSumImage = findViewById(R.id.account_included_in_sum_icon);
         TextView includedInSumTV = findViewById(R.id.account_included_in_sum_text);
         Drawable typeIcon = ContextCompat.getDrawable(this,
-                Account.getDrawableResourceId(account.getType()));
-        String createdAtString = account.getCreatedAt().toLocalDate().toString();
+                Account.getDrawableResourceId(awa.account.getType()));
+        String createdAtString = awa.account.getCreatedAt().toLocalDate().toString();
         String typeString = getString(
-                Account.getTypeNameResourceId(account.getType())
+                Account.getTypeNameResourceId(awa.account.getType())
         );
         Drawable includedInSumIcon;
         String includedInSumString;
 
-        if (account.isShowInDashboard()) {
+        if (awa.account.isShowInDashboard()) {
             includedInSumIcon = ContextCompat.getDrawable(this, R.drawable.ic_check_black_24dp);
             includedInSumImage.setTag(R.drawable.ic_check_black_24dp);
             includedInSumString = getString(R.string.account_is_included_in_sum);
@@ -256,8 +237,12 @@ public class AccountDetailsActivity
         includedInSumTV.setText(includedInSumString);
 
         try {
-            updateBalanceSum(account, mLatestBalanceSum.getValue());
-            initialValueTV.setText(CurrencyUtil.format(account.getInitialValue(), account.getDefaultCurrency()));
+            currentBalanceTV.setText(CurrencyUtil.format(
+                    awa.getConfirmedAccumulatedBalanceAtMonth(),
+                    mAccount.getDefaultCurrency()));
+            initialValueTV.setText(CurrencyUtil.format(
+                    awa.account.getInitialValue(),
+                    awa.account.getDefaultCurrency()));
         } catch (GnomyCurrencyException gce) {
             Log.wtf("AccountDetailsActivity", "updateInfo: ", gce);
         }

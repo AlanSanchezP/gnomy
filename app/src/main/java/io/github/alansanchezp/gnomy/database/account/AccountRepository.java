@@ -4,7 +4,6 @@ import android.content.Context;
 
 import java.time.YearMonth;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import androidx.lifecycle.LiveData;
@@ -48,11 +47,6 @@ public class AccountRepository {
 
     public LiveData<AccountWithAccumulated> getAccumulatedAtMonth(int accountId, YearMonth targetMonth) {
         return accountDAO.getAccumulatedAtMonth(accountId, targetMonth);
-    }
-
-
-    public LiveData<BigDecimal> getAccumulatedFromMonth(int accountId, YearMonth month) {
-        return balanceDAO.getAccumulatedFromMonth(accountId, month);
     }
 
     public Single<Long> insert(Account account) {
@@ -125,10 +119,6 @@ public class AccountRepository {
 
     public Single<Integer> update(MonthlyBalance balance) {
         return db.toSingleInTransaction(()-> balanceDAO._update(balance));
-    }
-
-    public LiveData<List<AccountWithBalance>> getAllFromMonth(YearMonth month) {
-        return balanceDAO.getAllFromMonth(month);
     }
 
     public LiveData<List<MonthlyBalance>> getAllFromAccount(Account account) {

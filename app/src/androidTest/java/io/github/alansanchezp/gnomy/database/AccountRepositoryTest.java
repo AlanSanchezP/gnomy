@@ -319,15 +319,20 @@ public class AccountRepositoryTest {
         repository.insert(account).blockingGet();
 
         assertThat(new BigDecimal("40"), comparesEqualTo(LiveDataTestUtil.getOrAwaitValue(
-                repository.getAccumulatedFromMonth(1, DateUtil.now()))));
+                repository.getAccumulatedAtMonth(1, DateUtil.now()))
+                .getConfirmedAccumulatedBalanceAtMonth()));
         assertThat(new BigDecimal("40"), comparesEqualTo(LiveDataTestUtil.getOrAwaitValue(
-                repository.getAccumulatedFromMonth(1, DateUtil.now().minusMonths(1)))));
+                repository.getAccumulatedAtMonth(1, DateUtil.now().minusMonths(1)))
+                .getConfirmedAccumulatedBalanceAtMonth()));
         assertThat(new BigDecimal("40"), comparesEqualTo(LiveDataTestUtil.getOrAwaitValue(
-                repository.getAccumulatedFromMonth(1, DateUtil.now().plusMonths(2)))));
+                repository.getAccumulatedAtMonth(1, DateUtil.now().plusMonths(2)))
+                .getConfirmedAccumulatedBalanceAtMonth()));
         assertThat(new BigDecimal("40"), comparesEqualTo(LiveDataTestUtil.getOrAwaitValue(
-                repository.getAccumulatedFromMonth(1, DateUtil.now().minusMonths(3)))));
-        assertNull(LiveDataTestUtil.getOrAwaitValue(
-                repository.getAccumulatedFromMonth(1, DateUtil.now().minusMonths(4))));
+                repository.getAccumulatedAtMonth(1, DateUtil.now().minusMonths(3)))
+                .getConfirmedAccumulatedBalanceAtMonth()));
+        assertThat(BigDecimal.ZERO, comparesEqualTo(LiveDataTestUtil.getOrAwaitValue(
+                repository.getAccumulatedAtMonth(1, DateUtil.now().minusMonths(4)))
+                .getConfirmedAccumulatedBalanceAtMonth()));
     }
 
 

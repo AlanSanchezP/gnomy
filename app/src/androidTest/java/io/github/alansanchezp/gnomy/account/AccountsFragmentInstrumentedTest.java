@@ -60,6 +60,8 @@ public class AccountsFragmentInstrumentedTest {
                 .thenReturn(new MutableLiveData<>());
         when(mockAccountDAO.getAccumulatesListAtMonth(any(YearMonth.class)))
                 .thenReturn(new MutableLiveData<>());
+        when(mockAccountDAO.getAccumulatedAtMonth(anyInt(), any(YearMonth.class)))
+                .thenReturn(new MutableLiveData<>());
     }
 
     @Test

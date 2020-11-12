@@ -53,9 +53,14 @@ public class AccountWithAccumulated {
      * initial value of the account).
      *
      * @return  Sum of confirmed transactions at the target month.
+     *          BigDecimal.ZERO for months previous to account's creation date
      */
     public BigDecimal getConfirmedAccumulatedBalanceAtMonth() {
-        return account.getInitialValue()
+        BigDecimal initialValue = BigDecimal.ZERO;
+        if (!targetMonth.isBefore(YearMonth.from(account.getCreatedAt())))
+            initialValue = account.getInitialValue();
+
+        return initialValue
                 .add(originalOrZero(confirmedBefore))
                 .add(getConfirmedIncomesAtMonth())
                 .subtract(getConfirmedExpensesAtMonth());
