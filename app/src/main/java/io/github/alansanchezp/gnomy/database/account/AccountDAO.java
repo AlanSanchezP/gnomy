@@ -8,6 +8,7 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.RoomWarnings;
 import androidx.room.Update;
 
 import io.reactivex.Single;
@@ -95,6 +96,7 @@ public abstract class AccountDAO implements MonthlyBalanceDAO {
     protected abstract LiveData<List<AccountWithAccumulated>>
     getTodayAccumulatesList();
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query("SELECT " +
             "accounts.*, " +
             ":targetMonth as target_month, " +

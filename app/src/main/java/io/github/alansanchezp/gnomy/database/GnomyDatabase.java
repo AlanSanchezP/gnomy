@@ -38,7 +38,9 @@ import java.util.concurrent.Executors;
     MonthlyBalance.class,
     RecurrentTransaction.class,
     Transfer.class
-}, version = 1)
+}, version = 1, exportSchema = false)
+// TODO: Implement schemaLocation when app (and therefore db model) is
+//  (at least) beta-release ready
 @TypeConverters({GnomyTypeConverters.class})
 public abstract class GnomyDatabase extends RoomDatabase {
     private static GnomyDatabase INSTANCE;
