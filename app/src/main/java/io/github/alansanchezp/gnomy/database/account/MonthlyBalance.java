@@ -22,7 +22,10 @@ import androidx.room.Index;
             childColumns = "account_id",
             onDelete = ForeignKey.CASCADE
         ),
-        indices = @Index("account_id")
+        indices = {
+            @Index("account_id"),
+            @Index("balance_date")
+        }
 )
 public class MonthlyBalance {
     @ColumnInfo(name = "account_id")
