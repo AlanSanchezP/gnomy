@@ -69,7 +69,7 @@ public class CurrencyUtil {
                return Currency.getInstance(currencyCode);
            } catch(IllegalArgumentException e) {
                //  This shouldn't happen...
-               throw new GnomyCurrencyException("Invalid java.util.Currency currency code.");
+               throw new GnomyCurrencyException(e);
            }
        } else {
            throw new GnomyCurrencyException("Currency code is not supported.");

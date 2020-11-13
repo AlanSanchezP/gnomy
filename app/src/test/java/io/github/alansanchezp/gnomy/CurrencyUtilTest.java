@@ -32,56 +32,44 @@ public class CurrencyUtilTest {
     }
 
     @Test
-    public void format_is_correct() {
-        try {
-            BigDecimal number = new BigDecimal("20.150");
-            String currency = "MXN";
-            Locale.setDefault(new Locale("es", "mx"));
-            assertEquals("$20.15", CurrencyUtil.format(number, currency));
+    public void format_is_correct() throws GnomyCurrencyException {
+        BigDecimal number = new BigDecimal("20.150");
+        String currency = "MXN";
+        Locale.setDefault(new Locale("es", "mx"));
+        assertEquals("$20.15", CurrencyUtil.format(number, currency));
 
-            currency = "USD";
-            assertEquals("US$20.15", CurrencyUtil.format(number, currency));
+        currency = "USD";
+        assertEquals("US$20.15", CurrencyUtil.format(number, currency));
 
-            Locale.setDefault(new Locale("ru", "ru"));
-            assertEquals("20,15 USD", CurrencyUtil.format(number, currency));
+        Locale.setDefault(new Locale("ru", "ru"));
+        assertEquals("20,15 USD", CurrencyUtil.format(number, currency));
 
-            currency = "MXN";
-            assertEquals("20,15 MXN", CurrencyUtil.format(number, currency));
+        currency = "MXN";
+        assertEquals("20,15 MXN", CurrencyUtil.format(number, currency));
 
-            currency = "MXN";
-            assertEquals(CurrencyUtil.NULL_NUMBER_STRING, CurrencyUtil.format(null, currency));
-        } catch(GnomyCurrencyException e) {
-            e.printStackTrace();
-        }
+        currency = "MXN";
+        assertEquals(CurrencyUtil.NULL_NUMBER_STRING, CurrencyUtil.format(null, currency));
     }
 
     @Test
-    public void display_name_is_correct() {
-        try {
-            String code = "USD";
+    public void display_name_is_correct() throws GnomyCurrencyException {
+        String code = "USD";
 
-            Locale.setDefault(new Locale("es", "es"));
-            String displayName = CurrencyUtil.getDisplayName(code);
-            assertEquals("USD - Dólar estadounidense", displayName);
+        Locale.setDefault(new Locale("es", "es"));
+        String displayName = CurrencyUtil.getDisplayName(code);
+        assertEquals("USD - Dólar estadounidense", displayName);
 
-            Locale.setDefault(new Locale("en", "uk"));
-            displayName = CurrencyUtil.getDisplayName(code);
-            assertEquals("USD - US Dollar",displayName);
-        } catch(GnomyCurrencyException e) {
-            e.printStackTrace();
-        }
+        Locale.setDefault(new Locale("en", "uk"));
+        displayName = CurrencyUtil.getDisplayName(code);
+        assertEquals("USD - US Dollar",displayName);
     }
 
     @Test
-    public void display_array_is_correct() {
-        try {
-            String[] codesArray = CurrencyUtil.getCurrencies();
-            String[] displayArray = CurrencyUtil.getDisplayArray();
+    public void display_array_is_correct() throws GnomyCurrencyException {
+        String[] codesArray = CurrencyUtil.getCurrencies();
+        String[] displayArray = CurrencyUtil.getDisplayArray();
 
-            assertEquals(codesArray.length, displayArray.length);
-        } catch(GnomyCurrencyException e) {
-            e.printStackTrace();
-        }
+        assertEquals(codesArray.length, displayArray.length);
     }
 
     @Test
