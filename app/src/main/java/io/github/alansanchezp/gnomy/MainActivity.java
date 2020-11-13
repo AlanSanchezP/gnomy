@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import android.os.Handler;
@@ -16,11 +17,14 @@ import android.view.MenuItem;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.time.YearMonth;
+import java.util.Map;
 import java.util.Objects;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
+
+import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.ui.GnomyActivity;
 import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
 import io.github.alansanchezp.gnomy.ui.customView.MonthToolbarView;
@@ -66,6 +70,16 @@ public class MainActivity
                         return false;
                 }
             };
+
+    @Override
+    protected Map<Class<? extends Fragment>, GnomyFragmentFactory.GnomyFragmentInterface>
+    getInterfacesMapping() {
+        Map<Class<? extends Fragment>, GnomyFragmentFactory.GnomyFragmentInterface>
+                interfacesMapping = super.getInterfacesMapping();
+        interfacesMapping.put(
+                AccountsFragment.class, this);
+        return interfacesMapping;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,7 +136,7 @@ public class MainActivity
         //noinspection SwitchStatementWithTooFewBranches
         switch (newIndex) {
             case ACCOUNTS_FRAGMENT_INDEX:
-                fragment = AccountsFragment.newInstance(1, newIndex);
+                fragment = new AccountsFragment(this);
                 break;
             default:
                 return false;
@@ -144,8 +158,10 @@ public class MainActivity
         currentFragment.onFABClick(v);
     }
 
-    public void onFragmentChanged(int index) {
-        mCurrentFragmentIndex = index;
+    public void onFragmentChanged(Class<? extends MainNavigationFragment> clazz) {
+        if (clazz.equals(AccountsFragment.class)) {
+            mCurrentFragmentIndex = ACCOUNTS_FRAGMENT_INDEX;
+        }
     }
 
     public LiveData<YearMonth> getActiveMonth() {

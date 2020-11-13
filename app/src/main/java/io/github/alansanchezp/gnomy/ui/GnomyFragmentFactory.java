@@ -5,15 +5,16 @@ import java.util.Map;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentFactory;
+import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 import io.github.alansanchezp.gnomy.ui.account.ArchivedAccountsDialogFragment;
 
-public class CustomDialogFragmentFactory extends FragmentFactory {
-    private Map<Class<? extends Fragment>, CustomDialogFragmentInterface> mClassToInterfaceMapping;
+public class GnomyFragmentFactory extends FragmentFactory {
+    private Map<Class<? extends Fragment>, GnomyFragmentInterface> mClassToInterfaceMapping;
 
-    public interface CustomDialogFragmentInterface {
+    public interface GnomyFragmentInterface {
     }
 
-    public CustomDialogFragmentFactory(Map<Class<? extends Fragment>, CustomDialogFragmentInterface> classToInterfaceMapping) {
+    public GnomyFragmentFactory(Map<Class<? extends Fragment>, GnomyFragmentInterface> classToInterfaceMapping) {
         super();
         mClassToInterfaceMapping = classToInterfaceMapping;
     }
@@ -24,7 +25,7 @@ public class CustomDialogFragmentFactory extends FragmentFactory {
         Fragment instance;
         Class<? extends Fragment> fragmentClass
                 = loadFragmentClass(classLoader, className);
-        CustomDialogFragmentInterface interfaceToAttach
+        GnomyFragmentInterface interfaceToAttach
                 = mClassToInterfaceMapping.get(loadFragmentClass(classLoader, className));
 
         if (interfaceToAttach == null) {
@@ -33,6 +34,8 @@ public class CustomDialogFragmentFactory extends FragmentFactory {
             instance = new ArchivedAccountsDialogFragment((ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface) interfaceToAttach);
         } else if (fragmentClass.equals(ConfirmationDialogFragment.class)) {
             instance = new ConfirmationDialogFragment((ConfirmationDialogFragment.OnConfirmationDialogListener) interfaceToAttach);
+        } else if (fragmentClass.equals(AccountsFragment.class)) {
+            instance = new AccountsFragment((MainNavigationFragment.MainNavigationInteractionInterface) interfaceToAttach);
         } else {
             throw new UnsupportedOperationException("No interface was provided for the requested DialogFragment class.");
         }

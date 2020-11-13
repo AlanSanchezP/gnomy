@@ -102,7 +102,7 @@ public class ConfirmationDialogFragment extends DialogFragment {
     }
 
     public interface OnConfirmationDialogListener
-            extends CustomDialogFragmentFactory.CustomDialogFragmentInterface {
+            extends GnomyFragmentFactory.GnomyFragmentInterface {
         void onConfirmationDialogYes(DialogInterface dialog, String dialogTag, int which);
         void onConfirmationDialogNo(DialogInterface dialog, String dialogTag, int which);
         void onConfirmationDialogCancel(DialogInterface dialog, String dialogTag);

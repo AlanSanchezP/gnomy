@@ -12,7 +12,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -36,7 +35,7 @@ import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
 import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
-import io.github.alansanchezp.gnomy.ui.CustomDialogFragmentFactory;
+import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
@@ -46,12 +45,6 @@ import io.github.alansanchezp.gnomy.viewmodel.account.AccountsListViewModel;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link AccountsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class AccountsFragment extends MainNavigationFragment
         implements AccountRecyclerViewAdapter.OnListItemInteractionListener,
         ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface,
@@ -64,29 +57,13 @@ public class AccountsFragment extends MainNavigationFragment
     private Map<Integer, AccountWithAccumulated> mTodayAccumulatesMap;
     private TextView mBalance, mProjected;
 
-    public AccountsFragment() {
-        // Required empty public constructor
+    public AccountsFragment(MainNavigationInteractionInterface _interface) {
+        super(_interface);
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment AccountsFragment.
-     */
-
-    public static AccountsFragment newInstance(int columnCount, int index) {
-        AccountsFragment fragment = new AccountsFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
-        args.putInt(ARG_NAVIGATION_INDEX, index);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    private Map<Class<? extends Fragment>, CustomDialogFragmentFactory.CustomDialogFragmentInterface>
+    private Map<Class<? extends Fragment>, GnomyFragmentFactory.GnomyFragmentInterface>
     getInterfacesMapping() {
-        Map<Class<? extends Fragment>, CustomDialogFragmentFactory.CustomDialogFragmentInterface>
+        Map<Class<? extends Fragment>, GnomyFragmentFactory.GnomyFragmentInterface>
                 interfacesMapping = new HashMap<>();
         interfacesMapping.put(
                 ArchivedAccountsDialogFragment.class, this);
@@ -107,7 +84,7 @@ public class AccountsFragment extends MainNavigationFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         getChildFragmentManager().setFragmentFactory(
-                new CustomDialogFragmentFactory(getInterfacesMapping()));
+                new GnomyFragmentFactory(getInterfacesMapping()));
         super.onCreate(savedInstanceState);
         mListViewModel = new ViewModelProvider(this,
                 new SavedStateViewModelFactory(
@@ -123,16 +100,10 @@ public class AccountsFragment extends MainNavigationFragment
         Context context = view.getContext();
         RecyclerView recyclerView = view.findViewById(R.id.items_list);
 
-        if (mColumnCount <= 1) {
-            recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        } else {
-            recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-        }
-
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(mAdapter);
         recyclerView.setNestedScrollingEnabled(false);
 
-        // TODO: Can we move this to onCreate without bugs?
         mListViewModel.bindMonth(mNavigationInterface.getActiveMonth());
 
         return view;

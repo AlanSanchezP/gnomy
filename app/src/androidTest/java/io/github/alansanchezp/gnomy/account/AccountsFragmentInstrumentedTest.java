@@ -13,7 +13,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.time.YearMonth;
+import java.util.HashMap;
 
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.testing.FragmentScenario;
 import static androidx.fragment.app.testing.FragmentScenario.launchInContainer;
 
@@ -23,6 +25,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.MockDatabaseOperationsUtil;
 import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
+import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 
@@ -46,11 +50,23 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(AndroidJUnit4.class)
 public class AccountsFragmentInstrumentedTest {
+    private static GnomyFragmentFactory factory;
     // Needed so that ViewModel instance doesn't crash
     @BeforeClass
     public static void init_mocks() {
+        HashMap<Class<? extends Fragment>, GnomyFragmentFactory.GnomyFragmentInterface>
+                mapper = new HashMap<>();
+        MainNavigationFragment.MainNavigationInteractionInterface _interface
+                = mock(MainNavigationFragment.MainNavigationInteractionInterface.class);
+        MutableLiveData<YearMonth> mld = new MutableLiveData<>();
+        mld.postValue(DateUtil.now());
+        when(_interface.getActiveMonth()).thenReturn(mld);
+        mapper.put(AccountsFragment.class, _interface);
+        factory = new GnomyFragmentFactory(mapper);
+
         final MockDatabaseOperationsUtil.MockableAccountDAO mockAccountDAO = mock(MockDatabaseOperationsUtil.MockableAccountDAO.class);
         MockDatabaseOperationsUtil.setAccountDAO(mockAccountDAO);
+
         when(mockAccountDAO.getArchivedAccounts())
                 .thenReturn(new MutableLiveData<>());
         when(mockAccountDAO.find(anyInt()))
@@ -67,7 +83,7 @@ public class AccountsFragmentInstrumentedTest {
     @Test
     public void dynamic_balance_labels_are_correct() {
         FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class,
-                null, R.style.AppTheme, null);
+                null, R.style.AppTheme, factory);
 
         scenario.onFragment(fragment ->
                 fragment.onMonthChanged(DateUtil.now()));
@@ -96,7 +112,8 @@ public class AccountsFragmentInstrumentedTest {
 
     @Test
     public void archived_accounts_modal_is_shown() {
-        FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class);
+        FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class,
+                null, R.style.AppTheme, factory);
         onView(withId(R.id.archived_items_container))
                 .check(
                         doesNotExist()
@@ -318,7 +335,8 @@ public class AccountsFragmentInstrumentedTest {
 
     @Test
     public void opens_new_account_activity() {
-        FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class);
+        FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class,
+                null, R.style.AppTheme, factory);
         scenario.onFragment(fragment ->
                 fragment.onFABClick(null));
         onView(withId(R.id.custom_appbar))
@@ -329,7 +347,8 @@ public class AccountsFragmentInstrumentedTest {
 
     @Test
     public void interface_click_method_opens_account_details() {
-        FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class);
+        FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class,
+                null, R.style.AppTheme, factory);
         scenario.onFragment(fragment -> {
             Account account = new Account();
             account.setId(1);
@@ -343,7 +362,8 @@ public class AccountsFragmentInstrumentedTest {
 
     @Test
     public void interface_menu_method_opens_account_details() {
-        FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class);
+        FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class,
+                null, R.style.AppTheme, factory);
         scenario.onFragment(fragment -> {
             MenuItem menuItem = new MenuItem() {
                 @Override
@@ -563,7 +583,8 @@ public class AccountsFragmentInstrumentedTest {
 
     @Test
     public void interface_menu_method_opens_account_modify() {
-        FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class);
+        FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class,
+                null, R.style.AppTheme, factory);
         scenario.onFragment(fragment -> {
             MenuItem menuItem = new MenuItem() {
                 @Override
@@ -790,7 +811,7 @@ public class AccountsFragmentInstrumentedTest {
     @Test
     public void interface_menu_method_opens_archive_dialog() {
         FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class,
-                null, R.style.AppTheme, null);
+                null, R.style.AppTheme, factory);
         scenario.onFragment(fragment -> {
             MenuItem menuItem = new MenuItem() {
                 @Override
@@ -1011,7 +1032,7 @@ public class AccountsFragmentInstrumentedTest {
     @Test
     public void interface_menu_method_opens_delete_dialog() {
         FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class,
-                null, R.style.AppTheme, null);
+                null, R.style.AppTheme, factory);
         scenario.onFragment(fragment -> {
             MenuItem menuItem = new MenuItem() {
                 @Override
