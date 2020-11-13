@@ -157,9 +157,9 @@ public class AccountBalanceHistoryActivity
         }
 
         if (pendingIncomes.add(pendingExpenses).compareTo(BigDecimal.ZERO) > 0) {
-            mCheckPendingButtonVH.onView(v -> v.setVisibility(View.VISIBLE));
+            mCheckPendingButtonVH.onView(this, v -> v.setVisibility(View.VISIBLE));
         } else {
-            mCheckPendingButtonVH.onView(v -> v.setVisibility(View.GONE));
+            mCheckPendingButtonVH.onView(this, v -> v.setVisibility(View.GONE));
         }
 
         switch (pendingTotal.compareTo(BigDecimal.ZERO)) {

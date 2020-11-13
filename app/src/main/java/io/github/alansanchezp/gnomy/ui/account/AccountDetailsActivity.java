@@ -281,13 +281,13 @@ public class AccountDetailsActivity
         int fabBgColor = ColorUtil.getVariantByFactor(bgColor, 0.86f);
         int fabTextColor = ColorUtil.getTextColor(fabBgColor);
 
-        mFABVH.onView(v ->
+        mFABVH.onView(this, v ->
                 ViewTintingUtil.tintFAB(v, fabBgColor, fabTextColor, mThemeTextColor));
 
         ((TextView) findViewById(R.id.account_balance_history_title))
                 .setTextColor(mThemeTextColor);
 
-        mSeeMoreBtnVH.onView(v -> {
+        mSeeMoreBtnVH.onView(this, v -> {
             v.setBackgroundColor(fabBgColor);
             v.setTextColor(fabTextColor);
         });

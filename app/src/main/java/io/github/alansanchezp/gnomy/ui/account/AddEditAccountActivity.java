@@ -84,6 +84,8 @@ public class AddEditAccountActivity
         mColorPickerBtnVH = new SingleClickViewHolder<>(findViewById(R.id.addedit_account_color_button));
         mColorPickerBtnVH.setOnClickListener(this::showColorPicker);
 
+        mAddEditAccountViewModel.accountColor.observe(this, this::onAccountColorChanged);
+
         initSpinners();
         setInputFilters();
 
@@ -117,8 +119,6 @@ public class AddEditAccountActivity
         }
 
         setTitle(activityTitle);
-
-        mAddEditAccountViewModel.accountColor.observe(this, this::onAccountColorChanged);
 
         mAccountNameTIET.addTextChangedListener(new TextWatcher() {
             @Override
@@ -210,7 +210,7 @@ public class AddEditAccountActivity
 
         // TODO: There is a blink in both FAB and color picker button
         //  that is sometimes noticeable.
-        mFABVH.onView(v -> ViewTintingUtil.tintFAB(v, fabBgColor, fabTextColor));
+        mFABVH.onView(this, v -> ViewTintingUtil.tintFAB(v, fabBgColor, fabTextColor));
         ViewTintingUtil
                 .monotintTextInputLayout(mAccountNameTIL, mThemeTextColor);
         // TODO: Lighter colors make the hint barely readable
@@ -224,9 +224,9 @@ public class AddEditAccountActivity
                 .tintSwitch(mShownInDashboardSwitch, mThemeColor);
 
         // TODO: (Wishlist, not a big deal) How can we unify the ripple color with the one from FAB?
-        mColorPickerBtnVH.onView(v -> {
-            v.setBackgroundTintList(ColorStateList.valueOf(mThemeColor));
-            v.getDrawable().mutate().setTint(mThemeTextColor);
+        mColorPickerBtnVH.onView(this, v -> {
+            findViewById(R.id.addedit_account_color_button).setBackgroundTintList(ColorStateList.valueOf(mThemeColor));
+            ((ImageButton) findViewById(R.id.addedit_account_color_button)).getDrawable().mutate().setTint(mThemeTextColor);
         });
     }
 

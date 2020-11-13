@@ -64,8 +64,8 @@ public class ConfirmationDialogFragment extends DialogFragment {
                 = new SingleClickViewHolder<>(view.findViewById(R.id.confirmation_dialog_yes));
         SingleClickViewHolder<Button> noBtn
                 = new SingleClickViewHolder<>(view.findViewById(R.id.confirmation_dialog_no));
-        yesBtn.onView(v -> v.setText(mYesString));
-        noBtn.onView(v -> v.setText(mNoString));
+        yesBtn.onView(requireActivity(), v -> v.setText(mYesString));
+        noBtn.onView(requireActivity(), v -> v.setText(mNoString));
 
         if (dialog != null) {
             dialog.setTitle(mTitle);

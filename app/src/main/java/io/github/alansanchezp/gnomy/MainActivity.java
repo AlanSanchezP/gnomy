@@ -157,7 +157,7 @@ public class MainActivity
         int darkVariant =  ColorUtil.getDarkVariant(themeColor);
 
         if (mMonthBar.isVisible()) mMonthBar.tintElements(themeColor);
-        mFABVH.onView(v -> {
+        mFABVH.onView(this, v -> {
             if (v.getVisibility() == View.VISIBLE) {
                 ViewTintingUtil.tintFAB(v, darkVariant, mThemeTextColor);
             }
@@ -167,9 +167,9 @@ public class MainActivity
     public void toggleOptionalNavigationElements(boolean showOptionalElements) {
         mMonthBar.toggleVisibility(showOptionalElements);
         if (showOptionalElements) {
-            mFABVH.onView(v -> v.setVisibility(View.VISIBLE));
+            mFABVH.onView(this, v -> v.setVisibility(View.VISIBLE));
         } else {
-            mFABVH.onView(v -> v.setVisibility(View.INVISIBLE));
+            mFABVH.onView(this, v -> v.setVisibility(View.INVISIBLE));
         }
     }
 }
