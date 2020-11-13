@@ -211,6 +211,8 @@ public class AccountsFragment extends MainNavigationFragment
     }
 
     private void onAccumulatesListChanged(List<AccountWithAccumulated> accumulates) {
+        // TODO: Display some helpful information if list is empty, current behavior
+        //  just doesn't display any data in recyclerview (not a bug, but UX can be improved)
         if (mCurrentMonth == null) return;
         mAdapter.setValues(accumulates);
 

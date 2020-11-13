@@ -150,7 +150,6 @@ public abstract class GnomyDatabase extends RoomDatabase {
 
     protected abstract TransferDAO _transferDAO();
 
-    // TODO: Research why did we need this? Where should we be using it?
     public static void cleanUp(){
         INSTANCE = null;
     }

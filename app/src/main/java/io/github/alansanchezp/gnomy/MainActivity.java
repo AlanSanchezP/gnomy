@@ -127,6 +127,11 @@ public class MainActivity
         return R.layout.activity_main;
     }
 
+    // TODO: Evaluate if Navigation Component can be used here
+    //  Custom interface might be an issue, as well as the desired
+    //  dynamic color for transactions fragment
+    //  https://developer.android.com/guide/navigation/navigation-getting-started
+    //  https://developer.android.com/guide/navigation/navigation-ui#java
     public boolean switchFragment(int newIndex) {
         final FragmentManager manager = getSupportFragmentManager();
         final MainNavigationFragment fragment;
