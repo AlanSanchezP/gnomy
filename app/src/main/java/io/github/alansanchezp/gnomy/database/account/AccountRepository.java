@@ -4,22 +4,20 @@ import android.content.Context;
 
 import java.time.YearMonth;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import androidx.lifecycle.LiveData;
 import io.github.alansanchezp.gnomy.database.GnomyDatabase;
+import io.github.alansanchezp.gnomy.database.GnomyIllegalQueryException;
 import io.reactivex.Single;
 
 public class AccountRepository {
-    private AccountDAO accountDAO;
-    private MonthlyBalanceDAO balanceDAO;
+    private final GnomyDatabase db;
+    private final AccountDAO accountDAO;
 
     public AccountRepository(Context context) {
-        GnomyDatabase db;
         db = GnomyDatabase.getInstance(context, "");
         accountDAO = db.accountDAO();
-        balanceDAO = db.monthlyBalanceDAO();
     }
 
     public LiveData<List<Account>> getAll() {
@@ -34,20 +32,51 @@ public class AccountRepository {
         return accountDAO.find(accountId);
     }
 
-    public LiveData<BigDecimal> getAccumulatedFromMonth(int accountId, YearMonth month) {
-        return balanceDAO.getAccumulatedFromMonth(accountId, month);
+    public LiveData<List<AccountWithAccumulated>> getAccumulatesListAtMonth(YearMonth month) {
+        return accountDAO.getAccumulatesListAtMonth(month);
     }
 
-    public Single<Long[]> insert(Account account) {
-        return accountDAO.insert(account);
+    public LiveData<List<AccountWithAccumulated>> getTodayAccumulatesList() {
+        return accountDAO.getTodayAccumulatesList();
+    }
+
+    public LiveData<AccountWithAccumulated> getAccumulatedAtMonth(int accountId, YearMonth targetMonth) {
+        return accountDAO.getAccumulatedAtMonth(accountId, targetMonth);
+    }
+
+    public Single<Long> insert(Account account) {
+        return db.toSingleInTransaction(() -> {
+            Long inserted_id = accountDAO._insert(account);
+            MonthlyBalance initial_balance = new MonthlyBalance();
+            initial_balance.setDate(YearMonth.from(account.getCreatedAt()));
+            initial_balance.setAccountId((int)(long)inserted_id);
+            accountDAO._insertOrIgnoreBalance(initial_balance);
+            return inserted_id;
+        });
     }
 
     public Single<Integer> delete(Account account) {
         return accountDAO.delete(account);
     }
 
+    // TODO: Test the (hopefully) few manually implemented db operations
     public Single<Integer> update(Account account) {
-        return accountDAO.update(account);
+        return db.toSingleInTransaction(() -> {
+            Account original = accountDAO._find(account.getId());
+            // TODO: Analyze what we should do here
+            //  Current behavior: Reject update if it contains altered currency
+            try {
+                if (original.equals(account)) return 0;
+                if (original.getDefaultCurrency().equals(
+                        account.getDefaultCurrency())) {
+                    return accountDAO._update(account);
+                }
+
+                throw new GnomyIllegalQueryException("It is not allowed to change an account's currency.");
+            } catch (NullPointerException e) {
+                throw new GnomyIllegalQueryException("Trying to update non-existent account.", e);
+            }
+        });
     }
 
     public Single<Integer> archive(int accountId) {
@@ -74,29 +103,23 @@ public class AccountRepository {
 
     // Monthly balance methods
 
-    public LiveData<List<AccountWithBalance>> getAllFromMonth(YearMonth month) {
-        return balanceDAO.getAllFromMonth(month);
+    // TODO: Remove this method when transactions module is ready
+    //  so that we can test using actual insertion of individual
+    //  transactions, right now we are just dummy updating balances
+    public Single<Integer> insert(MonthlyBalance balance) {
+        return db.toSingleInTransaction(()-> {
+            accountDAO._insertOrIgnoreBalance(balance);
+            return 1;
+        });
     }
 
-    public LiveData<List<MonthlyBalance>> getAllFromAccount(Account account) {
-        return balanceDAO.getAllFromAccount(account.getId());
+    // TODO: When transactions module is ready, evaluate if this is still needed
+    public Single<Integer> update(MonthlyBalance balance) {
+        return db.toSingleInTransaction(()-> accountDAO._updateBalance(balance));
     }
 
+    // TODO: This method is used only in tests so far, evaluate deleting it later
     public LiveData<MonthlyBalance> getBalanceFromMonth(int accountId, YearMonth month) {
-        return balanceDAO.find(accountId, month);
+        return accountDAO.findBalance(accountId, month);
     }
-
-    /*
-    TODO: Find a way to automatically create monthly balances every month
-    public void createMonthlyBalance(Account account) {
-        MonthlyBalance currentBalance = getBalanceFromMonth(account.getId(), YearMonth.now());
-
-        if (currentBalance == null) {
-            MonthlyBalance mb = new MonthlyBalance(account);
-
-            InsertBalanceAsyncTask asyncTask = new InsertBalanceAsyncTask(balanceDAO);
-            asyncTask.execute(mb);
-        }
-    }
-    */
 }

@@ -18,10 +18,11 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import java.math.BigDecimal;
 import java.time.YearMonth;
 
 import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.account.AccountWithBalance;
+import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
@@ -30,24 +31,32 @@ import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import java.util.List;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link AccountWithBalance} and makes a call to the
+ * {@link RecyclerView.Adapter} that can display a {@link AccountWithAccumulated} and makes a call to the
  * specified {@link OnListItemInteractionListener}.
  */
 public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecyclerViewAdapter.ViewHolder> {
 
-    private List<AccountWithBalance> mValues;
-    private YearMonth mMonth;
+    private List<AccountWithAccumulated> mValues;
     private final OnListItemInteractionListener mListener;
     private boolean mAllowClicks = true;
+    private int mMapSize = 0;
 
     public AccountRecyclerViewAdapter(OnListItemInteractionListener listener) {
         mListener = listener;
     }
 
-    public void setValues(List<AccountWithBalance> accounts, YearMonth month) {
-        mValues = accounts;
-        mMonth = month;
-        notifyDataSetChanged();
+    public void notifyTodayAccumulatesAreAvailable(int mapSize) {
+        mMapSize = mapSize;
+        if (mValues != null && mValues.size() <= mMapSize) {
+            notifyDataSetChanged();
+        }
+    }
+
+    public void setValues(List<AccountWithAccumulated> accumulates) {
+        mValues = accumulates;
+        if (accumulates.size() <= mMapSize) {
+            notifyDataSetChanged();
+        }
     }
 
     public void enableClicks() {
@@ -69,7 +78,11 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         if (mValues != null) {
-            holder.setAccountData(mValues.get(position), mMonth);
+            AccountWithAccumulated targetMonthAccumulated = mValues.get(position);
+            AccountWithAccumulated todayAccumulated =  mListener.getTodayAccumulatedFromAccount(
+                    targetMonthAccumulated.account.getId()
+            );
+            holder.setAccountData(targetMonthAccumulated, todayAccumulated);
             // ClickDisablerInterface is needed: SingleClickViewHolder cannot be used here
             //  because blocked actions go beyond individual views scope.
             holder.setEventListeners(mListener, new ClickDisablerInterface() {
@@ -100,8 +113,9 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
         private final TextView mProjectedView;
         private final TextView mProjectedLabelView;
         private final ImageView mIconView;
+        private final ImageView mAlertView;
         private final ImageButton mButton;
-        private AccountWithBalance mItem;
+        private AccountWithAccumulated mItem;
         private final PopupMenu popup;
 
         public ViewHolder(View view) {
@@ -113,13 +127,22 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
             mProjectedLabelView = view.findViewById(R.id.account_card_projected_label);
             mButton = view.findViewById(R.id.account_card_button);
             mIconView = view.findViewById(R.id.account_card_icon);
+            mAlertView = view.findViewById(R.id.account_card_alert_icon);
 
             popup = new PopupMenu(mView.getContext(), mButton);
             popup.inflate(R.menu.account_card);
         }
 
-        public void setAccountData(@NonNull AccountWithBalance awb, @NonNull YearMonth month) {
-            mItem = awb;
+        public void setAccountData(@NonNull AccountWithAccumulated targetAWA,
+                                   @NonNull AccountWithAccumulated todayAWA) {
+            mItem = targetAWA;
+
+            if (mItem.getUnresolvedTransactions() == null ||
+                    mItem.getUnresolvedTransactions().compareTo(BigDecimal.ZERO) == 0) {
+                mAlertView.setVisibility(View.GONE);
+            } else {
+                mAlertView.setVisibility(View.VISIBLE);
+            }
 
             int accountColor = mItem.account.getBackgroundColor();
             int iconColor = ColorUtil.getTextColor(accountColor);
@@ -133,8 +156,8 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
 
             mNameView.setText(mItem.account.getName());
 
-            if (!month.equals(DateUtil.now())) {
-                mProjectedLabelView.setText(R.string.account_accumulated_balance);
+            if (targetAWA.targetMonth.isBefore(DateUtil.now())) {
+                mProjectedLabelView.setText(R.string.account_balance_end_of_month);
             } else {
                 mProjectedLabelView.setText(R.string.account_projected_balance);
             }
@@ -142,12 +165,12 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
             try {
                 mCurrentView.setText(
                         CurrencyUtil.format(
-                                mItem.accumulatedBalance,
+                                todayAWA.getConfirmedAccumulatedBalanceAtMonth(),
                                 mItem.account.getDefaultCurrency()))
                 ;
                 mProjectedView.setText(
                         CurrencyUtil.format(
-                                mItem.projectedBalance,
+                                mItem.getBalanceAtEndOfMonth(),
                                 mItem.account.getDefaultCurrency())
                 );
             } catch (GnomyCurrencyException e) {
@@ -162,6 +185,13 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
                 if (clickInterface.clicksEnabled()) {
                     clickInterface.disableClicks();
                     listener.onItemInteraction(mItem.account);
+                }
+            });
+
+            mAlertView.setOnClickListener(v -> {
+                if (clickInterface.clicksEnabled()) {
+                    clickInterface.disableClicks();
+                    listener.onUnresolvedTransactions(mItem.account, mItem.targetMonth);
                 }
             });
 
@@ -187,8 +217,10 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnListItemInteractionListener {
+        AccountWithAccumulated getTodayAccumulatedFromAccount(int accountId);
         void onItemInteraction(Account account);
         boolean onItemMenuItemInteraction(Account account, MenuItem menuItem);
+        void onUnresolvedTransactions(Account account, YearMonth month);
     }
 
     private interface ClickDisablerInterface {

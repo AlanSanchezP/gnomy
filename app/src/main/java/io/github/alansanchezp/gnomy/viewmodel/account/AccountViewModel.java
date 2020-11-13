@@ -2,14 +2,12 @@ package io.github.alansanchezp.gnomy.viewmodel.account;
 
 import android.app.Application;
 
-import java.time.YearMonth;
-
-import java.math.BigDecimal;
-
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import io.github.alansanchezp.gnomy.database.account.Account;
+
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
+import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
+import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.reactivex.Single;
 
 public class AccountViewModel extends AndroidViewModel {
@@ -20,12 +18,8 @@ public class AccountViewModel extends AndroidViewModel {
         mRepository = new AccountRepository(application);
     }
 
-    public LiveData<Account> getAccount(int id) {
-        return mRepository.getAccount(id);
-    }
-
-    public LiveData<BigDecimal> getAccumulatedFromMonth(int accountId, YearMonth month) {
-        return mRepository.getAccumulatedFromMonth(accountId, month);
+    public LiveData<AccountWithAccumulated> getAccountWithAccumulated(int accountId) {
+        return mRepository.getAccumulatedAtMonth(accountId, DateUtil.now());
     }
 
     public Single<Integer> archive(int accountId) {

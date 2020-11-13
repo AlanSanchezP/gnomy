@@ -13,7 +13,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
-import io.github.alansanchezp.gnomy.ui.CustomDialogFragmentFactory.CustomDialogFragmentInterface;
+import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory.GnomyFragmentInterface;
 import io.reactivex.disposables.CompositeDisposable;
 
 public abstract class GnomyActivity
@@ -30,7 +30,7 @@ public abstract class GnomyActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getSupportFragmentManager().setFragmentFactory(
-                new CustomDialogFragmentFactory(getInterfacesMapping()));
+                new GnomyFragmentFactory(getInterfacesMapping()));
         super.onCreate(savedInstanceState);
         setContentView(getLayoutResourceId());
         mAppbar = findViewById(R.id.custom_appbar);
@@ -49,9 +49,9 @@ public abstract class GnomyActivity
         mCompositeDisposable.dispose();
     }
 
-    protected Map<Class<? extends Fragment>,CustomDialogFragmentInterface>
+    protected Map<Class<? extends Fragment>, GnomyFragmentInterface>
     getInterfacesMapping() {
-        Map<Class<? extends Fragment>, CustomDialogFragmentInterface>
+        Map<Class<? extends Fragment>, GnomyFragmentInterface>
                 interfacesMapping = new HashMap<>();
         interfacesMapping.put(
                 ConfirmationDialogFragment.class, this);

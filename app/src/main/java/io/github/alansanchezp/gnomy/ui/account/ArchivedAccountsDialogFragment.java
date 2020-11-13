@@ -103,13 +103,13 @@ public class ArchivedAccountsDialogFragment extends DialogFragment {
 
         if (itemsCount == 0) {
             mEmptyListText.setVisibility(View.VISIBLE);
-            mRestoreAllButtonVH.onView(v -> v.setVisibility(View.GONE));
+            mRestoreAllButtonVH.onView(requireActivity(), v -> v.setVisibility(View.GONE));
         } else if (itemsCount == 1) {
             mEmptyListText.setVisibility(View.GONE);
-            mRestoreAllButtonVH.onView(v -> v.setVisibility(View.GONE));
+            mRestoreAllButtonVH.onView(requireActivity(), v -> v.setVisibility(View.GONE));
         } else {
             mEmptyListText.setVisibility(View.GONE);
-            mRestoreAllButtonVH.onView(v -> v.setVisibility(View.VISIBLE));
+            mRestoreAllButtonVH.onView(requireActivity(), v -> v.setVisibility(View.VISIBLE));
         }
 
         mListSize = itemsCount;

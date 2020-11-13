@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import android.os.Handler;
@@ -16,11 +17,14 @@ import android.view.MenuItem;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.time.YearMonth;
+import java.util.Map;
 import java.util.Objects;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
+
+import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.ui.GnomyActivity;
 import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
 import io.github.alansanchezp.gnomy.ui.customView.MonthToolbarView;
@@ -33,6 +37,7 @@ import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
 // TODO: Add Javadoc comments to project
 // TODO: Write README.md contents
 // TODO: Handle dark mode
+// TODO: (Wishlist) implement tooltips for non-menu buttons
 // These TODOs are placed here just because MainActivity acts as a "root" file
 // even if they are not related to the class
 public class MainActivity
@@ -65,6 +70,16 @@ public class MainActivity
                         return false;
                 }
             };
+
+    @Override
+    protected Map<Class<? extends Fragment>, GnomyFragmentFactory.GnomyFragmentInterface>
+    getInterfacesMapping() {
+        Map<Class<? extends Fragment>, GnomyFragmentFactory.GnomyFragmentInterface>
+                interfacesMapping = super.getInterfacesMapping();
+        interfacesMapping.put(
+                AccountsFragment.class, this);
+        return interfacesMapping;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,6 +127,11 @@ public class MainActivity
         return R.layout.activity_main;
     }
 
+    // TODO: Evaluate if Navigation Component can be used here
+    //  Custom interface might be an issue, as well as the desired
+    //  dynamic color for transactions fragment
+    //  https://developer.android.com/guide/navigation/navigation-getting-started
+    //  https://developer.android.com/guide/navigation/navigation-ui#java
     public boolean switchFragment(int newIndex) {
         final FragmentManager manager = getSupportFragmentManager();
         final MainNavigationFragment fragment;
@@ -121,7 +141,7 @@ public class MainActivity
         //noinspection SwitchStatementWithTooFewBranches
         switch (newIndex) {
             case ACCOUNTS_FRAGMENT_INDEX:
-                fragment = AccountsFragment.newInstance(1, newIndex);
+                fragment = new AccountsFragment(this);
                 break;
             default:
                 return false;
@@ -143,8 +163,10 @@ public class MainActivity
         currentFragment.onFABClick(v);
     }
 
-    public void onFragmentChanged(int index) {
-        mCurrentFragmentIndex = index;
+    public void onFragmentChanged(Class<? extends MainNavigationFragment> clazz) {
+        if (clazz.equals(AccountsFragment.class)) {
+            mCurrentFragmentIndex = ACCOUNTS_FRAGMENT_INDEX;
+        }
     }
 
     public LiveData<YearMonth> getActiveMonth() {
@@ -156,7 +178,7 @@ public class MainActivity
         int darkVariant =  ColorUtil.getDarkVariant(themeColor);
 
         if (mMonthBar.isVisible()) mMonthBar.tintElements(themeColor);
-        mFABVH.onView(v -> {
+        mFABVH.onView(this, v -> {
             if (v.getVisibility() == View.VISIBLE) {
                 ViewTintingUtil.tintFAB(v, darkVariant, mThemeTextColor);
             }
@@ -166,9 +188,9 @@ public class MainActivity
     public void toggleOptionalNavigationElements(boolean showOptionalElements) {
         mMonthBar.toggleVisibility(showOptionalElements);
         if (showOptionalElements) {
-            mFABVH.onView(v -> v.setVisibility(View.VISIBLE));
+            mFABVH.onView(this, v -> v.setVisibility(View.VISIBLE));
         } else {
-            mFABVH.onView(v -> v.setVisibility(View.INVISIBLE));
+            mFABVH.onView(this, v -> v.setVisibility(View.INVISIBLE));
         }
     }
 }

@@ -14,6 +14,9 @@
         <item name="android:textColorPrimaryInverse">@color/colorTextInverse</item>
         <item name="android:textColorHighlight">@color/colorTextHighlight</item>
         <item name="android:textColorSecondary">@color/colorTextSecondary</item>
+        <!-- TODO: Add custom items: Probably needed for future trainer feature
+               (and will probably help when implementing dark theme)
+               https://stackoverflow.com/questions/6860886/custom-attributes-in-styles-xml#6868308 -->
     </style>
 
 </resources>

@@ -16,21 +16,20 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.math.BigDecimal;
+import java.time.YearMonth;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
 import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
 import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
-import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 import io.github.alansanchezp.gnomy.util.android.ViewTintingUtil;
@@ -46,9 +45,7 @@ public class AccountDetailsActivity
     private SingleClickViewHolder<FloatingActionButton> mFABVH;
     private SingleClickViewHolder<Button> mSeeMoreBtnVH;
     private AccountViewModel mAccountViewModel;
-    private LiveData<BigDecimal> mLatestBalanceSum;
     private Account mAccount;
-    private int mAccountId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,34 +67,23 @@ public class AccountDetailsActivity
         mFABVH.setOnClickListener(this::onFABClick);
 
         Intent intent = getIntent();
-        mAccountId = intent.getIntExtra(EXTRA_ACCOUNT_ID, 0);
+        int accountId = intent.getIntExtra(EXTRA_ACCOUNT_ID, 0);
         disableActions();
 
-        LiveData<Account> accountLiveData = mAccountViewModel.getAccount(mAccountId);
-        accountLiveData.observe(this, this::onAccountChanged);
-
-        mLatestBalanceSum = mAccountViewModel.getAccumulatedFromMonth(mAccountId, DateUtil.now());
-        mLatestBalanceSum.observe(this, balance ->
-                updateBalanceSum(mAccount, balance));
+        mAccountViewModel.getAccountWithAccumulated(accountId)
+                .observe(this, this::onDataChanged);
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        boolean superResponse = super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.account_details_menu, menu);
+        toggleMenuItems();
+        tintMenuItems();
 
-        Log.d("DETAILSACT", "onCreateOptionsMenu: mAccount SHOULD BE NULL RIGHT NOW " + mAccount);
-        if (mAccount == null || mAccount.getId() == 0) {
-            menu.findItem(R.id.action_account_actions)
-                    .setEnabled(false);
-            menu.findItem(R.id.action_archive_account)
-                    .setEnabled(false);
-            return super.onCreateOptionsMenu(menu);
-        }
-
-        boolean parentResponse = super.onCreateOptionsMenu(menu);
-        tintMenuItems(ColorUtil.getTextColor(mAccount.getBackgroundColor()));
-
-        return parentResponse;
+        return superResponse;
     }
 
     @Override
@@ -134,7 +120,7 @@ public class AccountDetailsActivity
                 Log.wtf("AccountDetailsActivity", "onConfirmationDialogYes: MenuItems were enabled but no account was found");
             }
             mCompositeDisposable.add(
-                mAccountViewModel.archive(mAccountId)
+                mAccountViewModel.archive(mAccount.getId())
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
@@ -195,59 +181,46 @@ public class AccountDetailsActivity
         accountHistoryIntent.putExtra(AccountBalanceHistoryActivity.EXTRA_BG_COLOR, mAccount.getBackgroundColor());
         accountHistoryIntent.putExtra(AccountBalanceHistoryActivity.EXTRA_NAME, mAccount.getName());
         accountHistoryIntent.putExtra(AccountBalanceHistoryActivity.EXTRA_CURRENCY, mAccount.getDefaultCurrency());
+        accountHistoryIntent.putExtra(AccountBalanceHistoryActivity.EXTRA_ACCOUNT_CREATION_MONTH, YearMonth.from(mAccount.getCreatedAt()).toString());
 
         startActivity(accountHistoryIntent);
     }
 
-    private void onAccountChanged(Account account) {
-        if (account == null) {
+    private void onDataChanged(AccountWithAccumulated awa) {
+        if (awa.account == null) {
             Log.e("AccountDetailsActivity", "onAccountChanged: No account found. Finishing activity.");
             finish();
             return;
         }
-        mAccount = account;
+        mAccount = awa.account;
         enableActions();
 
-        tintElements(account.getBackgroundColor());
-        if (mMenu != null) {
-            mMenu.findItem(R.id.action_account_actions)
-                    .setEnabled(true);
-            mMenu.findItem(R.id.action_archive_account)
-                    .setEnabled(true);
-        }
+        tintElements(mAccount.getBackgroundColor());
+        toggleMenuItems();
 
-        updateInfo(account);
+        updateInfo(awa);
     }
 
-    private void updateBalanceSum(Account account, BigDecimal balanceSum) {
-        if (account == null || balanceSum == null) return;
+    private void updateInfo(AccountWithAccumulated awa) {
+        mNameTV.setText(awa.account.getName());
 
         TextView currentBalanceTV = findViewById(R.id.account_latest_balance);
-
-        try {
-            currentBalanceTV.setText(CurrencyUtil.format(balanceSum, mAccount.getDefaultCurrency()));
-        } catch (GnomyCurrencyException gce) {
-            Log.wtf("AccountDetailsActivity", "updateBalance: ", gce);
-        }
-    }
-
-    private void updateInfo(Account account) {
-        mNameTV.setText(account.getName());
-
         TextView initialValueTV = findViewById(R.id.account_initial_value);
+        TextView createdAtTV = findViewById(R.id.account_created_at_text);
         ImageView typeImage = findViewById(R.id.account_type_icon);
         TextView typeTV = findViewById(R.id.account_type);
         ImageView includedInSumImage = findViewById(R.id.account_included_in_sum_icon);
         TextView includedInSumTV = findViewById(R.id.account_included_in_sum_text);
         Drawable typeIcon = ContextCompat.getDrawable(this,
-                Account.getDrawableResourceId(account.getType()));
+                Account.getDrawableResourceId(awa.account.getType()));
+        String createdAtString = awa.account.getCreatedAt().toLocalDate().toString();
         String typeString = getString(
-                Account.getTypeNameResourceId(account.getType())
+                Account.getTypeNameResourceId(awa.account.getType())
         );
         Drawable includedInSumIcon;
         String includedInSumString;
 
-        if (account.isShowInDashboard()) {
+        if (awa.account.isShowInDashboard()) {
             includedInSumIcon = ContextCompat.getDrawable(this, R.drawable.ic_check_black_24dp);
             includedInSumImage.setTag(R.drawable.ic_check_black_24dp);
             includedInSumString = getString(R.string.account_is_included_in_sum);
@@ -257,28 +230,44 @@ public class AccountDetailsActivity
             includedInSumString = getString(R.string.account_is_not_included_in_sum);
         }
 
+        createdAtTV.setText(createdAtString);
         typeImage.setImageDrawable(typeIcon);
         typeTV.setText(typeString);
         includedInSumImage.setImageDrawable(includedInSumIcon);
         includedInSumTV.setText(includedInSumString);
 
         try {
-            updateBalanceSum(account, mLatestBalanceSum.getValue());
-            initialValueTV.setText(CurrencyUtil.format(account.getInitialValue(), account.getDefaultCurrency()));
+            currentBalanceTV.setText(CurrencyUtil.format(
+                    awa.getConfirmedAccumulatedBalanceAtMonth(),
+                    mAccount.getDefaultCurrency()));
+            initialValueTV.setText(CurrencyUtil.format(
+                    awa.account.getInitialValue(),
+                    awa.account.getDefaultCurrency()));
         } catch (GnomyCurrencyException gce) {
             Log.wtf("AccountDetailsActivity", "updateInfo: ", gce);
         }
     }
 
-    protected void tintMenuItems(@ColorInt int color) {
-        if (mMenu != null) {
-            ViewTintingUtil.tintMenuItems(
-                    mMenu,
-                    new int[]{
-                            R.id.action_archive_account,
-                            R.id.action_account_actions},
-                    color);
-        }
+    private void toggleMenuItems() {
+        if (mMenu == null) return;
+
+        boolean enableActions = (mAccount != null);
+        mMenu.findItem(R.id.action_account_actions)
+                .setEnabled(enableActions);
+        mMenu.findItem(R.id.action_archive_account)
+                .setEnabled(enableActions);
+    }
+
+    @Override
+    protected void tintMenuItems() {
+        super.tintMenuItems();
+        if (mMenu == null || mAccount == null) return;
+        ViewTintingUtil.tintMenuItems(
+                mMenu,
+                new int[]{
+                        R.id.action_archive_account,
+                        R.id.action_account_actions},
+                mThemeTextColor);
     }
 
     private void tintElements(@ColorInt int bgColor) {
@@ -292,13 +281,13 @@ public class AccountDetailsActivity
         int fabBgColor = ColorUtil.getVariantByFactor(bgColor, 0.86f);
         int fabTextColor = ColorUtil.getTextColor(fabBgColor);
 
-        mFABVH.onView(v ->
+        mFABVH.onView(this, v ->
                 ViewTintingUtil.tintFAB(v, fabBgColor, fabTextColor, mThemeTextColor));
 
         ((TextView) findViewById(R.id.account_balance_history_title))
                 .setTextColor(mThemeTextColor);
 
-        mSeeMoreBtnVH.onView(v -> {
+        mSeeMoreBtnVH.onView(this, v -> {
             v.setBackgroundColor(fabBgColor);
             v.setTextColor(fabTextColor);
         });

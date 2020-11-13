@@ -19,8 +19,10 @@ public class ConfirmationDialogFragment extends DialogFragment {
     public static final String ARG_MESSAGE = "ConfirmationDialog.Message";
     public static final String ARG_YES_STRING = "ConfirmationDialog.YesString";
     public static final String ARG_NO_STRING = "ConfirmationDialog.NoString";
+    public static final String ARG_IS_ASYNC = "ConfirmationDialog.IsAsync";
     private final OnConfirmationDialogListener mListener;
     private String mTitle, mMessage, mYesString, mNoString;
+    private boolean mIsAsync = false;
 
     public ConfirmationDialogFragment() {
         throw new IllegalArgumentException("This class must be provided with an OnConfirmationDialogListener instance.");
@@ -39,13 +41,14 @@ public class ConfirmationDialogFragment extends DialogFragment {
             mMessage = args.getString(ARG_MESSAGE);
             mYesString  = args.getString(ARG_YES_STRING);
             mNoString  = args.getString(ARG_NO_STRING);
+            mIsAsync = args.getBoolean(ARG_IS_ASYNC, false);
         }
         if (mTitle == null) mTitle = getString(R.string.confirmation_dialog_title);
         if (mMessage == null) mMessage = getString(R.string.confirmation_dialog_description);
         if (mYesString == null) mYesString = getString(R.string.confirmation_dialog_yes);
         if (mNoString == null) mNoString = getString(R.string.confirmation_dialog_no);
 
-        setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Material_Light_Dialog);
+        setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Material_Light_Dialog_Alert);
     }
 
     @Override
@@ -61,15 +64,15 @@ public class ConfirmationDialogFragment extends DialogFragment {
                 = new SingleClickViewHolder<>(view.findViewById(R.id.confirmation_dialog_yes));
         SingleClickViewHolder<Button> noBtn
                 = new SingleClickViewHolder<>(view.findViewById(R.id.confirmation_dialog_no));
-        yesBtn.onView(v -> v.setText(mYesString));
-        noBtn.onView(v -> v.setText(mNoString));
+        yesBtn.onView(requireActivity(), v -> v.setText(mYesString));
+        noBtn.onView(requireActivity(), v -> v.setText(mNoString));
 
         if (dialog != null) {
             dialog.setTitle(mTitle);
 
             yesBtn.setOnClickListener(v -> {
                 mListener.onConfirmationDialogYes(dialog, getDialogTag(), Dialog.BUTTON_POSITIVE);
-                dialog.dismiss();
+                if(!mIsAsync) dialog.dismiss();
             });
 
             noBtn.setOnClickListener(v -> {
@@ -99,7 +102,7 @@ public class ConfirmationDialogFragment extends DialogFragment {
     }
 
     public interface OnConfirmationDialogListener
-            extends CustomDialogFragmentFactory.CustomDialogFragmentInterface {
+            extends GnomyFragmentFactory.GnomyFragmentInterface {
         void onConfirmationDialogYes(DialogInterface dialog, String dialogTag, int which);
         void onConfirmationDialogNo(DialogInterface dialog, String dialogTag, int which);
         void onConfirmationDialogCancel(DialogInterface dialog, String dialogTag);

@@ -35,11 +35,6 @@ public class MonthToolbarInstrumentedTest {
                                 activity
                         )).get(MonthToolbarViewModel.class)));
 
-        onView(withId(R.id.next_month_btn))
-                .check(matches(
-                        withEffectiveVisibility(ViewMatchers.Visibility.INVISIBLE)
-                ));
-
         onView(withId(R.id.return_to_today_bth))
                 .check(matches(
                         withEffectiveVisibility(ViewMatchers.Visibility.GONE)
@@ -48,11 +43,6 @@ public class MonthToolbarInstrumentedTest {
         onView(withId(R.id.prev_month_btn))
                 .perform(click());
 
-        onView(withId(R.id.next_month_btn))
-                .check(matches(
-                        withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)
-                ));
-
         onView(withId(R.id.return_to_today_bth))
                 .check(matches(
                         withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)
@@ -60,11 +50,6 @@ public class MonthToolbarInstrumentedTest {
 
         onView(withId(R.id.return_to_today_bth))
                 .perform(click());
-
-        onView(withId(R.id.next_month_btn))
-                .check(matches(
-                        withEffectiveVisibility(ViewMatchers.Visibility.INVISIBLE)
-                ));
 
         onView(withId(R.id.return_to_today_bth))
                 .check(matches(

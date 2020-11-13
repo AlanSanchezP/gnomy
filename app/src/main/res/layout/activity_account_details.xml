@@ -116,31 +116,66 @@
                             android:layout_marginStart="16dp">
 
                             <ImageView
-                                android:id="@+id/account_type_icon"
+                                android:id="@+id/account_created_at_icon"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:contentDescription="@string/account_icon"
+                                android:contentDescription="@string/account_created_at_icon"
+                                android:src="@drawable/ic_date_range_black_24dp"
                                 app:layout_constraintTop_toTopOf="parent"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintStart_toStartOf="parent" />
                             <TextView
-                                android:id="@+id/account_type_label"
+                                android:id="@+id/account_created_at_label"
                                 android:layout_height="wrap_content"
                                 android:layout_width="wrap_content"
                                 android:textColor="@color/colorTextSecondary"
-                                android:text="@string/account_type"
+                                android:text="@string/account_created_at"
                                 android:textSize="12sp"
                                 android:layout_marginStart="10dp"
-                                app:layout_constraintStart_toEndOf="@id/account_type_icon"
+                                app:layout_constraintStart_toEndOf="@id/account_created_at_icon"
                                 app:layout_constraintTop_toTopOf="parent" />
                             <TextView
-                                android:id="@+id/account_type"
+                                android:id="@+id/account_created_at_text"
                                 android:layout_height="wrap_content"
                                 android:layout_width="wrap_content"
-                                app:layout_constraintStart_toStartOf="@id/account_type_label"
-                                app:layout_constraintTop_toBottomOf="@id/account_type_label" />
+                                app:layout_constraintStart_toStartOf="@id/account_created_at_label"
+                                app:layout_constraintTop_toBottomOf="@id/account_created_at_label" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </LinearLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/account_type_layout"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        app:layout_constraintTop_toBottomOf="@id/account_details_inner_linear_layout"
+                        app:layout_constraintStart_toStartOf="parent"
+                        android:layout_marginTop="16dp" >
+
+                        <ImageView
+                            android:id="@+id/account_type_icon"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:contentDescription="@string/account_icon"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent" />
+                        <TextView
+                            android:id="@+id/account_type_label"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            android:textColor="@color/colorTextSecondary"
+                            android:text="@string/account_type"
+                            android:textSize="12sp"
+                            android:layout_marginStart="10dp"
+                            app:layout_constraintStart_toEndOf="@id/account_type_icon"
+                            app:layout_constraintTop_toTopOf="parent" />
+                        <TextView
+                            android:id="@+id/account_type"
+                            android:layout_height="wrap_content"
+                            android:layout_width="wrap_content"
+                            app:layout_constraintStart_toStartOf="@id/account_type_label"
+                            app:layout_constraintTop_toBottomOf="@id/account_type_label" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <ImageView
                         android:id="@+id/account_included_in_sum_icon"
@@ -148,7 +183,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="20dp"
                         android:contentDescription="@string/account_included_in_sum_icon"
-                        app:layout_constraintTop_toBottomOf="@id/account_details_inner_linear_layout"
+                        app:layout_constraintTop_toBottomOf="@id/account_type_layout"
                         app:layout_constraintStart_toStartOf="parent" />
 
                     <TextView
@@ -172,6 +207,7 @@
                 android:layout_marginEnd="16dp"
                 android:clickable="true"
                 android:focusable="true"
+                app:backgroundTint="#00000000"
                 app:srcCompat="@drawable/ic_pencil_edit_black_24dp" />
 
             <TextView
@@ -209,6 +245,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
+                        android:backgroundTint="#00000000"
                         android:text="@string/see_more" />
 
                 </LinearLayout>

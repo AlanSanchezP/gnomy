@@ -15,7 +15,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.ui.CustomDialogFragmentFactory;
+import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 
 public class ArchivedAccountsRecyclerViewAdapter
@@ -89,7 +89,6 @@ public class ArchivedAccountsRecyclerViewAdapter
         private void setEventListeners(OnArchivedItemInteractionListener listener) {
             SingleClickViewHolder<Button> restoreVH = new SingleClickViewHolder<>(mRestoreButton);
             SingleClickViewHolder<Button> deleteVH = new SingleClickViewHolder<>(mDeleteButton);
-            // TODO: Handle async nature of these calls
             restoreVH.setOnClickListener(v -> listener.restoreAccount(mItem));
             deleteVH.setOnClickListener(v -> listener.deleteAccount(mItem));
         }
@@ -97,7 +96,7 @@ public class ArchivedAccountsRecyclerViewAdapter
 
 
     public interface OnArchivedItemInteractionListener
-            extends CustomDialogFragmentFactory.CustomDialogFragmentInterface {
+            extends GnomyFragmentFactory.GnomyFragmentInterface {
         void restoreAccount(Account account);
         void deleteAccount(Account account);
     }

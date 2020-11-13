@@ -1,9 +1,12 @@
 package io.github.alansanchezp.gnomy.util.android;
 
+import android.app.Activity;
 import android.os.SystemClock;
 import android.view.View;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import androidx.annotation.NonNull;
 
 public class SingleClickViewHolder<T extends View> {
     private final T mView;
@@ -38,10 +41,19 @@ public class SingleClickViewHolder<T extends View> {
         mKeepElevationOnClick = keepElevationOnClick;
     }
 
-    public void onView(OnViewActionPerformer<T> performer) {
-        // TODO: Is there a better way to achieve this?
-        //  If not running on UI, it throws android.view.ViewRootImpl$CalledFromWrongThreadException during tests
-        mView.post(() -> performer.onView(mView));
+    /**
+     * Bridge class to perform any operation over the embedded {@link View}.
+     * This is meant to be used for coloring and toggling visibility purposes,
+     * but any operation is technically possible.
+     *
+     * @param hostActivity  Reference to the host {@link Activity} the View
+     *                      resides on. Necessary to perform the operations
+     *                      and avoid ViewRootImpl$CalledFromWrongThreadException
+     * @param performer     Interface that contains the operations to be
+     *                      performed on the embedded View.
+     */
+    public void onView(@NonNull Activity hostActivity, OnViewActionPerformer<T> performer) {
+        hostActivity.runOnUiThread(() -> performer.onView(mView));
     }
 
     public void setOnClickListener(View.OnClickListener listener) {

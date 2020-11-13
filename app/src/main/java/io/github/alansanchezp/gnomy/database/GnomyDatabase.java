@@ -2,6 +2,7 @@ package io.github.alansanchezp.gnomy.database;
 
 import androidx.annotation.NonNull;
 import androidx.room.Database;
+import androidx.room.EmptyResultSetException;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
@@ -18,6 +19,7 @@ import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionDAO;
 import io.github.alansanchezp.gnomy.database.transfer.Transfer;
 import io.github.alansanchezp.gnomy.database.transfer.TransferDAO;
+import io.reactivex.Single;
 
 import android.content.Context;
 import android.util.Log;
@@ -26,6 +28,7 @@ import net.sqlcipher.database.SupportFactory;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 
 @Database(entities = {
@@ -35,7 +38,9 @@ import java.util.concurrent.Executors;
     MonthlyBalance.class,
     RecurrentTransaction.class,
     Transfer.class
-}, version = 1)
+}, version = 1, exportSchema = false)
+// TODO: Implement schemaLocation when app (and therefore db model) is
+//  (at least) beta-release ready
 @TypeConverters({GnomyTypeConverters.class})
 public abstract class GnomyDatabase extends RoomDatabase {
     private static GnomyDatabase INSTANCE;
@@ -56,22 +61,19 @@ public abstract class GnomyDatabase extends RoomDatabase {
         byte[] passphrase = SQLiteDatabase.getBytes(userEnteredPassphrase.toCharArray());
         SupportFactory factory = new SupportFactory(passphrase);
         Builder<GnomyDatabase> builder;
+        MockDatabaseOperationsUtil = getMockDatabaseOperationsUtil();
 
-        try {
-            // Database for testing purposes
-            // DO NOT IMPLEMENT THIS CLASS IN MAIN SOURCE SET
-            // IT EXISTS ONLY FOR TESTING PURPOSES
-            MockDatabaseOperationsUtil = Class.forName("io.github.alansanchezp.gnomy.database.MockDatabaseOperationsUtil");
-            Log.w("GnomyDatabase", "buildDatabaseInstance: This message should only appear during tests.");
-            builder = Room.inMemoryDatabaseBuilder(context,
-                    GnomyDatabase.class)
-                    .setTransactionExecutor(Executors.newSingleThreadExecutor())
-                    .allowMainThreadQueries();
-        } catch (ClassNotFoundException cnfe) {
+        if (MockDatabaseOperationsUtil == null) {
             Log.d("GnomyDatabase", "buildDatabaseInstance: Getting persistent database.");
             builder = Room.databaseBuilder(context,
                     GnomyDatabase.class,
                     "gnomy.db");
+        } else {
+            Log.d("GnomyDatabase", "buildDatabaseInstance: Getting test database.");
+            builder = Room.inMemoryDatabaseBuilder(context,
+                    GnomyDatabase.class)
+                    .setTransactionExecutor(Executors.newSingleThreadExecutor())
+                    .allowMainThreadQueries();
         }
 
         builder = builder
@@ -79,63 +81,67 @@ public abstract class GnomyDatabase extends RoomDatabase {
                 // TODO: Create migrations
                 // TODO: Remove once migrations are implemented
                 .fallbackToDestructiveMigration()
-                // TODO: Prepopulate categories
-                // TODO: Evaluate if balance adjustment should be done using triggers or as part of repository code
-                .addCallback(triggersCallback);
+                .addCallback(PREPOPULATE_CATEGORIES_CALLBACK);
 
         return builder.build();
     }
 
-    private static RoomDatabase.Callback triggersCallback = new RoomDatabase.Callback(){
+    private static final RoomDatabase.Callback PREPOPULATE_CATEGORIES_CALLBACK = new RoomDatabase.Callback(){
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
             super.onCreate(db);
-            // TODO: Maybe rename trigger to 'create_first_monthly_balance'?
-            db.execSQL(
-                "CREATE TRIGGER on_account_created " +
-                "AFTER INSERT ON accounts FOR EACH ROW " +
-                "BEGIN " +
-                    "INSERT INTO monthly_balances (account_id, balance_date) " +
-                    "VALUES(NEW.account_id, strftime(\"%Y%m\", datetime(NEW.created_at/1000, 'unixepoch')));" +
-                "END"
-            );
+            // TODO: Prepopulate categories
         }
     };
 
-    private Object getMockDAO(String getDAO_methodName, Class<?> DAO_class) {
-        try {
-            return DAO_class.cast(MockDatabaseOperationsUtil
-                    .getMethod(getDAO_methodName).invoke(null));
-        } catch (IllegalAccessException |
-                InvocationTargetException |
-                NoSuchMethodException |
-                NullPointerException |
-                ClassCastException |
-                IllegalStateException e) {
-            if (e instanceof IllegalStateException) {
-                Log.w("GnomyDatabase", "accountDAO: ", e);
-            } else if (e instanceof ClassCastException) {
-                Log.e("GnomyDatabase", "accountDAO: ", e);
+    public <T> Single<T> toSingleInTransaction(@NonNull Callable<T> callable) {
+        return Single.create(emitter -> {
+            try {
+                T result = GnomyDatabase.super.runInTransaction(callable);
+                if (result != null) emitter.onSuccess(result);
+                else throw new EmptyResultSetException("Composite transaction returned null object.");
+            } catch (EmptyResultSetException |
+                    GnomyIllegalQueryException e) {
+                emitter.onError(e);
             }
+        });
+    }
+
+    private static Class<?> getMockDatabaseOperationsUtil() {
+        try {
+            // DO NOT IMPLEMENT THIS CLASS IN MAIN SOURCE SET
+            // IT EXISTS ONLY FOR TESTING PURPOSES
+            return Class.forName("io.github.alansanchezp.gnomy.database.MockDatabaseOperationsUtil");
+        } catch (ClassNotFoundException e) {
+            Log.d("GnomyDatabase", "getMockDatabaseOperationsUtil: ", e);
             return null;
+        }
+    }
+
+    private Object getMockDAO(String getDAOMethodName) {
+        if (MockDatabaseOperationsUtil == null) return null;
+        try {
+            return MockDatabaseOperationsUtil
+                    .getMethod(getDAOMethodName).invoke(null);
+        } catch (InvocationTargetException e) {
+            Log.w("GnomyDatabase", "getMockDAO: ", e);
+            return null;
+        } catch (IllegalAccessException |
+                SecurityException |
+                IllegalArgumentException |
+                NullPointerException |
+                ExceptionInInitializerError |
+                NoSuchMethodException e) {
+            throw new RuntimeException("An error occurred trying to retrieve the specified DAO.", e);
         }
     }
 
     // WRAPPER DAO methods
     public AccountDAO accountDAO() {
-        AccountDAO mockDAO = (AccountDAO) getMockDAO(
-                "getAccountDAO", AccountDAO.class);
+        AccountDAO mockDAO = (AccountDAO) getMockDAO("getAccountDAO");
         if (mockDAO != null) return mockDAO;
 
         return _accountDAO();
-    }
-
-    public MonthlyBalanceDAO monthlyBalanceDAO() {
-        MonthlyBalanceDAO mockDAO = (MonthlyBalanceDAO) getMockDAO(
-                "getBalanceDAO", MonthlyBalanceDAO.class);
-        if (mockDAO != null) return mockDAO;
-
-        return _monthlyBalanceDAO();
     }
 
     public CategoryDAO categoryDAO() {
@@ -148,13 +154,10 @@ public abstract class GnomyDatabase extends RoomDatabase {
 
     protected abstract MoneyTransactionDAO _transactionDAO();
 
-    protected abstract MonthlyBalanceDAO _monthlyBalanceDAO();
-
     protected abstract RecurrentTransactionDAO _recurrentTransactionDAO();
 
     protected abstract TransferDAO _transferDAO();
 
-    // TODO: Research why did we need this? Where should we be using it?
     public static void cleanUp(){
         INSTANCE = null;
     }

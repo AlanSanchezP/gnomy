@@ -5,6 +5,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.math.BigDecimal;
 import java.time.YearMonth;
 
 import androidx.lifecycle.MutableLiveData;
@@ -15,8 +16,10 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.MockDatabaseOperationsUtil;
 import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
 import io.github.alansanchezp.gnomy.ui.account.AccountDetailsActivity;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
+import io.github.alansanchezp.gnomy.util.DateUtil;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -43,22 +46,32 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(AndroidJUnit4.class)
 public class AccountDetailsActivityInstrumentedTest {
-    private static final Account testAccount = new Account(1);
-    private static final MutableLiveData<Account> mutableAccount = new MutableLiveData<>();
+    private static AccountWithAccumulated testAWA;
+    private static final MutableLiveData<AccountWithAccumulated> mutableAWA = new MutableLiveData<>();
 
     @BeforeClass
     public static void init_mocks() {
         final MockDatabaseOperationsUtil.MockableAccountDAO mockAccountDAO = mock(MockDatabaseOperationsUtil.MockableAccountDAO.class);
-        // Needed so that ViewModel instance doesn't crash
-        final MockDatabaseOperationsUtil.MockableMonthlyBalanceDAO mockBalanceDAO = mock(MockDatabaseOperationsUtil.MockableMonthlyBalanceDAO.class);
         MockDatabaseOperationsUtil.setAccountDAO(mockAccountDAO);
-        MockDatabaseOperationsUtil.setBalanceDAO(mockBalanceDAO);
+        testAWA = mock(AccountWithAccumulated.class);
+        testAWA.account = mock(Account.class);
 
-        testAccount.setBackgroundColor(ColorUtil.getRandomColor());
-        when(mockAccountDAO.find(anyInt()))
-                .thenReturn(mutableAccount);
-        when(mockBalanceDAO.getAccumulatedFromMonth(anyInt(), any(YearMonth.class)))
-                .thenReturn(new MutableLiveData<>());
+        when(mockAccountDAO.getAccumulatedAtMonth(anyInt(), any(YearMonth.class)))
+                .thenReturn(mutableAWA);
+
+        // Needed dummy elements so that AccountDetailsActivity, AccountBalanceHistoryActivity
+        //  and AddEditAccountActivity don't crash
+        testAWA.targetMonth = DateUtil.now();
+        when(testAWA.account.getBackgroundColor()).thenReturn(ColorUtil.getRandomColor());
+        when(testAWA.account.getId()).thenReturn(1);
+        when(testAWA.account.getName()).thenReturn("Test name");
+        when(testAWA.account.getCreatedAt()).thenReturn(DateUtil.OffsetDateTimeNow());
+        when(testAWA.account.getDefaultCurrency()).thenReturn("USD");
+        when(testAWA.getConfirmedExpensesAtMonth()).thenReturn(BigDecimal.ZERO);
+        when(testAWA.getConfirmedIncomesAtMonth()).thenReturn(BigDecimal.ZERO);
+        when(testAWA.getPendingExpensesAtMonth()).thenReturn(BigDecimal.ZERO);
+        when(testAWA.getPendingIncomesAtMonth()).thenReturn(BigDecimal.ZERO);
+        when(mockAccountDAO.find(anyInt())).thenReturn(new MutableLiveData<>());
     }
 
     @Rule
@@ -70,7 +83,7 @@ public class AccountDetailsActivityInstrumentedTest {
         // These asserts will only be true if the test is the first one being executed
         // and we shouldn't force a postValue(null) call as that will force finish
         // the activity
-        if (mutableAccount.getValue() == null) {
+        if (mutableAWA.getValue() == null) {
             onView(withId(R.id.action_archive_account))
                     .check(matches(not(isEnabled())));
 
@@ -78,7 +91,7 @@ public class AccountDetailsActivityInstrumentedTest {
                     .check(matches(not(isEnabled())));
         }
 
-        mutableAccount.postValue(testAccount);
+        mutableAWA.postValue(testAWA);
 
         onView(withId(R.id.action_archive_account))
                 .check(matches(isEnabled()));
@@ -90,7 +103,7 @@ public class AccountDetailsActivityInstrumentedTest {
     // TODO: Implement other actions when Transactions module is ready
     @Test
     public void archived_menu_item_opens_dialog() {
-        mutableAccount.postValue(testAccount);
+        mutableAWA.postValue(testAWA);
 
         onView(withId(R.id.action_archive_account))
                 .perform(click());
@@ -115,7 +128,7 @@ public class AccountDetailsActivityInstrumentedTest {
 
     @Test
     public void FAB_opens_addedit_activity() {
-        mutableAccount.postValue(testAccount);
+        mutableAWA.postValue(testAWA);
 
         onView(withId(R.id.account_floating_action_button))
                 .perform(click());
@@ -131,7 +144,7 @@ public class AccountDetailsActivityInstrumentedTest {
         String legend_string = InstrumentationRegistry.getInstrumentation().getTargetContext()
                 .getString(R.string.account_balance_history_legend);
 
-        mutableAccount.postValue(testAccount);
+        mutableAWA.postValue(testAWA);
 
         onView(withId(R.id.account_see_more_button))
                 .perform(click());
@@ -144,7 +157,8 @@ public class AccountDetailsActivityInstrumentedTest {
 
     @Test
     public void shows_icon_and_label_for_showInDashboard_field() {
-        mutableAccount.postValue(testAccount);
+        when(testAWA.account.isShowInDashboard()).thenReturn(true);
+        mutableAWA.postValue(testAWA);
 
         onView(withId(R.id.account_included_in_sum_text))
                 .check(matches(
@@ -156,8 +170,8 @@ public class AccountDetailsActivityInstrumentedTest {
                         equalTo(R.drawable.ic_check_black_24dp))
                 ));
 
-        testAccount.setShowInDashboard(false);
-        mutableAccount.postValue(testAccount);
+        when(testAWA.account.isShowInDashboard()).thenReturn(false);
+        mutableAWA.postValue(testAWA);
 
         onView(withId(R.id.account_included_in_sum_text))
                 .check(matches(

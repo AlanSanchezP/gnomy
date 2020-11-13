@@ -9,14 +9,13 @@ import java.util.HashMap;
 import java.util.List;
 
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.ui.CustomDialogFragmentFactory;
+import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.ui.account.ArchivedAccountsDialogFragment;
 
 import static androidx.fragment.app.testing.FragmentScenario.launchInContainer;
@@ -25,6 +24,8 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -35,32 +36,17 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 public class ArchivedAccountsDialogFragmentInstrumentedTest {
     private static final Account[] accounts = new Account[2];
     private static final MutableLiveData<List<Account>> mutableAccountsList = new MutableLiveData<>();
-    private static CustomDialogFragmentFactory factory;
+    private static GnomyFragmentFactory factory;
 
     @BeforeClass
     public static void init_accounts_list() {
-        HashMap<Class<? extends Fragment>, CustomDialogFragmentFactory.CustomDialogFragmentInterface>
+        HashMap<Class<? extends Fragment>, GnomyFragmentFactory.GnomyFragmentInterface>
                 mapper = new HashMap<>();
-        mapper.put(ArchivedAccountsDialogFragment.class,
-                new ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface() {
-            @Override
-            public void restoreAccount(Account account) {
-            }
-
-            @Override
-            public void deleteAccount(Account account) {
-            }
-
-            @Override
-            public LiveData<List<Account>> getArchivedAccounts() {
-                return mutableAccountsList;
-            }
-
-            @Override
-            public void restoreAllAccounts() {
-            }
-        });
-        factory = new CustomDialogFragmentFactory(mapper);
+        ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface _interface =
+                mock(ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface.class);
+        when(_interface.getArchivedAccounts()).thenReturn(mutableAccountsList);
+        mapper.put(ArchivedAccountsDialogFragment.class, _interface);
+        factory = new GnomyFragmentFactory(mapper);
 
         accounts[0] = new Account();
         accounts[0].setName("Test account 1");
