@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentFactory;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 import io.github.alansanchezp.gnomy.ui.account.ArchivedAccountsDialogFragment;
+import io.github.alansanchezp.gnomy.ui.transaction.TransactionsFragment;
 
 public class GnomyFragmentFactory extends FragmentFactory {
     private Map<Class<? extends Fragment>, GnomyFragmentInterface> mClassToInterfaceMapping;
@@ -36,8 +37,10 @@ public class GnomyFragmentFactory extends FragmentFactory {
             instance = new ConfirmationDialogFragment((ConfirmationDialogFragment.OnConfirmationDialogListener) interfaceToAttach);
         } else if (fragmentClass.equals(AccountsFragment.class)) {
             instance = new AccountsFragment((MainNavigationFragment.MainNavigationInteractionInterface) interfaceToAttach);
+        } else if(fragmentClass.equals(TransactionsFragment.class)) {
+            instance = new TransactionsFragment((MainNavigationFragment.MainNavigationInteractionInterface) interfaceToAttach);
         } else {
-            throw new UnsupportedOperationException("No interface was provided for the requested DialogFragment class.");
+            throw new UnsupportedOperationException("No interface was provided for the requested Fragment class.");
         }
 
         return instance;

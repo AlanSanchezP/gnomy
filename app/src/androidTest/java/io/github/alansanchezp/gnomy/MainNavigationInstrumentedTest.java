@@ -64,4 +64,15 @@ public class MainNavigationInstrumentedTest {
         onView(withId(R.id.total_balance_label))
                 .check(matches(isDisplayed()));
     }
+
+    @Test
+    public void switches_to_transactions() {
+        onView(withId(R.id.navigation_transactions))
+                .perform(click());
+
+        onView(withId(R.id.custom_appbar))
+                .check(matches(hasDescendant(
+                        withText(R.string.title_transactions)
+                )));
+    }
 }

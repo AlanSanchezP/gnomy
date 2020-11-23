@@ -10,7 +10,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -86,10 +85,10 @@ public class AccountsFragment extends MainNavigationFragment
         getChildFragmentManager().setFragmentFactory(
                 new GnomyFragmentFactory(getInterfacesMapping()));
         super.onCreate(savedInstanceState);
-        mListViewModel = new ViewModelProvider(this,
-                new SavedStateViewModelFactory(
-                        this.requireActivity().getApplication(),
-                        this.requireActivity()))
+        // TODO: Refactor other usages of SavedStateViewModelFactory
+        //  as they will probably crash too at some point
+        //  (Fragment threw error: SavedStateProvider with the given key is already registered
+        mListViewModel = new ViewModelProvider(this)
                 .get(AccountsListViewModel.class);
     }
 

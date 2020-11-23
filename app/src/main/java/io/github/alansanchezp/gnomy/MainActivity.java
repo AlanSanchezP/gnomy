@@ -29,6 +29,7 @@ import io.github.alansanchezp.gnomy.ui.GnomyActivity;
 import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
 import io.github.alansanchezp.gnomy.ui.customView.MonthToolbarView;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
+import io.github.alansanchezp.gnomy.ui.transaction.TransactionsFragment;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 import io.github.alansanchezp.gnomy.util.android.ViewTintingUtil;
@@ -78,6 +79,8 @@ public class MainActivity
                 interfacesMapping = super.getInterfacesMapping();
         interfacesMapping.put(
                 AccountsFragment.class, this);
+        interfacesMapping.put(
+                TransactionsFragment.class, this);
         return interfacesMapping;
     }
 
@@ -143,6 +146,9 @@ public class MainActivity
             case ACCOUNTS_FRAGMENT_INDEX:
                 fragment = new AccountsFragment(this);
                 break;
+            case TRANSACTIONS_FRAGMENT_INDEX:
+                fragment = new TransactionsFragment(this);
+                break;
             default:
                 return false;
         }
@@ -166,6 +172,8 @@ public class MainActivity
     public void onFragmentChanged(Class<? extends MainNavigationFragment> clazz) {
         if (clazz.equals(AccountsFragment.class)) {
             mCurrentFragmentIndex = ACCOUNTS_FRAGMENT_INDEX;
+        } else if (clazz.equals(TransactionsFragment.class)) {
+            mCurrentFragmentIndex = TRANSACTIONS_FRAGMENT_INDEX;
         }
     }
 
