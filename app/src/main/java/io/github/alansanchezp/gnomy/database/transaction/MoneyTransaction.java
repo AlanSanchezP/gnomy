@@ -48,6 +48,10 @@ public class MoneyTransaction {
     @ColumnInfo(name="transaction_id")
     private int id;
 
+    @ColumnInfo(name="transaction_concept")
+    @NonNull
+    private String concept = "";
+
     @ColumnInfo(name="transaction_currency")
     @NonNull
     private String currency = "USD";
@@ -90,6 +94,15 @@ public class MoneyTransaction {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    @NonNull
+    public String getConcept() {
+        return concept;
+    }
+
+    public void setConcept(@NonNull String concept) {
+        this.concept = concept;
     }
 
     @NonNull
