@@ -58,6 +58,8 @@ public class ViewTintingUtil {
         til.setErrorTextColor(extraCSL);
         til.setErrorIconTintList(extraCSL);
         til.setBoxStrokeErrorColor(extraCSL);
+        til.setStartIconTintList(extraCSL);
+        til.setEndIconTintList(extraCSL);
     }
 
     public static void tintSwitch(@NonNull Switch _switch,
