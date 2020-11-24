@@ -42,7 +42,7 @@
     <!--  Accounts fragment  -->
     <string name="accounts_test_month">September 2020</string>
 
-    <!-- Accounts Create -->
+    <!-- Accounts AddEdit -->
     <string name="account_new">New account</string>
     <string name="account_type_bank">Bank account</string>
     <string name="account_type_informal">Informal (cash)</string>
@@ -114,4 +114,23 @@
         <item>@string/account_type_credit_card</item>
         <item>@string/account_type_other</item>
     </string-array>
+
+    <!-- Transaction AddEdit -->
+    <string name="transaction_new_expense">New expense</string>
+    <string name="transaction_modify_expense">Modify expense</string>
+    <string name="transaction_new_income">New income</string>
+    <string name="transaction_modify_income">Modify income</string>
+    <string name="transaction_new_transfer">New transfer</string>
+    <string name="transaction_modify_transfer">Modify transfer</string>
+    <string name="transaction_amount">Amount</string>
+    <string name="transaction_concept">Concept</string>
+    <string name="transaction_date">Date</string>
+    <string name="transaction_from_account">From account</string>
+    <string name="transaction_currency">Currency</string>
+    <string name="transaction_to_account">To account</string>
+    <string name="transaction_exchange_rate_info">If the currency doesn\'t match the account\'s one, an approximated exchange rate will be used during balance calculation.</string>
+    <string name="transaction_category">Category</string>
+    <string name="transaction_notes">Additional notes</string>
+    <string name="transaction_mark_as_done">Mark as done</string>
+    <string name="transaction_mark_as_recurrent">Mark as recurrent</string>
 </resources>

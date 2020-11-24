@@ -1,5 +1,6 @@
 package io.github.alansanchezp.gnomy.ui.transaction;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import android.view.LayoutInflater;
@@ -70,7 +71,8 @@ public class TransactionsFragment extends MainNavigationFragment {
 
     @Override
     public void onFABClick(View v) {
-
+        Intent newTransactionIntent = new Intent(getActivity(), AddEditTransactionActivity.class);
+        requireActivity().startActivity(newTransactionIntent);
     }
 
     @Override
