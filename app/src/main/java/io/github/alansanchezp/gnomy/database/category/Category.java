@@ -25,7 +25,7 @@ public class Category {
 
     @ColumnInfo(name="category_icon")
     @NonNull
-    private String icon = "";
+    private String iconResName = "";
 
     @ColumnInfo(name="category_type")
     private int type = EXPENSE_CATEGORY;
@@ -50,12 +50,12 @@ public class Category {
     }
 
     @NonNull
-    public String getIcon() {
-        return icon;
+    public String getIconResName() {
+        return iconResName;
     }
 
-    public void setIcon(@NonNull String icon) {
-        this.icon = icon;
+    public void setIconResName(@NonNull String iconResName) {
+        this.iconResName = iconResName;
     }
 
     public int getType() {

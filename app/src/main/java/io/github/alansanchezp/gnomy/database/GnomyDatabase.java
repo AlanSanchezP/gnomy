@@ -10,7 +10,6 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountDAO;
 import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
-import io.github.alansanchezp.gnomy.database.account.MonthlyBalanceDAO;
 import io.github.alansanchezp.gnomy.database.category.Category;
 import io.github.alansanchezp.gnomy.database.category.CategoryDAO;
 import io.github.alansanchezp.gnomy.database.recurrentTransaction.RecurrentTransaction;
@@ -19,6 +18,7 @@ import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionDAO;
 import io.github.alansanchezp.gnomy.database.transfer.Transfer;
 import io.github.alansanchezp.gnomy.database.transfer.TransferDAO;
+import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.reactivex.Single;
 
 import android.content.Context;
@@ -91,6 +91,11 @@ public abstract class GnomyDatabase extends RoomDatabase {
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
             super.onCreate(db);
             // TODO: Prepopulate categories
+            db.execSQL("INSERT INTO categories (category_name, category_icon, category_type, bg_color) " +
+                    "VALUES ('Dummy category', " +
+                    "'ic_calculate_24', "+
+                    Category.BOTH_CATEGORY + ", " +
+                    ColorUtil.getRandomColor() +")");
         }
     };
 
