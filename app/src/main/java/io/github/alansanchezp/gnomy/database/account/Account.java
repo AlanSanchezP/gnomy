@@ -241,4 +241,9 @@ public class Account {
     public int hashCode() {
         return Objects.hash(id, name, createdAt, initialValue, type, defaultCurrency, showInDashboard, isArchived, backgroundColor);
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }
