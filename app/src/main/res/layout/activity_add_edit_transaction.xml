@@ -92,6 +92,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textColorHint="@color/colorTextSecondary"
+                        android:enabled="false"
                         app:endIconDrawable="@drawable/ic_date_range_black_24dp"
                         app:endIconTint="#000000"
                         app:endIconMode="custom">

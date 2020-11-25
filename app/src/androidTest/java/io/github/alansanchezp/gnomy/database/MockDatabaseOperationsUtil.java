@@ -1,5 +1,6 @@
 package io.github.alansanchezp.gnomy.database;
 
+import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.List;
 
@@ -111,6 +112,11 @@ public class MockDatabaseOperationsUtil {
         public int _updateBalance(MonthlyBalance balance) {
             return 0;
         }
+
+        @Override
+        public int _adjustBalance(int accountId, YearMonth balanceDate, BigDecimal additionalIncomes, BigDecimal additionalExpenses, BigDecimal additionalProjectedIncomes, BigDecimal additionalProjectedExpenses) {
+            return 0;
+        }
     }
 
     public static class MockableCategoryDAO extends CategoryDAO {
@@ -147,8 +153,33 @@ public class MockDatabaseOperationsUtil {
         }
 
         @Override
-        public void insertAll(MoneyTransaction... transactions) {
+        protected long _insert(MoneyTransaction transaction) {
+            return 0;
+        }
 
+        @Override
+        protected LiveData<MoneyTransaction> find(int id) {
+            return null;
+        }
+
+        @Override
+        public LiveData<MonthlyBalance> findBalance(int accountId, YearMonth month) {
+            return null;
+        }
+
+        @Override
+        public void _insertOrIgnoreBalance(MonthlyBalance balance) {
+
+        }
+
+        @Override
+        public int _updateBalance(MonthlyBalance balance) {
+            return 0;
+        }
+
+        @Override
+        public int _adjustBalance(int accountId, YearMonth balanceDate, BigDecimal additionalIncomes, BigDecimal additionalExpenses, BigDecimal additionalProjectedIncomes, BigDecimal additionalProjectedExpenses) {
+            return 0;
         }
     }
 }
