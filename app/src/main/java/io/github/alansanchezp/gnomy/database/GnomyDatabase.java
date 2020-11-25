@@ -150,7 +150,17 @@ public abstract class GnomyDatabase extends RoomDatabase {
     }
 
     public CategoryDAO categoryDAO() {
+        CategoryDAO mockDAO = (CategoryDAO) getMockDAO("getCategoryDAO");
+        if (mockDAO != null) return mockDAO;
+
         return _categoryDAO();
+    }
+
+    public MoneyTransactionDAO transactionDAO() {
+        MoneyTransactionDAO mockDAO = (MoneyTransactionDAO) getMockDAO("getTransactionDAO");
+        if (mockDAO != null) return mockDAO;
+
+        return _transactionDAO();
     }
 
     protected abstract CategoryDAO _categoryDAO();

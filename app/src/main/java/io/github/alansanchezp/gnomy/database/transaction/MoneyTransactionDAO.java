@@ -7,10 +7,10 @@ import androidx.room.Insert;
 import androidx.room.Query;
 
 @Dao
-public interface MoneyTransactionDAO {
+public abstract class MoneyTransactionDAO {
     @Query("SELECT * from transactions")
-    List<MoneyTransaction> getAll();
+    protected abstract List<MoneyTransaction> getAll();
 
     @Insert
-    void insertAll(MoneyTransaction... transactions);
+    protected abstract void insertAll(MoneyTransaction... transactions);
 }

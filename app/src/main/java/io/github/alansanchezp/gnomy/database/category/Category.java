@@ -73,4 +73,9 @@ public class Category {
     public void setBackgroundColor(int backgroundColor) {
         this.backgroundColor = backgroundColor;
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }
