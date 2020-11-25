@@ -2,6 +2,7 @@ package io.github.alansanchezp.gnomy.database.transaction;
 // TODO: Transaction, Transfer and ReccurrentTransaction repositories
 // Create them after before (or in parallel) to their corresponding
 // UI classes.
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 import androidx.annotation.NonNull;
@@ -68,11 +69,11 @@ public class MoneyTransaction {
 
     @ColumnInfo(name="original_value")
     @NonNull
-    private Long originalValue = 0L;
+    private BigDecimal originalValue = BigDecimal.ZERO;
 
     @ColumnInfo(name="calculated_value")
     @NonNull
-    private Long calculatedValue = 0L;
+    private BigDecimal calculatedValue = BigDecimal.ZERO;
 
     @ColumnInfo(name="transaction_description")
     @NonNull
@@ -140,20 +141,20 @@ public class MoneyTransaction {
     }
 
     @NonNull
-    public Long getOriginalValue() {
+    public BigDecimal getOriginalValue() {
         return originalValue;
     }
 
-    public void setOriginalValue(@NonNull Long originalValue) {
+    public void setOriginalValue(@NonNull BigDecimal originalValue) {
         this.originalValue = originalValue;
     }
 
     @NonNull
-    public Long getCalculatedValue() {
+    public BigDecimal getCalculatedValue() {
         return calculatedValue;
     }
 
-    public void setCalculatedValue(@NonNull Long calculatedValue) {
+    public void setCalculatedValue(@NonNull BigDecimal calculatedValue) {
         this.calculatedValue = calculatedValue;
     }
 
