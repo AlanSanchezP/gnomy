@@ -40,6 +40,7 @@ import io.reactivex.schedulers.Schedulers;
 
 // TODO: Implement recurrent transactions
 // TODO: Can MaterialSpinner.setAdapter() help to improve spinner UX?
+// TODO: Add links to create accounts and categories. Validate that both fields are not empty before submitting
 public class AddEditTransactionActivity extends BackButtonActivity {
     public static final String EXTRA_TRANSACTION_TYPE = "AddEditTransactionActivity.TransactionType";
     public static final String EXTRA_TRANSACTION_ID = "AddEditTransactionActivity.TransactionId";
@@ -95,12 +96,16 @@ public class AddEditTransactionActivity extends BackButtonActivity {
         if (ld == null) {
             MoneyTransaction transaction = new MoneyTransaction();
             // TODO: Implement dynamic picker instead of hardcoded now()
+            // TODO: Set "confirmed" to false if future date (and block switch)
+            // TODO: Restrict min date to account's creation
             transaction.setDate(DateUtil.OffsetDateTimeNow());
             onTransactionChanged(transaction);
         } else {
             ld.observe(this, this::onTransactionChanged);
         }
 
+        // TODO: What if accounts or categories come BEFORE transaction to update?
+        //  (and vice-versa)
         mViewModel.getAccounts().observe(this, this::onAccountsListChanged);
         mViewModel.getCategories().observe(this, this::onCategoriesListChanged);
         setCurrencySpinner();
@@ -164,6 +169,7 @@ public class AddEditTransactionActivity extends BackButtonActivity {
                 .tintTextInputLayout(mDateTIL, mThemeColor);
         ViewTintingUtil
                 .tintTextInputLayout(mNotesTIL, mThemeColor);
+        // TODO: Tint with FAB variant
         mFABVH.onView(this, v -> ViewTintingUtil.tintFAB(v, mThemeColor, mThemeTextColor));
         ViewTintingUtil
                 .tintSwitch(mMarkAsDoneSwitch, mThemeColor);
@@ -224,6 +230,7 @@ public class AddEditTransactionActivity extends BackButtonActivity {
 
     private void onAccountsListChanged(List<Account> accounts) {
         mAccountSpinner.setItems(accounts.toArray());
+        // TODO: Set account default currency as transaction currency after selection
         mAccountSpinner.setOnItemSelectedListener((view, position, id, item) ->
                 mTransaction.setAccount(accounts.get(position).getId()));
         // TODO: Use stored value for updates
@@ -273,7 +280,7 @@ public class AddEditTransactionActivity extends BackButtonActivity {
     private void saveData() {
         try {
             Disposable disposable;
-            //if (mTransaction.getId() == 0) {
+            if (mTransaction.getId() == 0) {
                 disposable = mViewModel.insert(mTransaction)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
@@ -287,20 +294,20 @@ public class AddEditTransactionActivity extends BackButtonActivity {
                                     mFABVH.notifyOnAsyncOperationFinished();
                                 });
 
-            //} else {
-                //disposable = mViewModel.update(mTransaction)
-                //        .subscribeOn(Schedulers.io())
-                //        .observeOn(AndroidSchedulers.mainThread())
-                //        .subscribe(
-                //                integer -> {
-                //                    Toast.makeText(this, R.string.transaction_message_updated, Toast.LENGTH_LONG).show();
-                //                    finish();
-                //                },
-                //                throwable -> {
-                //                    Toast.makeText(this, R.string.generic_data_error, Toast.LENGTH_LONG).show();
-                //                    mFABVH.notifyOnAsyncOperationFinished();
-                //                });
-            //}
+            } else {
+                disposable = mViewModel.update(mTransaction)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                integer -> {
+                                    Toast.makeText(this, R.string.transaction_message_updated, Toast.LENGTH_LONG).show();
+                                    finish();
+                                },
+                                throwable -> {
+                                    Toast.makeText(this, R.string.generic_data_error, Toast.LENGTH_LONG).show();
+                                    mFABVH.notifyOnAsyncOperationFinished();
+                                });
+            }
             mCompositeDisposable.add(disposable);
         } catch(NumberFormatException nfe) {
             Log.wtf("AddEditTransaction", "saveData: TextField validations failed", nfe);

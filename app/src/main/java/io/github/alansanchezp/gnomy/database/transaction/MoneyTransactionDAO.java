@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
 import io.github.alansanchezp.gnomy.database.account.MonthlyBalanceDAO;
 
 @Dao
@@ -18,4 +19,10 @@ public abstract class MoneyTransactionDAO implements MonthlyBalanceDAO {
 
     @Query("SELECT * FROM transactions WHERE transaction_id = :id;")
     protected abstract LiveData<MoneyTransaction> find(int id);
+
+    @Query("SELECT * FROM transactions WHERE transaction_id = :id;")
+    protected abstract MoneyTransaction _find(int id);
+
+    @Update
+    protected abstract Integer _update(MoneyTransaction transaction);
 }

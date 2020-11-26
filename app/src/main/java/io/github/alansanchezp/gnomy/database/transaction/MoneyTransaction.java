@@ -4,6 +4,7 @@ package io.github.alansanchezp.gnomy.database.transaction;
 // UI classes.
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
@@ -209,5 +210,51 @@ public class MoneyTransaction {
     public void setCalculatedValue(@NonNull String stringValue)
             throws NumberFormatException {
         this.originalValue = BigDecimalUtil.fromString(stringValue);
+    }
+
+    // Custom methods
+    @Ignore
+    public MoneyTransaction getInverse() {
+        MoneyTransaction inverted = new MoneyTransaction();
+        inverted.calculatedValue = this.calculatedValue;
+        inverted.date = this.date;
+        inverted.account = this.account;
+        inverted.isConfirmed = this.isConfirmed;
+
+        if (this.type == INCOME) {
+            inverted.type = EXPENSE;
+        } else if (this.type == EXPENSE) {
+            inverted.type = INCOME;
+        } else if (this.type == TRANSFERENCE_INCOME) {
+            inverted.type = TRANSFERENCE_EXPENSE;
+        } else {
+            inverted.type = TRANSFERENCE_INCOME;
+        }
+        return inverted;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MoneyTransaction that = (MoneyTransaction) o;
+
+        return id == that.id &&
+                account == that.account &&
+                category == that.category &&
+                isConfirmed == that.isConfirmed &&
+                type == that.type &&
+                concept.equals(that.concept) &&
+                currency.equals(that.currency) &&
+                date.equals(that.date) &&
+                originalValue.equals(that.originalValue) &&
+                calculatedValue.equals(that.calculatedValue) &&
+                description.equals(that.description) &&
+                notes.equals(that.notes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, concept, currency, account, category, date, originalValue, calculatedValue, description, isConfirmed, type, notes);
     }
 }

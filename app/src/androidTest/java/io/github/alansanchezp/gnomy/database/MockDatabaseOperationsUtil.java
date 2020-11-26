@@ -163,6 +163,16 @@ public class MockDatabaseOperationsUtil {
         }
 
         @Override
+        protected MoneyTransaction _find(int id) {
+            return null;
+        }
+
+        @Override
+        protected Integer _update(MoneyTransaction transaction) {
+            return null;
+        }
+
+        @Override
         public LiveData<MonthlyBalance> findBalance(int accountId, YearMonth month) {
             return null;
         }

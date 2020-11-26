@@ -49,6 +49,10 @@ public class AddEditTransactionViewModel extends AndroidViewModel {
         return mTransactionRepository.insert(transaction);
     }
 
+    public Single<Integer> update(MoneyTransaction transaction) {
+        return mTransactionRepository.update(transaction);
+    }
+
     public boolean transactionAmountIsPristine() {
         if (mState.get(TAG_IS_AMOUNT_PRISTINE) == null) return true;
         //noinspection ConstantConditions
