@@ -11,6 +11,7 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import io.github.alansanchezp.gnomy.R;
+import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 
 @Entity(tableName = "accounts")
@@ -28,11 +29,9 @@ public class Account {
     @Ignore
     public static final int OTHER = 6;
     @Ignore
-    public static final BigDecimal MIN_INITIAL = new BigDecimal("0");
+    public static final BigDecimal MIN_INITIAL = BigDecimalUtil.ZERO;
     @Ignore
-    public static final BigDecimal MAX_INITIAL = new BigDecimal("900000000000000");
-    @Ignore
-    public static final int DECIMAL_SCALE = 4;
+    public static final BigDecimal MAX_INITIAL = BigDecimalUtil.fromString("900000000000000");
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name="account_id")
@@ -157,6 +156,7 @@ public class Account {
         return initialValue;
     }
 
+    @Deprecated
     public void setInitialValue(@NonNull BigDecimal initialValue) {
         this.initialValue = initialValue;
     }
@@ -214,10 +214,9 @@ public class Account {
     }
 
     // Custom Getters and setters
-    public void setInitialValue(String stringValue) throws NumberFormatException {
-        this.initialValue = new BigDecimal(stringValue)
-                .setScale(DECIMAL_SCALE, BigDecimal.ROUND_HALF_EVEN)
-                .stripTrailingZeros();
+    public void setInitialValue(@NonNull String stringValue)
+            throws NumberFormatException {
+        this.initialValue = BigDecimalUtil.fromString(stringValue);
     }
 
     @Override
@@ -243,6 +242,7 @@ public class Account {
     }
 
     @Override
+    @NonNull
     public String toString() {
         return name;
     }

@@ -23,6 +23,7 @@ import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.category.Category;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
+import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
@@ -169,8 +170,7 @@ public class AddEditTransactionActivity extends BackButtonActivity {
     }
 
     private void setInputFilters() {
-
-        mAmountTIET.setFilters(new InputFilter[]{new InputFilterMinMax(Account.MIN_INITIAL, Account.MAX_INITIAL, Account.DECIMAL_SCALE)});
+        mAmountTIET.setFilters(new InputFilter[]{new InputFilterMinMax(MoneyTransaction.MIN_INITIAL, MoneyTransaction.MAX_INITIAL, BigDecimalUtil.DECIMAL_SCALE)});
     }
 
     private boolean validateTextFields() {

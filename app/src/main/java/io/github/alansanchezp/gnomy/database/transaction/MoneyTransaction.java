@@ -14,6 +14,7 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.category.Category;
+import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 
 @Entity(tableName = "transactions",
         foreignKeys = {
@@ -44,6 +45,11 @@ public class MoneyTransaction {
     public static final int TRANSFERENCE_INCOME = 3;
     @Ignore
     public static final int TRANSFERENCE_EXPENSE = 4;
+    @Ignore
+    public static final BigDecimal MIN_INITIAL = BigDecimalUtil.ZERO;
+    @Ignore
+    public static final BigDecimal MAX_INITIAL = BigDecimalUtil.fromString("900000000000");
+
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name="transaction_id")
@@ -69,11 +75,11 @@ public class MoneyTransaction {
 
     @ColumnInfo(name="original_value")
     @NonNull
-    private BigDecimal originalValue = BigDecimal.ZERO;
+    private BigDecimal originalValue = BigDecimalUtil.ZERO;
 
     @ColumnInfo(name="calculated_value")
     @NonNull
-    private BigDecimal calculatedValue = BigDecimal.ZERO;
+    private BigDecimal calculatedValue = BigDecimalUtil.ZERO;
 
     @ColumnInfo(name="transaction_description")
     @NonNull
@@ -145,6 +151,7 @@ public class MoneyTransaction {
         return originalValue;
     }
 
+    @Deprecated
     public void setOriginalValue(@NonNull BigDecimal originalValue) {
         this.originalValue = originalValue;
     }
@@ -154,6 +161,7 @@ public class MoneyTransaction {
         return calculatedValue;
     }
 
+    @Deprecated
     public void setCalculatedValue(@NonNull BigDecimal calculatedValue) {
         this.calculatedValue = calculatedValue;
     }
@@ -190,5 +198,16 @@ public class MoneyTransaction {
 
     public void setNotes(@NonNull String notes) {
         this.notes = notes;
+    }
+
+    // Custom setters
+    public void setOriginalValue(@NonNull String stringValue)
+            throws NumberFormatException {
+        this.originalValue = BigDecimalUtil.fromString(stringValue);
+    }
+
+    public void setCalculatedValue(@NonNull String stringValue)
+            throws NumberFormatException {
+        this.originalValue = BigDecimalUtil.fromString(stringValue);
     }
 }
