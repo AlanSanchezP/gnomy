@@ -11,7 +11,7 @@ import io.github.alansanchezp.gnomy.database.account.MonthlyBalanceDAO;
 @Dao
 public abstract class MoneyTransactionDAO implements MonthlyBalanceDAO {
     @Query("SELECT * from transactions")
-    protected abstract List<MoneyTransaction> getAll();
+    protected abstract LiveData<List<MoneyTransaction>> getAll();
 
     @Insert
     protected abstract long _insert(MoneyTransaction transaction);

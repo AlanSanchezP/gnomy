@@ -133,4 +133,7 @@
     <string name="transaction_notes">Additional notes</string>
     <string name="transaction_mark_as_done">Mark as done</string>
     <string name="transaction_mark_as_recurrent">Mark as recurrent</string>
+
+    <string name="transaction_message_saved">Your transaction was saved correctly.</string>
+    <string name="transaction_message_updated">Your transaction was updated correctly.</string>
 </resources>

@@ -148,7 +148,7 @@ public class MockDatabaseOperationsUtil {
 
     public static class MockableMoneyTransactionDAO extends MoneyTransactionDAO {
         @Override
-        public List<MoneyTransaction> getAll() {
+        public LiveData<List<MoneyTransaction>> getAll() {
             return null;
         }
 

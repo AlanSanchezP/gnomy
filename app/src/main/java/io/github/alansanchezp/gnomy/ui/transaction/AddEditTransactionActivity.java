@@ -2,7 +2,9 @@ package io.github.alansanchezp.gnomy.ui.transaction;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.InputFilter;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Switch;
@@ -15,6 +17,7 @@ import com.jaredrummler.materialspinner.MaterialSpinner;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
@@ -51,7 +54,6 @@ public class AddEditTransactionActivity extends BackButtonActivity {
     private MaterialSpinner mCategorySpinner;
     private MaterialSpinner mAccountSpinner;
     private TextInputLayout mNotesTIL;
-    private TextInputEditText mNotesTIET;
     private Switch mMarkAsDoneSwitch;
     private SingleClickViewHolder<FloatingActionButton> mFABVH;
     private AddEditTransactionViewModel mViewModel;
@@ -73,7 +75,7 @@ public class AddEditTransactionActivity extends BackButtonActivity {
         mCategorySpinner = findViewById(R.id.addedit_transaction_category);
         mAccountSpinner = findViewById(R.id.addedit_transaction_from_account);
         mNotesTIL = findViewById(R.id.addedit_transaction_notes);
-        mNotesTIET = findViewById(R.id.addedit_transaction_notes_input);
+        TextInputEditText notesTIET = findViewById(R.id.addedit_transaction_notes_input);
         mMarkAsDoneSwitch = findViewById(R.id.addedit_transaction_mark_as_done);
         mFABVH = new SingleClickViewHolder<>(findViewById(R.id.addedit_transaction_FAB), true);
 
@@ -92,7 +94,6 @@ public class AddEditTransactionActivity extends BackButtonActivity {
         LiveData<MoneyTransaction> ld = mViewModel.getTransaction(transactionId);
         if (ld == null) {
             MoneyTransaction transaction = new MoneyTransaction();
-            transaction.setId(0);
             // TODO: Implement dynamic picker instead of hardcoded now()
             transaction.setDate(DateUtil.OffsetDateTimeNow());
             onTransactionChanged(transaction);
@@ -105,6 +106,49 @@ public class AddEditTransactionActivity extends BackButtonActivity {
         setCurrencySpinner();
         setInputFilters();
         mFABVH.setOnClickListener(this::processData);
+
+        mAmountTIET.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                onTransactionAmountChanges(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+        mTransactionConceptTIET.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                onTransactionConceptChanges(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+        notesTIET.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                mTransaction.setNotes(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
     }
 
     @Override
@@ -135,6 +179,31 @@ public class AddEditTransactionActivity extends BackButtonActivity {
         return true;
     }
 
+    private void onTransactionAmountChanges(String value) {
+        if (value.length() == 0) {
+            if (mViewModel.transactionAmountIsPristine()) return;
+            mAmountTIL.setError(getResources().getString(R.string.account_error_initial_value));
+        } else {
+            if (mTransaction != null) mTransaction.setOriginalValue(value);
+            mAmountTIL.setErrorEnabled(false);
+        }
+
+        mViewModel.notifyTransactionAmountChanged();
+    }
+
+    private void onTransactionConceptChanges(String value) {
+        if (mTransaction != null) mTransaction.setConcept(value);
+
+        if (value.trim().length() == 0) {
+            if (mViewModel.transactionConceptIsPristine()) return;
+            mTransactionConceptTIL.setError(getResources().getString(R.string.account_error_name));
+        } else {
+            mTransactionConceptTIL.setErrorEnabled(false);
+        }
+
+        mViewModel.notifyTransactionConceptChanged();
+    }
+
     private void onTransactionChanged(MoneyTransaction transaction) {
         mTransaction = transaction;
         mDateTIET.setText(transaction.getDate().toString());
@@ -149,12 +218,16 @@ public class AddEditTransactionActivity extends BackButtonActivity {
         mCategorySpinner.setItems(categories.toArray());
         mCategorySpinner.setOnItemSelectedListener((view, position, id, item) ->
                 mTransaction.setCategory(categories.get(position).getId()));
+        // TODO: Use stored value for updates
+        mTransaction.setCategory(categories.get(0).getId());
     }
 
     private void onAccountsListChanged(List<Account> accounts) {
         mAccountSpinner.setItems(accounts.toArray());
         mAccountSpinner.setOnItemSelectedListener((view, position, id, item) ->
                 mTransaction.setAccount(accounts.get(position).getId()));
+        // TODO: Use stored value for updates
+        mTransaction.setAccount(accounts.get(0).getId());
     }
 
     private void setCurrencySpinner() {
@@ -174,25 +247,22 @@ public class AddEditTransactionActivity extends BackButtonActivity {
     }
 
     private boolean validateTextFields() {
-        //mViewModel.notifyAccountNameChanged();
-        //mViewModel.notifyInitialValueChanged();
+        mViewModel.notifyTransactionAmountChanged();
+        mViewModel.notifyTransactionConceptChanged();
 
-        String amountString = mAmountTIET.getText().toString();
-        String transactionConcept = mTransactionConceptTIET.getText().toString();
-        String notes = mNotesTIET.getText().toString();
-        //onAccountNameEditTextChanges(accountName);
-        //onInitialValueEditTextChanges(initialValueString);
+        String amountString = Objects.requireNonNull(mAmountTIET.getText()).toString();
+        String transactionConcept = Objects.requireNonNull(mTransactionConceptTIET.getText()).toString();
+        onTransactionAmountChanges(amountString);
+        onTransactionConceptChanges(transactionConcept);
 
         return transactionConcept.length() > 0
-                && amountString.length() > 0
-                && notes.length() > 0;
+                && amountString.length() > 0;
     }
 
     private void processData(View v) {
         boolean texFieldsAreValid = validateTextFields();
 
         if (texFieldsAreValid) {
-            // TODO: Improvement over AddEditAccount - Add listeners for spinners and switches
             saveData();
         } else {
             Toast.makeText(this, getResources().getString(R.string.form_error), Toast.LENGTH_LONG).show();
@@ -209,7 +279,7 @@ public class AddEditTransactionActivity extends BackButtonActivity {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(
                                 longs -> {
-                                    Toast.makeText(this, R.string.account_message_saved, Toast.LENGTH_LONG).show();
+                                    Toast.makeText(this, R.string.transaction_message_saved, Toast.LENGTH_LONG).show();
                                     finish();
                                 },
                                 throwable -> {
@@ -223,7 +293,7 @@ public class AddEditTransactionActivity extends BackButtonActivity {
                 //        .observeOn(AndroidSchedulers.mainThread())
                 //        .subscribe(
                 //                integer -> {
-                //                    Toast.makeText(this, R.string.account_message_updated, Toast.LENGTH_LONG).show();
+                //                    Toast.makeText(this, R.string.transaction_message_updated, Toast.LENGTH_LONG).show();
                 //                    finish();
                 //                },
                 //                throwable -> {

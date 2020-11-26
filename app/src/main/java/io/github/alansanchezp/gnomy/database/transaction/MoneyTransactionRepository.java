@@ -1,6 +1,9 @@
 package io.github.alansanchezp.gnomy.database.transaction;
 
 import android.content.Context;
+import android.util.Log;
+
+import net.sqlcipher.database.SQLiteConstraintException;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
@@ -8,6 +11,7 @@ import java.time.YearMonth;
 import androidx.lifecycle.LiveData;
 import io.github.alansanchezp.gnomy.database.GnomyDatabase;
 import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
+import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.reactivex.Single;
 
 public class MoneyTransactionRepository {
@@ -33,24 +37,24 @@ public class MoneyTransactionRepository {
             boolean isConfirmed = transaction.isConfirmed();
             insertOrIgnoreBalance(accountId, month);
 
-            BigDecimal newIncomes = BigDecimal.ZERO;
-            BigDecimal newExpenses = BigDecimal.ZERO;
-            BigDecimal newProjectedIncomes = BigDecimal.ZERO;
-            BigDecimal newProjectedExpenses = BigDecimal.ZERO;
+            BigDecimal newIncomes = BigDecimalUtil.ZERO;
+            BigDecimal newExpenses = BigDecimalUtil.ZERO;
+            BigDecimal newProjectedIncomes = BigDecimalUtil.ZERO;
+            BigDecimal newProjectedExpenses = BigDecimalUtil.ZERO;
 
             if (isConfirmed) {
                 if (type == MoneyTransaction.INCOME ||
                         type == MoneyTransaction.TRANSFERENCE_INCOME) {
-                    newIncomes.add(transaction.getCalculatedValue());
+                    newIncomes = newIncomes.add(transaction.getCalculatedValue());
                 } else {
-                    newExpenses.add(transaction.getCalculatedValue());
+                    newExpenses = newExpenses.add(transaction.getCalculatedValue());
                 }
             } else {
                 if (type == MoneyTransaction.INCOME ||
                         type == MoneyTransaction.TRANSFERENCE_INCOME) {
-                    newProjectedIncomes.add(transaction.getCalculatedValue());
+                    newProjectedIncomes = newProjectedIncomes.add(transaction.getCalculatedValue());
                 } else {
-                    newProjectedExpenses.add(transaction.getCalculatedValue());
+                    newProjectedExpenses = newProjectedExpenses.add(transaction.getCalculatedValue());
                 }
             }
             dao._adjustBalance(accountId, month, newIncomes, newExpenses, newProjectedIncomes, newProjectedExpenses);
@@ -62,6 +66,11 @@ public class MoneyTransactionRepository {
         MonthlyBalance monthlyBalance = new MonthlyBalance();
         monthlyBalance.setDate(month);
         monthlyBalance.setAccountId(accountId);
-        dao._insertOrIgnoreBalance(monthlyBalance);
+        try {
+            dao._insertOrIgnoreBalance(monthlyBalance);
+        } catch (SQLiteConstraintException ignored) {
+            // Ignoring. For some reason, SQLcipher is not following the IGNORE
+            // conflict strategy.
+        }
     }
 }
