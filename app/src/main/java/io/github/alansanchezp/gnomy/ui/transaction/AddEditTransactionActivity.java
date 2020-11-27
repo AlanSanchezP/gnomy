@@ -7,6 +7,7 @@ import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -45,6 +46,7 @@ public class AddEditTransactionActivity extends BackButtonActivity {
     public static final String EXTRA_TRANSACTION_TYPE = "AddEditTransactionActivity.TransactionType";
     public static final String EXTRA_TRANSACTION_ID = "AddEditTransactionActivity.TransactionId";
     private int mTransactionType;
+    private LinearLayout mBoxLayout;
     private TextInputLayout mTransactionConceptTIL;
     private TextInputEditText mTransactionConceptTIET;
     private TextInputLayout mAmountTIL;
@@ -55,10 +57,16 @@ public class AddEditTransactionActivity extends BackButtonActivity {
     private MaterialSpinner mCategorySpinner;
     private MaterialSpinner mAccountSpinner;
     private TextInputLayout mNotesTIL;
+    private TextInputEditText mNotesTIET;
     private Switch mMarkAsDoneSwitch;
     private SingleClickViewHolder<FloatingActionButton> mFABVH;
     private AddEditTransactionViewModel mViewModel;
     private MoneyTransaction mTransaction;
+    private boolean mIsNewScreen = true;
+
+    // Flags for async operations
+    private List<Account> mAccountsList;
+    private List<Category> mCategoriesList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +74,7 @@ public class AddEditTransactionActivity extends BackButtonActivity {
 
         mViewModel = new ViewModelProvider(this)
                 .get(AddEditTransactionViewModel.class);
+        mBoxLayout = findViewById(R.id.addedit_transaction_box);
         mTransactionConceptTIL = findViewById(R.id.addedit_transaction_concept);
         mTransactionConceptTIET = findViewById(R.id.addedit_transaction_concept_input);
         mAmountTIL = findViewById(R.id.addedit_transaction_amount);
@@ -76,13 +85,14 @@ public class AddEditTransactionActivity extends BackButtonActivity {
         mCategorySpinner = findViewById(R.id.addedit_transaction_category);
         mAccountSpinner = findViewById(R.id.addedit_transaction_from_account);
         mNotesTIL = findViewById(R.id.addedit_transaction_notes);
-        TextInputEditText notesTIET = findViewById(R.id.addedit_transaction_notes_input);
+        mNotesTIET = findViewById(R.id.addedit_transaction_notes_input);
         mMarkAsDoneSwitch = findViewById(R.id.addedit_transaction_mark_as_done);
         mFABVH = new SingleClickViewHolder<>(findViewById(R.id.addedit_transaction_FAB), true);
 
         Intent intent = getIntent();
         int transactionId = intent.getIntExtra(EXTRA_TRANSACTION_ID, 0);
         mTransactionType = intent.getIntExtra(EXTRA_TRANSACTION_TYPE, MoneyTransaction.EXPENSE);
+        // TODO: Support for transfers
         if (mTransactionType == MoneyTransaction.EXPENSE) {
             if (transactionId == 0) setTitle(R.string.transaction_new_expense);
             else setTitle(R.string.transaction_modify_expense);
@@ -99,17 +109,21 @@ public class AddEditTransactionActivity extends BackButtonActivity {
             // TODO: Set "confirmed" to false if future date (and block switch)
             // TODO: Restrict min date to account's creation
             transaction.setDate(DateUtil.OffsetDateTimeNow());
+            transaction.setType(mTransactionType);
             onTransactionChanged(transaction);
         } else {
+            mIsNewScreen = false;
+            mBoxLayout.setVisibility(View.INVISIBLE);
+            mFABVH.onView(this, v -> v.setVisibility(View.INVISIBLE));
             ld.observe(this, this::onTransactionChanged);
         }
 
         // TODO: What if accounts or categories come BEFORE transaction to update?
         //  (and vice-versa)
-        mViewModel.getAccounts().observe(this, this::onAccountsListChanged);
-        mViewModel.getCategories().observe(this, this::onCategoriesListChanged);
         setCurrencySpinner();
         setInputFilters();
+        mViewModel.getAccounts().observe(this, this::onAccountsListChanged);
+        mViewModel.getCategories().observe(this, this::onCategoriesListChanged);
         mFABVH.setOnClickListener(this::processData);
 
         mAmountTIET.addTextChangedListener(new TextWatcher() {
@@ -140,7 +154,7 @@ public class AddEditTransactionActivity extends BackButtonActivity {
             public void afterTextChanged(Editable s) {
             }
         });
-        notesTIET.addTextChangedListener(new TextWatcher() {
+        mNotesTIET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
@@ -154,6 +168,18 @@ public class AddEditTransactionActivity extends BackButtonActivity {
             public void afterTextChanged(Editable s) {
             }
         });
+    }
+
+    @Override
+    protected void disableActions() {
+        super.disableActions();
+        mFABVH.blockClicks();
+    }
+
+    @Override
+    protected void enableActions() {
+        super.enableActions();
+        mFABVH.allowClicks();
     }
 
     @Override
@@ -211,30 +237,92 @@ public class AddEditTransactionActivity extends BackButtonActivity {
     }
 
     private void onTransactionChanged(MoneyTransaction transaction) {
+        if (transaction.getType() != mTransactionType)
+            throw new RuntimeException("Attempting an invalid operation: Changing a transaction's type.");
         mTransaction = transaction;
-        mDateTIET.setText(transaction.getDate().toString());
-        mTransaction.setType(mTransactionType);
-        mDateTIET.setText(mTransaction.getDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
+        mDateTIET.setText(transaction.getDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
         mMarkAsDoneSwitch.setChecked(transaction.isConfirmed());
         mMarkAsDoneSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
                 mTransaction.setConfirmed(isChecked));
+        if(!mIsNewScreen) {
+            mAmountTIET.setText(transaction.getOriginalValue().toPlainString());
+            mTransactionConceptTIET.setText(transaction.getConcept());
+            mNotesTIET.setText(transaction.getNotes());
+            tryToDisplayContainer();
+        }
     }
 
     private void onCategoriesListChanged(List<Category> categories) {
+        mCategoriesList = categories;
         mCategorySpinner.setItems(categories.toArray());
         mCategorySpinner.setOnItemSelectedListener((view, position, id, item) ->
                 mTransaction.setCategory(categories.get(position).getId()));
-        // TODO: Use stored value for updates
-        mTransaction.setCategory(categories.get(0).getId());
+        if (mIsNewScreen)
+            mTransaction.setCategory(categories.get(0).getId());
+        else
+            tryToDisplayContainer();
     }
 
     private void onAccountsListChanged(List<Account> accounts) {
+        mAccountsList = accounts;
         mAccountSpinner.setItems(accounts.toArray());
         // TODO: Set account default currency as transaction currency after selection
-        mAccountSpinner.setOnItemSelectedListener((view, position, id, item) ->
-                mTransaction.setAccount(accounts.get(position).getId()));
-        // TODO: Use stored value for updates
-        mTransaction.setAccount(accounts.get(0).getId());
+        mAccountSpinner.setOnItemSelectedListener((view, position, id, item) -> {
+            mTransaction.setAccount(accounts.get(position).getId());
+            if (mIsNewScreen)
+                mCurrencySpinner.setSelectedIndex(getCurrencyArrayIndex(accounts.get(position).getDefaultCurrency()));
+        });
+        if (mIsNewScreen)
+            mTransaction.setAccount(accounts.get(0).getId());
+        else
+            tryToDisplayContainer();
+    }
+
+    private void tryToDisplayContainer() {
+        if (mIsNewScreen) return;
+        if (mAccountsList == null ||
+            mCategoriesList == null ||
+            mTransaction == null) return;
+
+        mCurrencySpinner.setSelectedIndex(getCurrencyArrayIndex(mTransaction.getCurrency()));
+        mAccountSpinner.setSelectedIndex(getAccountListIndex(mTransaction.getAccount()));
+        mCategorySpinner.setSelectedIndex(getCategoryListIndex(mTransaction.getCategory()));
+        mBoxLayout.setVisibility(View.VISIBLE);
+        mFABVH.onView(this, v -> v.setVisibility(View.VISIBLE));
+    }
+
+    // TODO: Can refactor these methods using reflection?
+    private int getAccountListIndex(int accountId) {
+        for (int i = 0; i < mAccountsList.size(); i++) {
+            if (mAccountsList.get(i).getId() == accountId) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private int getCategoryListIndex(int categoryId) {
+        for (int i = 0; i < mCategoriesList.size(); i++) {
+            if (mCategoriesList.get(i).getId() == categoryId) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private int getCurrencyArrayIndex(String currencyCode) {
+        try {
+            String[] currencies = CurrencyUtil.getDisplayArray();
+            for (int i = 0; i < currencies.length; i++) {
+                if (currencies[i].equals(CurrencyUtil.getDisplayName(currencyCode))) {
+                    return i;
+                }
+            }
+        } catch (GnomyCurrencyException e) {
+            // This shouldn't happen
+            Log.wtf("AddEditTransaction", "getCurrencyArrayIndex: CURRENCIES array triggers error", e);
+        }
+        return -1;
     }
 
     private void setCurrencySpinner() {
@@ -242,7 +330,11 @@ public class AddEditTransactionActivity extends BackButtonActivity {
             String[] currencies = CurrencyUtil.getDisplayArray();
             mCurrencySpinner.setItems(currencies);
             mCurrencySpinner.setOnItemSelectedListener((view, position, id, item) ->
-                    mTransaction.setCurrency(CurrencyUtil.getCurrencyCode(position)));
+                mTransaction.setCurrency(CurrencyUtil.getCurrencyCode(position)));
+            // TODO: Use global default currency (WHEN IMPLEMENTED)
+            if (mIsNewScreen) {
+                mTransaction.setCurrency(currencies[0]);
+            }
         } catch (GnomyCurrencyException e) {
             // This shouldn't happen
             Log.wtf("AddEditTransaction", "setLists: CURRENCIES array triggers error", e);
