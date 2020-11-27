@@ -2,8 +2,6 @@ package io.github.alansanchezp.gnomy.database.transaction;
 
 import android.content.Context;
 
-import net.sqlcipher.database.SQLiteConstraintException;
-
 import java.math.BigDecimal;
 import java.time.YearMonth;
 
@@ -27,6 +25,7 @@ public class MoneyTransactionRepository {
         return dao.find(id);
     }
 
+    // TODO: Update AccountRepositoryTest with actual transactions
     public Single<Long> insert(MoneyTransaction transaction) {
         return db.toSingleInTransaction(() -> {
             // TODO: Currency conversion (this will prevent use of deprecated method)
@@ -96,11 +95,7 @@ public class MoneyTransactionRepository {
         MonthlyBalance monthlyBalance = new MonthlyBalance();
         monthlyBalance.setDate(month);
         monthlyBalance.setAccountId(accountId);
-        try {
-            dao._insertOrIgnoreBalance(monthlyBalance);
-        } catch (SQLiteConstraintException ignored) {
-            // For some reason, SQLcipher is not following the IGNORE conflict strategy.
-        }
+        dao._insertOrIgnoreBalance(monthlyBalance);
     }
 
     /**
@@ -147,5 +142,10 @@ public class MoneyTransactionRepository {
         }
 
         dao._adjustBalance(accountId, month, newIncomes, newExpenses, newProjectedIncomes, newProjectedExpenses);
+    }
+
+    // TODO: This method is used only in tests so far, evaluate deleting it later
+    public LiveData<MonthlyBalance> getBalanceFromMonth(int accountId, YearMonth month) {
+        return dao.findBalance(accountId, month);
     }
 }
