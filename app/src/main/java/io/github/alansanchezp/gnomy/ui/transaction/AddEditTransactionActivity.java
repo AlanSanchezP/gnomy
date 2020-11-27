@@ -266,11 +266,12 @@ public class AddEditTransactionActivity extends BackButtonActivity {
     private void onAccountsListChanged(List<Account> accounts) {
         mAccountsList = accounts;
         mAccountSpinner.setItems(accounts.toArray());
-        // TODO: Set account default currency as transaction currency after selection
         mAccountSpinner.setOnItemSelectedListener((view, position, id, item) -> {
             mTransaction.setAccount(accounts.get(position).getId());
             if (mIsNewScreen)
-                mCurrencySpinner.setSelectedIndex(getCurrencyArrayIndex(accounts.get(position).getDefaultCurrency()));
+                mCurrencySpinner.setSelectedIndex(
+                        CurrencyUtil.getCurrencyIndex(
+                                accounts.get(position).getDefaultCurrency()));
         });
         if (mIsNewScreen)
             mTransaction.setAccount(accounts.get(0).getId());
@@ -284,7 +285,7 @@ public class AddEditTransactionActivity extends BackButtonActivity {
             mCategoriesList == null ||
             mTransaction == null) return;
 
-        mCurrencySpinner.setSelectedIndex(getCurrencyArrayIndex(mTransaction.getCurrency()));
+        mCurrencySpinner.setSelectedIndex(CurrencyUtil.getCurrencyIndex(mTransaction.getCurrency()));
         mAccountSpinner.setSelectedIndex(getAccountListIndex(mTransaction.getAccount()));
         mCategorySpinner.setSelectedIndex(getCategoryListIndex(mTransaction.getCategory()));
         mBoxLayout.setVisibility(View.VISIBLE);
@@ -306,21 +307,6 @@ public class AddEditTransactionActivity extends BackButtonActivity {
             if (mCategoriesList.get(i).getId() == categoryId) {
                 return i;
             }
-        }
-        return -1;
-    }
-
-    private int getCurrencyArrayIndex(String currencyCode) {
-        try {
-            String[] currencies = CurrencyUtil.getDisplayArray();
-            for (int i = 0; i < currencies.length; i++) {
-                if (currencies[i].equals(CurrencyUtil.getDisplayName(currencyCode))) {
-                    return i;
-                }
-            }
-        } catch (GnomyCurrencyException e) {
-            // This shouldn't happen
-            Log.wtf("AddEditTransaction", "getCurrencyArrayIndex: CURRENCIES array triggers error", e);
         }
         return -1;
     }

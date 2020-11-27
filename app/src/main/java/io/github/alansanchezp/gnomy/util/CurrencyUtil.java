@@ -30,6 +30,15 @@ public class CurrencyUtil {
         return CURRENCIES[index];
     }
 
+    public static int getCurrencyIndex(String currencyCode) {
+        for (int i = 0; i < CURRENCIES.length; i++) {
+            if (CURRENCIES[i].equals(currencyCode)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public static String getDisplayName(String currencyCode) throws GnomyCurrencyException {
         Currency currency = getCurrency(currencyCode);
         String currencyName = currency.getDisplayName();
