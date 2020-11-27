@@ -72,7 +72,7 @@ public class AddTransactionInstrumentedTest {
 
         onView(withId(R.id.addedit_transaction_amount))
                 .check(matches(hasDescendant(
-                        withText(R.string.account_error_initial_value)
+                        withText(R.string.transaction_error_amount)
                 )));
 
         onView(withId(R.id.addedit_transaction_concept_input))
@@ -81,7 +81,7 @@ public class AddTransactionInstrumentedTest {
 
         onView(withId(R.id.addedit_transaction_concept))
                 .check(matches(hasDescendant(
-                        withText(R.string.account_error_name)
+                        withText(R.string.transaction_error_concept)
                 )));
     }
 
@@ -95,12 +95,12 @@ public class AddTransactionInstrumentedTest {
 
         onView(withId(R.id.addedit_transaction_concept))
                 .check(matches(not(hasDescendant(
-                        withText(R.string.account_error_name)
+                        withText(R.string.transaction_error_concept)
                 ))));
 
         onView(withId(R.id.addedit_transaction_amount))
                 .check(matches(not(hasDescendant(
-                        withText(R.string.account_error_initial_value)
+                        withText(R.string.transaction_error_amount)
                 ))));
     }
 
@@ -121,12 +121,12 @@ public class AddTransactionInstrumentedTest {
 
         onView(withId(R.id.addedit_transaction_concept))
                 .check(matches(hasDescendant(
-                        withText(R.string.account_error_name)
+                        withText(R.string.transaction_error_concept)
                 )));
 
         onView(withId(R.id.addedit_transaction_amount))
                 .check(matches(hasDescendant(
-                        withText(R.string.account_error_initial_value)
+                        withText(R.string.transaction_error_amount)
                 )));
     }
 
@@ -137,12 +137,12 @@ public class AddTransactionInstrumentedTest {
 
         onView(withId(R.id.addedit_transaction_concept))
                 .check(matches(hasDescendant(
-                        withText(R.string.account_error_name)
+                        withText(R.string.transaction_error_concept)
                 )));
 
         onView(withId(R.id.addedit_transaction_amount))
                 .check(matches(hasDescendant(
-                        withText(R.string.account_error_initial_value)
+                        withText(R.string.transaction_error_amount)
                 )));
         // TODO: Reject too if accounts or categories are empty lists
     }

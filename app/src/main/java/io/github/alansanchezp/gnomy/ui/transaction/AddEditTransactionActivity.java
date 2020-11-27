@@ -214,7 +214,7 @@ public class AddEditTransactionActivity extends BackButtonActivity {
     private void onTransactionAmountChanges(String value) {
         if (value.length() == 0) {
             if (mViewModel.transactionAmountIsPristine()) return;
-            mAmountTIL.setError(getResources().getString(R.string.account_error_initial_value));
+            mAmountTIL.setError(getResources().getString(R.string.transaction_error_amount));
         } else {
             if (mTransaction != null) mTransaction.setOriginalValue(value);
             mAmountTIL.setErrorEnabled(false);
@@ -228,7 +228,7 @@ public class AddEditTransactionActivity extends BackButtonActivity {
 
         if (value.trim().length() == 0) {
             if (mViewModel.transactionConceptIsPristine()) return;
-            mTransactionConceptTIL.setError(getResources().getString(R.string.account_error_name));
+            mTransactionConceptTIL.setError(getResources().getString(R.string.transaction_error_concept));
         } else {
             mTransactionConceptTIL.setErrorEnabled(false);
         }
