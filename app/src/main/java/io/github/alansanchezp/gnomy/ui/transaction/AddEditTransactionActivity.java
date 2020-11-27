@@ -28,6 +28,7 @@ import io.github.alansanchezp.gnomy.database.category.Category;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
+import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
@@ -185,6 +186,9 @@ public class AddEditTransactionActivity extends BackButtonActivity {
     @Override
     protected void tintWindowElements() {
         super.tintWindowElements();
+        int fabBgColor = ColorUtil.getVariantByFactor(mThemeColor, 0.86f);
+        int fabTextColor = ColorUtil.getTextColor(fabBgColor);
+
         findViewById(R.id.addedit_transaction_container)
                 .setBackgroundColor(mThemeColor);
         ViewTintingUtil
@@ -195,8 +199,8 @@ public class AddEditTransactionActivity extends BackButtonActivity {
                 .tintTextInputLayout(mDateTIL, mThemeColor);
         ViewTintingUtil
                 .tintTextInputLayout(mNotesTIL, mThemeColor);
-        // TODO: Tint with FAB variant
-        mFABVH.onView(this, v -> ViewTintingUtil.tintFAB(v, mThemeColor, mThemeTextColor));
+        mFABVH.onView(this, v ->
+                ViewTintingUtil.tintFAB(v, fabBgColor, fabTextColor));
         ViewTintingUtil
                 .tintSwitch(mMarkAsDoneSwitch, mThemeColor);
     }
