@@ -29,6 +29,14 @@ public class MockDatabaseOperationsUtil {
         accountDAO = dao;
     }
 
+    public static void setTransactionDAO(MockableMoneyTransactionDAO dao) {
+        transactionDAO = dao;
+    }
+
+    public static void setCategoryDAO(MockableCategoryDAO dao) {
+        categoryDAO = dao;
+    }
+
     public static MockableAccountDAO getAccountDAO() {
         if (!useMocks) throw new IllegalStateException("Mocking DAOs was disabled for this test.");
         if (accountDAO == null) throw new RuntimeException("Mock DAO has not been initialized.");
@@ -153,22 +161,22 @@ public class MockDatabaseOperationsUtil {
         }
 
         @Override
-        protected long _insert(MoneyTransaction transaction) {
+        public long _insert(MoneyTransaction transaction) {
             return 0;
         }
 
         @Override
-        protected LiveData<MoneyTransaction> find(int id) {
+        public LiveData<MoneyTransaction> find(int id) {
             return null;
         }
 
         @Override
-        protected MoneyTransaction _find(int id) {
+        public MoneyTransaction _find(int id) {
             return null;
         }
 
         @Override
-        protected Integer _update(MoneyTransaction transaction) {
+        public Integer _update(MoneyTransaction transaction) {
             return null;
         }
 
