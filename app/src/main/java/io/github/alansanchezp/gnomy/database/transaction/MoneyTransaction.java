@@ -216,20 +216,12 @@ public class MoneyTransaction {
     @Ignore
     public MoneyTransaction getInverse() {
         MoneyTransaction inverted = new MoneyTransaction();
-        inverted.calculatedValue = this.calculatedValue;
         inverted.date = this.date;
         inverted.account = this.account;
         inverted.isConfirmed = this.isConfirmed;
+        inverted.type = this.type;
+        inverted.calculatedValue = this.calculatedValue.negate();
 
-        if (this.type == INCOME) {
-            inverted.type = EXPENSE;
-        } else if (this.type == EXPENSE) {
-            inverted.type = INCOME;
-        } else if (this.type == TRANSFERENCE_INCOME) {
-            inverted.type = TRANSFERENCE_EXPENSE;
-        } else {
-            inverted.type = TRANSFERENCE_INCOME;
-        }
         return inverted;
     }
 

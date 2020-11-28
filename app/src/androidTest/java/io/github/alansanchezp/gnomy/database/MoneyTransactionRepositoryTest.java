@@ -129,26 +129,178 @@ public class MoneyTransactionRepositoryTest {
                 "0", // (initial value)
                 "0", // (initial value)
                 "0"); // (initial value)
-
+        // TODO: Validate date is valid (>= account's creation)
         // Try to insert into faulty balance (invalid account id)
         testTransaction.setAccount(10);
         try {
             repository.insert(testTransaction).blockingGet();
+            // TODO: Use fail() on all tests that require it
+            fail();
         } catch (SQLiteConstraintException e) {
-            return;
+            assert true;
         }
-        // TODO: Use fail() on all tests that require it
-        fail();
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
-    public void custom_update_method_works() {
+    public void custom_update_method_works() throws InterruptedException {
+        MonthlyBalance resultBalance,
+                        secondaryResultBalance;
         // Not testing insertOrIgnore since custom_insert_method_works() covers it
+        // Not testing addTransactionAmountToBalance since custom_insert_method_works() covers it
+        MoneyTransaction testTransaction = getDefaultTestTransaction();
+        testTransaction.setId(1);
+        testTransaction.setOriginalValue("10");
         // Attempt to update non-existing transaction
+        try {
+            repository.update(testTransaction).blockingGet();
+            fail();
+        } catch (GnomyIllegalQueryException e) {
+            assert true;
+        }
         // Insert transaction
-        // Modify local object with different scenarios
-        // Check involved balances
+        repository.insert(testTransaction).blockingGet();
+        /* At this point, monthly balance values are:
+              Total incomes: 40 (30 + 10)
+              Total expenses: 172
+              Projected incomes: 425
+              Projected expenses: 100 */
+        try {
+            testTransaction.setType(MoneyTransaction.EXPENSE);
+            repository.update(testTransaction).blockingGet();
+            fail();
+        } catch (GnomyIllegalQueryException e) {
+            testTransaction.setType(MoneyTransaction.INCOME);
+            assert true;
+        }
+
+        // Alters amount but keeps account and date intact
+        testTransaction.setOriginalValue("20");
+        repository.update(testTransaction).blockingGet();
+        resultBalance = getOrAwaitValue(
+                repository.getBalanceFromMonth(1, DateUtil.now().minusMonths(2)));
+        testResultBalance(resultBalance,
+                "50", // 40 - 10 + 20
+                "172", // (stays the same)
+                "425", // (stays the same)
+                "100"); // (stays the same)
+        // From confirmed to unconfirmed
+        testTransaction.setConfirmed(false);
+        repository.update(testTransaction).blockingGet();
+        resultBalance = getOrAwaitValue(
+                repository.getBalanceFromMonth(1, DateUtil.now().minusMonths(2)));
+        testResultBalance(resultBalance,
+                "30", // 50 - 20
+                "172", // (stays the same)
+                "445", // 425 + 20
+                "100"); // (stays the same)
+
+        // From unconfirmed to confirmed (have to check this case too)
+        testTransaction.setConfirmed(true);
+        repository.update(testTransaction).blockingGet();
+        resultBalance = getOrAwaitValue(
+                repository.getBalanceFromMonth(1, DateUtil.now().minusMonths(2)));
+        testResultBalance(resultBalance,
+                "50", // 30 + 20
+                "172", // (stays the same)
+                "425", // 425 - 20
+                "100"); // (stays the same)
+
+        // Changes date
+        testTransaction.setDate(DateUtil.OffsetDateTimeNow().minusMonths(1));
+        repository.update(testTransaction).blockingGet();
+        resultBalance = getOrAwaitValue(
+                repository.getBalanceFromMonth(1, DateUtil.now().minusMonths(2)));
+        secondaryResultBalance = getOrAwaitValue(
+                repository.getBalanceFromMonth(1, DateUtil.now().minusMonths(1)));
+        testResultBalance(resultBalance,
+                "30", // 50 - 20
+                "172", // (stays the same)
+                "425", // (stays the same)
+                "100"); // (stays the same)
+        testResultBalance(secondaryResultBalance,
+                "20", // 0 + 20
+                "0", // (initial value)
+                "0", // (initial value)
+                "0"); // (initial value)
+
+        // Changes account
+        testTransaction.setAccount(2);
+        repository.update(testTransaction).blockingGet();
+        resultBalance = getOrAwaitValue(
+                repository.getBalanceFromMonth(1, DateUtil.now().minusMonths(1)));
+        secondaryResultBalance = getOrAwaitValue(
+                repository.getBalanceFromMonth(2, DateUtil.now().minusMonths(1)));
+        testResultBalance(resultBalance,
+                "0", // 20 - 20
+                "0", // (stays the same)
+                "0", // (stays the same)
+                "0"); // (stays the same)
+        testResultBalance(secondaryResultBalance,
+                "20", // 0 + 20
+                "0", // (initial value)
+                "0", // (initial value)
+                "0"); // (initial value)
+
+        // Changes account AND month. New MonthlyBalance = first evaluated one
+        // This is done in order to use at least one non-zero value on the results
+        testTransaction.setAccount(1);
+        testTransaction.setDate(DateUtil.OffsetDateTimeNow().minusMonths(2));
+        repository.update(testTransaction).blockingGet();
+        resultBalance = getOrAwaitValue(
+                repository.getBalanceFromMonth(2, DateUtil.now().minusMonths(1)));
+        secondaryResultBalance = getOrAwaitValue(
+                repository.getBalanceFromMonth(1, DateUtil.now().minusMonths(2)));
+        testResultBalance(resultBalance,
+                "0", // 20 - 20
+                "0", // (stays the same)
+                "0", // (stays the same)
+                "0"); // (stays the same)
+        testResultBalance(secondaryResultBalance,
+                "50", // 30 + 20
+                "172", // (stays the same)
+                "425", // (stays the same)
+                "100"); // (stays the same)
+
+        // All amount, status, date and account change
+        testTransaction.setOriginalValue("30");
+        testTransaction.setAccount(2);
+        testTransaction.setDate(DateUtil.OffsetDateTimeNow().minusMonths(1));
+        testTransaction.setConfirmed(false);
+        repository.update(testTransaction).blockingGet();
+        resultBalance = getOrAwaitValue(
+                repository.getBalanceFromMonth(1, DateUtil.now().minusMonths(2)));
+        secondaryResultBalance = getOrAwaitValue(
+                repository.getBalanceFromMonth(2, DateUtil.now().minusMonths(1)));
+        testResultBalance(resultBalance,
+                "30", // 50 - 20
+                "172", // (stays the same)
+                "425", // (stays the same)
+                "100"); // (stays the same)
+        testResultBalance(secondaryResultBalance,
+                "0", // 20 - 20
+                "0", // (stays the same)
+                "30", // 0 + 30
+                "0"); // (stays the same)
+
+        // Tying to move into invalid account
+        testTransaction.setAccount(10);
+        try {
+            repository.update(testTransaction).blockingGet();
+            fail();
+        } catch (SQLiteConstraintException e) {
+            assert true;
+        }
+        resultBalance = getOrAwaitValue(
+                repository.getBalanceFromMonth(2, DateUtil.now().minusMonths(1)));
+        testResultBalance(resultBalance,
+                "0", // (stays the same)
+                "0", // (stays the same)
+                "30", // (stays the same)
+                "0"); // (stays the same)
+
+        // TODO: Test currency changes
+        // TODO: Validate date is valid for both potentially involved accounts
         // Test what happens with invalid accounts or categories (some error)
 
         assert true;
