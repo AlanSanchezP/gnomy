@@ -25,6 +25,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static io.github.alansanchezp.gnomy.ErrorUtil.assertThrows;
 import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -169,13 +170,9 @@ public class AddAccountActivityInstrumentedTest {
         onView(withId(R.id.addedit_account_FAB))
                 .perform(click());
 
-        try {
-            onView(withId(R.id.addedit_account_FAB))
-                    .perform(click());
-        } catch (RuntimeException re) {
-            assert true;
-        }
-        assert false;
+        assertThrows(RuntimeException.class,
+                () -> onView(withId(R.id.addedit_account_FAB))
+                        .perform(click()));
     }
 
     @Test
@@ -186,13 +183,8 @@ public class AddAccountActivityInstrumentedTest {
         onView(withId(R.id.addedit_account_initial_value_input))
                 .check(matches(withText("")));
 
-        try {
-            onView(withId(R.id.addedit_account_initial_value_input))
-                    .perform(typeText("ñ"));
-        } catch (RuntimeException re) {
-            assert true;
-        }
-
-        assert false;
+        assertThrows(RuntimeException.class,
+                () -> onView(withId(R.id.addedit_account_initial_value_input))
+                        .perform(typeText("ñ")));
     }
 }

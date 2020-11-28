@@ -24,6 +24,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static io.github.alansanchezp.gnomy.ErrorUtil.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -104,14 +105,9 @@ public class ArchivedAccountsDialogFragmentInstrumentedTest {
         accountsList.clear();
         mutableAccountsList.postValue(accountsList);
 
-        try {
-            onView(withId(R.id.archived_items_container))
-                    .check(matches(isDisplayed()));
-            throw new RuntimeException("Modal is still present in hierarchy");
-        } catch (NoMatchingViewException nmve) {
-            // Modal is not in hierarchy anymore
-            assert(true);
-        }
+        assertThrows(NoMatchingViewException.class,
+                () -> onView(withId(R.id.archived_items_container))
+                            .check(matches(isDisplayed())));
     }
 }
 

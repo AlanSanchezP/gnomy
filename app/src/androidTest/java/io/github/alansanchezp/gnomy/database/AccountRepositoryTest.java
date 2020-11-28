@@ -22,6 +22,7 @@ import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 
+import static io.github.alansanchezp.gnomy.ErrorUtil.assertThrows;
 import static org.hamcrest.Matchers.comparesEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -87,24 +88,14 @@ public class AccountRepositoryTest {
         account.setId((int)(long)result);
         assertEquals(Integer.valueOf(0), repository.update(account).blockingGet());
 
-        try {
-            account.setId(3);
-            repository.update(account).blockingGet();
-            assert false;
-        } catch (GnomyIllegalQueryException e) {
-            // Didn't update as there is no matching account
-            assert true;
-        }
+        account.setId(3);
+        assertThrows(GnomyIllegalQueryException.class,
+                () -> repository.update(account).blockingGet());
 
-        try {
-            account.setId((int)(long)result);
-            account.setDefaultCurrency(CurrencyUtil.getCurrencyCode(0));
-            repository.update(account).blockingGet();
-            assert false;
-        } catch (GnomyIllegalQueryException e) {
-            // Didn't update as there are conflicts
-            assert true;
-        }
+        account.setId((int)(long)result);
+        account.setDefaultCurrency(CurrencyUtil.getCurrencyCode(0));
+        assertThrows(GnomyIllegalQueryException.class,
+                () -> repository.update(account).blockingGet());
 
         // Reset to avoid exceptions
         account.setId((int)(long)result);

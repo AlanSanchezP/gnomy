@@ -32,6 +32,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withSubstring;
 import static androidx.test.espresso.matcher.ViewMatchers.withTagValue;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static io.github.alansanchezp.gnomy.ErrorUtil.assertThrows;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
@@ -108,18 +109,17 @@ public class AccountDetailsActivityInstrumentedTest {
         onView(withId(R.id.action_archive_account))
                 .perform(click());
 
-        try {
-            onView(withId(R.id.action_archive_account))
-                    .check(matches(not(isEnabled())));
+        assertThrows(NoMatchingViewException.class,
+                () -> {
+                    onView(withId(R.id.action_archive_account))
+                            .check(matches(not(isEnabled())));
 
-            onView(withId(R.id.account_floating_action_button))
-                    .check(matches(not(isEnabled())));
+                    onView(withId(R.id.account_floating_action_button))
+                            .check(matches(not(isEnabled())));
 
-            onView(withId(R.id.account_see_more_button))
-                    .check(matches(not(isEnabled())));
-        } catch (NoMatchingViewException nmve) {
-            assert(true);
-        }
+                    onView(withId(R.id.account_see_more_button))
+                            .check(matches(not(isEnabled())));
+                });
 
         onView(withText(R.string.account_card_archive))
                 .inRoot(isDialog())

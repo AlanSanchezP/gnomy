@@ -2,7 +2,6 @@ package io.github.alansanchezp.gnomy;
 
 import static org.junit.Assert.fail;
 
-// TODO: Use in test cases
 public class ErrorUtil {
     public static void assertThrows(Class<? extends Throwable> throwable,
                                     Runnable operation) {
