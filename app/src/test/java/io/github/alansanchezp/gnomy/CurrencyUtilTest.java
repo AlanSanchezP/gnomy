@@ -22,6 +22,9 @@ import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 public class CurrencyUtilTest {
     @Test
     public void format_throws_unsupported_code_exception() {
+        // Not using ErrorUtil.assertThrows() since code would be duplicated (different source-sets)
+        //  and this is probably the only use of custom exceptions in plain java tests.
+        //  RECONSIDER this decision if more suitable usages are found later.
         BigDecimal number = new BigDecimal("20.150");
 
         try {

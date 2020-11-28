@@ -19,9 +19,9 @@ import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionReposit
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 
+import static io.github.alansanchezp.gnomy.ErrorUtil.assertThrows;
 import static io.github.alansanchezp.gnomy.LiveDataTestUtil.getOrAwaitValue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 @RunWith(AndroidJUnit4.class)
 public class MoneyTransactionRepositoryTest {
@@ -132,13 +132,8 @@ public class MoneyTransactionRepositoryTest {
         // TODO: Validate date is valid (>= account's creation)
         // Try to insert into faulty balance (invalid account id)
         testTransaction.setAccount(10);
-        try {
-            repository.insert(testTransaction).blockingGet();
-            // TODO: Use fail() on all tests that require it
-            fail();
-        } catch (SQLiteConstraintException e) {
-            assert true;
-        }
+        assertThrows(SQLiteConstraintException.class,
+                () -> repository.insert(testTransaction).blockingGet());
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -152,12 +147,8 @@ public class MoneyTransactionRepositoryTest {
         testTransaction.setId(1);
         testTransaction.setOriginalValue("10");
         // Attempt to update non-existing transaction
-        try {
-            repository.update(testTransaction).blockingGet();
-            fail();
-        } catch (GnomyIllegalQueryException e) {
-            assert true;
-        }
+        assertThrows(GnomyIllegalQueryException.class,
+                () -> repository.update(testTransaction).blockingGet());
         // Insert transaction
         repository.insert(testTransaction).blockingGet();
         /* At this point, monthly balance values are:
@@ -165,14 +156,11 @@ public class MoneyTransactionRepositoryTest {
               Total expenses: 172
               Projected incomes: 425
               Projected expenses: 100 */
-        try {
-            testTransaction.setType(MoneyTransaction.EXPENSE);
-            repository.update(testTransaction).blockingGet();
-            fail();
-        } catch (GnomyIllegalQueryException e) {
-            testTransaction.setType(MoneyTransaction.INCOME);
-            assert true;
-        }
+
+        testTransaction.setType(MoneyTransaction.EXPENSE);
+        assertThrows(GnomyIllegalQueryException.class,
+                () -> repository.update(testTransaction).blockingGet());
+        testTransaction.setType(MoneyTransaction.INCOME);
 
         // Alters amount but keeps account and date intact
         testTransaction.setOriginalValue("20");
@@ -285,12 +273,8 @@ public class MoneyTransactionRepositoryTest {
 
         // Tying to move into invalid account
         testTransaction.setAccount(10);
-        try {
-            repository.update(testTransaction).blockingGet();
-            fail();
-        } catch (SQLiteConstraintException e) {
-            assert true;
-        }
+        assertThrows(SQLiteConstraintException.class,
+                () -> repository.update(testTransaction).blockingGet());
         resultBalance = getOrAwaitValue(
                 repository.getBalanceFromMonth(2, DateUtil.now().minusMonths(1)));
         testResultBalance(resultBalance,
