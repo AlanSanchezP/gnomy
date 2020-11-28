@@ -7,6 +7,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.lifecycle.MutableLiveData;
@@ -52,15 +53,19 @@ public class AddTransactionInstrumentedTest {
         MockDatabaseOperationsUtil.setTransactionDAO(mockTransactionDAO);
         MockDatabaseOperationsUtil.setAccountDAO(mockAccountDAO);
         MockDatabaseOperationsUtil.setCategoryDAO(mockCategoryDAO);
-        MutableLiveData<List<Account>> testAccountList = new MutableLiveData<>();
-        MutableLiveData<List<Category>> testCategoryList = new MutableLiveData<>();
+        List<Account> testAccountList = new ArrayList<>();
+        testAccountList.add(new Account());
+        MutableLiveData<List<Account>> testAccountListLD = new MutableLiveData<>(testAccountList);
+        List<Category> testCategoryList = new ArrayList<>();
+        testCategoryList.add(new Category());
+        MutableLiveData<List<Category>> testCategoryListLD = new MutableLiveData<>(testCategoryList);
 
         when(mockTransactionDAO._insert(any(MoneyTransaction.class)))
                 .thenReturn(1L);
         when(mockAccountDAO.getAll())
-                .thenReturn(testAccountList);
+                .thenReturn(testAccountListLD);
         when(mockCategoryDAO.getAll())
-                .thenReturn(testCategoryList);
+                .thenReturn(testCategoryListLD);
     }
 
 

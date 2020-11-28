@@ -162,7 +162,9 @@ public class AddEditTransactionActivity extends BackButtonActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                mTransaction.setNotes(s.toString());
+                if (mTransaction != null) {
+                    mTransaction.setNotes(s.toString());
+                }
             }
 
             @Override
