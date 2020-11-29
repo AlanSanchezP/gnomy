@@ -17,6 +17,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.jaredrummler.materialspinner.MaterialSpinner;
 
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -269,7 +270,12 @@ public class AddEditTransactionActivity extends BackButtonActivity {
             tryToDisplayContainer();
     }
 
-    private void onAccountsListChanged(List<Account> accounts) {
+    private void onAccountsListChanged(List<Account> _accounts) {
+        // Prevent NullPointerException
+        final List<Account> accounts;
+        if (_accounts == null) accounts = new ArrayList<>();
+        else accounts = _accounts;
+
         mAccountsList = accounts;
         mAccountSpinner.setItems(accounts.toArray());
         mAccountSpinner.setOnItemSelectedListener((view, position, id, item) -> {
@@ -279,18 +285,23 @@ public class AddEditTransactionActivity extends BackButtonActivity {
                         CurrencyUtil.getCurrencyIndex(
                                 accounts.get(position).getDefaultCurrency()));
         });
-        if (mIsNewScreen)
+
+        // Prevent IndexOutOfBoundsException
+        if (mIsNewScreen && accounts.size() > 0)
+            // TODO: Only set index 0 as selected if this is the first time the list arrives
             mTransaction.setAccount(accounts.get(0).getId());
         else
             tryToDisplayContainer();
     }
 
+    // TODO: MediatorLiveData is probably a better approach
     private void tryToDisplayContainer() {
         if (mIsNewScreen) return;
         if (mAccountsList == null ||
             mCategoriesList == null ||
             mTransaction == null) return;
-
+        // TODO: This will probably reset values IF user creates a new account or category during
+        //  the process
         mCurrencySpinner.setSelectedIndex(CurrencyUtil.getCurrencyIndex(mTransaction.getCurrency()));
         mAccountSpinner.setSelectedIndex(getAccountListIndex(mTransaction.getAccount()));
         mCategorySpinner.setSelectedIndex(getCategoryListIndex(mTransaction.getCategory()));
