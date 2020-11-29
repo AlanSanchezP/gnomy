@@ -1,5 +1,6 @@
 package io.github.alansanchezp.gnomy.transaction;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 
 import org.junit.BeforeClass;
@@ -13,6 +14,8 @@ import java.util.List;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
+import androidx.test.core.app.ActivityScenario;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -27,6 +30,7 @@ import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 
+import static androidx.test.core.app.ActivityScenario.launch;
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -41,6 +45,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertThrows;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.setChecked;
+import static io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction.EXPENSE;
+import static io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction.INCOME;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -55,7 +61,7 @@ import static org.mockito.Mockito.when;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 @RunWith(AndroidJUnit4.class)
-public class AddTransactionInstrumentedTest {
+public class AddEditTransactionInstrumentedTest {
     @Rule
     public final ActivityScenarioRule<AddEditTransactionActivity> activityRule =
             new ActivityScenarioRule<>(AddEditTransactionActivity.class);
@@ -332,6 +338,54 @@ public class AddTransactionInstrumentedTest {
                 .thenReturn(1L);
     }
 
+    @Test
+    public void dynamic_title_based_on_extras() {
+        // TODO: Use same approach on AddEditAccount tests
+        // Default behavior is to create a new expense. Not testing tinting since espresso
+        //  doesn't provide a way to match color resources yet.
+        onView(withId(R.id.custom_appbar))
+                .check(matches(hasDescendant(
+                        withText(R.string.transaction_new_expense)
+                )));
+
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
+                AddEditTransactionActivity.class);
+        ActivityScenario<AddEditTransactionActivity> tempScenario;
+
+        // Modify expense
+        intent = intent
+                .putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, EXPENSE)
+                .putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_ID, 2);
+        tempScenario = launch(intent);
+        onView(withId(R.id.custom_appbar))
+                .check(matches(hasDescendant(
+                        withText(R.string.transaction_modify_expense)
+                )));
+        tempScenario.close();
+
+        // Create income
+        intent = intent
+                .putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, INCOME)
+                .putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_ID, 0);
+        tempScenario = launch(intent);
+        onView(withId(R.id.custom_appbar))
+                .check(matches(hasDescendant(
+                        withText(R.string.transaction_new_income)
+                )));
+        tempScenario.close();
+
+        // Modify income
+        intent= intent
+                .putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, INCOME)
+                .putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_ID, 2);
+        tempScenario = launch(intent);
+        onView(withId(R.id.custom_appbar))
+                .check(matches(hasDescendant(
+                        withText(R.string.transaction_modify_income)
+                )));
+        tempScenario.close();
+    }
+
     // TODO: Implement these features on Activity
     @Test
     public void account_selection_changes_transaction_date_when_needed() {
@@ -347,7 +401,4 @@ public class AddTransactionInstrumentedTest {
     public void displays_error_if_dynamic_accounts_spinner_is_empty() {
         assert true;
     }
-
-    // TODO: Update methods logic
-    //  https://xebia.com/blog/android-intent-extras-espresso-rules/
 }
