@@ -1,10 +1,7 @@
 package io.github.alansanchezp.gnomy.transaction;
 
 import android.content.pm.ActivityInfo;
-import android.view.View;
-import android.widget.Checkable;
 
-import org.hamcrest.BaseMatcher;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -17,8 +14,6 @@ import java.util.List;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.espresso.NoMatchingViewException;
-import androidx.test.espresso.UiController;
-import androidx.test.espresso.ViewAction;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import io.github.alansanchezp.gnomy.R;
@@ -44,11 +39,11 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static io.github.alansanchezp.gnomy.ErrorUtil.assertThrows;
+import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertThrows;
+import static io.github.alansanchezp.gnomy.EspressoTestUtil.setChecked;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isA;
 import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -355,34 +350,4 @@ public class AddTransactionInstrumentedTest {
 
     // TODO: Update methods logic
     //  https://xebia.com/blog/android-intent-extras-espresso-rules/
-
-    // TODO: Move into separate class
-    public static ViewAction setChecked(final boolean checked) {
-        return new ViewAction() {
-            @Override
-            public BaseMatcher<View> getConstraints() {
-                return new BaseMatcher<View>() {
-                    @Override
-                    public void describeTo(org.hamcrest.Description description) {
-                    }
-
-                    @Override
-                    public boolean matches(Object item) {
-                        return isA(Checkable.class).matches(item);
-                    }
-                };
-            }
-
-            @Override
-            public String getDescription() {
-                return null;
-            }
-
-            @Override
-            public void perform(UiController uiController, View view) {
-                Checkable checkableView = (Checkable) view;
-                checkableView.setChecked(checked);
-            }
-        };
-    }
 }

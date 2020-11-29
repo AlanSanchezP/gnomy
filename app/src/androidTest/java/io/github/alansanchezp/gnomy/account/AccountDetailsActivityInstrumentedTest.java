@@ -32,7 +32,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withSubstring;
 import static androidx.test.espresso.matcher.ViewMatchers.withTagValue;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static io.github.alansanchezp.gnomy.ErrorUtil.assertThrows;
+import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertThrows;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;

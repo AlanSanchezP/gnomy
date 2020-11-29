@@ -22,7 +22,7 @@ import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 
-import static io.github.alansanchezp.gnomy.ErrorUtil.assertThrows;
+import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertThrows;
 import static org.hamcrest.Matchers.comparesEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

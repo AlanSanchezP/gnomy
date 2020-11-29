@@ -19,7 +19,7 @@ import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionReposit
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 
-import static io.github.alansanchezp.gnomy.ErrorUtil.assertThrows;
+import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertThrows;
 import static io.github.alansanchezp.gnomy.LiveDataTestUtil.getOrAwaitValue;
 import static org.junit.Assert.assertEquals;
 
