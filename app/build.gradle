@@ -69,35 +69,36 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    // Android & material components
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.1'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.3.0-alpha02'
     implementation 'androidx.lifecycle:lifecycle-viewmodel:2.2.0'
-    implementation 'com.google.android.material:material:1.3.0-alpha03'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'com.google.android.material:material:1.3.0-alpha04'
+
+    // Third-party plugins
     implementation 'com.jaredrummler:material-spinner:1.3.1'
     implementation 'com.thebluealliance:spectrum:0.7.1'
-
-    implementation 'net.zetetic:android-database-sqlcipher:4.3.0'
-    implementation 'androidx.sqlite:sqlite:2.1.0'
     implementation 'com.github.dewinjm:monthyear-picker:1.0.2'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.0'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0'
-
+    // Room and data operations
+    implementation 'androidx.sqlite:sqlite:2.1.0'
     implementation "androidx.room:room-runtime:2.2.5"
     annotationProcessor "androidx.room:room-compiler:2.2.5"
-
     implementation 'io.reactivex.rxjava2:rxjava:2.2.19'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'androidx.room:room-rxjava2:2.2.5'
+    // DB Encryption
+    implementation 'net.zetetic:android-database-sqlcipher:4.3.0'
 
+    // Core test libraries
     testImplementation 'junit:junit:4.12'
-    testImplementation 'org.hamcrest:hamcrest-library:2.1'
-    testImplementation 'org.mockito:mockito-core:3.6.0'
-
-    // Core library
     androidTestImplementation 'androidx.test:core:1.3.0'
     debugImplementation 'androidx.fragment:fragment-testing:1.3.0-beta01'
+    testImplementation 'org.mockito:mockito-core:3.6.0'
 
     // AndroidJUnitRunner and JUnit Rules
     androidTestImplementation 'androidx.test:runner:1.3.0'
@@ -109,6 +110,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.ext:truth:1.3.0'
     androidTestImplementation 'com.google.truth:truth:1.0'
+    testImplementation 'org.hamcrest:hamcrest-library:2.1'
 
     // Espresso dependencies
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
