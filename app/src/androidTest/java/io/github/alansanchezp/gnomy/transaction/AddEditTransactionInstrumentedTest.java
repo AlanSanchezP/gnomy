@@ -532,11 +532,34 @@ public class AddEditTransactionInstrumentedTest {
         //  again if date is not a future one
     }
 
-    // TODO: Implement features on activity
     @Test
     public void FAB_displays_error_if_dynamic_accounts_spinner_is_empty() {
         // Not testing case where categories spinner is empty
         //  as IT IS NOT SUPPOSED TO EVER HAPPEN
+        assert true;
+    }
+
+    @Test
+    public void opens_calculator_dialog() {
+        assert true;
+    }
+
+    @Test
+    public void opens_new_account_screen() {
+        onView(withId(R.id.addedit_transaction_new_account))
+                .perform(click());
+        onView(withId(R.id.custom_appbar))
+                .check(matches(
+                        hasDescendant(withText(R.string.account_new))));
+    }
+
+    @Test
+    public void new_account_is_set_as_selected() {
+        assert true;
+    }
+
+    // TODO: Implement when categories module is ready
+    public void opens_new_category_activity() {
         assert true;
     }
 }

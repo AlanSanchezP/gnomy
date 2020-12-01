@@ -1,6 +1,7 @@
 package io.github.alansanchezp.gnomy.ui.transaction;
 
 import android.content.Intent;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -9,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -33,6 +35,7 @@ import io.github.alansanchezp.gnomy.database.category.Category;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
 import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
+import io.github.alansanchezp.gnomy.ui.account.AddEditAccountActivity;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
@@ -108,6 +111,13 @@ public class AddEditTransactionActivity
         mNotesTIET = findViewById(R.id.addedit_transaction_notes_input);
         mMarkAsDoneSwitch = findViewById(R.id.addedit_transaction_mark_as_done);
         mFABVH = new SingleClickViewHolder<>(findViewById(R.id.addedit_transaction_FAB), true);
+        // TODO: Find a better way to present these as actions
+        TextView newAccountTV = findViewById(R.id.addedit_transaction_new_account);
+        TextView newCategoryTV = findViewById(R.id.addedit_transaction_new_category);
+        newAccountTV.setPaintFlags(newAccountTV.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        newCategoryTV.setPaintFlags(newCategoryTV.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        newAccountTV.setOnClickListener(this::openNewAccountActivity);
+        newCategoryTV.setOnClickListener(this::openNewCategoryActivity);
 
         Intent intent = getIntent();
         int transactionId = intent.getIntExtra(EXTRA_TRANSACTION_ID, 0);
@@ -152,6 +162,7 @@ public class AddEditTransactionActivity
         mDateTIL.setErrorIconOnClickListener(this::openDatePicker);
         mDateTimeSwitch.setOnCheckedChangeListener((btn, b) -> updateDateText());
 
+        // TODO: Refactor this somehow
         mAmountTIET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -511,6 +522,15 @@ public class AddEditTransactionActivity
         }
         dialog.setAccentColor(mThemeColor);
         dialog.show(getSupportFragmentManager(), TAG_TIME_DIALOG);
+    }
+
+    private void openNewAccountActivity(View view) {
+        Intent intent = new Intent(this, AddEditAccountActivity.class);
+        startActivity(intent);
+    }
+
+    private void openNewCategoryActivity(View view) {
+        Toast.makeText(this, getResources().getString(R.string.wip), Toast.LENGTH_LONG).show();
     }
 
     @Override

@@ -127,6 +127,8 @@
     <string name="transaction_date">Date</string>
     <string name="transaction_specify_time">Specify time</string>
     <string name="transaction_from_account">From account</string>
+    <string name="create_new_account">Create new account</string>
+    <string name="create_new_category">Create new category</string>
     <string name="transaction_currency">Currency</string>
     <string name="transaction_to_account">To account</string>
     <string name="transaction_exchange_rate_info">If the currency doesn\'t match the account\'s one, an approximated exchange rate will be used during balance calculation.</string>

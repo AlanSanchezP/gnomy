@@ -137,6 +137,16 @@
                         app:ms_text_color="@color/colorTextHighlight"
                         tools:ignore="RtlHardcoded" />
 
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:textColor="@color/colorAccent"
+                        android:text="@string/create_new_account"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:textAlignment="textEnd"
+                        android:id="@+id/addedit_transaction_new_account" />
+
                     <com.jaredrummler.materialspinner.MaterialSpinner
                         android:id="@+id/addedit_transaction_currency"
                         android:layout_width="match_parent"
@@ -178,6 +188,16 @@
                         app:ms_padding_right="13dp"
                         app:ms_text_color="@color/colorTextHighlight"
                         tools:ignore="RtlHardcoded" />
+
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:textColor="@color/colorAccent"
+                        android:text="@string/create_new_category"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:textAlignment="textEnd"
+                        android:id="@+id/addedit_transaction_new_category" />
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/addedit_transaction_notes"
