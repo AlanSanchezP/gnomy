@@ -63,4 +63,24 @@ public class DateUtil {
                 + monthString.substring(1);
         return monthString;
     }
+
+    /**
+     * Returns the custom {@link String} representation of a
+     * {@link OffsetDateTime} object that will be used in the app.
+     *
+     * @param dateTime      OffsetDateTime object to format
+     * @param includeTime   Indicates if String should include hours and minutes or
+     *                      just display date.
+     * @return              String representation
+     */
+    public static String getOffsetDateTimeString(OffsetDateTime dateTime, boolean includeTime) {
+        // TODO: Are these patters the best choice?
+        String pattern;
+        if (includeTime) {
+            pattern = "YYYY/MM/dd hh:mm a";
+        } else {
+            pattern = "YYYY/MM/dd";
+        }
+        return dateTime.format(DateTimeFormatter.ofPattern(pattern));
+    }
 }

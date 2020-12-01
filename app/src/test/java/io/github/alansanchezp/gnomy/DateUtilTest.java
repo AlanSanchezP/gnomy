@@ -2,7 +2,9 @@ package io.github.alansanchezp.gnomy;
 
 import org.junit.Test;
 
+import java.time.OffsetDateTime;
 import java.time.YearMonth;
+import java.time.ZoneOffset;
 import java.util.Locale;
 
 import io.github.alansanchezp.gnomy.util.DateUtil;
@@ -60,5 +62,19 @@ public class DateUtilTest {
 
         Locale.setDefault(Locale.GERMAN);
         assertEquals("März", DateUtil.getYearMonthString(march2018));
+    }
+
+    @Test
+    public void datetime_format_is_correct() {
+        OffsetDateTime dateTime = OffsetDateTime.of(2020,1,1,
+                14,30,15, 103, ZoneOffset.UTC);
+
+        assertEquals("2020/01/01 02:30 PM", DateUtil.getOffsetDateTimeString(dateTime, true));
+        assertEquals("2020/01/01", DateUtil.getOffsetDateTimeString(dateTime, false));
+
+        dateTime = dateTime.withOffsetSameInstant(ZoneOffset.of("+4"));
+
+        assertEquals("2020/01/01 06:30 PM", DateUtil.getOffsetDateTimeString(dateTime, true));
+        assertEquals("2020/01/01", DateUtil.getOffsetDateTimeString(dateTime, false));
     }
 }
