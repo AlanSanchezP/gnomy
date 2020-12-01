@@ -125,6 +125,7 @@
     <string name="transaction_amount">Amount</string>
     <string name="transaction_concept">Concept</string>
     <string name="transaction_date">Date</string>
+    <string name="transaction_specify_time">Specify time</string>
     <string name="transaction_from_account">From account</string>
     <string name="transaction_currency">Currency</string>
     <string name="transaction_to_account">To account</string>

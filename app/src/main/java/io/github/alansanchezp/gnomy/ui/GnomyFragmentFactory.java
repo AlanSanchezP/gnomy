@@ -3,6 +3,10 @@ package io.github.alansanchezp.gnomy.ui;
 import android.app.Activity;
 import android.app.Dialog;
 
+import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
+import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
+
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,6 +70,11 @@ public class GnomyFragmentFactory extends FragmentFactory {
 
         if (interfaceToAttach == null) {
             instance = super.instantiate(classLoader, className);
+        } else if (fragmentClass.equals(DatePickerDialog.class)) {
+            instance = DatePickerDialog.newInstance((DatePickerDialog.OnDateSetListener) interfaceToAttach,
+                    Calendar.getInstance());
+        } else if (fragmentClass.equals(TimePickerDialog.class)) {
+            instance = TimePickerDialog.newInstance((TimePickerDialog.OnTimeSetListener) interfaceToAttach, false);
         } else if (fragmentClass.equals(ArchivedAccountsDialogFragment.class)) {
             instance = new ArchivedAccountsDialogFragment((ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface) interfaceToAttach);
         } else if (fragmentClass.equals(ConfirmationDialogFragment.class)) {

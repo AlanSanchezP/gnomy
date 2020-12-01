@@ -3,6 +3,8 @@ package io.github.alansanchezp.gnomy.transaction;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 
+import com.google.android.material.textfield.TextInputEditText;
+
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -11,6 +13,7 @@ import org.junit.runner.RunWith;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
@@ -40,10 +43,16 @@ import static androidx.test.espresso.action.ViewActions.swipeDown;
 import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
+import static androidx.test.espresso.matcher.ViewMatchers.isNotChecked;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static io.github.alansanchezp.gnomy.EspressoTestUtil.END_ICON;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertThrows;
+import static io.github.alansanchezp.gnomy.EspressoTestUtil.clickIcon;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.setChecked;
 import static io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction.EXPENSE;
 import static io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction.INCOME;
@@ -51,6 +60,8 @@ import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -85,9 +96,11 @@ public class AddEditTransactionInstrumentedTest {
         testAccountA = new Account(1);
         testAccountA.setName("Test account A");
         testAccountA.setDefaultCurrency("MXN");
+        testAccountA.setCreatedAt(DateUtil.OffsetDateTimeNow().minusMonths(1));
         testAccountB = new Account(2);
         testAccountB.setName("Test account B");
         testAccountB.setDefaultCurrency("EUR");
+        testAccountB.setCreatedAt(DateUtil.OffsetDateTimeNow().plusMonths(1));
         testAccountList.add(testAccountA);
         testAccountList.add(testAccountB);
 
@@ -386,19 +399,144 @@ public class AddEditTransactionInstrumentedTest {
         tempScenario.close();
     }
 
-    // TODO: Implement these features on Activity
     @Test
     public void account_selection_changes_transaction_date_when_needed() {
-        assert true;
+        // Default MoneyTransaction.date is always now()
+        // Default selected account is testAccountA
+        String[] beforeEditTextContent = new String[1];
+        String[] afterEditTextContent = new String[1];
+        activityRule.getScenario().onActivity(activity ->
+                beforeEditTextContent[0] = Objects.requireNonNull(((TextInputEditText)
+                        activity.findViewById(R.id.addedit_transaction_date_input))
+                .getText()).toString());
+        // Force date-only format
+        onView(withId(R.id.addedit_transaction_include_time))
+                .perform(setChecked(false));
+
+        // testAccountB.createdAt is a future month: Date cannot be older than that
+        onView(withId(R.id.addedit_transaction_from_account))
+                .perform(click());
+        onData(allOf(is(instanceOf(Account.class)), is(
+                testAccountB)))
+                .perform(click());
+        activityRule.getScenario().onActivity(activity ->
+                afterEditTextContent[0] = Objects.requireNonNull(((TextInputEditText)
+                        activity.findViewById(R.id.addedit_transaction_date_input))
+                .getText()).toString());
+
+        String testAccountDateString = DateUtil.getOffsetDateTimeString(testAccountB.getCreatedAt(), false);
+
+        // Displayed date is expected to change
+        assertNotEquals(beforeEditTextContent[0], afterEditTextContent[0]);
+        // Displayed date should be the same as tesAccountB.getDate()
+        assertEquals(testAccountDateString, afterEditTextContent[0]);
+
+        beforeEditTextContent[0] = afterEditTextContent[0];
+        // testAccountA.createdAt is a past month: No changes are expected
+        onView(withId(R.id.addedit_transaction_from_account))
+                .perform(click());
+        onData(allOf(is(instanceOf(Account.class)), is(
+                testAccountA)))
+                .perform(click());
+        activityRule.getScenario().onActivity(activity ->
+                afterEditTextContent[0] = Objects.requireNonNull(((TextInputEditText)
+                        activity.findViewById(R.id.addedit_transaction_date_input))
+                .getText()).toString());
+
+        testAccountDateString = DateUtil.getOffsetDateTimeString(testAccountA.getCreatedAt(), false);
+
+        // Displayed date is not expected to change
+        assertEquals(beforeEditTextContent[0], afterEditTextContent[0]);
+        // Displayed date should NOT be the same as tesAccountB.getDate()
+        assertNotEquals(testAccountDateString, afterEditTextContent[0]);
+    }
+
+
+    @Test
+    public void opens_picker_dialogs() {
+        // Not testing that dates older than account creation are disabled on
+        //  picker dialog because that is almost equivalent to testing
+        //  DateTimePicker itself and requires too much knowledge of
+        //  its internal logic and structure.
+
+        // Testing without including time: Only date picker should show
+        onView(withId(R.id.addedit_transaction_include_time))
+                .perform(setChecked(false));
+        onView(withId(R.id.addedit_transaction_date))
+                .perform(clickIcon(END_ICON));
+
+        // Using resource ids from library
+        onView(withId(R.id.mdtp_animator))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()));
+        onView(withId(R.id.mdtp_ok))
+                .inRoot(isDialog())
+                .perform(click());
+        assertThrows(NoMatchingViewException.class, () ->
+                onView(withId(R.id.mdtp_time_picker))
+                .perform(click()));
+
+        // Including time: Both pickers should show
+        onView(withId(R.id.addedit_transaction_include_time))
+                .perform(setChecked(true));
+        onView(withId(R.id.addedit_transaction_date))
+                .perform(clickIcon(END_ICON));
+
+        onView(withId(R.id.mdtp_animator))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()));
+        onView(withId(R.id.mdtp_ok))
+                .inRoot(isDialog())
+                .perform(click());
+        onView(withId(R.id.mdtp_time_picker))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()))
+                .perform(click());
+        onView(withId(R.id.mdtp_ok))
+                .inRoot(isDialog())
+                .perform(click());
     }
 
     @Test
-    public void cannot_select_date_older_than_account() {
-        assert true;
+    public void switch_button_alters_date_format() {
+        // Not testing the actual format, since that is already tested in DateUtil
+        onView(withId(R.id.addedit_transaction_include_time))
+                .perform(setChecked(false));
+        String[] onlyDateEditTextContent = new String[1];
+        String[] includeTimeEditTextContent = new String[1];
+
+        activityRule.getScenario().onActivity(activity ->
+                onlyDateEditTextContent[0] = Objects.requireNonNull(((TextInputEditText)
+                        activity.findViewById(R.id.addedit_transaction_date_input))
+                .getText()).toString());
+        onView(withId(R.id.addedit_transaction_include_time))
+                .perform(setChecked(true));
+        activityRule.getScenario().onActivity(activity ->
+                includeTimeEditTextContent[0] = Objects.requireNonNull(((TextInputEditText)
+                        activity.findViewById(R.id.addedit_transaction_date_input))
+                .getText()).toString());
+        assertNotEquals(onlyDateEditTextContent[0], includeTimeEditTextContent[0]);
     }
 
     @Test
-    public void displays_error_if_dynamic_accounts_spinner_is_empty() {
+    public void force_as_not_confirmed_if_future_date() {
+        // Not using date picker and instead forcing testAccountB creation date
+        onView(withId(R.id.addedit_transaction_from_account))
+                .perform(click());
+        onData(allOf(is(instanceOf(Account.class)), is(
+                testAccountB)))
+                .perform(click());
+        onView(withId(R.id.addedit_transaction_mark_as_done))
+                .check(matches(allOf(isEnabled(), isNotChecked())));
+        // TODO: How to check the inverse? Switch is expected to be enabled
+        //  again if date is not a future one
+    }
+
+    // TODO: Implement features on activity
+    @Test
+    public void FAB_displays_error_if_dynamic_accounts_spinner_is_empty() {
+        // Not testing case where categories spinner is empty
+        //  as IT IS NOT SUPPOSED TO EVER HAPPEN
         assert true;
     }
 }

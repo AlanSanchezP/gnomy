@@ -15,9 +15,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.jaredrummler.materialspinner.MaterialSpinner;
+import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
+import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
+import com.wdullaer.materialdatetimepicker.time.Timepoint;
 
-import java.time.format.DateTimeFormatter;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,6 +32,7 @@ import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.category.Category;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
+import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
@@ -44,9 +49,13 @@ import io.reactivex.schedulers.Schedulers;
 // TODO: Implement recurrent transactions
 // TODO: Can MaterialSpinner.setAdapter() help to improve spinner UX?
 // TODO: Add links to create accounts and categories. Validate that both fields are not empty before submitting
-public class AddEditTransactionActivity extends BackButtonActivity {
+public class AddEditTransactionActivity
+        extends BackButtonActivity
+        implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
     public static final String EXTRA_TRANSACTION_TYPE = "AddEditTransactionActivity.TransactionType";
     public static final String EXTRA_TRANSACTION_ID = "AddEditTransactionActivity.TransactionId";
+    public static final String TAG_DATE_DIALOG = "AddEditTransactionActivity.DateDialog";
+    public static final String TAG_TIME_DIALOG = "AddEditTransactionActivity.TimeDialog";
     private int mTransactionType;
     private LinearLayout mBoxLayout;
     private TextInputLayout mTransactionConceptTIL;
@@ -55,6 +64,7 @@ public class AddEditTransactionActivity extends BackButtonActivity {
     private TextInputEditText mAmountTIET;
     private TextInputLayout mDateTIL;
     private TextInputEditText mDateTIET;
+    private Switch mDateTimeSwitch;
     private MaterialSpinner mCurrencySpinner;
     private MaterialSpinner mCategorySpinner;
     private MaterialSpinner mAccountSpinner;
@@ -65,10 +75,17 @@ public class AddEditTransactionActivity extends BackButtonActivity {
     private AddEditTransactionViewModel mViewModel;
     private MoneyTransaction mTransaction;
     private boolean mIsNewScreen = true;
+    private OffsetDateTime mAccountMinDate;
 
     // Flags for async operations
     private List<Account> mAccountsList;
     private List<Category> mCategoriesList;
+
+    @Override
+    protected GnomyFragmentFactory getFragmentFactory() {
+        return super.getFragmentFactory()
+                .addMapElement(DatePickerDialog.class, this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +100,7 @@ public class AddEditTransactionActivity extends BackButtonActivity {
         mAmountTIET = findViewById(R.id.addedit_transaction_amount_input);
         mDateTIL = findViewById(R.id.addedit_transaction_date);
         mDateTIET = findViewById(R.id.addedit_transaction_date_input);
+        mDateTimeSwitch = findViewById(R.id.addedit_transaction_include_time);
         mCurrencySpinner = findViewById(R.id.addedit_transaction_currency);
         mCategorySpinner = findViewById(R.id.addedit_transaction_category);
         mAccountSpinner = findViewById(R.id.addedit_transaction_from_account);
@@ -107,9 +125,6 @@ public class AddEditTransactionActivity extends BackButtonActivity {
         LiveData<MoneyTransaction> ld = mViewModel.getTransaction(transactionId);
         if (ld == null) {
             MoneyTransaction transaction = new MoneyTransaction();
-            // TODO: Implement dynamic picker instead of hardcoded now()
-            // TODO: Set "confirmed" to false if future date (and block switch)
-            // TODO: Restrict min date to account's creation
             transaction.setDate(DateUtil.OffsetDateTimeNow());
             transaction.setType(mTransactionType);
             onTransactionChanged(transaction);
@@ -127,6 +142,15 @@ public class AddEditTransactionActivity extends BackButtonActivity {
         mViewModel.getAccounts().observe(this, this::onAccountsListChanged);
         mViewModel.getCategories().observe(this, this::onCategoriesListChanged);
         mFABVH.setOnClickListener(this::processData);
+        // mAmountTIL.setEndIconOnClickListener();
+        mDateTIL.setEndIconOnClickListener(this::openDatePicker);
+        // As data gets reset to its stored value after rotation it is possible
+        //  that date and/or time pickers allow selection of an invalid date,
+        //  and then FAB is expected to trigger an error on date field.
+        //  If this happens, it would be impossible for the user to select
+        //  a valid date if error icon doesn't hold a callback too.
+        mDateTIL.setErrorIconOnClickListener(this::openDatePicker);
+        mDateTimeSwitch.setOnCheckedChangeListener((btn, b) -> updateDateText());
 
         mAmountTIET.addTextChangedListener(new TextWatcher() {
             @Override
@@ -201,11 +225,14 @@ public class AddEditTransactionActivity extends BackButtonActivity {
         ViewTintingUtil
                 .tintTextInputLayout(mDateTIL, mThemeColor);
         ViewTintingUtil
+                .tintSwitch(mDateTimeSwitch, mThemeColor);
+        ViewTintingUtil
                 .tintTextInputLayout(mNotesTIL, mThemeColor);
         mFABVH.onView(this, v ->
                 ViewTintingUtil.tintFAB(v, fabBgColor, fabTextColor));
         ViewTintingUtil
                 .tintSwitch(mMarkAsDoneSwitch, mThemeColor);
+
     }
 
     @Override
@@ -243,11 +270,30 @@ public class AddEditTransactionActivity extends BackButtonActivity {
         mViewModel.notifyTransactionConceptChanged();
     }
 
+    private void updateDateText() {
+        if (mTransaction == null) return;
+        if (mTransaction.getDate().isAfter(OffsetDateTime.now())) {
+            mMarkAsDoneSwitch.setChecked(false);
+            mTransaction.setConfirmed(false);
+            mMarkAsDoneSwitch.setEnabled(false);
+        } else {
+            // TODO: Handle pristine state to use setConfirmed()
+            mMarkAsDoneSwitch.setEnabled(true);
+        }
+        mDateTIET.setText(DateUtil.getOffsetDateTimeString(mTransaction.getDate(),
+                mDateTimeSwitch.isChecked()));
+    }
+
     private void onTransactionChanged(MoneyTransaction transaction) {
+        // TODO: Evaluate if this approach is better than finish() the Activity
+        if (transaction == null)
+            throw new RuntimeException("Attempting to update non-existent Transaction.");
         if (transaction.getType() != mTransactionType)
             throw new RuntimeException("Attempting an invalid operation: Changing a transaction's type.");
+        // TODO: Should we keep edited data on rotation?
+        //  An option could be to force portrait mode on form activities
         mTransaction = transaction;
-        mDateTIET.setText(transaction.getDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
+        updateDateText();
         mMarkAsDoneSwitch.setChecked(transaction.isConfirmed());
         mMarkAsDoneSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
                 mTransaction.setConfirmed(isChecked));
@@ -270,6 +316,26 @@ public class AddEditTransactionActivity extends BackButtonActivity {
             tryToDisplayContainer();
     }
 
+    private void setAccountAndMinDate(Account account) {
+        mTransaction.setAccount(account.getId());
+        mAccountMinDate = account.getCreatedAt();
+        if (mAccountMinDate.isAfter(mTransaction.getDate())) {
+            mTransaction.setDate(mAccountMinDate);
+            updateDateText();
+        }
+        if (mIsNewScreen)
+            mCurrencySpinner.setSelectedIndex(
+                    CurrencyUtil.getCurrencyIndex(
+                            account.getDefaultCurrency()));
+    }
+
+    private void setAccountCurrency(Account account) {
+        if (mIsNewScreen)
+            mCurrencySpinner.setSelectedIndex(
+                    CurrencyUtil.getCurrencyIndex(
+                            account.getDefaultCurrency()));
+    }
+
     private void onAccountsListChanged(List<Account> _accounts) {
         // Prevent NullPointerException
         final List<Account> accounts;
@@ -279,17 +345,16 @@ public class AddEditTransactionActivity extends BackButtonActivity {
         mAccountsList = accounts;
         mAccountSpinner.setItems(accounts.toArray());
         mAccountSpinner.setOnItemSelectedListener((view, position, id, item) -> {
-            mTransaction.setAccount(accounts.get(position).getId());
-            if (mIsNewScreen)
-                mCurrencySpinner.setSelectedIndex(
-                        CurrencyUtil.getCurrencyIndex(
-                                accounts.get(position).getDefaultCurrency()));
+            Account selectedAccount = accounts.get(position);
+            setAccountAndMinDate(selectedAccount);
+            setAccountCurrency(selectedAccount);
         });
 
         // Prevent IndexOutOfBoundsException
-        if (mIsNewScreen && accounts.size() > 0)
+        if (mIsNewScreen && accounts.size() > 0) {
             // TODO: Only set index 0 as selected if this is the first time the list arrives
-            mTransaction.setAccount(accounts.get(0).getId());
+            setAccountAndMinDate(accounts.get(0));
+        }
         else
             tryToDisplayContainer();
     }
@@ -302,6 +367,9 @@ public class AddEditTransactionActivity extends BackButtonActivity {
             mTransaction == null) return;
         // TODO: This will probably reset values IF user creates a new account or category during
         //  the process
+        Account selectedAccount = mAccountsList.get(
+                getAccountListIndex(mTransaction.getAccount()));
+        setAccountAndMinDate(selectedAccount);
         mCurrencySpinner.setSelectedIndex(CurrencyUtil.getCurrencyIndex(mTransaction.getCurrency()));
         mAccountSpinner.setSelectedIndex(getAccountListIndex(mTransaction.getAccount()));
         mCategorySpinner.setSelectedIndex(getCategoryListIndex(mTransaction.getCategory()));
@@ -408,5 +476,66 @@ public class AddEditTransactionActivity extends BackButtonActivity {
             Log.wtf("AddEditTransaction", "saveData: TextField validations failed", nfe);
             mFABVH.notifyOnAsyncOperationFinished();
         }
+    }
+
+    private void openDatePicker(View v) {
+        Calendar originalDate = Calendar.getInstance();
+        originalDate.set(mTransaction.getDate().getYear(),
+                // OffsetDateTime uses month numbers from 1-12
+                // but Calendar returns numbers from 0-11
+                mTransaction.getDate().getMonthValue()-1,
+                mTransaction.getDate().getDayOfMonth());
+        DatePickerDialog dialog = DatePickerDialog.newInstance(
+                this, originalDate);
+        if (mAccountMinDate != null) {
+            Calendar minDate = Calendar.getInstance();
+            minDate.set(mAccountMinDate.getYear(),
+                    // OffsetDateTime uses month numbers from 1-12
+                    // but DatePickerDialog uses numbers from 0-11
+                    mAccountMinDate.getMonthValue()-1,
+                    mAccountMinDate.getDayOfMonth());
+            dialog.setMinDate(minDate);
+        }
+        dialog.setAccentColor(mThemeColor);
+        dialog.show(getSupportFragmentManager(), TAG_DATE_DIALOG);
+    }
+
+    private void openTimePicker() {
+        TimePickerDialog dialog = TimePickerDialog.newInstance(
+                this, false);
+        if (mAccountMinDate != null && mTransaction.getDate().toLocalDate().isEqual(mAccountMinDate.toLocalDate())) {
+            Timepoint minTime = new Timepoint(mAccountMinDate.getHour(),
+                    mAccountMinDate.getMinute(),
+                    mAccountMinDate.getSecond());
+            dialog.setMinTime(minTime);
+        }
+        dialog.setAccentColor(mThemeColor);
+        dialog.show(getSupportFragmentManager(), TAG_TIME_DIALOG);
+    }
+
+    @Override
+    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
+        OffsetDateTime dateTime = mTransaction.getDate()
+                .withYear(year)
+                // OffsetDateTime uses month numbers from 1-12
+                // but OnDateSetListener returns numbers from 0-11
+                .withMonth(monthOfYear+1)
+                .withDayOfMonth(dayOfMonth);
+        mTransaction.setDate(dateTime);
+        if (mDateTimeSwitch.isChecked()) {
+            openTimePicker();
+        } else {
+            updateDateText();
+        }
+    }
+
+    @Override
+    public void onTimeSet(TimePickerDialog view, int hourOfDay, int minute, int second) {
+        OffsetDateTime dateTime = mTransaction.getDate()
+                .withHour(hourOfDay)
+                .withMinute(minute)
+                .withSecond(second);
+        mTransaction.setDate(dateTime);
+        updateDateText();
     }
 }

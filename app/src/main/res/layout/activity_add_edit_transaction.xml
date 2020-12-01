@@ -92,7 +92,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textColorHint="@color/colorTextSecondary"
-                        android:enabled="false"
                         app:endIconDrawable="@drawable/ic_date_range_black_24dp"
                         app:endIconTint="#000000"
                         app:endIconMode="custom">
@@ -104,9 +103,21 @@
                             android:backgroundTint="@android:color/transparent"
                             android:drawablePadding="0dp"
                             android:hint="@string/transaction_date"
+                            android:enabled="false"
                             android:layoutDirection="locale"
                             android:textColor="@color/colorTextHighlight"
                             android:textDirection="locale" />
+                        <Switch
+                            android:id="@+id/addedit_transaction_include_time"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="15dp"
+                            android:height="50dp"
+                            android:text="@string/transaction_specify_time"
+                            android:textColor="@color/colorTextHighlight"
+                            android:textDirection="locale"
+                            android:checked="false"
+                            tools:ignore="RtlSymmetry" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.jaredrummler.materialspinner.MaterialSpinner
