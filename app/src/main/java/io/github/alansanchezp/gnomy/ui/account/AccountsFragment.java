@@ -7,7 +7,6 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
@@ -25,7 +24,6 @@ import android.widget.Toast;
 import java.time.YearMonth;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -60,15 +58,10 @@ public class AccountsFragment extends MainNavigationFragment
         super(_interface);
     }
 
-    private Map<Class<? extends Fragment>, GnomyFragmentFactory.GnomyFragmentInterface>
-    getInterfacesMapping() {
-        Map<Class<? extends Fragment>, GnomyFragmentFactory.GnomyFragmentInterface>
-                interfacesMapping = new HashMap<>();
-        interfacesMapping.put(
-                ArchivedAccountsDialogFragment.class, this);
-        interfacesMapping.put(
-                ConfirmationDialogFragment.class, this);
-        return interfacesMapping;
+    private GnomyFragmentFactory getFragmentFactory() {
+        return new GnomyFragmentFactory()
+                .addMapElement(ArchivedAccountsDialogFragment.class, this)
+                .addMapElement(ConfirmationDialogFragment.class, this);
     }
 
     /* ANDROID LIFECYCLE METHODS */
@@ -82,8 +75,7 @@ public class AccountsFragment extends MainNavigationFragment
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        getChildFragmentManager().setFragmentFactory(
-                new GnomyFragmentFactory(getInterfacesMapping()));
+        getChildFragmentManager().setFragmentFactory(getFragmentFactory());
         super.onCreate(savedInstanceState);
         // TODO: Refactor other usages of SavedStateViewModelFactory
         //  as they will probably crash too at some point

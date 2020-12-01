@@ -73,15 +73,10 @@ public class MainActivity
             };
 
     @Override
-    protected Map<Class<? extends Fragment>, GnomyFragmentFactory.GnomyFragmentInterface>
-    getInterfacesMapping() {
-        Map<Class<? extends Fragment>, GnomyFragmentFactory.GnomyFragmentInterface>
-                interfacesMapping = super.getInterfacesMapping();
-        interfacesMapping.put(
-                AccountsFragment.class, this);
-        interfacesMapping.put(
-                TransactionsFragment.class, this);
-        return interfacesMapping;
+    protected GnomyFragmentFactory getFragmentFactory() {
+        return super.getFragmentFactory()
+                .addMapElement(AccountsFragment.class, this)
+                .addMapElement(TransactionsFragment.class, this);
     }
 
     @Override

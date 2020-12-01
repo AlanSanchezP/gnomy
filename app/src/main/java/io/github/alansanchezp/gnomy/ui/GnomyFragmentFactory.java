@@ -1,23 +1,58 @@
 package io.github.alansanchezp.gnomy.ui;
 
+import android.app.Activity;
+import android.app.Dialog;
+
+import java.util.HashMap;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDialogFragment;
+import androidx.core.app.DialogCompat;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentFactory;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 import io.github.alansanchezp.gnomy.ui.account.ArchivedAccountsDialogFragment;
 import io.github.alansanchezp.gnomy.ui.transaction.TransactionsFragment;
 
 public class GnomyFragmentFactory extends FragmentFactory {
-    private Map<Class<? extends Fragment>, GnomyFragmentInterface> mClassToInterfaceMapping;
+    private Map<Class<? extends Fragment>, Object> mClassToInterfaceMapping;
 
-    public interface GnomyFragmentInterface {
+    public GnomyFragmentFactory() {
+        super();
+        mClassToInterfaceMapping = new HashMap<>();
     }
 
-    public GnomyFragmentFactory(Map<Class<? extends Fragment>, GnomyFragmentInterface> classToInterfaceMapping) {
-        super();
-        mClassToInterfaceMapping = classToInterfaceMapping;
+    public GnomyFragmentFactory addMapElement(Class<? extends Fragment> fragmentClass, Object _interface) {
+        Class<?> clazz = _interface.getClass();
+        Object effectiveInterface = null;
+        while (true) {
+            if (clazz.getInterfaces().length > 0) {
+                effectiveInterface = _interface;
+                break;
+            } else {
+                clazz = clazz.getSuperclass();
+                if (clazz == null) break;
+                // Reject base Android superclasses
+                if (clazz.equals(Activity.class)) break;
+                if (clazz.equals(Fragment.class)) break;
+                if (clazz.equals(DialogFragment.class)) break;
+                if (clazz.equals(AppCompatActivity.class)) break;
+                if (clazz.equals(AppCompatDialogFragment.class)) break;
+                if (clazz.equals(FragmentActivity.class)) break;
+                if (clazz.equals(android.app.Fragment.class)) break;
+                if (clazz.equals(DialogCompat.class)) break;
+                if (clazz.equals(Dialog.class)) break;
+            }
+        }
+        if (effectiveInterface == null)
+            throw new RuntimeException("Provided object does not represent an interface.");
+
+        mClassToInterfaceMapping.put(fragmentClass, _interface);
+        return this;
     }
 
     @NonNull
@@ -26,7 +61,7 @@ public class GnomyFragmentFactory extends FragmentFactory {
         Fragment instance;
         Class<? extends Fragment> fragmentClass
                 = loadFragmentClass(classLoader, className);
-        GnomyFragmentInterface interfaceToAttach
+        Object interfaceToAttach
                 = mClassToInterfaceMapping.get(loadFragmentClass(classLoader, className));
 
         if (interfaceToAttach == null) {

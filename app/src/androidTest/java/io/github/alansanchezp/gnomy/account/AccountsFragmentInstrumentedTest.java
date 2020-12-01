@@ -7,9 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.time.YearMonth;
-import java.util.HashMap;
 
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.testing.FragmentScenario;
 import static androidx.fragment.app.testing.FragmentScenario.launchInContainer;
 
@@ -49,15 +47,13 @@ public class AccountsFragmentInstrumentedTest {
     // Needed so that ViewModel instance doesn't crash
     @BeforeClass
     public static void init_mocks() {
-        HashMap<Class<? extends Fragment>, GnomyFragmentFactory.GnomyFragmentInterface>
-                mapper = new HashMap<>();
         MainNavigationFragment.MainNavigationInteractionInterface _interface
                 = mock(MainNavigationFragment.MainNavigationInteractionInterface.class);
         MutableLiveData<YearMonth> mld = new MutableLiveData<>();
         mld.postValue(DateUtil.now());
         when(_interface.getActiveMonth()).thenReturn(mld);
-        mapper.put(AccountsFragment.class, _interface);
-        factory = new GnomyFragmentFactory(mapper);
+        factory = new GnomyFragmentFactory()
+                .addMapElement(AccountsFragment.class, _interface);
 
         final MockDatabaseOperationsUtil.MockableAccountDAO mockAccountDAO = mock(MockDatabaseOperationsUtil.MockableAccountDAO.class);
         MockDatabaseOperationsUtil.setAccountDAO(mockAccountDAO);
