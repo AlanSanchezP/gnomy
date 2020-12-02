@@ -23,9 +23,7 @@ import io.reactivex.schedulers.Schedulers;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.text.Editable;
 import android.text.InputFilter;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -41,6 +39,8 @@ import com.thebluealliance.spectrum.SpectrumDialog;
 
 import java.util.Arrays;
 import java.util.Objects;
+
+import static io.github.alansanchezp.gnomy.util.android.SimpleTextWatcherWrapper.onlyOnTextChanged;
 
 public class AddEditAccountActivity
         extends BackButtonActivity {
@@ -121,34 +121,10 @@ public class AddEditAccountActivity
 
         setTitle(activityTitle);
 
-        mAccountNameTIET.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                onAccountNameEditTextChanges(s.toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-        mInitialValueTIET.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                onInitialValueEditTextChanges(s.toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
+        mAccountNameTIET.addTextChangedListener(onlyOnTextChanged((s, start, count, after) ->
+                onAccountNameEditTextChanges(s.toString())));
+        mInitialValueTIET.addTextChangedListener(onlyOnTextChanged((s, start, count, after) ->
+                onInitialValueEditTextChanges(s.toString())));
     }
 
     protected int getLayoutResourceId() {

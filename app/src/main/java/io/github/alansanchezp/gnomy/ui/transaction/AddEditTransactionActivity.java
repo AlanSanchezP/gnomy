@@ -3,9 +3,7 @@ package io.github.alansanchezp.gnomy.ui.transaction;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
-import android.text.Editable;
 import android.text.InputFilter;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -48,6 +46,8 @@ import io.github.alansanchezp.gnomy.viewmodel.transaction.AddEditTransactionView
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+
+import static io.github.alansanchezp.gnomy.util.android.SimpleTextWatcherWrapper.onlyOnTextChanged;
 
 // TODO: Implement recurrent transactions
 // TODO: Can MaterialSpinner.setAdapter() help to improve spinner UX?
@@ -162,51 +162,14 @@ public class AddEditTransactionActivity
         mDateTIL.setErrorIconOnClickListener(this::openDatePicker);
         mDateTimeSwitch.setOnCheckedChangeListener((btn, b) -> updateDateText());
 
-        // TODO: Refactor this somehow
-        mAmountTIET.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                onTransactionAmountChanges(s.toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-        mTransactionConceptTIET.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                onTransactionConceptChanges(s.toString());
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-        mNotesTIET.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (mTransaction != null) {
-                    mTransaction.setNotes(s.toString());
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
+        mAmountTIET.addTextChangedListener(onlyOnTextChanged((s, start, count, after) ->
+                onTransactionAmountChanges(s.toString())));
+        mTransactionConceptTIET.addTextChangedListener(onlyOnTextChanged((s, start, count, after) ->
+                onTransactionConceptChanges(s.toString())));
+        mNotesTIET.addTextChangedListener(onlyOnTextChanged((s, start, count, after) -> {
+            if (mTransaction != null)
+                mTransaction.setNotes(s.toString());
+        }));
     }
 
     @Override
