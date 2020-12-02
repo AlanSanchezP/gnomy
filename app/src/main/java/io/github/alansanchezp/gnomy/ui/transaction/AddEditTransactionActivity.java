@@ -317,6 +317,8 @@ public class AddEditTransactionActivity
     }
 
     private void onCategoriesListChanged(List<Category> categories) {
+        if (categories == null || categories.size() == 0)
+            throw new RuntimeException("Categories list is not meant to be empty.");
         mCategoriesList = categories;
         mCategorySpinner.setItems(categories.toArray());
         mCategorySpinner.setOnItemSelectedListener((view, position, id, item) ->
@@ -325,6 +327,7 @@ public class AddEditTransactionActivity
             mTransaction.setCategory(categories.get(0).getId());
         else
             tryToDisplayContainer();
+        // TODO: If creating new category, set as selected
     }
 
     private void setAccountAndData(Account account) {

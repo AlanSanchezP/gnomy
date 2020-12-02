@@ -574,4 +574,8 @@ public class AddEditTransactionInstrumentedTest {
     public void opens_new_category_activity() {
         assert true;
     }
+
+    public void new_category_is_set_as_selected() {
+        assert true;
+    }
 }
