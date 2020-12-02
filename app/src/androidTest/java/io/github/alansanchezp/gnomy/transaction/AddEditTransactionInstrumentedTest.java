@@ -51,6 +51,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withHint;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.END_ICON;
+import static io.github.alansanchezp.gnomy.EspressoTestUtil.ERROR_ICON;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertThrows;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.clickIcon;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.nestedScrollTo;
@@ -207,7 +208,6 @@ public class AddEditTransactionInstrumentedTest {
                 .check(matches(hasDescendant(
                         withText(R.string.transaction_error_amount)
                 )));
-        // TODO: Reject too if accounts or categories are empty lists
     }
 
     @Test
@@ -549,7 +549,23 @@ public class AddEditTransactionInstrumentedTest {
 
     @Test
     public void opens_calculator_dialog() {
-        assert true;
+        onView(withId(R.id.addedit_transaction_amount))
+                .perform(clickIcon(END_ICON));
+
+        // Using resource ids from library
+        onView(withId(R.id.calc_btn_ok))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()))
+                .perform(click());
+
+        onView(withId(R.id.addedit_transaction_amount_input))
+                .perform(replaceText(""));
+        onView(withId(R.id.addedit_transaction_amount))
+                .perform(clickIcon(ERROR_ICON));
+        onView(withId(R.id.calc_btn_ok))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()))
+                .perform(click());
     }
 
     @Test

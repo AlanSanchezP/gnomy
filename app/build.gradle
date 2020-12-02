@@ -84,6 +84,7 @@ dependencies {
     implementation 'com.thebluealliance:spectrum:0.7.1'
     implementation 'com.github.dewinjm:monthyear-picker:1.0.2'
     implementation 'com.wdullaer:materialdatetimepicker:4.2.3'
+    implementation "com.maltaisn:calcdialog:2.2.1"
 
     // Room and data operations
     implementation 'androidx.sqlite:sqlite:2.1.0'

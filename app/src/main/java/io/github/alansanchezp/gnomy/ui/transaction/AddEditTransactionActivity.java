@@ -15,16 +15,20 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.jaredrummler.materialspinner.MaterialSpinner;
+import com.maltaisn.calcdialog.CalcDialog;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.Timepoint;
 
+import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.R;
@@ -51,14 +55,16 @@ import static io.github.alansanchezp.gnomy.util.android.SimpleTextWatcherWrapper
 
 // TODO: Implement recurrent transactions
 // TODO: Can MaterialSpinner.setAdapter() help to improve spinner UX?
-// TODO: Add links to create accounts and categories. Validate that both fields are not empty before submitting
 public class AddEditTransactionActivity
         extends BackButtonActivity
-        implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
+        implements DatePickerDialog.OnDateSetListener,
+        TimePickerDialog.OnTimeSetListener,
+        CalcDialog.CalcDialogCallback {
     public static final String EXTRA_TRANSACTION_TYPE = "AddEditTransactionActivity.TransactionType";
     public static final String EXTRA_TRANSACTION_ID = "AddEditTransactionActivity.TransactionId";
     public static final String TAG_DATE_DIALOG = "AddEditTransactionActivity.DateDialog";
     public static final String TAG_TIME_DIALOG = "AddEditTransactionActivity.TimeDialog";
+    public static final String TAG_CALCULATOR_DIALOG = "AddEditTransactionActivity.CalculatorDialog";
     private int mTransactionType;
     private LinearLayout mBoxLayout;
     private TextInputLayout mTransactionConceptTIL;
@@ -150,7 +156,7 @@ public class AddEditTransactionActivity
         mViewModel.getAccounts().observe(this, this::onAccountsListChanged);
         mViewModel.getCategories().observe(this, this::onCategoriesListChanged);
         mFABVH.setOnClickListener(this::processData);
-        // mAmountTIL.setEndIconOnClickListener();
+        mAmountTIL.setEndIconOnClickListener(this::openCalculator);
         mDateTIL.setEndIconOnClickListener(this::openDatePicker);
         // As data gets reset to its stored value after rotation it is possible
         //  that date and/or time pickers allow selection of an invalid date,
@@ -158,6 +164,7 @@ public class AddEditTransactionActivity
         //  If this happens, it would be impossible for the user to select
         //  a valid date if error icon doesn't hold a callback too.
         mDateTIL.setErrorIconOnClickListener(this::openDatePicker);
+        mAmountTIL.setErrorIconOnClickListener(this::openCalculator);
         mDateTimeSwitch.setOnCheckedChangeListener((btn, b) -> updateDateText());
 
         mAmountTIET.addTextChangedListener(onlyOnTextChanged((s, start, count, after) ->
@@ -298,7 +305,6 @@ public class AddEditTransactionActivity
             mTransaction.setCategory(categories.get(0).getId());
         else
             tryToDisplayContainer();
-        // TODO: If creating new category, set as selected
     }
 
     private void setAccountAndData(Account account) {
@@ -525,6 +531,21 @@ public class AddEditTransactionActivity
         Toast.makeText(this, getResources().getString(R.string.wip), Toast.LENGTH_LONG).show();
     }
 
+    private void openCalculator(View v) {
+        CalcDialog dialog = new CalcDialog();
+        NumberFormat numberFormat = NumberFormat.getInstance();
+        numberFormat.setRoundingMode(BigDecimalUtil.ROUNDING_MODE);
+        numberFormat.setMaximumFractionDigits(BigDecimalUtil.DECIMAL_SCALE);
+        dialog.getSettings()
+                .setInitialValue(mTransaction.getOriginalValue())
+                .setMinValue(MoneyTransaction.MIN_INITIAL)
+                .setMaxValue(MoneyTransaction.MAX_INITIAL)
+                .setSignBtnShown(false)
+                .setAnswerBtnShown(true)
+                .setNumberFormat(numberFormat);
+        dialog.show(getSupportFragmentManager(), TAG_CALCULATOR_DIALOG);
+    }
+
     @Override
     public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
         OffsetDateTime dateTime = mTransaction.getDate()
@@ -551,5 +572,11 @@ public class AddEditTransactionActivity
         mTransaction.setDate(dateTime);
         tryToForceConfirmedStatus();
         updateDateText();
+    }
+
+    @Override
+    public void onValueEntered(int requestCode, @Nullable BigDecimal value) {
+        if (value != null)
+            mAmountTIET.setText(value.toPlainString());
     }
 }

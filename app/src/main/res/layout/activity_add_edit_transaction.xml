@@ -23,7 +23,6 @@
             android:layout_height="match_parent"
             android:orientation="vertical" >
 
-            <!-- TODO: How to make calculator and datepicker clickable? -->
             <!-- TODO: Reorder elements and add toggle arrow "More options"
                     Base fields are amount, concept, category and account-->
             <com.google.android.material.textfield.TextInputLayout
