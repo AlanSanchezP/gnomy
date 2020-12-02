@@ -29,7 +29,7 @@ import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.category.Category;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.ui.transaction.AddEditTransactionActivity;
-// import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
+import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
@@ -38,13 +38,8 @@ import static androidx.test.core.app.ActivityScenario.launch;
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-// import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.replaceText;
-// import static androidx.test.espresso.action.ViewActions.scrollTo;
-// import static androidx.test.espresso.action.ViewActions.swipeDown;
-// import static androidx.test.espresso.action.ViewActions.swipeUp;
-import static androidx.test.espresso.action.ViewActions.scrollTo;
-import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isDialog;
@@ -288,7 +283,7 @@ public class AddEditTransactionInstrumentedTest {
 
     @Test
     public void data_is_sent_to_repository() throws GnomyCurrencyException {
-        /*
+
         when(mockTransactionDAO._insert(any(MoneyTransaction.class)))
                 .then(invocation -> {
                     // I don't like this, but it was the only way I found to test this
@@ -303,6 +298,13 @@ public class AddEditTransactionInstrumentedTest {
                     if (!sentByForm.getNotes().equals("Test notes")) throw new RuntimeException();
                     return 1L;
                 });
+
+        onView(withId(R.id.addedit_transaction_amount_input))
+                .perform(typeText("40"))
+                .perform(closeSoftKeyboard());
+        onView(withId(R.id.addedit_transaction_concept_input))
+                .perform(typeText("Test sds"))// Setting wrong value to trigger RuntimeException
+                .perform(closeSoftKeyboard());
         onView(withId(R.id.addedit_transaction_from_account))
                 .perform(click());
         onData(allOf(is(instanceOf(Account.class)), is(
@@ -314,30 +316,24 @@ public class AddEditTransactionInstrumentedTest {
                 CurrencyUtil.getDisplayName("USD"))))
                 .perform(click());
         onView(withId(R.id.addedit_transaction_category))
-                .perform(click());
+                .perform(nestedScrollTo(), click());
         onData(allOf(is(instanceOf(Category.class)), is(
                 testCategory)))
                 .perform(click());
-        onView(withId(R.id.addedit_transaction_amount_input))
-                .perform(typeText("40"));
-        onView(withId(R.id.addedit_transaction_concept_input))
-                .perform(typeText("Test sds"))// Setting wrong value to trigger RuntimeException
-                .perform(closeSoftKeyboard());
 
         onView(withId(R.id.addedit_transaction_notes_input))
-                .perform(swipeUp(), click()) // In order to avoid coordinates errors
                 .perform(typeText("Test notes"))
                 .perform(closeSoftKeyboard());
 
         onView(withId(R.id.addedit_transaction_mark_as_done)) // In order to avoid coordinates errors
-                .perform(swipeUp(), setChecked(false));
+                .perform(nestedScrollTo(), setChecked(false));
 
         onView(withId(R.id.addedit_transaction_FAB))
                 .perform(click());
 
         // These calls should only be possible if _insert threw a RuntimeException
         onView(withId(R.id.addedit_transaction_concept_input))
-                .perform(swipeDown(), click())
+                .perform(nestedScrollTo(), click())
                 .perform(replaceText("Test concept"))
                 .perform(closeSoftKeyboard());
         onView(withId(R.id.addedit_transaction_FAB))
@@ -351,9 +347,6 @@ public class AddEditTransactionInstrumentedTest {
         // return to default state
         when(mockTransactionDAO._insert(any(MoneyTransaction.class)))
                 .thenReturn(1L);
-                TODO: Fix this test or remove it. Long screen size causes it to crash by
-                    clicking unwanted elements or not being able to click them at all
-                */
         assert true;
     }
 
