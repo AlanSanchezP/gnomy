@@ -139,6 +139,7 @@
 
     <string name="transaction_error_concept">Transaction concept can\'t be empty.</string>
     <string name="transaction_error_amount">Specified amount is not a valid number.</string>
+    <string name="transaction_error_account">Account can\'t be null</string>
     <string name="transaction_message_saved">Your transaction was saved correctly.</string>
     <string name="transaction_message_updated">Your transaction was updated correctly.</string>
 </resources>

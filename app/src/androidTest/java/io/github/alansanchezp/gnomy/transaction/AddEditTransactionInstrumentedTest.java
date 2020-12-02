@@ -16,11 +16,13 @@ import java.util.Objects;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.MockDatabaseOperationsUtil;
 import io.github.alansanchezp.gnomy.database.account.Account;
@@ -41,6 +43,8 @@ import static androidx.test.espresso.action.ViewActions.replaceText;
 // import static androidx.test.espresso.action.ViewActions.scrollTo;
 // import static androidx.test.espresso.action.ViewActions.swipeDown;
 // import static androidx.test.espresso.action.ViewActions.swipeUp;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
+import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isDialog;
@@ -48,11 +52,13 @@ import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.isNotChecked;
+import static androidx.test.espresso.matcher.ViewMatchers.withHint;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.END_ICON;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertThrows;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.clickIcon;
+import static io.github.alansanchezp.gnomy.EspressoTestUtil.nestedScrollTo;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.setChecked;
 import static io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction.EXPENSE;
 import static io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction.INCOME;
@@ -239,6 +245,7 @@ public class AddEditTransactionInstrumentedTest {
     }
 
     @Test
+    @UiThreadTest
     public void not_crashing_if_empty_accounts_list() {
         // Not testing empty categories list since that should NEVER happen
         //  and it's the repository's duty to guarantee that
@@ -526,6 +533,7 @@ public class AddEditTransactionInstrumentedTest {
                 testAccountB)))
                 .perform(click());
         onView(withId(R.id.addedit_transaction_mark_as_done))
+                .perform(nestedScrollTo())
                 .check(matches(allOf(not(isEnabled()), isNotChecked())));
         // TODO: How to check the inverse? Switch is expected to be enabled
         //  again if date is not a future one
@@ -535,7 +543,15 @@ public class AddEditTransactionInstrumentedTest {
     public void FAB_displays_error_if_dynamic_accounts_spinner_is_empty() {
         // Not testing case where categories spinner is empty
         //  as IT IS NOT SUPPOSED TO EVER HAPPEN
-        assert true;
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                testAccountListLD.postValue(new ArrayList<>()));
+        onView(withId(R.id.addedit_transaction_FAB))
+                .perform(click());
+        onView(withId(R.id.addedit_transaction_from_account))
+                .check(matches(withHint(R.string.transaction_error_account)));
+        // reset for other tests
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                testAccountListLD.postValue(testAccountList));
     }
 
     @Test
@@ -564,7 +580,8 @@ public class AddEditTransactionInstrumentedTest {
         newAccount.setName("New test account");
         newAccount.setDefaultCurrency("MXN");
         testAccountList.add(newAccount);
-        testAccountListLD.postValue(testAccountList);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+            testAccountListLD.postValue(testAccountList));
         onView(withId(R.id.addedit_transaction_from_account))
                 .check(matches(
                         withText(newAccount.getName())));

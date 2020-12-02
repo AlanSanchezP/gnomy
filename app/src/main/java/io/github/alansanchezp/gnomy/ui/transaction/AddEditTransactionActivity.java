@@ -355,21 +355,25 @@ public class AddEditTransactionActivity
 
         mAccountsList = accounts;
         mAccountSpinner.setItems(accounts.toArray());
+
+        mAccountSpinner.setError(null);
+        mAccountSpinner.setHintTextColor(getResources().getColor(R.color.colorTextSecondary));
+        mAccountSpinner.setHint(R.string.transaction_from_account);
+
         mAccountSpinner.setOnItemSelectedListener((view, position, id, item) -> {
             Account selectedAccount = accounts.get(position);
             setAccountAndData(selectedAccount);
         });
 
-        if (mViewModel.accountsListHasArrivedBefore()) {
+        if (mViewModel.accountsListHasArrivedBefore() && accounts.size() > 0) {
             // Sets last account as selected
             mAccountSpinner.setSelectedIndex(accounts.size() - 1);
             setAccountAndData(accounts.get(accounts.size() - 1));
-        } else {
+        } else if (mIsNewScreen && accounts.size() > 0) {
             // Prevent IndexOutOfBoundsException
-            if (mIsNewScreen && accounts.size() > 0) {
-                setAccountAndData(accounts.get(0));
-            } else
-                tryToDisplayContainer();
+            setAccountAndData(accounts.get(0));
+        } else {
+            tryToDisplayContainer();
         }
         mViewModel.notifyAccountsListFirstArrival();
     }
@@ -443,10 +447,23 @@ public class AddEditTransactionActivity
                 && amountString.length() > 0;
     }
 
+    private boolean validateAccountSpinner() {
+        if (mAccountsList == null || mAccountsList.size() == 0) {
+            // MaterialSpinner doesn't have custom setError() implementation,
+            //  and doesn't show the message, but espresso can still test it.
+            mAccountSpinner.setError(getResources().getString(R.string.transaction_error_account));
+            mAccountSpinner.setHintTextColor(getResources().getColor(R.color.colorError));
+            mAccountSpinner.setHint(R.string.transaction_error_account);
+            return false;
+        }
+        return true;
+    }
+
     private void processData(View v) {
         boolean texFieldsAreValid = validateTextFields();
+        boolean selectedAccountIsNotNull = validateAccountSpinner();
 
-        if (texFieldsAreValid) {
+        if (texFieldsAreValid  && selectedAccountIsNotNull) {
             saveData();
         } else {
             Toast.makeText(this, getResources().getString(R.string.form_error), Toast.LENGTH_LONG).show();
