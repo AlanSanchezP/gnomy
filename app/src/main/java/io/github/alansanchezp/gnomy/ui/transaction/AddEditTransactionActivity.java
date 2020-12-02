@@ -145,8 +145,6 @@ public class AddEditTransactionActivity
             ld.observe(this, this::onTransactionChanged);
         }
 
-        // TODO: What if accounts or categories come BEFORE transaction to update?
-        //  (and vice-versa)
         setCurrencySpinner();
         setInputFilters();
         mViewModel.getAccounts().observe(this, this::onAccountsListChanged);
@@ -244,10 +242,9 @@ public class AddEditTransactionActivity
         mViewModel.notifyTransactionConceptChanged();
     }
 
-    private void updateDateText() {
-        if (mTransaction == null) return;
-        // TODO: Move this into a separate method
+    private void tryToForceConfirmedStatus() {
         // TODO: How can we test this behavior?
+        if (mTransaction == null) return;
         if (mTransaction.getDate().isAfter(OffsetDateTime.now())) {
             boolean previousSelectedState = mTransaction.isConfirmed();
             mMarkAsDoneSwitch.setChecked(false); // event listener will update mTransaction too
@@ -258,6 +255,10 @@ public class AddEditTransactionActivity
             mMarkAsDoneSwitch.setEnabled(true);
             mMarkAsDoneSwitch.setChecked(mViewModel.getUserSelectedConfirmedStatus()); // event listener will update mTransaction too
         }
+    }
+
+    private void updateDateText() {
+        if (mTransaction == null) return;
         mDateTIET.setText(DateUtil.getOffsetDateTimeString(mTransaction.getDate(),
                 mDateTimeSwitch.isChecked()));
     }
@@ -272,8 +273,8 @@ public class AddEditTransactionActivity
         //  An option could be to force portrait mode on form activities
         mTransaction = transaction;
         mViewModel.setUserSelectedConfirmedStatus(transaction.isConfirmed());
+        tryToForceConfirmedStatus();
         updateDateText();
-        mMarkAsDoneSwitch.setChecked(transaction.isConfirmed());
         mMarkAsDoneSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             mTransaction.setConfirmed(isChecked);
             mViewModel.setUserSelectedConfirmedStatus(isChecked);
@@ -305,6 +306,7 @@ public class AddEditTransactionActivity
         mAccountMinDate = account.getCreatedAt();
         if (mAccountMinDate.isAfter(mTransaction.getDate())) {
             mTransaction.setDate(mAccountMinDate);
+            tryToForceConfirmedStatus();
             updateDateText();
         }
         setAccountCurrency(account);
@@ -535,6 +537,7 @@ public class AddEditTransactionActivity
         if (mDateTimeSwitch.isChecked()) {
             openTimePicker();
         } else {
+            tryToForceConfirmedStatus();
             updateDateText();
         }
     }
@@ -546,6 +549,7 @@ public class AddEditTransactionActivity
                 .withMinute(minute)
                 .withSecond(second);
         mTransaction.setDate(dateTime);
+        tryToForceConfirmedStatus();
         updateDateText();
     }
 }
