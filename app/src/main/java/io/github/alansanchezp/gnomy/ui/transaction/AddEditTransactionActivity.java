@@ -283,13 +283,17 @@ public class AddEditTransactionActivity
 
     private void updateDateText() {
         if (mTransaction == null) return;
+        // TODO: Move this into a separate method
+        // TODO: How can we test this behavior?
         if (mTransaction.getDate().isAfter(OffsetDateTime.now())) {
-            mMarkAsDoneSwitch.setChecked(false);
-            mTransaction.setConfirmed(false);
+            boolean previousSelectedState = mTransaction.isConfirmed();
+            mMarkAsDoneSwitch.setChecked(false); // event listener will update mTransaction too
             mMarkAsDoneSwitch.setEnabled(false);
+            // event listener will set status as false, we restore it manually here
+            mViewModel.setUserSelectedConfirmedStatus(previousSelectedState);
         } else {
-            // TODO: Handle pristine state to use setConfirmed()
             mMarkAsDoneSwitch.setEnabled(true);
+            mMarkAsDoneSwitch.setChecked(mViewModel.getUserSelectedConfirmedStatus()); // event listener will update mTransaction too
         }
         mDateTIET.setText(DateUtil.getOffsetDateTimeString(mTransaction.getDate(),
                 mDateTimeSwitch.isChecked()));
@@ -304,10 +308,13 @@ public class AddEditTransactionActivity
         // TODO: Should we keep edited data on rotation?
         //  An option could be to force portrait mode on form activities
         mTransaction = transaction;
+        mViewModel.setUserSelectedConfirmedStatus(transaction.isConfirmed());
         updateDateText();
         mMarkAsDoneSwitch.setChecked(transaction.isConfirmed());
-        mMarkAsDoneSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
-                mTransaction.setConfirmed(isChecked));
+        mMarkAsDoneSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            mTransaction.setConfirmed(isChecked);
+            mViewModel.setUserSelectedConfirmedStatus(isChecked);
+        });
         if(!mIsNewScreen) {
             mAmountTIET.setText(transaction.getOriginalValue().toPlainString());
             mTransactionConceptTIET.setText(transaction.getConcept());
@@ -372,9 +379,8 @@ public class AddEditTransactionActivity
         } else if (mIsNewScreen && accounts.size() > 0) {
             // Prevent IndexOutOfBoundsException
             setAccountAndData(accounts.get(0));
-        } else {
-            tryToDisplayContainer();
         }
+        tryToDisplayContainer();
         mViewModel.notifyAccountsListFirstArrival();
     }
 
@@ -384,13 +390,14 @@ public class AddEditTransactionActivity
         if (mAccountsList == null ||
             mCategoriesList == null ||
             mTransaction == null) return;
-        if (mViewModel.accountsListHasArrivedBefore()) return;
-        Account selectedAccount = mAccountsList.get(
-                getAccountListIndex(mTransaction.getAccount()));
-        setAccountAndData(selectedAccount);
-        mCurrencySpinner.setSelectedIndex(CurrencyUtil.getCurrencyIndex(mTransaction.getCurrency()));
-        mAccountSpinner.setSelectedIndex(getAccountListIndex(mTransaction.getAccount()));
-        mCategorySpinner.setSelectedIndex(getCategoryListIndex(mTransaction.getCategory()));
+        if (!mViewModel.accountsListHasArrivedBefore()) {
+            Account selectedAccount = mAccountsList.get(
+                    getAccountListIndex(mTransaction.getAccount()));
+            setAccountAndData(selectedAccount);
+            mCurrencySpinner.setSelectedIndex(CurrencyUtil.getCurrencyIndex(mTransaction.getCurrency()));
+            mAccountSpinner.setSelectedIndex(getAccountListIndex(mTransaction.getAccount()));
+            mCategorySpinner.setSelectedIndex(getCategoryListIndex(mTransaction.getCategory()));
+        }
         mBoxLayout.setVisibility(View.VISIBLE);
         mFABVH.onView(this, v -> v.setVisibility(View.VISIBLE));
     }

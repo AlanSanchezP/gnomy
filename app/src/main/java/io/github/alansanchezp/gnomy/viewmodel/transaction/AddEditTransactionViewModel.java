@@ -18,6 +18,7 @@ import io.reactivex.Single;
 public class AddEditTransactionViewModel extends AndroidViewModel {
     private static final String TAG_IS_AMOUNT_PRISTINE = "AddEditTransactionVM.IsAmountPristine";
     private static final String TAG_IS_CONCEPT_PRISTINE = "AddEditTransactionVM.IsConceptPristine";
+    private static final String TAG_USER_SELECTED_CONFIRMED = "AddEditTransactionVM.SelectedConfirmed";
     private final AccountRepository mAccountRepository;
     private final MoneyTransactionRepository mTransactionRepository;
     private final CategoryRepository mCategoryRepository;
@@ -80,5 +81,15 @@ public class AddEditTransactionViewModel extends AndroidViewModel {
 
     public boolean accountsListHasArrivedBefore() {
         return mAccountsFirstArrival;
+    }
+
+    public boolean getUserSelectedConfirmedStatus() {
+        if (mState.get(TAG_USER_SELECTED_CONFIRMED) == null) return true;
+        //noinspection ConstantConditions
+        return mState.get(TAG_USER_SELECTED_CONFIRMED);
+    }
+
+    public void setUserSelectedConfirmedStatus(boolean status) {
+        mState.set(TAG_USER_SELECTED_CONFIRMED, status);
     }
 }
