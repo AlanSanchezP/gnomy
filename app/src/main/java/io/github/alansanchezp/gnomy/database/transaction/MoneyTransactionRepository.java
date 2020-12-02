@@ -127,14 +127,14 @@ public class MoneyTransactionRepository {
 
         if (isConfirmed) {
             if (type == MoneyTransaction.INCOME ||
-                    type == MoneyTransaction.TRANSFERENCE_INCOME) {
+                    type == MoneyTransaction.TRANSFER_INCOME) {
                 newIncomes = newIncomes.add(transaction.getCalculatedValue());
             } else {
                 newExpenses = newExpenses.add(transaction.getCalculatedValue());
             }
         } else {
             if (type == MoneyTransaction.INCOME ||
-                    type == MoneyTransaction.TRANSFERENCE_INCOME) {
+                    type == MoneyTransaction.TRANSFER_INCOME) {
                 newProjectedIncomes = newProjectedIncomes.add(transaction.getCalculatedValue());
             } else {
                 newProjectedExpenses = newProjectedExpenses.add(transaction.getCalculatedValue());

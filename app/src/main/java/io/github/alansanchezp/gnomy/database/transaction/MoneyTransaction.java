@@ -43,13 +43,13 @@ public class MoneyTransaction {
     @Ignore
     public static final int EXPENSE = 2;
     @Ignore
-    public static final int TRANSFERENCE_INCOME = 3;
+    public static final int TRANSFER_INCOME = 3;
     @Ignore
-    public static final int TRANSFERENCE_EXPENSE = 4;
+    public static final int TRANSFER_EXPENSE = 4;
     @Ignore
-    public static final BigDecimal MIN_INITIAL = BigDecimalUtil.ZERO;
+    public static final BigDecimal MIN_VALUE = BigDecimalUtil.ZERO;
     @Ignore
-    public static final BigDecimal MAX_INITIAL = BigDecimalUtil.fromString("900000000000");
+    public static final BigDecimal MAX_VALUE = BigDecimalUtil.fromString("900000000000");
 
 
     @PrimaryKey(autoGenerate = true)

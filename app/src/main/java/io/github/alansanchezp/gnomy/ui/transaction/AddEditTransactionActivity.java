@@ -409,7 +409,7 @@ public class AddEditTransactionActivity
     }
 
     private void setInputFilters() {
-        mAmountTIET.setFilters(new InputFilter[]{new InputFilterMinMax(MoneyTransaction.MIN_INITIAL, MoneyTransaction.MAX_INITIAL, BigDecimalUtil.DECIMAL_SCALE)});
+        mAmountTIET.setFilters(new InputFilter[]{new InputFilterMinMax(MoneyTransaction.MIN_VALUE, MoneyTransaction.MAX_VALUE, BigDecimalUtil.DECIMAL_SCALE)});
     }
 
     private boolean validateTextFields() {
@@ -538,8 +538,8 @@ public class AddEditTransactionActivity
         numberFormat.setMaximumFractionDigits(BigDecimalUtil.DECIMAL_SCALE);
         dialog.getSettings()
                 .setInitialValue(mTransaction.getOriginalValue())
-                .setMinValue(MoneyTransaction.MIN_INITIAL)
-                .setMaxValue(MoneyTransaction.MAX_INITIAL)
+                .setMinValue(MoneyTransaction.MIN_VALUE)
+                .setMaxValue(MoneyTransaction.MAX_VALUE)
                 .setSignBtnShown(false)
                 .setAnswerBtnShown(true)
                 .setNumberFormat(numberFormat);
