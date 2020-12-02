@@ -22,13 +22,14 @@ public class AddEditTransactionViewModel extends AndroidViewModel {
     private final MoneyTransactionRepository mTransactionRepository;
     private final CategoryRepository mCategoryRepository;
     private final SavedStateHandle mState;
+    private boolean mAccountsFirstArrival;
 
     public AddEditTransactionViewModel(Application application, SavedStateHandle savedStateHandle) {
         super(application);
         mAccountRepository = new AccountRepository(application);
         mTransactionRepository = new MoneyTransactionRepository(application);
         mCategoryRepository = new CategoryRepository(application);
-
+        mAccountsFirstArrival = false;
         mState = savedStateHandle;
     }
 
@@ -71,5 +72,13 @@ public class AddEditTransactionViewModel extends AndroidViewModel {
 
     public void notifyTransactionConceptChanged() {
         mState.set(TAG_IS_CONCEPT_PRISTINE, false);
+    }
+
+    public void notifyAccountsListFirstArrival() {
+        mAccountsFirstArrival = true;
+    }
+
+    public boolean accountsListHasArrivedBefore() {
+        return mAccountsFirstArrival;
     }
 }

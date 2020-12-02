@@ -327,17 +327,14 @@ public class AddEditTransactionActivity
             tryToDisplayContainer();
     }
 
-    private void setAccountAndMinDate(Account account) {
+    private void setAccountAndData(Account account) {
         mTransaction.setAccount(account.getId());
         mAccountMinDate = account.getCreatedAt();
         if (mAccountMinDate.isAfter(mTransaction.getDate())) {
             mTransaction.setDate(mAccountMinDate);
             updateDateText();
         }
-        if (mIsNewScreen)
-            mCurrencySpinner.setSelectedIndex(
-                    CurrencyUtil.getCurrencyIndex(
-                            account.getDefaultCurrency()));
+        setAccountCurrency(account);
     }
 
     private void setAccountCurrency(Account account) {
@@ -357,17 +354,21 @@ public class AddEditTransactionActivity
         mAccountSpinner.setItems(accounts.toArray());
         mAccountSpinner.setOnItemSelectedListener((view, position, id, item) -> {
             Account selectedAccount = accounts.get(position);
-            setAccountAndMinDate(selectedAccount);
-            setAccountCurrency(selectedAccount);
+            setAccountAndData(selectedAccount);
         });
 
-        // Prevent IndexOutOfBoundsException
-        if (mIsNewScreen && accounts.size() > 0) {
-            // TODO: Only set index 0 as selected if this is the first time the list arrives
-            setAccountAndMinDate(accounts.get(0));
+        if (mViewModel.accountsListHasArrivedBefore()) {
+            // Sets last account as selected
+            mAccountSpinner.setSelectedIndex(accounts.size() - 1);
+            setAccountAndData(accounts.get(accounts.size() - 1));
+        } else {
+            // Prevent IndexOutOfBoundsException
+            if (mIsNewScreen && accounts.size() > 0) {
+                setAccountAndData(accounts.get(0));
+            } else
+                tryToDisplayContainer();
         }
-        else
-            tryToDisplayContainer();
+        mViewModel.notifyAccountsListFirstArrival();
     }
 
     // TODO: MediatorLiveData is probably a better approach
@@ -376,11 +377,10 @@ public class AddEditTransactionActivity
         if (mAccountsList == null ||
             mCategoriesList == null ||
             mTransaction == null) return;
-        // TODO: This will probably reset values IF user creates a new account or category during
-        //  the process
+        if (mViewModel.accountsListHasArrivedBefore()) return;
         Account selectedAccount = mAccountsList.get(
                 getAccountListIndex(mTransaction.getAccount()));
-        setAccountAndMinDate(selectedAccount);
+        setAccountAndData(selectedAccount);
         mCurrencySpinner.setSelectedIndex(CurrencyUtil.getCurrencyIndex(mTransaction.getCurrency()));
         mAccountSpinner.setSelectedIndex(getAccountListIndex(mTransaction.getAccount()));
         mCategorySpinner.setSelectedIndex(getCategoryListIndex(mTransaction.getCategory()));
