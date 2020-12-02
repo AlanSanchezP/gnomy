@@ -69,14 +69,14 @@ public abstract class AccountDAO implements MonthlyBalanceDAO {
             "USING(account_id) " +
             "WHERE accounts.is_archived = 0 " +
             // Don't retrieve accounts created after the target month
-            "AND CAST(strftime('%Y%m', datetime(accounts.created_at/1000, 'unixepoch')) AS int) " +
+            "AND CAST(strftime('%Y%m', datetime(accounts.created_at/1000, 'unixepoch', 'localtime')) AS int) " +
                     " <= :targetMonth;")
     protected abstract LiveData<List<AccountWithAccumulated>>
     getAccumulatesListAtMonth(YearMonth targetMonth);
 
     @Query("SELECT " +
             "accounts.*, " +
-            "CAST(strftime('%Y%m', DATETIME('now')) AS INT) AS target_month, " +
+            "CAST(strftime('%Y%m', DATETIME('now', 'localtime')) AS INT) AS target_month, " +
             "accumulated_balances.confirmed_incomes_at_month, " +
             "accumulated_balances.confirmed_expenses_at_month " +
             "FROM accounts " +
@@ -88,7 +88,7 @@ public abstract class AccountDAO implements MonthlyBalanceDAO {
                 "sum(monthly_balances.total_expenses) " +
                     "AS confirmed_expenses_at_month " +
                 "FROM monthly_balances " +
-                "WHERE balance_date <= CAST(strftime('%Y%m', DATETIME('now')) AS INT) " +
+                "WHERE balance_date <= CAST(strftime('%Y%m', DATETIME('now', 'localtime')) AS INT) " +
                 "GROUP BY monthly_balances.account_id " +
             ") AS accumulated_balances " +
             "USING(account_id) " +
