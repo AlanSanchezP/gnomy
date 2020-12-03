@@ -1,5 +1,6 @@
 package io.github.alansanchezp.gnomy.database.transaction;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import androidx.lifecycle.LiveData;
@@ -22,6 +23,13 @@ public abstract class MoneyTransactionDAO implements MonthlyBalanceDAO {
 
     @Query("SELECT * FROM transactions WHERE transaction_id = :id;")
     protected abstract MoneyTransaction _find(int id);
+
+    @Query("SELECT * FROM transactions WHERE transaction_date = :date " +
+            "AND account_id = :destinationAccountId " +
+            "AND transfer_destination_account_id = :originAccountId;")
+    protected abstract MoneyTransaction _findMirrorTransfer(OffsetDateTime date,
+                                                            int originAccountId,
+                                                            Integer destinationAccountId);
 
     @Update
     protected abstract Integer _update(MoneyTransaction transaction);

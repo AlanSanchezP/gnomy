@@ -1,6 +1,7 @@
 package io.github.alansanchezp.gnomy.database;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.time.YearMonth;
 import java.util.List;
 
@@ -172,6 +173,11 @@ public class MockDatabaseOperationsUtil {
 
         @Override
         public MoneyTransaction _find(int id) {
+            return null;
+        }
+
+        @Override
+        protected MoneyTransaction _findMirrorTransfer(OffsetDateTime date, int originAccountId, Integer destinationAccountId) {
             return null;
         }
 

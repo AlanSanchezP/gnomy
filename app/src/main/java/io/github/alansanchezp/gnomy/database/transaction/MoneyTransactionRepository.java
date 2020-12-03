@@ -26,18 +26,36 @@ public class MoneyTransactionRepository {
     }
 
     // TODO: Update AccountRepositoryTest with actual transactions
+    // TODO: Validate both insert and update methods as an additional integrity check
+    /**
+     * Inserts a given  {@link MoneyTransaction} row from some input.
+     *
+     * Currency calculations are applied when needed, and mirrored
+     * transfers are automatically generated.
+     *
+     * @param transaction   Transaction to be inserted
+     * @return              Single object that can be observed on main thread, wrapping
+     *                      the inserted account's generated id.
+     */
     public Single<Long> insert(MoneyTransaction transaction) {
         return db.toSingleInTransaction(() -> {
             // TODO: Currency conversion (this will prevent use of deprecated method)
             //noinspection deprecation
             transaction.setCalculatedValue(transaction.getOriginalValue());
             addTransactionAmountToBalance(transaction);
+            if (transaction.getType() == MoneyTransaction.TRANSFER) {
+                MoneyTransaction mirror = transaction.getMirrorTransfer();
+                //noinspection deprecation
+                mirror.setCalculatedValue(mirror.getOriginalValue());
+                addTransactionAmountToBalance(mirror);
+                dao._insert(mirror);
+            }
             return dao._insert(transaction);
         });
     }
 
     /**
-     * Updates a given transaction row from some input.
+     * Updates a given {@link MoneyTransaction} row from some input.
      *
      * It contemplates the next scenarios:
      *  1) The only field that changes is transaction's amount.
@@ -51,6 +69,9 @@ public class MoneyTransactionRepository {
      * @return                              Single object that can be observed on main thread
      * @throws GnomyIllegalQueryException   If the previously-stored type doesn't match the new one
      *                                      or if there is no existing row at all.
+     *                                      In the case of transfers, method also throws if a direct
+     *                                      update to mirror transfers is attempted or if, for some
+     *                                      reason, the transfer doesn't have a mirrored version.
      */
     public Single<Integer> update(MoneyTransaction transaction) {
         return db.toSingleInTransaction(() -> {
@@ -59,6 +80,19 @@ public class MoneyTransactionRepository {
                 if (original.equals(transaction)) return 0;
                 if (original.getType() != transaction.getType())
                     throw new GnomyIllegalQueryException("It is not allowed to change a transaction's type.");
+                if (transaction.getType() == MoneyTransaction.TRANSFER_MIRROR)
+                    throw new GnomyIllegalQueryException("Cannot update mirrored transactions directly.");
+                MoneyTransaction originalMirror = null;
+                MoneyTransaction newMirror = null;
+                if (transaction.getType() == MoneyTransaction.TRANSFER) {
+                    originalMirror = dao._findMirrorTransfer(transaction.getDate(),
+                            transaction.getAccount(),
+                            transaction.getTransferDestinationAccount());
+                    if (originalMirror == null)
+                        throw new GnomyIllegalQueryException("Transaction doesn't seem to have a mirror!!!");
+                    newMirror = transaction.getMirrorTransfer();
+                    newMirror.setId(originalMirror.getId());
+                }
 
                 if (!original.getOriginalValue().equals(
                         transaction.getOriginalValue())) {
@@ -66,11 +100,23 @@ public class MoneyTransactionRepository {
                     //  add if() clause in case currency OR date change too
                     //noinspection deprecation
                     transaction.setCalculatedValue(transaction.getOriginalValue());
+                    if (newMirror != null)
+                        //noinspection deprecation
+                        newMirror.setCalculatedValue(newMirror.getOriginalValue());
                 }
+
                 // Subtract previous transaction amount from original MonthlyBalance
                 addTransactionAmountToBalance(original.getInverse());
                 // Add new transaction amount to corresponding MonthlyBalance
                 addTransactionAmountToBalance(transaction);
+
+                if (newMirror != null) {
+                    // Subtract previous transaction amount from original MonthlyBalance
+                    addTransactionAmountToBalance(originalMirror.getInverse());
+                    // Add new transaction amount to corresponding MonthlyBalance
+                    addTransactionAmountToBalance(newMirror);
+                    dao._update(newMirror);
+                }
                 return dao._update(transaction);
             } catch (NullPointerException e) {
                 throw new GnomyIllegalQueryException("Trying to update non-existent transaction.", e);
@@ -126,12 +172,15 @@ public class MoneyTransactionRepository {
         BigDecimal newProjectedExpenses = BigDecimalUtil.ZERO;
 
         if (isConfirmed) {
-            if (type == MoneyTransaction.INCOME) {
+            if (type == MoneyTransaction.INCOME
+                    || type == MoneyTransaction.TRANSFER_MIRROR) {
                 newIncomes = newIncomes.add(transaction.getCalculatedValue());
             } else {
                 newExpenses = newExpenses.add(transaction.getCalculatedValue());
             }
         } else {
+            if (type == MoneyTransaction.TRANSFER || type == MoneyTransaction.TRANSFER_MIRROR)
+                throw new GnomyIllegalQueryException("Transfers must have a confirmed status.");
             if (type == MoneyTransaction.INCOME) {
                 newProjectedIncomes = newProjectedIncomes.add(transaction.getCalculatedValue());
             } else {
