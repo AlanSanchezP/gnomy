@@ -16,8 +16,6 @@ import io.github.alansanchezp.gnomy.database.recurrentTransaction.RecurrentTrans
 import io.github.alansanchezp.gnomy.database.recurrentTransaction.RecurrentTransactionDAO;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionDAO;
-import io.github.alansanchezp.gnomy.database.transfer.Transfer;
-import io.github.alansanchezp.gnomy.database.transfer.TransferDAO;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.reactivex.Single;
 
@@ -36,8 +34,7 @@ import java.util.concurrent.Executors;
     Account.class,
     MoneyTransaction.class,
     MonthlyBalance.class,
-    RecurrentTransaction.class,
-    Transfer.class
+    RecurrentTransaction.class
 }, version = 1, exportSchema = false)
 // TODO: Implement schemaLocation when app (and therefore db model) is
 //  (at least) beta-release ready
@@ -170,8 +167,6 @@ public abstract class GnomyDatabase extends RoomDatabase {
     protected abstract MoneyTransactionDAO _transactionDAO();
 
     protected abstract RecurrentTransactionDAO _recurrentTransactionDAO();
-
-    protected abstract TransferDAO _transferDAO();
 
     public static void cleanUp(){
         INSTANCE = null;

@@ -126,15 +126,13 @@ public class MoneyTransactionRepository {
         BigDecimal newProjectedExpenses = BigDecimalUtil.ZERO;
 
         if (isConfirmed) {
-            if (type == MoneyTransaction.INCOME ||
-                    type == MoneyTransaction.TRANSFER_INCOME) {
+            if (type == MoneyTransaction.INCOME) {
                 newIncomes = newIncomes.add(transaction.getCalculatedValue());
             } else {
                 newExpenses = newExpenses.add(transaction.getCalculatedValue());
             }
         } else {
-            if (type == MoneyTransaction.INCOME ||
-                    type == MoneyTransaction.TRANSFER_INCOME) {
+            if (type == MoneyTransaction.INCOME) {
                 newProjectedIncomes = newProjectedIncomes.add(transaction.getCalculatedValue());
             } else {
                 newProjectedExpenses = newProjectedExpenses.add(transaction.getCalculatedValue());

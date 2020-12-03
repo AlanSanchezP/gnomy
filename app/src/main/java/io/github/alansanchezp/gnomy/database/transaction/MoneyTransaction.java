@@ -1,7 +1,5 @@
 package io.github.alansanchezp.gnomy.database.transaction;
-// TODO: Transaction, Transfer and ReccurrentTransaction repositories
-// Create them after before (or in parallel) to their corresponding
-// UI classes.
+
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Objects;
@@ -26,6 +24,12 @@ import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
                 onDelete = ForeignKey.CASCADE
             ),
             @ForeignKey(
+                entity = Account.class,
+                parentColumns = "account_id",
+                childColumns = "transfer_destination_account_id",
+                onDelete = ForeignKey.SET_NULL
+            ),
+            @ForeignKey(
                 entity = Category.class,
                 parentColumns = "category_id",
                 childColumns = "category_id",
@@ -43,9 +47,11 @@ public class MoneyTransaction {
     @Ignore
     public static final int EXPENSE = 2;
     @Ignore
-    public static final int TRANSFER_INCOME = 3;
+    public static final int TRANSFER = 3;
+    // Special transaction type for internal business logic, not meant to
+    //  ever be presented to user.
     @Ignore
-    public static final int TRANSFER_EXPENSE = 4;
+    protected static final int TRANSFER_MIRROR = 4;
     @Ignore
     public static final BigDecimal MIN_VALUE = BigDecimalUtil.ZERO;
     @Ignore
@@ -67,6 +73,9 @@ public class MoneyTransaction {
     @ColumnInfo(name="account_id")
     private int account;
 
+    @ColumnInfo(name="transfer_destination_account_id")
+    private Integer transferDestinationAccount;
+
     @ColumnInfo(name="category_id")
     private int category;
 
@@ -81,10 +90,6 @@ public class MoneyTransaction {
     @ColumnInfo(name="calculated_value")
     @NonNull
     private BigDecimal calculatedValue = BigDecimalUtil.ZERO;
-
-    @ColumnInfo(name="transaction_description")
-    @NonNull
-    private String description = "";
 
     @ColumnInfo(name="is_confirmed")
     private boolean isConfirmed = true;
@@ -130,6 +135,14 @@ public class MoneyTransaction {
         this.account = account;
     }
 
+    public Integer getTransferDestinationAccount() {
+        return transferDestinationAccount;
+    }
+
+    public void setTransferDestinationAccount(Integer transferDestinationAccount) {
+        this.transferDestinationAccount = transferDestinationAccount;
+    }
+
     public int getCategory() {
         return category;
     }
@@ -165,15 +178,6 @@ public class MoneyTransaction {
     @Deprecated
     public void setCalculatedValue(@NonNull BigDecimal calculatedValue) {
         this.calculatedValue = calculatedValue;
-    }
-
-    @NonNull
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(@NonNull String description) {
-        this.description = description;
     }
 
     public boolean isConfirmed() {
@@ -225,6 +229,34 @@ public class MoneyTransaction {
         return inverted;
     }
 
+    @Ignore
+    protected MoneyTransaction getMirrorTransfer() {
+        if (this.type == INCOME || this.type == EXPENSE)
+            throw new RuntimeException("Non-transfer transactions cannot be mirrored.");
+        if (this.account == 0 || this.transferDestinationAccount == null)
+            throw new RuntimeException("Invalid values on account or mirror account ids.");
+
+        MoneyTransaction mirror = new MoneyTransaction();
+        mirror.concept = this.concept;
+        mirror.originalValue = this.originalValue;
+        mirror.currency = this.currency;
+        mirror.date = this.date;
+        mirror.category = this.category;
+        mirror.isConfirmed = this.isConfirmed;
+        mirror.account = this.transferDestinationAccount;
+        mirror.transferDestinationAccount = this.account;
+        mirror.notes = this.notes;
+        if (this.type == TRANSFER) {
+            mirror.type = TRANSFER_MIRROR;
+        } else if (this.type == TRANSFER_MIRROR){
+            mirror.type = TRANSFER;
+        } else {
+            throw new RuntimeException("Original transfer type is somehow invalid.");
+        }
+
+        return mirror;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -233,6 +265,8 @@ public class MoneyTransaction {
 
         return id == that.id &&
                 account == that.account &&
+                Objects.equals(transferDestinationAccount,
+                        that.transferDestinationAccount) &&
                 category == that.category &&
                 isConfirmed == that.isConfirmed &&
                 type == that.type &&
@@ -241,12 +275,11 @@ public class MoneyTransaction {
                 date.equals(that.date) &&
                 originalValue.equals(that.originalValue) &&
                 calculatedValue.equals(that.calculatedValue) &&
-                description.equals(that.description) &&
                 notes.equals(that.notes);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, concept, currency, account, category, date, originalValue, calculatedValue, description, isConfirmed, type, notes);
+        return Objects.hash(id, concept, currency, account, transferDestinationAccount, category, date, originalValue, calculatedValue, isConfirmed, type, notes);
     }
 }
