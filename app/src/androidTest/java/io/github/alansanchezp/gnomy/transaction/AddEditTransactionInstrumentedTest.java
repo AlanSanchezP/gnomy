@@ -58,6 +58,7 @@ import static io.github.alansanchezp.gnomy.EspressoTestUtil.nestedScrollTo;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.setChecked;
 import static io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction.EXPENSE;
 import static io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction.INCOME;
+import static io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction.TRANSFER;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -396,6 +397,31 @@ public class AddEditTransactionInstrumentedTest {
                         withText(R.string.transaction_modify_income)
                 )));
         tempScenario.close();
+
+        // New transfer
+        intent= intent
+                .putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, TRANSFER)
+                .putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_ID, 0);
+        tempScenario = launch(intent);
+        onView(withId(R.id.custom_appbar))
+                .check(matches(hasDescendant(
+                        withText(R.string.transaction_new_transfer)
+                )));
+        tempScenario.close();
+
+        // Modify transfer
+        intent= intent
+                .putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, TRANSFER)
+                .putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_ID, 2);
+        tempScenario = launch(intent);
+        onView(withId(R.id.custom_appbar))
+                .check(matches(hasDescendant(
+                        withText(R.string.transaction_modify_transfer)
+                )));
+        tempScenario.close();
+
+        // Not testing invalid types because RuntimeException can't be catched
+        //  (for some weird reason)
     }
 
     @Test

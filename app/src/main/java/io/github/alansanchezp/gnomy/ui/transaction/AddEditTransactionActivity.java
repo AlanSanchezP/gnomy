@@ -62,9 +62,12 @@ public class AddEditTransactionActivity
         CalcDialog.CalcDialogCallback {
     public static final String EXTRA_TRANSACTION_TYPE = "AddEditTransactionActivity.TransactionType";
     public static final String EXTRA_TRANSACTION_ID = "AddEditTransactionActivity.TransactionId";
-    public static final String TAG_DATE_DIALOG = "AddEditTransactionActivity.DateDialog";
-    public static final String TAG_TIME_DIALOG = "AddEditTransactionActivity.TimeDialog";
-    public static final String TAG_CALCULATOR_DIALOG = "AddEditTransactionActivity.CalculatorDialog";
+    // TODO: Implement logic to use these two extras
+    public static final String EXTRA_TRANSACTION_ACCOUNT = "AddEditTransactionActivity.TransactionAccount";
+    public static final String EXTRA_TRANSFER_DESTINATION_ACCOUNT = "AddEditTransactionActivity.TransferDestinationAccount";
+    private static final String TAG_DATE_DIALOG = "AddEditTransactionActivity.DateDialog";
+    private static final String TAG_TIME_DIALOG = "AddEditTransactionActivity.TimeDialog";
+    private static final String TAG_CALCULATOR_DIALOG = "AddEditTransactionActivity.CalculatorDialog";
     private int mTransactionType;
     private LinearLayout mBoxLayout;
     private TextInputLayout mTransactionConceptTIL;
@@ -137,7 +140,14 @@ public class AddEditTransactionActivity
             if (transactionId == 0) setTitle(R.string.transaction_new_income);
             else setTitle(R.string.transaction_modify_income);
             setThemeColor(getResources().getColor(R.color.colorIncomes));
+        } else if (mTransactionType == MoneyTransaction.TRANSFER) {
+            if (transactionId == 0) setTitle(R.string.transaction_new_transfer);
+            else setTitle(R.string.transaction_modify_transfer);
+            setThemeColor(getResources().getColor(R.color.colorTransfers));
+        } else {
+            throw new RuntimeException("Invalid transaction type.");
         }
+
         LiveData<MoneyTransaction> ld = mViewModel.getTransaction(transactionId);
         if (ld == null) {
             MoneyTransaction transaction = new MoneyTransaction();
