@@ -14,6 +14,7 @@ import androidx.room.PrimaryKey;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.category.Category;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
+import io.github.alansanchezp.gnomy.util.DateUtil;
 
 @Entity(tableName = "transactions",
         foreignKeys = {
@@ -81,7 +82,7 @@ public class MoneyTransaction {
 
     @ColumnInfo(name="transaction_date")
     @NonNull
-    private OffsetDateTime date = OffsetDateTime.now();
+    private OffsetDateTime date = DateUtil.OffsetDateTimeNow();
 
     @ColumnInfo(name="original_value")
     @NonNull
@@ -193,7 +194,16 @@ public class MoneyTransaction {
     }
 
     public void setType(int type) {
-        this.type = type;
+        switch(type) {
+            case INCOME:
+            case EXPENSE:
+            case TRANSFER:
+            case TRANSFER_MIRROR:
+                this.type = type;
+                break;
+            default:
+                throw new RuntimeException("Invalid transaction type.");
+        }
     }
 
     @NonNull
@@ -218,7 +228,7 @@ public class MoneyTransaction {
 
     // Custom methods
     @Ignore
-    public MoneyTransaction getInverse() {
+    protected MoneyTransaction getInverse() {
         MoneyTransaction inverted = new MoneyTransaction();
         inverted.date = this.date;
         inverted.account = this.account;
@@ -235,6 +245,8 @@ public class MoneyTransaction {
             throw new RuntimeException("Non-transfer transactions cannot be mirrored.");
         if (this.account == 0 || this.transferDestinationAccount == null)
             throw new RuntimeException("Invalid values on account or mirror account ids.");
+        if (this.account == this.transferDestinationAccount)
+            throw new RuntimeException("Cannot create transfer with same origin and destination account..");
 
         MoneyTransaction mirror = new MoneyTransaction();
         mirror.concept = this.concept;

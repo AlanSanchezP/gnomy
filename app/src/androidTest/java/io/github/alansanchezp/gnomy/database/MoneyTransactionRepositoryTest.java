@@ -33,6 +33,8 @@ public class MoneyTransactionRepositoryTest {
     @Before
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public void setUp() {
+        // Fixing test clock to avoid changes in dates when calling DateUtil.OffsetDateTimeNow()
+        DateUtil.setFixedClockAtTime("2018-01-08T15:34:42.00Z");
         MockDatabaseOperationsUtil.disableMocking();
         repository = new MoneyTransactionRepository(
                 InstrumentationRegistry.getInstrumentation().getContext());
@@ -130,6 +132,61 @@ public class MoneyTransactionRepositoryTest {
                 "0", // (initial value)
                 "0"); // (initial value)
         // TODO: Validate date is valid (>= account's creation)
+
+        // New transfer
+        //  Assert two monthly balances with equivalent changes in incomes and expenses
+        testTransaction.setType(MoneyTransaction.TRANSFER);
+        // Null destination account throws error if transfer
+        assertThrows(GnomyIllegalQueryException.class,
+                () -> repository.insert(testTransaction).blockingGet());
+        // Unconfirmed transfer throws error
+        testTransaction.setConfirmed(false);
+        assertThrows(GnomyIllegalQueryException.class,
+                () -> repository.insert(testTransaction).blockingGet());
+        // Throws error if destination and origin accounts are the same
+        testTransaction.setConfirmed(true);
+        testTransaction.setTransferDestinationAccount(1);
+        assertThrows(GnomyIllegalQueryException.class,
+                () -> repository.insert(testTransaction).blockingGet());
+
+        // Throws error if non-transfer has destination account id
+        testTransaction.setType(MoneyTransaction.INCOME);
+        assertThrows(GnomyIllegalQueryException.class,
+                () -> repository.insert(testTransaction).blockingGet());
+
+        // Throws error if attempting to directly insert a mirror transfer
+        testTransaction.setType(4);
+        assertThrows(GnomyIllegalQueryException.class,
+                () -> repository.insert(testTransaction).blockingGet());
+
+        // Throws error if transfer is future
+        testTransaction.setType(MoneyTransaction.TRANSFER);
+        testTransaction.setTransferDestinationAccount(2);
+        // Not able to test using plusNanos() since transactions
+        // are only stored with millisecond precision
+        testTransaction.setDate(DateUtil.OffsetDateTimeNow().plusSeconds(1));
+        assertThrows(GnomyIllegalQueryException.class,
+                () -> repository.insert(testTransaction).blockingGet());
+
+        // Effective insertion
+        testTransaction.setDate(DateUtil.OffsetDateTimeNow().minusMonths(1));
+        testTransaction.setConfirmed(true);
+        testTransaction.setOriginalValue("30");
+        repository.insert(testTransaction).blockingGet();
+        resultBalance = getOrAwaitValue(
+                repository.getBalanceFromMonth(1, DateUtil.now().minusMonths(1)));
+        MonthlyBalance destinationBalance = getOrAwaitValue(
+                repository.getBalanceFromMonth(2, DateUtil.now().minusMonths(1)));
+        testResultBalance(resultBalance,
+                "567", // (stays the same)
+                "30", // 0 + 30 = 30
+                "0", // (stays the same)
+                "0"); // (stays the same)
+        testResultBalance(destinationBalance,
+                "30", // 0 + 30 = 30
+                "0", // (stays the same)
+                "0", // (stays the same)
+                "0"); // (stays the same)
         // Try to insert into faulty balance (invalid account id)
         testTransaction.setAccount(10);
         assertThrows(SQLiteConstraintException.class,
@@ -144,19 +201,30 @@ public class MoneyTransactionRepositoryTest {
         // Not testing insertOrIgnore since custom_insert_method_works() covers it
         // Not testing addTransactionAmountToBalance since custom_insert_method_works() covers it
         MoneyTransaction testTransaction = getDefaultTestTransaction();
-        testTransaction.setId(1);
+        testTransaction.setId(0);
         testTransaction.setOriginalValue("10");
         // Attempt to update non-existing transaction
         assertThrows(GnomyIllegalQueryException.class,
                 () -> repository.update(testTransaction).blockingGet());
         // Insert transaction
         repository.insert(testTransaction).blockingGet();
+        testTransaction.setType(MoneyTransaction.TRANSFER);
+        testTransaction.setDate(DateUtil.OffsetDateTimeNow());
+        testTransaction.setTransferDestinationAccount(2);
+        // Insert transfer. Two transactions will be generated, with Ids 3 and 2 (mirror is inserted first)
+        //  Using a different month to avoid conflicts with other assertions
+        repository.insert(testTransaction).blockingGet();
+        // Return to default state
+        testTransaction.setDate(DateUtil.OffsetDateTimeNow().minusMonths(2));
+        testTransaction.setId(1);
+        testTransaction.setTransferDestinationAccount(null);
         /* At this point, monthly balance values are:
               Total incomes: 40 (30 + 10)
               Total expenses: 172
               Projected incomes: 425
               Projected expenses: 100 */
 
+        // Cannot change transaction type
         testTransaction.setType(MoneyTransaction.EXPENSE);
         assertThrows(GnomyIllegalQueryException.class,
                 () -> repository.update(testTransaction).blockingGet());
@@ -286,7 +354,98 @@ public class MoneyTransactionRepositoryTest {
         // TODO: Test currency changes
         // TODO: Validate date is valid for both potentially involved accounts
         // Test what happens with invalid accounts or categories (some error)
+        // Update transfer
+        testTransaction.setAccount(2);
+        testTransaction.setTransferDestinationAccount(1);
+        // Cannot update mirror transfers (autogenerated mirror transfer ID should be 2)
+        testTransaction.setType(4);
+        testTransaction.setId(2);
+        assertThrows(GnomyIllegalQueryException.class,
+                () -> repository.update(testTransaction).blockingGet());
+        // Cannot update non-null destination account on incomes and expenses
+        testTransaction.setId(1);
+        testTransaction.setType(MoneyTransaction.INCOME);
+        assertThrows(GnomyIllegalQueryException.class,
+                () -> repository.update(testTransaction).blockingGet());
 
+        testTransaction.setType(MoneyTransaction.TRANSFER);
+        testTransaction.setId(3);
+        // Cannot update transfer as not confirmed
+        testTransaction.setConfirmed(false);
+        assertThrows(GnomyIllegalQueryException.class,
+                () -> repository.update(testTransaction).blockingGet());
+        testTransaction.setConfirmed(true);
+        // Cannot update null destination on transfers
+        testTransaction.setTransferDestinationAccount(null);
+        assertThrows(GnomyIllegalQueryException.class,
+                () -> repository.update(testTransaction).blockingGet());
+        // Throws error if transfer is future
+        testTransaction.setTransferDestinationAccount(1);
+        testTransaction.setDate(DateUtil.OffsetDateTimeNow().plusSeconds(1));
+        assertThrows(GnomyIllegalQueryException.class,
+                () -> repository.update(testTransaction).blockingGet());
+
+        /* Previous balance states are
+            Origin balance                          Destination balance
+            Incomes: 0                              Incomes: 10
+            Expenses: 10                            Expenses: 0
+            ProjectedIncomes: 0                     ProjectedIncomes: 0
+            ProjectedExpenses: 0                    ProjectedExpenses: 0
+         */
+        // Actual transfer update. Changing both amount and swapping accounts
+        testTransaction.setOriginalValue("50");
+        testTransaction.setDate(DateUtil.OffsetDateTimeNow());
+        repository.update(testTransaction).blockingGet();
+        // Using only two balance instances for now
+        // resultBalance: Origin (transfer from)
+        // secondaryResultBalance: Destination (transfer to)
+        resultBalance = getOrAwaitValue(repository.getBalanceFromMonth(2, DateUtil.now()));
+        secondaryResultBalance = getOrAwaitValue(repository.getBalanceFromMonth(1, DateUtil.now()));
+        testResultBalance(resultBalance,
+                "0", //  10 - 10 = 0
+                "50", // 0 + 50 = 0
+                "0", // (stays the same)
+                "0"); // (stays the same)
+        testResultBalance(secondaryResultBalance,
+                "50", // 0 + 50 = 0
+                "0", // 10 - 10 = 0
+                "0", // (stays the same)
+                "0"); // (stays the same)
+
+        // Altering 4 balances: Changing transfer date
+        testTransaction.setDate(DateUtil.OffsetDateTimeNow().minusMonths(1));
+        repository.update(testTransaction).blockingGet();
+        MonthlyBalance originalOriginBalance, originalDestinationBalance,
+                newOriginBalance, newDestinationBalance;
+        originalOriginBalance = getOrAwaitValue(
+                repository.getBalanceFromMonth(2, DateUtil.now()));
+        newOriginBalance = getOrAwaitValue(
+                repository.getBalanceFromMonth(2, DateUtil.now().minusMonths(1)));
+        originalDestinationBalance = getOrAwaitValue(
+                repository.getBalanceFromMonth(1, DateUtil.now()));
+        newDestinationBalance = getOrAwaitValue(
+                repository.getBalanceFromMonth(1, DateUtil.now().minusMonths(1)));
+
+        testResultBalance(originalOriginBalance,
+                "0", //  (stays the same)
+                "0", // 50 - 50 = 0
+                "0", // (stays the same)
+                "0"); // (stays the same)
+        testResultBalance(originalDestinationBalance,
+                "0", // 50 - 50 = 0
+                "0", // (stays the same)
+                "0", // (stays the same)
+                "0"); // (stays the same)
+        testResultBalance(newOriginBalance,
+                "0", //  (stays the same)
+                "50", // 0 + 50 = 50
+                "30", // (stays the same)
+                "0"); // (stays the same)
+        testResultBalance(newDestinationBalance,
+                "50", // 0 + 50 = 50
+                "0", // (stays the same)
+                "0", // (stays the same)
+                "0"); // (stays the same)
         assert true;
     }
 
