@@ -11,6 +11,7 @@ import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
+import io.github.alansanchezp.gnomy.database.GnomyIllegalQueryException;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.category.Category;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
@@ -177,7 +178,7 @@ public class MoneyTransaction {
     }
 
     @Deprecated
-    public void setCalculatedValue(@NonNull BigDecimal calculatedValue) {
+    protected void setCalculatedValue(@NonNull BigDecimal calculatedValue) {
         this.calculatedValue = calculatedValue;
     }
 
@@ -221,12 +222,39 @@ public class MoneyTransaction {
         this.originalValue = BigDecimalUtil.fromString(stringValue);
     }
 
-    public void setCalculatedValue(@NonNull String stringValue)
+    protected void setCalculatedValue(@NonNull String stringValue)
             throws NumberFormatException {
         this.originalValue = BigDecimalUtil.fromString(stringValue);
     }
 
     // Custom methods
+    @Ignore
+    protected GnomyIllegalQueryException getIsolatedValidationError() {
+        if (this.type == TRANSFER_MIRROR)
+            return new GnomyIllegalQueryException("Direct manipulation of mirror transfers is not allowed.");
+        if (this.account == 0)
+            return new GnomyIllegalQueryException("Associated account cannot be null");
+        if (this.category == 0)
+            return new GnomyIllegalQueryException("Associated category cannot be null");
+        if (!BigDecimalUtil.isInRange(MIN_VALUE, MAX_VALUE, this.originalValue))
+            return new GnomyIllegalQueryException("Transaction amount out of range.");
+        if (this.concept.equals(""))
+            return new GnomyIllegalQueryException("Empty transaction concept.");
+        if (this.type == TRANSFER) {
+            if (this.transferDestinationAccount == null)
+                return new GnomyIllegalQueryException("Transfers must have a destination account.");
+            if (this.account == this.transferDestinationAccount)
+                return new GnomyIllegalQueryException("Cannot create transfer with same origin and destination account.");
+            if (!this.isConfirmed)
+                return new GnomyIllegalQueryException("Transfers must be confirmed transactions.");
+            if (this.date.isAfter(DateUtil.OffsetDateTimeNow()))
+                return new GnomyIllegalQueryException("Transfers cannot be future transactions.");
+        } else if (this.transferDestinationAccount != null)
+            return new GnomyIllegalQueryException("Non-transfer transactions cannot have a destination account.");
+
+        return null;
+    }
+
     @Ignore
     protected MoneyTransaction getInverse() {
         MoneyTransaction inverted = new MoneyTransaction();
@@ -242,12 +270,7 @@ public class MoneyTransaction {
     @Ignore
     protected MoneyTransaction getMirrorTransfer() {
         if (this.type == INCOME || this.type == EXPENSE)
-            throw new RuntimeException("Non-transfer transactions cannot be mirrored.");
-        if (this.account == 0 || this.transferDestinationAccount == null)
-            throw new RuntimeException("Invalid values on account or mirror account ids.");
-        if (this.account == this.transferDestinationAccount)
-            throw new RuntimeException("Cannot create transfer with same origin and destination account..");
-
+            return null;
         MoneyTransaction mirror = new MoneyTransaction();
         mirror.concept = this.concept;
         mirror.originalValue = this.originalValue;
@@ -258,13 +281,12 @@ public class MoneyTransaction {
         mirror.account = this.transferDestinationAccount;
         mirror.transferDestinationAccount = this.account;
         mirror.notes = this.notes;
-        if (this.type == TRANSFER) {
+        if (this.type == TRANSFER)
             mirror.type = TRANSFER_MIRROR;
-        } else if (this.type == TRANSFER_MIRROR){
+        else if (this.type == TRANSFER_MIRROR)
             mirror.type = TRANSFER;
-        } else {
+        else
             throw new RuntimeException("Original transfer type is somehow invalid.");
-        }
 
         return mirror;
     }

@@ -467,6 +467,7 @@ public class MoneyTransactionRepositoryTest {
         testTransaction.setDate(DateUtil.OffsetDateTimeNow().minusMonths(2));
         testTransaction.setCurrency("USD");
         testTransaction.setOriginalValue("567");
+        testTransaction.setConcept("Test transaction");
         testTransaction.setType(MoneyTransaction.INCOME);
         testTransaction.setConfirmed(true);
         return testTransaction;

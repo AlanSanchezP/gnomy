@@ -10,7 +10,6 @@ import io.github.alansanchezp.gnomy.database.GnomyDatabase;
 import io.github.alansanchezp.gnomy.database.GnomyIllegalQueryException;
 import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
-import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.reactivex.Single;
 
 public class MoneyTransactionRepository {
@@ -40,22 +39,16 @@ public class MoneyTransactionRepository {
      */
     public Single<Long> insert(MoneyTransaction transaction) {
         return db.toSingleInTransaction(() -> {
+            GnomyIllegalQueryException validationError = transaction.getIsolatedValidationError();
+            if (validationError != null)
+                throw validationError;
             // TODO: Currency conversion (this will prevent use of deprecated method)
             //noinspection deprecation
             transaction.setCalculatedValue(transaction.getOriginalValue());
             addTransactionAmountToBalance(transaction);
-            // TODO: Refactor transfer validations
-            if (transaction.getType() == MoneyTransaction.TRANSFER_MIRROR)
-                throw new GnomyIllegalQueryException("Cannot insert mirrored transfer directly.");
             if (transaction.getType() == MoneyTransaction.TRANSFER) {
-                if (!transaction.isConfirmed() || transaction.getDate().isAfter(DateUtil.OffsetDateTimeNow()))
-                    throw new GnomyIllegalQueryException("Transfers have to be confirmed non-future transactions.");
                 MoneyTransaction mirror;
-                try {
-                    mirror = transaction.getMirrorTransfer();
-                } catch(RuntimeException e) {
-                    throw new GnomyIllegalQueryException(e);
-                }
+                mirror = transaction.getMirrorTransfer();
                 //noinspection deprecation
                 mirror.setCalculatedValue(mirror.getOriginalValue());
                 addTransactionAmountToBalance(mirror);
@@ -88,32 +81,24 @@ public class MoneyTransactionRepository {
      */
     public Single<Integer> update(MoneyTransaction transaction) {
         return db.toSingleInTransaction(() -> {
+            GnomyIllegalQueryException validationError = transaction.getIsolatedValidationError();
+            if (validationError != null)
+                throw validationError;
             MoneyTransaction original = dao._find(transaction.getId());
             try {
                 if (original.equals(transaction)) return 0;
                 if (original.getType() != transaction.getType())
                     throw new GnomyIllegalQueryException("It is not allowed to change a transaction's type.");
-                if (transaction.getType() == MoneyTransaction.TRANSFER_MIRROR)
-                    throw new GnomyIllegalQueryException("Cannot update mirrored transfers directly.");
                 MoneyTransaction originalMirror = null;
                 MoneyTransaction newMirror = null;
                 if (transaction.getType() == MoneyTransaction.TRANSFER) {
-                    if (!transaction.isConfirmed() || transaction.getDate().isAfter(DateUtil.OffsetDateTimeNow()))
-                        throw new GnomyIllegalQueryException("Transfers have to be confirmed non-future transactions.");
-
                     originalMirror = dao._findMirrorTransfer(original.getDate(),
                             original.getAccount(),
                             original.getTransferDestinationAccount());
                     if (originalMirror == null)
                         throw new GnomyIllegalQueryException("!!! Transfer doesn't seem to have a mirror !!!");
-                    try {
-                        newMirror = transaction.getMirrorTransfer();
-                    } catch(RuntimeException e) {
-                        throw new GnomyIllegalQueryException(e);
-                    }
+                    newMirror = transaction.getMirrorTransfer();
                     newMirror.setId(originalMirror.getId());
-                } else if (transaction.getTransferDestinationAccount() != null) {
-                    throw new GnomyIllegalQueryException("Non-transfers cannot have two linked accounts.");
                 }
 
                 if (!original.getOriginalValue().equals(
