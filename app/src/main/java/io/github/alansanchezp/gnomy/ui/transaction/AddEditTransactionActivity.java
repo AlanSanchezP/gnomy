@@ -410,7 +410,7 @@ public class AddEditTransactionActivity
                 mTransaction.setCurrency(CurrencyUtil.getCurrencyCode(position)));
             // TODO: Use global default currency (WHEN IMPLEMENTED)
             if (mIsNewScreen) {
-                mTransaction.setCurrency(currencies[0]);
+                mTransaction.setCurrency("USD");
             }
         } catch (GnomyCurrencyException e) {
             // This shouldn't happen
