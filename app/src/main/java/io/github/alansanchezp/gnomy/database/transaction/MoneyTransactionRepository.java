@@ -26,7 +26,6 @@ public class MoneyTransactionRepository {
     }
 
     // TODO: Update AccountRepositoryTest with actual transactions
-    // TODO: Validate both insert and update methods as an additional integrity check
     /**
      * Inserts a given  {@link MoneyTransaction} row from some input.
      *
@@ -35,7 +34,7 @@ public class MoneyTransactionRepository {
      *
      * @param transaction   Transaction to be inserted
      * @return              Single object that can be observed on main thread, wrapping
-     *                      the inserted account's generated id.
+     *                      the inserted transaction's generated id.
      */
     public Single<Long> insert(MoneyTransaction transaction) {
         return db.toSingleInTransaction(() -> {

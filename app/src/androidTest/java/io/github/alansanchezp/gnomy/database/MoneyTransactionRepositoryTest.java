@@ -131,7 +131,6 @@ public class MoneyTransactionRepositoryTest {
                 "0", // (initial value)
                 "0", // (initial value)
                 "0"); // (initial value)
-        // TODO: Validate date is valid (>= account's creation)
 
         // New transfer
         //  Assert two monthly balances with equivalent changes in incomes and expenses
@@ -352,7 +351,6 @@ public class MoneyTransactionRepositoryTest {
                 "0"); // (stays the same)
 
         // TODO: Test currency changes
-        // TODO: Validate date is valid for both potentially involved accounts
         // Test what happens with invalid accounts or categories (some error)
         // Update transfer
         testTransaction.setAccount(2);
