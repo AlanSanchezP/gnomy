@@ -20,6 +20,7 @@ import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.NoMatchingViewException;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -44,9 +45,11 @@ import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
+import static androidx.test.espresso.matcher.ViewMatchers.isChecked;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.isNotChecked;
+import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withHint;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -623,11 +626,116 @@ public class AddEditTransactionInstrumentedTest {
     }
 
     // TODO: Implement when categories module is ready
+    @Test
     public void opens_new_category_activity() {
         assert true;
     }
 
+    @Test
     public void new_category_is_set_as_selected() {
         assert true;
+    }
+
+    // TRANSFER-RELATED TESTS
+
+    @Test
+    public void elements_toggle_visibility_if_transfer() {
+        // Default behavior on tests is expense
+        onView(withId(R.id.addedit_transaction_to_account))
+                .check(matches(
+                        withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        onView(withId(R.id.addedit_transaction_mark_as_done))
+                .check(matches(
+                        withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
+                AddEditTransactionActivity.class)
+                .putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, TRANSFER);
+        ActivityScenario<AddEditTransactionActivity> tempScenario = launch(intent);
+
+        onView(withId(R.id.addedit_transaction_to_account))
+                .check(matches(
+                        withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+        onView(withId(R.id.addedit_transaction_mark_as_done))
+                .check(matches(
+                        withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
+                .check(matches(isChecked()));
+
+        tempScenario.close();
+    }
+
+    @Test
+    public void displays_error_if_accounts_are_the_same() {
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
+                AddEditTransactionActivity.class)
+                .putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, TRANSFER);
+        ActivityScenario<AddEditTransactionActivity> tempScenario = launch(intent);
+
+        onView(withId(R.id.addedit_transaction_same_account_error))
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        onView(withId(R.id.addedit_transaction_to_account)).perform(click());
+        // By default, second account is set as selected if available,
+        //  so we switch to accountA manually
+        onData(allOf(is(instanceOf(Account.class)), is(
+                testAccountA)))
+                .perform(click());
+        onView(withId(R.id.addedit_transaction_same_account_error))
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        onView(withId(R.id.addedit_transaction_to_account)).perform(click());
+        onData(allOf(is(instanceOf(Account.class)), is(
+                testAccountB)))
+                .perform(click());
+        onView(withId(R.id.addedit_transaction_same_account_error))
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+
+        onView(withId(R.id.addedit_transaction_from_account)).perform(click());
+        onData(allOf(is(instanceOf(Account.class)), is(
+                testAccountB)))
+                .perform(click());
+        onView(withId(R.id.addedit_transaction_same_account_error))
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        // Forcing one-item list
+        List<Account> temp = new ArrayList<>();
+        temp.add(testAccountA);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                testAccountListLD.postValue(temp));
+        // Asserting empty list for destination account
+        onView(withId(R.id.addedit_transaction_to_account))
+                .check(matches(withHint(R.string.transaction_to_account)));
+
+        // Back to defaults
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                testAccountListLD.postValue(testAccountList));
+        tempScenario.close();
+    }
+
+    @Test
+    public void dynamic_nullity_rules_if_transfer() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                testAccountListLD.postValue(new ArrayList<>()));
+
+        // Default behavior on tests is expense: not checking destination account
+        onView(withId(R.id.addedit_transaction_FAB))
+                .perform(click());
+        onView(withId(R.id.addedit_transaction_to_account))
+                .check(matches(not(withHint(R.string.transaction_error_account))));
+
+        // Destination account can't be null on transfers
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
+                AddEditTransactionActivity.class)
+                .putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, TRANSFER);
+        ActivityScenario<AddEditTransactionActivity> tempScenario = launch(intent);
+
+        onView(withId(R.id.addedit_transaction_FAB))
+                .perform(click());
+        onView(withId(R.id.addedit_transaction_to_account))
+                .check(matches(withHint(R.string.transaction_error_account)));
+
+        // Return to default
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                testAccountListLD.postValue(testAccountList));
+        tempScenario.close();
     }
 }

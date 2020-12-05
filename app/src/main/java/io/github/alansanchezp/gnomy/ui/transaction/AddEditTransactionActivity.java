@@ -68,7 +68,14 @@ public class AddEditTransactionActivity
     private static final String TAG_DATE_DIALOG = "AddEditTransactionActivity.DateDialog";
     private static final String TAG_TIME_DIALOG = "AddEditTransactionActivity.TimeDialog";
     private static final String TAG_CALCULATOR_DIALOG = "AddEditTransactionActivity.CalculatorDialog";
+
+    // Utilities for validation and data management
     private int mTransactionType;
+    private boolean mIsNewScreen = true;
+    private OffsetDateTime mTransactionMinDate = DateUtil.OffsetDateTimeNow();
+    private MoneyTransaction mTransaction;
+
+    // Layout objects
     private LinearLayout mBoxLayout;
     private TextInputLayout mTransactionConceptTIL;
     private TextInputEditText mTransactionConceptTIET;
@@ -80,14 +87,12 @@ public class AddEditTransactionActivity
     private MaterialSpinner mCurrencySpinner;
     private MaterialSpinner mCategorySpinner;
     private MaterialSpinner mAccountSpinner;
+    private MaterialSpinner mDestinationAccountSpinner;
     private TextInputLayout mNotesTIL;
     private TextInputEditText mNotesTIET;
     private Switch mMarkAsDoneSwitch;
     private SingleClickViewHolder<FloatingActionButton> mFABVH;
     private AddEditTransactionViewModel mViewModel;
-    private MoneyTransaction mTransaction;
-    private boolean mIsNewScreen = true;
-    private OffsetDateTime mAccountMinDate;
 
     // Flags for async operations
     private List<Account> mAccountsList;
@@ -116,6 +121,7 @@ public class AddEditTransactionActivity
         mCurrencySpinner = findViewById(R.id.addedit_transaction_currency);
         mCategorySpinner = findViewById(R.id.addedit_transaction_category);
         mAccountSpinner = findViewById(R.id.addedit_transaction_from_account);
+        mDestinationAccountSpinner = findViewById(R.id.addedit_transaction_to_account);
         mNotesTIL = findViewById(R.id.addedit_transaction_notes);
         mNotesTIET = findViewById(R.id.addedit_transaction_notes_input);
         mMarkAsDoneSwitch = findViewById(R.id.addedit_transaction_mark_as_done);
@@ -131,7 +137,6 @@ public class AddEditTransactionActivity
         Intent intent = getIntent();
         int transactionId = intent.getIntExtra(EXTRA_TRANSACTION_ID, 0);
         mTransactionType = intent.getIntExtra(EXTRA_TRANSACTION_TYPE, MoneyTransaction.EXPENSE);
-        // TODO: Support for transfers
         if (mTransactionType == MoneyTransaction.EXPENSE) {
             if (transactionId == 0) setTitle(R.string.transaction_new_expense);
             else setTitle(R.string.transaction_modify_expense);
@@ -139,11 +144,16 @@ public class AddEditTransactionActivity
         } else if (mTransactionType == MoneyTransaction.INCOME) {
             if (transactionId == 0) setTitle(R.string.transaction_new_income);
             else setTitle(R.string.transaction_modify_income);
+            // TODO: Change account spinner label to "to account" on incomes
             setThemeColor(getResources().getColor(R.color.colorIncomes));
         } else if (mTransactionType == MoneyTransaction.TRANSFER) {
             if (transactionId == 0) setTitle(R.string.transaction_new_transfer);
             else setTitle(R.string.transaction_modify_transfer);
             setThemeColor(getResources().getColor(R.color.colorTransfers));
+            mMarkAsDoneSwitch.setEnabled(false);
+            mMarkAsDoneSwitch.setChecked(true);
+            mMarkAsDoneSwitch.setVisibility(View.GONE);
+            mDestinationAccountSpinner.setVisibility(View.VISIBLE);
         } else {
             throw new RuntimeException("Invalid transaction type.");
         }
@@ -262,6 +272,7 @@ public class AddEditTransactionActivity
     private void tryToForceConfirmedStatus() {
         // TODO: How can we test this behavior?
         if (mTransaction == null) return;
+        if (mTransactionType == MoneyTransaction.TRANSFER) return;
         if (mTransaction.getDate().isAfter(OffsetDateTime.now())) {
             boolean previousSelectedState = mTransaction.isConfirmed();
             mMarkAsDoneSwitch.setChecked(false); // event listener will update mTransaction too
@@ -292,10 +303,12 @@ public class AddEditTransactionActivity
         mViewModel.setUserSelectedConfirmedStatus(transaction.isConfirmed());
         tryToForceConfirmedStatus();
         updateDateText();
-        mMarkAsDoneSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            mTransaction.setConfirmed(isChecked);
-            mViewModel.setUserSelectedConfirmedStatus(isChecked);
-        });
+        if (mTransactionType != MoneyTransaction.TRANSFER) {
+            mMarkAsDoneSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                mTransaction.setConfirmed(isChecked);
+                mViewModel.setUserSelectedConfirmedStatus(isChecked);
+            });
+        }
         if(!mIsNewScreen) {
             mAmountTIET.setText(transaction.getOriginalValue().toPlainString());
             mTransactionConceptTIET.setText(transaction.getConcept());
@@ -317,15 +330,35 @@ public class AddEditTransactionActivity
             tryToDisplayContainer();
     }
 
-    private void setAccountAndData(Account account) {
-        mTransaction.setAccount(account.getId());
-        mAccountMinDate = account.getCreatedAt();
-        if (mAccountMinDate.isAfter(mTransaction.getDate())) {
-            mTransaction.setDate(mAccountMinDate);
+    private void setOrIgnoreMinDate(Account account) {
+        if (mTransactionMinDate.isBefore(account.getCreatedAt())) {
+            mTransactionMinDate = account.getCreatedAt();
+        }
+        if (mTransactionMinDate.isAfter(mTransaction.getDate())) {
+            mTransaction.setDate(mTransactionMinDate);
             tryToForceConfirmedStatus();
             updateDateText();
         }
+    }
+
+    private void setTransactionAccount(Account account) {
+        mTransaction.setAccount(account.getId());
+        setOrIgnoreMinDate(account);
         setAccountCurrency(account);
+    }
+
+    private void setDestinationAccount(Account account) {
+        if (mTransactionType != MoneyTransaction.TRANSFER)
+            throw new RuntimeException("Invalid operation: Setting transfer destination account on non-transfer transaction.");
+        if (account == null) {
+            account = new Account();
+            account.setCreatedAt(DateUtil.OffsetDateTimeNow());
+            mTransaction.setTransferDestinationAccount(null);
+        }
+        else {
+            mTransaction.setTransferDestinationAccount(account.getId());
+        }
+        setOrIgnoreMinDate(account);
     }
 
     private void setAccountCurrency(Account account) {
@@ -349,17 +382,59 @@ public class AddEditTransactionActivity
         mAccountSpinner.setHint(R.string.transaction_from_account);
 
         mAccountSpinner.setOnItemSelectedListener((view, position, id, item) -> {
-            Account selectedAccount = accounts.get(position);
-            setAccountAndData(selectedAccount);
+            setTransactionAccount((Account) item);
+            if (mTransactionType == MoneyTransaction.TRANSFER) {
+                mDestinationAccountSpinner.setError(null);
+                findViewById(R.id.addedit_transaction_same_account_error).setVisibility(View.GONE);
+                if (((Account) item).getId() == mTransaction.getTransferDestinationAccount()) {
+                    mDestinationAccountSpinner.setError(getResources().getString(R.string.form_error));
+                    findViewById(R.id.addedit_transaction_same_account_error).setVisibility(View.VISIBLE);
+                }
+            }
         });
+
+        if(mTransactionType == MoneyTransaction.TRANSFER) {
+            if (accounts.size() > 1) {
+                mDestinationAccountSpinner.setItems(accounts.toArray());
+            } else { // Send empty list that prevents ONE possible occurrence of same-account error
+                mDestinationAccountSpinner.setItems(new ArrayList<>());
+                mTransaction.setTransferDestinationAccount(null);
+                mDestinationAccountSpinner.setOnItemSelectedListener(null);
+            }
+            findViewById(R.id.addedit_transaction_same_account_error).setVisibility(View.GONE);
+            mDestinationAccountSpinner.setError(null);
+            mDestinationAccountSpinner.setHintTextColor(getResources().getColor(R.color.colorTextSecondary));
+            mDestinationAccountSpinner.setHint(R.string.transaction_to_account);
+            mDestinationAccountSpinner.setOnItemSelectedListener((view, position, id, item) -> {
+                view.setError(null);
+                findViewById(R.id.addedit_transaction_same_account_error).setVisibility(View.GONE);
+                setDestinationAccount((Account) item);
+                if (((Account) item).getId() == mTransaction.getAccount()) {
+                    view.setError(getResources().getString(R.string.form_error));
+                    findViewById(R.id.addedit_transaction_same_account_error).setVisibility(View.VISIBLE);
+                }
+            });
+        }
 
         if (mViewModel.accountsListHasArrivedBefore() && accounts.size() > 0) {
             // Sets last account as selected
             mAccountSpinner.setSelectedIndex(accounts.size() - 1);
-            setAccountAndData(accounts.get(accounts.size() - 1));
-        } else if (mIsNewScreen && accounts.size() > 0) {
-            // Prevent IndexOutOfBoundsException
-            setAccountAndData(accounts.get(0));
+            setTransactionAccount(accounts.get(accounts.size() - 1));
+            if (mTransactionType == MoneyTransaction.TRANSFER &&
+                    mTransaction.getTransferDestinationAccount() == null) {
+                setDestinationAccount(accounts.get(0));
+            }
+        } else if (mIsNewScreen && accounts.size() > 0) { // Prevent IndexOutOfBoundsException
+            // Initially selected index is 0
+            setTransactionAccount(accounts.get(0));
+            if (mTransactionType == MoneyTransaction.TRANSFER) {
+                if (accounts.size() > 1) {
+                    setDestinationAccount(accounts.get(1));
+                    mDestinationAccountSpinner.setSelectedIndex(1);
+                } else {
+                    setDestinationAccount(null);
+                }
+            }
         }
         tryToDisplayContainer();
         mViewModel.notifyAccountsListFirstArrival();
@@ -374,8 +449,15 @@ public class AddEditTransactionActivity
         if (!mViewModel.accountsListHasArrivedBefore()) {
             Account selectedAccount = mAccountsList.get(
                     getAccountListIndex(mTransaction.getAccount()));
-            setAccountAndData(selectedAccount);
+            setTransactionAccount(selectedAccount);
+            if (mTransaction.getType() == MoneyTransaction.TRANSFER) {
+                Account destinationAccount = mAccountsList.get(
+                        getAccountListIndex(mTransaction.getTransferDestinationAccount()));
+                setDestinationAccount(destinationAccount);
+                mDestinationAccountSpinner.setSelectedIndex(getAccountListIndex(mTransaction.getTransferDestinationAccount()));
+            }
             mCurrencySpinner.setSelectedIndex(CurrencyUtil.getCurrencyIndex(mTransaction.getCurrency()));
+            mAccountSpinner.setSelectedIndex(getAccountListIndex(mTransaction.getAccount()));
             mAccountSpinner.setSelectedIndex(getAccountListIndex(mTransaction.getAccount()));
             mCategorySpinner.setSelectedIndex(getCategoryListIndex(mTransaction.getCategory()));
         }
@@ -435,23 +517,63 @@ public class AddEditTransactionActivity
                 && amountString.length() > 0;
     }
 
-    private boolean validateAccountSpinner() {
+    private boolean validateAccountSpinners() {
         if (mAccountsList == null || mAccountsList.size() == 0) {
             // MaterialSpinner doesn't have custom setError() implementation,
             //  and doesn't show the message, but espresso can still test it.
             mAccountSpinner.setError(getResources().getString(R.string.transaction_error_account));
             mAccountSpinner.setHintTextColor(getResources().getColor(R.color.colorError));
             mAccountSpinner.setHint(R.string.transaction_error_account);
+            if (mTransactionType == MoneyTransaction.TRANSFER) {
+                mDestinationAccountSpinner.setError(getResources().getString(R.string.transaction_error_account));
+                mDestinationAccountSpinner.setHintTextColor(getResources().getColor(R.color.colorError));
+                mDestinationAccountSpinner.setHint(R.string.transaction_error_account);
+            }
             return false;
+        }
+        // Throwing exceptions instead of displaying errors because these events
+        //  are the result of a programmer's error, not mistakes from the user
+        if (mTransaction.getAccount() == 0) {
+            throw new RuntimeException("Transaction object doesn't have an associated account.");
+        }
+        if (mTransactionType == MoneyTransaction.TRANSFER) {
+            if (mTransaction.getTransferDestinationAccount() == null) {
+                mDestinationAccountSpinner.setError(getResources().getString(R.string.transaction_error_account));
+                mDestinationAccountSpinner.setHintTextColor(getResources().getColor(R.color.colorError));
+                mDestinationAccountSpinner.setHint(R.string.transaction_error_account);
+                return false;
+            }
+
+            boolean differentAccounts = mTransaction.getAccount()
+                    != mTransaction.getTransferDestinationAccount();
+            if (differentAccounts) return true;
+            else {
+                findViewById(R.id.addedit_transaction_same_account_error).setVisibility(View.VISIBLE);
+                mDestinationAccountSpinner.setError(getResources().getString(R.string.transaction_error_transfer_destination_account));
+                return false;
+            }
+        } else if (mTransaction.getTransferDestinationAccount() != null) {
+            throw new RuntimeException("Non-transfers cannot have a transfer destination account.");
         }
         return true;
     }
 
+    private boolean validateDate() {
+        if (mTransactionMinDate == null) return false;
+        if(!mTransaction.getDate().isBefore(mTransactionMinDate)) {
+            mDateTIL.setError(null);
+            return true;
+        }
+        mDateTIL.setError(getResources().getString(R.string.transaction_error_date));
+        return false;
+    }
+
     private void processData(View v) {
         boolean texFieldsAreValid = validateTextFields();
-        boolean selectedAccountIsNotNull = validateAccountSpinner();
+        boolean selectedAccountsAreValid = validateAccountSpinners();
+        boolean selectedDateIsValid = validateDate();
 
-        if (texFieldsAreValid  && selectedAccountIsNotNull) {
+        if (texFieldsAreValid  && selectedAccountsAreValid && selectedDateIsValid) {
             saveData();
         } else {
             Toast.makeText(this, getResources().getString(R.string.form_error), Toast.LENGTH_LONG).show();
@@ -506,14 +628,17 @@ public class AddEditTransactionActivity
                 mTransaction.getDate().getDayOfMonth());
         DatePickerDialog dialog = DatePickerDialog.newInstance(
                 this, originalDate);
-        if (mAccountMinDate != null) {
+        if (mTransactionMinDate != null) {
             Calendar minDate = Calendar.getInstance();
-            minDate.set(mAccountMinDate.getYear(),
+            minDate.set(mTransactionMinDate.getYear(),
                     // OffsetDateTime uses month numbers from 1-12
                     // but DatePickerDialog uses numbers from 0-11
-                    mAccountMinDate.getMonthValue()-1,
-                    mAccountMinDate.getDayOfMonth());
+                    mTransactionMinDate.getMonthValue()-1,
+                    mTransactionMinDate.getDayOfMonth());
             dialog.setMinDate(minDate);
+        }
+        if (mTransactionType == MoneyTransaction.TRANSFER) {
+            dialog.setMaxDate(Calendar.getInstance());
         }
         dialog.setAccentColor(mThemeColor);
         dialog.show(getSupportFragmentManager(), TAG_DATE_DIALOG);
@@ -522,11 +647,16 @@ public class AddEditTransactionActivity
     private void openTimePicker() {
         TimePickerDialog dialog = TimePickerDialog.newInstance(
                 this, false);
-        if (mAccountMinDate != null && mTransaction.getDate().toLocalDate().isEqual(mAccountMinDate.toLocalDate())) {
-            Timepoint minTime = new Timepoint(mAccountMinDate.getHour(),
-                    mAccountMinDate.getMinute(),
-                    mAccountMinDate.getSecond());
+        if (mTransactionMinDate != null && mTransaction.getDate().toLocalDate().isEqual(mTransactionMinDate.toLocalDate())) {
+            Timepoint minTime = new Timepoint(mTransactionMinDate.getHour(),
+                    mTransactionMinDate.getMinute(),
+                    mTransactionMinDate.getSecond());
             dialog.setMinTime(minTime);
+        }
+        if (mTransactionType == MoneyTransaction.TRANSFER) {
+            OffsetDateTime now = DateUtil.OffsetDateTimeNow();
+            Timepoint maxTime = new Timepoint(now.getHour(), now.getMinute(), now.getSecond());
+            dialog.setMaxTime(maxTime);
         }
         dialog.setAccentColor(mThemeColor);
         dialog.show(getSupportFragmentManager(), TAG_TIME_DIALOG);

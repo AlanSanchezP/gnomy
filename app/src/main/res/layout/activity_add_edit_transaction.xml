@@ -136,6 +136,35 @@
                         app:ms_text_color="@color/colorTextHighlight"
                         tools:ignore="RtlHardcoded" />
 
+                    <com.jaredrummler.materialspinner.MaterialSpinner
+                        android:id="@+id/addedit_transaction_to_account"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="15dp"
+                        android:height="50dp"
+                        android:visibility="gone"
+                        android:backgroundTint="#FFFFFF"
+                        android:drawableStart="@drawable/ic_account_balance_black_24dp"
+                        android:drawableLeft="@drawable/ic_account_balance_black_24dp"
+                        android:drawablePadding="16dp"
+                        android:hint="@string/transaction_to_account"
+                        android:textColorHint="@color/colorTextSecondary"
+                        app:ms_padding_left="13dp"
+                        app:ms_padding_right="13dp"
+                        app:ms_text_color="@color/colorTextHighlight"
+                        tools:ignore="RtlHardcoded" />
+
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:textColor="@color/colorError"
+                        android:text="@string/transaction_error_transfer_destination_account"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:textAlignment="textEnd"
+                        android:visibility="gone"
+                        android:id="@+id/addedit_transaction_same_account_error" />
+
                     <TextView
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
