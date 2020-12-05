@@ -82,10 +82,6 @@ public class MockDatabaseOperationsUtil {
             return null;
         }
 
-        public Single<Integer> delete(Account... accounts) {
-            return null;
-        }
-
         public Single<Integer> archive(int id) {
             return null;
         }
@@ -108,6 +104,14 @@ public class MockDatabaseOperationsUtil {
 
         public int _update(Account account) {
             return 1;
+        }
+
+        public int _delete(Account account) {
+            return 0;
+        }
+
+        public int _savePotentiallyOrphanTransfers(int accountId) {
+            return 0;
         }
 
         public LiveData<MonthlyBalance> findBalance(int accountId, YearMonth month) {

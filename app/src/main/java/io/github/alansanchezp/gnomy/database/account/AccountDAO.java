@@ -11,6 +11,7 @@ import androidx.room.Query;
 import androidx.room.RoomWarnings;
 import androidx.room.Update;
 
+import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.reactivex.Single;
 
 @Dao
@@ -143,9 +144,6 @@ public abstract class AccountDAO implements MonthlyBalanceDAO {
     @Query("SELECT * FROM accounts WHERE account_id = :id")
     protected abstract LiveData<Account> find(int id);
 
-    @Delete
-    protected abstract Single<Integer> delete(Account... accounts);
-
     @Query("UPDATE OR ABORT accounts SET is_archived = 1 WHERE account_id = :id")
     protected abstract Single<Integer> archive(int id);
 
@@ -166,4 +164,43 @@ public abstract class AccountDAO implements MonthlyBalanceDAO {
 
     @Update
     protected abstract int _update(Account account);
+
+    /**
+     * !!! ONLY USE IN TANDEM AFTER _savePotentiallyOrphanTransfers() !!!
+     *
+     * @param account   Account to be deleted
+     * @return          Number of affected rows
+     */
+    @Delete
+    protected abstract int _delete(Account account);
+
+    /**
+     * !!! ONLY USE IN TANDEM BEFORE _delete() !!!
+     *
+     * The problem: When an {@link Account} is deleted all {@link MoneyTransaction} transfer objects
+     * that pointed to it as a destination will be deleted too (due to ForeignKey constraints),
+     * but their mirrored versions will remain in the database. This would cause the user
+     * to be unable to access those transactions' data, as direct manipulation or access
+     * to mirrored transfers is not allowed by design.
+     *
+     * Solution: This method converts mirror transfers into regular incomes so that the user
+     * can still access them, without altering existing {@link MonthlyBalance} rows.
+     * Additionally, it modifies the transaction's concept to indicate its orphan nature.
+     *
+     * Note that mirror transfers use MoneyTransaction.account_id to refer to the
+     * recipient account id, and MoneyTransaction.transfer_destination_account_id to refer
+     * to the ORIGIN account where the transfer comes from. Due to ForeignKey constraints,
+     * MoneyTransaction.transfer_destination_account_id will be set to NULL after the account
+     * is deleted. This guarantees that orphan mirror transfers will be effectively
+     * treated as regular incomes after the original transfer is gone.
+     *
+     * @param accountId     Account that is about to be deleted
+     * @return              Number of affected rows
+     */
+    @Query("UPDATE OR ABORT transactions SET " +
+            "transaction_type = " + MoneyTransaction.INCOME + ", " +
+            "transaction_concept = '(ORPHAN) ' || transaction_concept " +
+            "WHERE transaction_type = 4 " + // Cannot access TRANSFER_MIRROR constant directly
+            "AND transfer_destination_account_id = :accountId;")
+    protected abstract int _savePotentiallyOrphanTransfers(int accountId);
 }
