@@ -363,6 +363,10 @@ public class AddEditTransactionInstrumentedTest {
                 .check(matches(hasDescendant(
                         withText(R.string.transaction_new_expense)
                 )));
+        onView(withId(R.id.addedit_transaction_from_account))
+                .check(matches(withHint(
+                        R.string.transaction_from_account
+                )));
 
         Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
                 AddEditTransactionActivity.class);
@@ -377,6 +381,10 @@ public class AddEditTransactionInstrumentedTest {
                 .check(matches(hasDescendant(
                         withText(R.string.transaction_modify_expense)
                 )));
+        onView(withId(R.id.addedit_transaction_from_account))
+                .check(matches(withHint(
+                        R.string.transaction_from_account
+                )));
         tempScenario.close();
 
         // Create income
@@ -387,6 +395,10 @@ public class AddEditTransactionInstrumentedTest {
         onView(withId(R.id.custom_appbar))
                 .check(matches(hasDescendant(
                         withText(R.string.transaction_new_income)
+                )));
+        onView(withId(R.id.addedit_transaction_from_account))
+                .check(matches(withHint(
+                        R.string.transaction_to_account
                 )));
         tempScenario.close();
 
@@ -399,6 +411,10 @@ public class AddEditTransactionInstrumentedTest {
                 .check(matches(hasDescendant(
                         withText(R.string.transaction_modify_income)
                 )));
+        onView(withId(R.id.addedit_transaction_from_account))
+                .check(matches(withHint(
+                        R.string.transaction_to_account
+                )));
         tempScenario.close();
 
         // New transfer
@@ -410,6 +426,10 @@ public class AddEditTransactionInstrumentedTest {
                 .check(matches(hasDescendant(
                         withText(R.string.transaction_new_transfer)
                 )));
+        onView(withId(R.id.addedit_transaction_from_account))
+                .check(matches(withHint(
+                        R.string.transaction_from_account
+                )));
         tempScenario.close();
 
         // Modify transfer
@@ -420,6 +440,10 @@ public class AddEditTransactionInstrumentedTest {
         onView(withId(R.id.custom_appbar))
                 .check(matches(hasDescendant(
                         withText(R.string.transaction_modify_transfer)
+                )));
+        onView(withId(R.id.addedit_transaction_from_account))
+                .check(matches(withHint(
+                        R.string.transaction_from_account
                 )));
         tempScenario.close();
 

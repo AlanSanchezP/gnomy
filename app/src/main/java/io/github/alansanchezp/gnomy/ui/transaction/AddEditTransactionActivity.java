@@ -144,8 +144,8 @@ public class AddEditTransactionActivity
         } else if (mTransactionType == MoneyTransaction.INCOME) {
             if (transactionId == 0) setTitle(R.string.transaction_new_income);
             else setTitle(R.string.transaction_modify_income);
-            // TODO: Change account spinner label to "to account" on incomes
             setThemeColor(getResources().getColor(R.color.colorIncomes));
+            mAccountSpinner.setHint(R.string.transaction_to_account);
         } else if (mTransactionType == MoneyTransaction.TRANSFER) {
             if (transactionId == 0) setTitle(R.string.transaction_new_transfer);
             else setTitle(R.string.transaction_modify_transfer);
@@ -376,10 +376,14 @@ public class AddEditTransactionActivity
 
         mAccountsList = accounts;
         mAccountSpinner.setItems(accounts.toArray());
-
+        // Clean after error
         mAccountSpinner.setError(null);
         mAccountSpinner.setHintTextColor(getResources().getColor(R.color.colorTextSecondary));
-        mAccountSpinner.setHint(R.string.transaction_from_account);
+        if (mTransactionType == MoneyTransaction.INCOME) {
+            mAccountSpinner.setHint(R.string.transaction_to_account);
+        } else {
+            mAccountSpinner.setHint(R.string.transaction_from_account);
+        }
 
         mAccountSpinner.setOnItemSelectedListener((view, position, id, item) -> {
             setTransactionAccount((Account) item);
