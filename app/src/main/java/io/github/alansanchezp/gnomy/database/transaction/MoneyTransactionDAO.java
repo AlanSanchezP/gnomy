@@ -5,6 +5,7 @@ import java.util.List;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
@@ -23,6 +24,9 @@ public abstract class MoneyTransactionDAO implements MonthlyBalanceDAO {
 
     @Query("SELECT * FROM transactions WHERE transaction_id = :id;")
     protected abstract MoneyTransaction _find(int id);
+
+    @Delete
+    protected abstract int _delete(MoneyTransaction... transaction);
 
     @Query("SELECT * FROM transactions WHERE transaction_date = :date " +
             "AND account_id = :destinationAccountId " +

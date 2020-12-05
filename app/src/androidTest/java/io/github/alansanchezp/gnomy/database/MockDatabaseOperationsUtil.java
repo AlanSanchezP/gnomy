@@ -177,6 +177,11 @@ public class MockDatabaseOperationsUtil {
         }
 
         @Override
+        public int _delete(MoneyTransaction... transaction) {
+            return 0;
+        }
+
+        @Override
         protected MoneyTransaction _findMirrorTransfer(OffsetDateTime date, int originAccountId, Integer destinationAccountId) {
             return null;
         }

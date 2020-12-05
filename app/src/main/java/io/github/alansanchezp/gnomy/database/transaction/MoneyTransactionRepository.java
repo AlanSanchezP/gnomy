@@ -136,6 +136,41 @@ public class MoneyTransactionRepository {
     }
 
     /**
+     * Deletes a {@link MoneyTransaction} and updates affected MonthlyBalance (s).
+     * In the case of transfers, it also deletes mirrored transfer in
+     * the recipient account.
+     *
+     * @param transaction   Transaction to be deleted
+     * @return              Single object that can be observed in main thread
+     */
+    public Single<Integer> delete(MoneyTransaction transaction) {
+        return db.toSingleInTransaction(() -> {
+            // Have to retrieve the original transaction to prevent
+            //  faulty balance alterations. Additionally it prevents
+            //  access to mirrored transfer objects.
+            MoneyTransaction original = dao._find(transaction.getId());
+            if (original == null)
+                throw new GnomyIllegalQueryException("Trying to delete non-existent transaction.");
+            if (original.getType() == MoneyTransaction.TRANSFER_MIRROR)
+                throw new GnomyIllegalQueryException("Direct manipulation of mirror transfers is not allowed.");
+
+            if (original.getType() == MoneyTransaction.TRANSFER) {
+                MoneyTransaction mirrorTransfer = dao._findMirrorTransfer(original.getDate(),
+                        original.getAccount(),
+                        original.getTransferDestinationAccount());
+                if (mirrorTransfer == null)
+                    throw new GnomyIllegalQueryException("!!! Transfer doesn't seem to have a mirror !!!");
+
+                addTransactionAmountToBalance(mirrorTransfer.getInverse());
+                dao._delete(mirrorTransfer);
+            }
+            // Not checking if MonthlyBalance exists because it MUST exist
+            addTransactionAmountToBalance(original.getInverse());
+            return dao._delete(original);
+        });
+    }
+
+    /**
      * Inserts a new {@link MonthlyBalance} row if necessary,
      * does nothing if Primary Key already exists.
      * This is needed for automatic creation of balances

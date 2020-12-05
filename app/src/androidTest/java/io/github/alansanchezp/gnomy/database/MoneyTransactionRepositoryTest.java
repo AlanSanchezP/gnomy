@@ -447,6 +447,69 @@ public class MoneyTransactionRepositoryTest {
         assert true;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    @Test
+    public void custom_delete_method_works() throws InterruptedException {
+        // Default AccountA monthly balance at minus 2 months
+        //  Incomes             30
+        //  Expenses            172
+        //  ProjectedIncomes    425
+        //  ProjectedExpenses   100
+        // Default AccountB monthly balance at minus 2 months is all zeroes
+        MonthlyBalance resultBalance, mirrorResultBalance;
+        MoneyTransaction testTransaction = getDefaultTestTransaction();
+        testTransaction.setOriginalValue("10");
+        // Inserting all 3 types of transaction
+        repository.insert(testTransaction).blockingGet(); // MB incomes: 40
+
+        testTransaction.setType(MoneyTransaction.EXPENSE);
+        repository.insert(testTransaction).blockingGet(); // MB Expenses: 182
+
+        testTransaction.setType(MoneyTransaction.TRANSFER);
+        testTransaction.setTransferDestinationAccount(2);
+
+        // Manually altering ids so that Room can recognize each transaction
+        testTransaction.setId(1);
+        resultBalance = getOrAwaitValue(
+                repository.getBalanceFromMonth(1, DateUtil.now().minusMonths(2)));
+        testResultBalance(resultBalance,
+                "30", // 40 - 10 = 30
+                "192", // (stays the same)
+                "425", // (stays the same)
+                "100"); // (stays the same)
+
+        testTransaction.setId(2);
+        repository.delete(testTransaction).blockingGet();
+        resultBalance = getOrAwaitValue(
+                repository.getBalanceFromMonth(1, DateUtil.now().minusMonths(2)));
+        testResultBalance(resultBalance,
+                "30", // (stays the same)
+                "182", // 192 - 10 = 182
+                "425", // (stays the same)
+                "100"); // (stays the same)
+
+        testTransaction.setId(3); // Mirror transfer: Expecting error
+        assertThrows(GnomyIllegalQueryException.class, () ->
+                repository.delete(testTransaction).blockingGet());
+
+        testTransaction.setId(4); // Transfer has a +1 id from its mirrored version
+        repository.delete(testTransaction).blockingGet();
+        resultBalance = getOrAwaitValue(
+                repository.getBalanceFromMonth(1, DateUtil.now().minusMonths(2)));
+        mirrorResultBalance = getOrAwaitValue(
+                repository.getBalanceFromMonth(2, DateUtil.now().minusMonths(2)));
+        testResultBalance(resultBalance,
+                "30", // (stays the same)
+                "172", // 182 - 10 = 172
+                "425", // (stays the same)
+                "100"); // (stays the same)
+        testResultBalance(mirrorResultBalance,
+                "0", // 10 - 10 = 0
+                "0", // (stays the same)
+                "0", // (stays the same)
+                "0"); // (stays the same)
+    }
+
     private void testResultBalance(MonthlyBalance resultBalance,
                                   String expectedTotalIncomesString,
                                   String expectedTotalExpensesString,
