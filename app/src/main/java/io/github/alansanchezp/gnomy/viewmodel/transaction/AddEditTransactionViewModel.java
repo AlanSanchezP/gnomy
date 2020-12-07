@@ -19,6 +19,7 @@ public class AddEditTransactionViewModel extends AndroidViewModel {
     private static final String TAG_IS_AMOUNT_PRISTINE = "AddEditTransactionVM.IsAmountPristine";
     private static final String TAG_IS_CONCEPT_PRISTINE = "AddEditTransactionVM.IsConceptPristine";
     private static final String TAG_USER_SELECTED_CONFIRMED = "AddEditTransactionVM.SelectedConfirmed";
+    private static final String TAG_SHOW_MORE_OPTIONS = "AddEditTransactionVM.ShowMoreOptions";
     private final AccountRepository mAccountRepository;
     private final MoneyTransactionRepository mTransactionRepository;
     private final CategoryRepository mCategoryRepository;
@@ -32,6 +33,9 @@ public class AddEditTransactionViewModel extends AndroidViewModel {
         mCategoryRepository = new CategoryRepository(application);
         mAccountsFirstArrival = false;
         mState = savedStateHandle;
+        if (mState.get(TAG_SHOW_MORE_OPTIONS) == null) {
+            mState.set(TAG_SHOW_MORE_OPTIONS, false);
+        }
     }
 
     public LiveData<MoneyTransaction> getTransaction(int id) {
@@ -91,5 +95,17 @@ public class AddEditTransactionViewModel extends AndroidViewModel {
 
     public void setUserSelectedConfirmedStatus(boolean status) {
         mState.set(TAG_USER_SELECTED_CONFIRMED, status);
+    }
+
+    public boolean showMoreOptions() {
+        //noinspection ConstantConditions
+        return mState.get(TAG_SHOW_MORE_OPTIONS);
+    }
+
+    public void toggleShowMoreOptions() {
+        if (showMoreOptions())
+            mState.set(TAG_SHOW_MORE_OPTIONS, false);
+        else
+            mState.set(TAG_SHOW_MORE_OPTIONS, true);
     }
 }

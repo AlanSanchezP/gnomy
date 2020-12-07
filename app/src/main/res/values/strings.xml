@@ -38,6 +38,9 @@
     <string name="confirmation_dialog_yes">Yes</string>
     <string name="confirmation_dialog_no">No</string>
     <string name="generic_data_error">An error occurred while processing your data.</string>
+    <string name="show_more_options">More options</string>
+    <string name="show_less_options">Less options</string>
+    <string name="toggle_more_options">Toggle more options</string>
 
     <!--  Accounts fragment  -->
     <string name="accounts_test_month">September 2020</string>
@@ -129,8 +132,8 @@
     <string name="transaction_from_account">From account</string>
     <string name="create_new_account">Create new account</string>
     <string name="create_new_category">Create new category</string>
-    <string name="transaction_currency">Currency</string>
     <string name="transaction_to_account">To account</string>
+    <string name="transaction_currency">Currency</string>
     <string name="transaction_exchange_rate_info">If the currency doesn\'t match the account\'s one, an approximated exchange rate will be used during balance calculation.</string>
     <string name="transaction_category">Category</string>
     <string name="transaction_notes">Additional notes</string>

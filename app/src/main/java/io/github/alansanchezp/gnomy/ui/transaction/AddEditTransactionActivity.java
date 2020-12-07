@@ -6,7 +6,9 @@ import android.os.Bundle;
 import android.text.InputFilter;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,7 +56,6 @@ import io.reactivex.schedulers.Schedulers;
 import static io.github.alansanchezp.gnomy.util.android.SimpleTextWatcherWrapper.onlyOnTextChanged;
 
 // TODO: Implement recurrent transactions
-// TODO: Can MaterialSpinner.setAdapter() help to improve spinner UX?
 public class AddEditTransactionActivity
         extends BackButtonActivity
         implements DatePickerDialog.OnDateSetListener,
@@ -74,6 +75,7 @@ public class AddEditTransactionActivity
     private boolean mIsNewScreen = true;
     private OffsetDateTime mTransactionMinDate = DateUtil.OffsetDateTimeNow();
     private MoneyTransaction mTransaction;
+    private AddEditTransactionViewModel mViewModel;
 
     // Layout objects
     private LinearLayout mBoxLayout;
@@ -92,7 +94,10 @@ public class AddEditTransactionActivity
     private TextInputEditText mNotesTIET;
     private Switch mMarkAsDoneSwitch;
     private SingleClickViewHolder<FloatingActionButton> mFABVH;
-    private AddEditTransactionViewModel mViewModel;
+    private RelativeLayout mMoreOptionsToggle;
+    private LinearLayout mMoreOptionsContainer;
+    private TextView mMoreOptionsText;
+    private ImageView mMoreOptionsArrow;
 
     // Flags for async operations
     private List<Account> mAccountsList;
@@ -126,6 +131,10 @@ public class AddEditTransactionActivity
         mNotesTIET = findViewById(R.id.addedit_transaction_notes_input);
         mMarkAsDoneSwitch = findViewById(R.id.addedit_transaction_mark_as_done);
         mFABVH = new SingleClickViewHolder<>(findViewById(R.id.addedit_transaction_FAB), true);
+        mMoreOptionsToggle = findViewById(R.id.addedit_transaction_more_options_toggle);
+        mMoreOptionsArrow = findViewById(R.id.addedit_transaction_more_options_arrow);
+        mMoreOptionsText = findViewById(R.id.addedit_transaction_more_options_text);
+        mMoreOptionsContainer = findViewById(R.id.addedit_transaction_more_options_container);
         // TODO: Find a better way to present these as actions
         TextView newAccountTV = findViewById(R.id.addedit_transaction_new_account);
         TextView newCategoryTV = findViewById(R.id.addedit_transaction_new_category);
@@ -133,6 +142,7 @@ public class AddEditTransactionActivity
         newCategoryTV.setPaintFlags(newCategoryTV.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         newAccountTV.setOnClickListener(this::openNewAccountActivity);
         newCategoryTV.setOnClickListener(this::openNewCategoryActivity);
+        toggleMoreOptions();
 
         Intent intent = getIntent();
         int transactionId = intent.getIntExtra(EXTRA_TRANSACTION_ID, 0);
@@ -186,6 +196,10 @@ public class AddEditTransactionActivity
         mDateTIL.setErrorIconOnClickListener(this::openDatePicker);
         mAmountTIL.setErrorIconOnClickListener(this::openCalculator);
         mDateTimeSwitch.setOnCheckedChangeListener((btn, b) -> updateDateText());
+        mMoreOptionsToggle.setOnClickListener(v -> {
+            mViewModel.toggleShowMoreOptions();
+            toggleMoreOptions();
+        });
 
         mAmountTIET.addTextChangedListener(onlyOnTextChanged((s, start, count, after) ->
                 onTransactionAmountChanges(s.toString())));
@@ -242,6 +256,18 @@ public class AddEditTransactionActivity
     @Override
     protected boolean displayDialogOnBackPress() {
         return true;
+    }
+
+    private void toggleMoreOptions() {
+        if (mViewModel.showMoreOptions()) {
+            mMoreOptionsArrow.setRotation(180f);
+            mMoreOptionsText.setText(R.string.show_less_options);
+            mMoreOptionsContainer.setVisibility(View.VISIBLE);
+        } else {
+            mMoreOptionsArrow.setRotation(0);
+            mMoreOptionsText.setText(R.string.show_more_options);
+            mMoreOptionsContainer.setVisibility(View.GONE);
+        }
     }
 
     private void onTransactionAmountChanges(String value) {

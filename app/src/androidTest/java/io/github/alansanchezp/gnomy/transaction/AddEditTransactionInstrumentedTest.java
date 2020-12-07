@@ -287,7 +287,6 @@ public class AddEditTransactionInstrumentedTest {
 
     @Test
     public void data_is_sent_to_repository() throws GnomyCurrencyException {
-
         when(mockTransactionDAO._insert(any(MoneyTransaction.class)))
                 .then(invocation -> {
                     // I don't like this, but it was the only way I found to test this
@@ -302,6 +301,9 @@ public class AddEditTransactionInstrumentedTest {
                     if (!sentByForm.getNotes().equals("Test notes")) throw new RuntimeException();
                     return 1L;
                 });
+        // Force more options
+        onView(withId(R.id.addedit_transaction_more_options_toggle))
+                .perform(click());
 
         onView(withId(R.id.addedit_transaction_amount_input))
                 .perform(typeText("40"))
@@ -315,7 +317,7 @@ public class AddEditTransactionInstrumentedTest {
                 testAccountB)))
                 .perform(click());
         onView(withId(R.id.addedit_transaction_currency))
-                .perform(click());
+                .perform(nestedScrollTo(), click());
         onData(allOf(is(instanceOf(String.class)), is(
                 CurrencyUtil.getDisplayName("USD"))))
                 .perform(click());
@@ -335,7 +337,8 @@ public class AddEditTransactionInstrumentedTest {
         onView(withId(R.id.addedit_transaction_FAB))
                 .perform(click());
 
-        // These calls should only be possible if _insert threw a RuntimeException
+        // These calls should only be possible if _insert fails and activity is not
+        //  automatically finished
         onView(withId(R.id.addedit_transaction_concept_input))
                 .perform(nestedScrollTo(), click())
                 .perform(replaceText("Test concept"))
@@ -449,6 +452,29 @@ public class AddEditTransactionInstrumentedTest {
 
         // Not testing invalid types because RuntimeException can't be catched
         //  (for some weird reason)
+    }
+
+    @Test
+    public void more_options_container_is_toggled() {
+        // Initial state
+        onView(withId(R.id.addedit_transaction_more_options_container))
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        onView((withId(R.id.addedit_transaction_more_options_text)))
+                .check(matches(withText(R.string.show_more_options)));
+        // Didn't find a way to test drawable rotation
+        onView(withId(R.id.addedit_transaction_more_options_toggle))
+                .perform(click());
+        onView(withId(R.id.addedit_transaction_more_options_container))
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+        onView((withId(R.id.addedit_transaction_more_options_text)))
+                .check(matches(withText(R.string.show_less_options)));
+        // Asserting both actions: show and hide
+        onView(withId(R.id.addedit_transaction_more_options_toggle))
+                .perform(click());
+        onView(withId(R.id.addedit_transaction_more_options_container))
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        onView((withId(R.id.addedit_transaction_more_options_text)))
+                .check(matches(withText(R.string.show_more_options)));
     }
 
     @Test
@@ -572,6 +598,9 @@ public class AddEditTransactionInstrumentedTest {
 
     @Test
     public void force_as_not_confirmed_if_future_date() {
+        // Force more options
+        onView(withId(R.id.addedit_transaction_more_options_toggle))
+                .perform(click());
         // Not using date picker and instead forcing testAccountB creation date
         onView(withId(R.id.addedit_transaction_from_account))
                 .perform(click());
@@ -664,6 +693,9 @@ public class AddEditTransactionInstrumentedTest {
 
     @Test
     public void elements_toggle_visibility_if_transfer() {
+        // Force more options
+        onView(withId(R.id.addedit_transaction_more_options_toggle))
+                .perform(click());
         // Default behavior on tests is expense
         onView(withId(R.id.addedit_transaction_to_account))
                 .check(matches(
@@ -677,6 +709,9 @@ public class AddEditTransactionInstrumentedTest {
                 .putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, TRANSFER);
         ActivityScenario<AddEditTransactionActivity> tempScenario = launch(intent);
 
+        // Force more options
+        onView(withId(R.id.addedit_transaction_more_options_toggle))
+                .perform(click());
         onView(withId(R.id.addedit_transaction_to_account))
                 .check(matches(
                         withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
