@@ -212,6 +212,8 @@ public class AddEditTransactionActivity
         }));
     }
 
+    /* INHERITED METHODS FROM GnomyActivity */
+
     @Override
     protected void disableActions() {
         super.disableActions();
@@ -259,6 +261,8 @@ public class AddEditTransactionActivity
         return true;
     }
 
+    /* UI METHODS*/
+
     private void toggleMoreOptions() {
         if (mViewModel.showMoreOptions()) {
             mMoreOptionsArrow.setRotation(180f);
@@ -270,6 +274,34 @@ public class AddEditTransactionActivity
             mMoreOptionsContainer.setVisibility(View.GONE);
         }
     }
+
+    private void updateDateText() {
+        if (mTransaction == null) return;
+        mDateTIET.setText(DateUtil.getOffsetDateTimeString(mTransaction.getDate(),
+                mDateTimeSwitch.isChecked()));
+    }
+
+    private void setCurrencySpinner() {
+        try {
+            String[] currencies = CurrencyUtil.getDisplayArray();
+            mCurrencySpinner.setItems(currencies);
+            mCurrencySpinner.setOnItemSelectedListener((view, position, id, item) ->
+                    mTransaction.setCurrency(CurrencyUtil.getCurrencyCode(position)));
+            // TODO: Use global default currency (WHEN IMPLEMENTED)
+            if (mIsNewScreen) {
+                mTransaction.setCurrency("USD");
+            }
+        } catch (GnomyCurrencyException e) {
+            // This shouldn't happen
+            Log.wtf("AddEditTransaction", "setLists: CURRENCIES array triggers error", e);
+        }
+    }
+
+    private void setInputFilters() {
+        mAmountTIET.setFilters(new InputFilter[]{new InputFilterMinMax(MoneyTransaction.MIN_VALUE, MoneyTransaction.MAX_VALUE, BigDecimalUtil.DECIMAL_SCALE)});
+    }
+
+    /* EDITTEXT WATCHERS */
 
     private void onTransactionAmountChanges(String value) {
         if (value.length() == 0) {
@@ -296,27 +328,8 @@ public class AddEditTransactionActivity
         mViewModel.notifyTransactionConceptChanged();
     }
 
-    private void tryToForceConfirmedStatus() {
-        // TODO: How can we test this behavior?
-        if (mTransaction == null) return;
-        if (mTransactionType == MoneyTransaction.TRANSFER) return;
-        if (mTransaction.getDate().isAfter(OffsetDateTime.now())) {
-            boolean previousSelectedState = mTransaction.isConfirmed();
-            mMarkAsDoneSwitch.setChecked(false); // event listener will update mTransaction too
-            mMarkAsDoneSwitch.setEnabled(false);
-            // event listener will set status as false, we restore it manually here
-            mViewModel.setUserSelectedConfirmedStatus(previousSelectedState);
-        } else {
-            mMarkAsDoneSwitch.setEnabled(true);
-            mMarkAsDoneSwitch.setChecked(mViewModel.getUserSelectedConfirmedStatus()); // event listener will update mTransaction too
-        }
-    }
 
-    private void updateDateText() {
-        if (mTransaction == null) return;
-        mDateTIET.setText(DateUtil.getOffsetDateTimeString(mTransaction.getDate(),
-                mDateTimeSwitch.isChecked()));
-    }
+    /* LIVEDATA OBSERVERS */
 
     private void onTransactionChanged(MoneyTransaction transaction) {
         // TODO: Evaluate if this approach is better than finish() the Activity
@@ -355,44 +368,6 @@ public class AddEditTransactionActivity
             mTransaction.setCategory(categories.get(0).getId());
         else
             tryToDisplayContainer();
-    }
-
-    private void setOrIgnoreMinDate(Account account) {
-        if (mTransactionMinDate.isBefore(account.getCreatedAt())) {
-            mTransactionMinDate = account.getCreatedAt();
-        }
-        if (mTransactionMinDate.isAfter(mTransaction.getDate())) {
-            mTransaction.setDate(mTransactionMinDate);
-            tryToForceConfirmedStatus();
-            updateDateText();
-        }
-    }
-
-    private void setTransactionAccount(Account account) {
-        mTransaction.setAccount(account.getId());
-        setOrIgnoreMinDate(account);
-        setAccountCurrency(account);
-    }
-
-    private void setDestinationAccount(Account account) {
-        if (mTransactionType != MoneyTransaction.TRANSFER)
-            throw new RuntimeException("Invalid operation: Setting transfer destination account on non-transfer transaction.");
-        if (account == null) {
-            account = new Account();
-            account.setCreatedAt(DateUtil.OffsetDateTimeNow());
-            mTransaction.setTransferDestinationAccount(null);
-        }
-        else {
-            mTransaction.setTransferDestinationAccount(account.getId());
-        }
-        setOrIgnoreMinDate(account);
-    }
-
-    private void setAccountCurrency(Account account) {
-        if (mIsNewScreen)
-            mCurrencySpinner.setSelectedIndex(
-                    CurrencyUtil.getCurrencyIndex(
-                            account.getDefaultCurrency()));
     }
 
     private void onAccountsListChanged(List<Account> _accounts) {
@@ -471,12 +446,14 @@ public class AddEditTransactionActivity
         mViewModel.notifyAccountsListFirstArrival();
     }
 
+    /* DATA MANAGEMENT */
+
     // TODO: MediatorLiveData is probably a better approach
     private void tryToDisplayContainer() {
         if (mIsNewScreen) return;
         if (mAccountsList == null ||
-            mCategoriesList == null ||
-            mTransaction == null) return;
+                mCategoriesList == null ||
+                mTransaction == null) return;
         if (!mViewModel.accountsListHasArrivedBefore()) {
             Account selectedAccount = mAccountsList.get(
                     getItemIndexById(mAccountsList, mTransaction.getAccount()));
@@ -496,25 +473,61 @@ public class AddEditTransactionActivity
         mFABVH.onView(this, v -> v.setVisibility(View.VISIBLE));
     }
 
-    private void setCurrencySpinner() {
-        try {
-            String[] currencies = CurrencyUtil.getDisplayArray();
-            mCurrencySpinner.setItems(currencies);
-            mCurrencySpinner.setOnItemSelectedListener((view, position, id, item) ->
-                mTransaction.setCurrency(CurrencyUtil.getCurrencyCode(position)));
-            // TODO: Use global default currency (WHEN IMPLEMENTED)
-            if (mIsNewScreen) {
-                mTransaction.setCurrency("USD");
-            }
-        } catch (GnomyCurrencyException e) {
-            // This shouldn't happen
-            Log.wtf("AddEditTransaction", "setLists: CURRENCIES array triggers error", e);
+    private void tryToForceConfirmedStatus() {
+        // TODO: How can we test this behavior?
+        if (mTransaction == null) return;
+        if (mTransactionType == MoneyTransaction.TRANSFER) return;
+        if (mTransaction.getDate().isAfter(OffsetDateTime.now())) {
+            boolean previousSelectedState = mTransaction.isConfirmed();
+            mMarkAsDoneSwitch.setChecked(false); // event listener will update mTransaction too
+            mMarkAsDoneSwitch.setEnabled(false);
+            // event listener will set status as false, we restore it manually here
+            mViewModel.setUserSelectedConfirmedStatus(previousSelectedState);
+        } else {
+            mMarkAsDoneSwitch.setEnabled(true);
+            mMarkAsDoneSwitch.setChecked(mViewModel.getUserSelectedConfirmedStatus()); // event listener will update mTransaction too
         }
     }
 
-    private void setInputFilters() {
-        mAmountTIET.setFilters(new InputFilter[]{new InputFilterMinMax(MoneyTransaction.MIN_VALUE, MoneyTransaction.MAX_VALUE, BigDecimalUtil.DECIMAL_SCALE)});
+    private void setOrIgnoreMinDate(Account account) {
+        if (mTransactionMinDate.isBefore(account.getCreatedAt())) {
+            mTransactionMinDate = account.getCreatedAt();
+        }
+        if (mTransactionMinDate.isAfter(mTransaction.getDate())) {
+            mTransaction.setDate(mTransactionMinDate);
+            tryToForceConfirmedStatus();
+            updateDateText();
+        }
     }
+
+    private void setTransactionAccount(Account account) {
+        mTransaction.setAccount(account.getId());
+        setOrIgnoreMinDate(account);
+        setAccountCurrency(account);
+    }
+
+    private void setDestinationAccount(Account account) {
+        if (mTransactionType != MoneyTransaction.TRANSFER)
+            throw new RuntimeException("Invalid operation: Setting transfer destination account on non-transfer transaction.");
+        if (account == null) {
+            account = new Account();
+            account.setCreatedAt(DateUtil.OffsetDateTimeNow());
+            mTransaction.setTransferDestinationAccount(null);
+        }
+        else {
+            mTransaction.setTransferDestinationAccount(account.getId());
+        }
+        setOrIgnoreMinDate(account);
+    }
+
+    private void setAccountCurrency(Account account) {
+        if (mIsNewScreen)
+            mCurrencySpinner.setSelectedIndex(
+                    CurrencyUtil.getCurrencyIndex(
+                            account.getDefaultCurrency()));
+    }
+
+    /* FORM SUBMISSION AND VALIDATION */
 
     private boolean validateTextFields() {
         mViewModel.notifyTransactionAmountChanged();
@@ -631,6 +644,8 @@ public class AddEditTransactionActivity
         }
     }
 
+    /* BUTTON CLICK LISTENERS */
+
     private void openDatePicker(View v) {
         Calendar originalDate = Calendar.getInstance();
         originalDate.set(mTransaction.getDate().getYear(),
@@ -697,6 +712,8 @@ public class AddEditTransactionActivity
                 .setNumberFormat(numberFormat);
         dialog.show(getSupportFragmentManager(), TAG_CALCULATOR_DIALOG);
     }
+
+    /* INTERFACE METHODS FROM THIRD-PARTY LIBRARIES */
 
     @Override
     public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
