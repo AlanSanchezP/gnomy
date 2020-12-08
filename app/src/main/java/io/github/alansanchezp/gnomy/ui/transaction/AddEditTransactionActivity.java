@@ -53,6 +53,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
+import static io.github.alansanchezp.gnomy.util.ListUtil.getItemIndexById;
 import static io.github.alansanchezp.gnomy.util.android.SimpleTextWatcherWrapper.onlyOnTextChanged;
 
 // TODO: Implement recurrent transactions
@@ -478,40 +479,21 @@ public class AddEditTransactionActivity
             mTransaction == null) return;
         if (!mViewModel.accountsListHasArrivedBefore()) {
             Account selectedAccount = mAccountsList.get(
-                    getAccountListIndex(mTransaction.getAccount()));
+                    getItemIndexById(mAccountsList, mTransaction.getAccount()));
             setTransactionAccount(selectedAccount);
             if (mTransaction.getType() == MoneyTransaction.TRANSFER) {
                 Account destinationAccount = mAccountsList.get(
-                        getAccountListIndex(mTransaction.getTransferDestinationAccount()));
+                        getItemIndexById(mAccountsList, mTransaction.getTransferDestinationAccount()));
                 setDestinationAccount(destinationAccount);
-                mDestinationAccountSpinner.setSelectedIndex(getAccountListIndex(mTransaction.getTransferDestinationAccount()));
+                mDestinationAccountSpinner.setSelectedIndex(getItemIndexById(mAccountsList, mTransaction.getTransferDestinationAccount()));
             }
             mCurrencySpinner.setSelectedIndex(CurrencyUtil.getCurrencyIndex(mTransaction.getCurrency()));
-            mAccountSpinner.setSelectedIndex(getAccountListIndex(mTransaction.getAccount()));
-            mAccountSpinner.setSelectedIndex(getAccountListIndex(mTransaction.getAccount()));
-            mCategorySpinner.setSelectedIndex(getCategoryListIndex(mTransaction.getCategory()));
+            mAccountSpinner.setSelectedIndex(getItemIndexById(mAccountsList, mTransaction.getAccount()));
+            mAccountSpinner.setSelectedIndex(getItemIndexById(mAccountsList, mTransaction.getAccount()));
+            mCategorySpinner.setSelectedIndex(getItemIndexById(mCategoriesList, mTransaction.getCategory()));
         }
         mBoxLayout.setVisibility(View.VISIBLE);
         mFABVH.onView(this, v -> v.setVisibility(View.VISIBLE));
-    }
-
-    // TODO: Can refactor these methods using reflection?
-    private int getAccountListIndex(int accountId) {
-        for (int i = 0; i < mAccountsList.size(); i++) {
-            if (mAccountsList.get(i).getId() == accountId) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    private int getCategoryListIndex(int categoryId) {
-        for (int i = 0; i < mCategoriesList.size(); i++) {
-            if (mCategoriesList.get(i).getId() == categoryId) {
-                return i;
-            }
-        }
-        return -1;
     }
 
     private void setCurrencySpinner() {
