@@ -4,6 +4,7 @@ import android.content.Context;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
+import java.util.List;
 
 import androidx.lifecycle.LiveData;
 import io.github.alansanchezp.gnomy.database.GnomyDatabase;
@@ -19,6 +20,11 @@ public class MoneyTransactionRepository {
     public MoneyTransactionRepository(Context context) {
         db = GnomyDatabase.getInstance(context, "");
         dao = db.transactionDAO();
+    }
+
+    // TODO: Temporal method used for RecyclerView testing, remove later
+    public LiveData<List<MoneyTransaction>> getAll(YearMonth month) {
+        return dao.getAll();
     }
 
     public LiveData<MoneyTransaction> find(int id) {
