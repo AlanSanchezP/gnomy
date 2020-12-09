@@ -68,10 +68,10 @@ public class DateUtil {
      * Returns the custom {@link String} representation of a
      * {@link OffsetDateTime} object that will be used in the app.
      *
-     * @param dateTime      OffsetDateTime object to format
+     * @param dateTime      OffsetDateTime object to format.
      * @param includeTime   Indicates if String should include hours and minutes or
      *                      just display date.
-     * @return              String representation
+     * @return              String representation.
      */
     public static String getOffsetDateTimeString(OffsetDateTime dateTime, boolean includeTime) {
         // TODO: Are these patters the best choice?
@@ -82,5 +82,22 @@ public class DateUtil {
             pattern = "YYYY/MM/dd";
         }
         return dateTime.format(DateTimeFormatter.ofPattern(pattern));
+    }
+
+    /**
+     * Returns the custom {@link String} representation of a
+     * {@link OffsetDateTime} object that will be used in screens
+     * that require some daily separator.
+     *
+     * @param dateTime  OffsetDateTime object to format.
+     * @return          String representation.
+     */
+    public static String getDayString(OffsetDateTime dateTime) {
+        String string = dateTime.format(DateTimeFormatter.ofPattern("EEEE, d"));
+        /* This is needed as spanish localization (and possibly others too)
+           returns first character as lowercase */
+        string = string.substring(0, 1).toUpperCase()
+                + string.substring(1);
+        return string;
     }
 }

@@ -77,4 +77,24 @@ public class DateUtilTest {
         assertEquals("2020/01/01 06:30 PM", DateUtil.getOffsetDateTimeString(dateTime, true));
         assertEquals("2020/01/01", DateUtil.getOffsetDateTimeString(dateTime, false));
     }
+
+    @Test
+    public void day_datetime_format_is_correct() {
+        Locale.setDefault(Locale.ENGLISH);
+        OffsetDateTime dateTime = OffsetDateTime.of(2020,1,1,
+                14,30,15, 103, ZoneOffset.UTC);
+        assertEquals("Wednesday, 1", DateUtil.getDayString(dateTime));
+
+        Locale.setDefault(new Locale("es", "mx"));
+        assertEquals("Miércoles, 1", DateUtil.getDayString(dateTime));
+
+        Locale.setDefault(Locale.ITALIAN);
+        assertEquals("Mercoledì, 1", DateUtil.getDayString(dateTime));
+
+        Locale.setDefault(Locale.FRENCH);
+        assertEquals("Mercredi, 1", DateUtil.getDayString(dateTime));
+
+        Locale.setDefault(Locale.GERMAN);
+        assertEquals("Mittwoch, 1", DateUtil.getDayString(dateTime));
+    }
 }

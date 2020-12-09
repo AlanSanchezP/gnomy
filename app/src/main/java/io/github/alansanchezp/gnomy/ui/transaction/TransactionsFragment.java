@@ -13,7 +13,6 @@ import com.xwray.groupie.Section;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -25,6 +24,7 @@ import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
+import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.viewmodel.transaction.TransactionsListViewModel;
 
 public class TransactionsFragment extends MainNavigationFragment {
@@ -121,7 +121,7 @@ public class TransactionsFragment extends MainNavigationFragment {
         for (List<MoneyTransaction> list : map.values()) {
             Section daySection = new Section();
             BigDecimal dayTotal = BigDecimalUtil.ZERO;
-            String dayName = list.get(0).getDate().format(DateTimeFormatter.ofPattern("EEEE d"));
+            String dayName = DateUtil.getDayString(list.get(0).getDate());
             for (MoneyTransaction item : list) {
                 daySection.add(new TransactionItem(item));
                 if (item.getType() == MoneyTransaction.INCOME)
