@@ -37,7 +37,6 @@ public class TransactionGroupHeader
         } catch (GnomyCurrencyException e) {
             Log.wtf("TransactionGroupHeader", "bind: ", e);
         }
-        viewBinding.transactionGroupHeaderSum.setText(mSum.toPlainString());
     }
 
     @Override
@@ -61,7 +60,7 @@ public class TransactionGroupHeader
                 break;
         }
         // TODO: Implement global default currency
-        viewBinding.transactionGroupHeaderSum.setText(
-                CurrencyUtil.format(mSum, "USD"));
+        viewBinding.transactionGroupHeaderSum.setText("\u2211 = ".concat(
+                CurrencyUtil.format(mSum, "USD")));
     }
 }

@@ -22,9 +22,9 @@ public class MoneyTransactionRepository {
         dao = db.transactionDAO();
     }
 
-    // TODO: Temporal method used for RecyclerView testing, remove later
-    public LiveData<List<MoneyTransaction>> getAll(YearMonth month) {
-        return dao.getAll();
+    // TODO: Implement advanced filters
+    public LiveData<List<TransactionDisplayData>> getAllFromMonth(YearMonth month) {
+        return dao.getAllFromMonth(month);
     }
 
     public LiveData<MoneyTransaction> find(int id) {

@@ -22,6 +22,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
 import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
@@ -116,18 +117,19 @@ public class TransactionsFragment extends MainNavigationFragment {
     public void onMonthChanged(YearMonth month) {
     }
 
-    private void onTransactionsMapChanged(TreeMap<Integer, List<MoneyTransaction>> map) {
+    private void onTransactionsMapChanged(TreeMap<Integer, List<TransactionDisplayData>> map) {
         mAdapter.clear();
-        for (List<MoneyTransaction> list : map.values()) {
+        for (List<TransactionDisplayData> list : map.values()) {
             Section daySection = new Section();
             BigDecimal dayTotal = BigDecimalUtil.ZERO;
-            String dayName = DateUtil.getDayString(list.get(0).getDate());
-            for (MoneyTransaction item : list) {
+            String dayName = DateUtil.getDayString(list.get(0).transaction.getDate());
+            for (TransactionDisplayData item : list) {
+                // TODO: Use global currency during total calculation as default
                 daySection.add(new TransactionItem(item));
-                if (item.getType() == MoneyTransaction.INCOME)
-                    dayTotal = dayTotal.add(item.getCalculatedValue());
-                else if (item.getType() == MoneyTransaction.EXPENSE)
-                    dayTotal = dayTotal.subtract(item.getCalculatedValue());
+                if (item.transaction.getType() == MoneyTransaction.INCOME)
+                    dayTotal = dayTotal.add(item.transaction.getCalculatedValue());
+                else if (item.transaction.getType() == MoneyTransaction.EXPENSE)
+                    dayTotal = dayTotal.subtract(item.transaction.getCalculatedValue());
             }
             daySection.setHeader(new TransactionGroupHeader(dayName, dayTotal));
             mAdapter.add(daySection);

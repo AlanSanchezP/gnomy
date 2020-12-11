@@ -14,6 +14,7 @@ import io.github.alansanchezp.gnomy.database.category.Category;
 import io.github.alansanchezp.gnomy.database.category.CategoryDAO;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionDAO;
+import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
 import io.reactivex.Single;
 
 public class MockDatabaseOperationsUtil {
@@ -161,7 +162,7 @@ public class MockDatabaseOperationsUtil {
 
     public static class MockableMoneyTransactionDAO extends MoneyTransactionDAO {
         @Override
-        public LiveData<List<MoneyTransaction>> getAll() {
+        public LiveData<List<TransactionDisplayData>> getAllFromMonth(YearMonth month) {
             return null;
         }
 
