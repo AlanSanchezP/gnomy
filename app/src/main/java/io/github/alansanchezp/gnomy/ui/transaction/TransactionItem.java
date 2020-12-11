@@ -63,6 +63,9 @@ public class TransactionItem
         ((GradientDrawable) viewBinding.transactionCardIcon.getBackground()).setColor(iconBgColor);
         viewBinding.transactionCardIcon.setColorFilter(iconColor);
         viewBinding.transactionCardIcon.setTag(iconResId);
+        // TODO: Is this the best condition to use?
+        if (!mItem.transaction.isConfirmed())
+            viewBinding.transactionCardAlertIcon.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -88,5 +91,13 @@ public class TransactionItem
         }
         viewBinding.transactionCardAmount.setText(
                 CurrencyUtil.format(amount, mItem.transaction.getCurrency()));
+    }
+
+    public int getTransactionId() {
+        return mItem.transaction.getId();
+    }
+
+    public int getTransactionType() {
+        return mItem.transaction.getType();
     }
 }

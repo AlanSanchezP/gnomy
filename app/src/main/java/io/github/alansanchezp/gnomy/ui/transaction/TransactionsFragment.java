@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.xwray.groupie.GroupAdapter;
+import com.xwray.groupie.Item;
 import com.xwray.groupie.Section;
 
 import java.math.BigDecimal;
@@ -29,8 +30,11 @@ import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.viewmodel.transaction.TransactionsListViewModel;
 
 public class TransactionsFragment extends MainNavigationFragment {
+    // Not sure as to what else to do to avoid this warning
+    @SuppressWarnings("rawtypes")
     private GroupAdapter mAdapter;
     private TransactionsListViewModel mViewModel;
+    private boolean mAllowClicks = true;
 
     public TransactionsFragment(MainNavigationInteractionInterface _interface) {
         super(_interface);
@@ -41,7 +45,11 @@ public class TransactionsFragment extends MainNavigationFragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
+        //noinspection rawtypes
         mAdapter = new GroupAdapter();
+        mAdapter.setOnItemClickListener(this::onItemClickListener);
+        // TODO: Is alert icon gonna do any action? It doesn't seem like we can
+        //  set a listener to it, so that might be a problem
     }
 
     @Override
@@ -68,6 +76,12 @@ public class TransactionsFragment extends MainNavigationFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mViewModel.getGroupsByDay().observe(getViewLifecycleOwner(), this::onTransactionsMapChanged);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mAllowClicks = true;
     }
 
     /* CONCRETE METHODS INHERITED FROM ABSTRACT CLASS */
@@ -133,6 +147,21 @@ public class TransactionsFragment extends MainNavigationFragment {
             }
             daySection.setHeader(new TransactionGroupHeader(dayName, dayTotal));
             mAdapter.add(daySection);
+        }
+    }
+
+    private void onItemClickListener(@SuppressWarnings("rawtypes") Item item, View view) {
+        if (!mAllowClicks) return;
+        // Headers trigger this too, so better to be safe
+        if (view.getId() == R.id.transaction_card) {
+            mAllowClicks = false;
+            TransactionItem _item = (TransactionItem) item;
+            int transactionId = _item.getTransactionId();
+            int transactionType = _item.getTransactionType();
+            Intent updateTransactionIntent = new Intent(getActivity(), AddEditTransactionActivity.class);
+            updateTransactionIntent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_ID, transactionId);
+            updateTransactionIntent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, transactionType);
+            requireActivity().startActivity(updateTransactionIntent);
         }
     }
 }
