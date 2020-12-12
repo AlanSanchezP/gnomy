@@ -74,7 +74,7 @@ public class AddEditTransactionActivity
     // Utilities for validation and data management
     private int mTransactionType;
     private boolean mIsNewScreen = true;
-    private OffsetDateTime mTransactionMinDate = DateUtil.OffsetDateTimeNow();
+    private OffsetDateTime mTransactionMinDate;
     private MoneyTransaction mTransaction;
     private AddEditTransactionViewModel mViewModel;
 
@@ -339,6 +339,7 @@ public class AddEditTransactionActivity
             throw new RuntimeException("Attempting an invalid operation: Changing a transaction's type.");
         // TODO: Should we keep edited data on rotation?
         //  An option could be to force portrait mode on form activities
+        mTransactionMinDate = transaction.getDate();
         mTransaction = transaction;
         mViewModel.setUserSelectedConfirmedStatus(transaction.isConfirmed());
         tryToForceConfirmedStatus();
@@ -490,6 +491,8 @@ public class AddEditTransactionActivity
     }
 
     private void setOrIgnoreMinDate(Account account) {
+        if (mTransactionMinDate == null)
+            mTransactionMinDate = DateUtil.OffsetDateTimeNow();
         if (mTransactionMinDate.isBefore(account.getCreatedAt())) {
             mTransactionMinDate = account.getCreatedAt();
         }
