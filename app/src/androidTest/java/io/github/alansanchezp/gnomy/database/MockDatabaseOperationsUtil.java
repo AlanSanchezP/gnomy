@@ -111,6 +111,10 @@ public class MockDatabaseOperationsUtil {
             return 0;
         }
 
+        public int _savePotentiallyOrphanMirrorTransfers(int accountId) {
+            return 0;
+        }
+
         public int _savePotentiallyOrphanTransfers(int accountId) {
             return 0;
         }

@@ -166,7 +166,8 @@ public abstract class AccountDAO implements MonthlyBalanceDAO {
     protected abstract int _update(Account account);
 
     /**
-     * !!! ONLY USE IN TANDEM AFTER _savePotentiallyOrphanTransfers() !!!
+     * !!! ONLY USE IN TANDEM AFTER _savePotentiallyOrphanTransfers()
+     * and _savePotentiallyOrphanMirrorTransfers() !!!
      *
      * @param account   Account to be deleted
      * @return          Number of affected rows
@@ -174,14 +175,43 @@ public abstract class AccountDAO implements MonthlyBalanceDAO {
     @Delete
     protected abstract int _delete(Account account);
 
+    // TODO: Is it a good idea to create special Category rows for transfers ?
+    //  One for regular transfers, another one for orphan transfers (converted into EXPENSES),
+    //  and another one for orphan mirror transfers (converted into INCOMES)
+    //  This would probably help readability without adding the (ORPHAN) legend.
+    //  It would be necessary to add a categories.special_category column or something similar
+
     /**
      * !!! ONLY USE IN TANDEM BEFORE _delete() !!!
      *
      * The problem: When an {@link Account} is deleted all {@link MoneyTransaction} transfer objects
-     * that pointed to it as a destination will be deleted too (due to ForeignKey constraints),
-     * but their mirrored versions will remain in the database. This would cause the user
-     * to be unable to access those transactions' data, as direct manipulation or access
-     * to mirrored transfers is not allowed by design.
+     * that pointed to it as a destination will cause the app to crash
+     * whenever the user attempts to perform any action on them, since they will have an
+     * error condition (transfer with null destination), but they will still be
+     * shown to the user, and they will still be counted on total balance.
+     *
+     * Solution: This method converts orphan transfers into regular expenses so that the user
+     * can still access them, without altering existing {@link MonthlyBalance} rows.
+     * Additionally, it modifies the transaction's concept to indicate its orphan nature.
+     *
+     * @param accountId     Account that is about to be deleted
+     * @return              Number of affected rows
+     */
+    @Query("UPDATE OR ABORT transactions SET " +
+            "transaction_type = " + MoneyTransaction.EXPENSE + ", " +
+            "transaction_concept = '(ORPHAN) ' || transaction_concept " +
+            "WHERE transaction_type = " + MoneyTransaction.TRANSFER + " " +
+            "AND transfer_destination_account_id = :accountId;")
+    protected abstract int _savePotentiallyOrphanTransfers(int accountId);
+
+    /**
+     * !!! ONLY USE IN TANDEM BEFORE _delete() !!!
+     *
+     * The problem: When an {@link Account} is deleted all {@link MoneyTransaction} transfer objects
+     * that pointed to it as their origin account will be deleted too
+     * (due to ForeignKey constraints), but their mirrored versions will remain in
+     * the database. This would cause the user to be unable to access those transactions'
+     * data, as direct manipulation or access to mirrored transfers is not allowed by design.
      *
      * Solution: This method converts mirror transfers into regular incomes so that the user
      * can still access them, without altering existing {@link MonthlyBalance} rows.
@@ -202,5 +232,5 @@ public abstract class AccountDAO implements MonthlyBalanceDAO {
             "transaction_concept = '(ORPHAN) ' || transaction_concept " +
             "WHERE transaction_type = 4 " + // Cannot access TRANSFER_MIRROR constant directly
             "AND transfer_destination_account_id = :accountId;")
-    protected abstract int _savePotentiallyOrphanTransfers(int accountId);
+    protected abstract int _savePotentiallyOrphanMirrorTransfers(int accountId);
 }

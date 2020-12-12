@@ -44,7 +44,6 @@ public class TransactionItem
         viewBinding.transactionCardConcept.setText(mItem.transaction.getConcept());
         viewBinding.transactionCardAccount.setText(mItem.accountName);
         if (mItem.transaction.getType() == MoneyTransaction.TRANSFER) {
-            // TODO: Should transfers all have a fixed pre-populated category?
             viewBinding.transactionCardAccount.append(" \u203A " + mItem.transferDestinationAccountName);
             iconResId = R.drawable.ic_compare_arrows_black_24dp;
             iconBgColor = ContextCompat.getColor(context, R.color.colorTransfers);
