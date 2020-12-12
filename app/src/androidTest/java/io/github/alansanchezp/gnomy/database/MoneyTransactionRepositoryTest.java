@@ -467,9 +467,9 @@ public class MoneyTransactionRepositoryTest {
 
         testTransaction.setType(MoneyTransaction.TRANSFER);
         testTransaction.setTransferDestinationAccount(2);
+        repository.insert(testTransaction).blockingGet();  // MB Expenses: 192; MB(2) Incomes +10
 
-        // Manually altering ids so that Room can recognize each transaction
-        testTransaction.setId(1);
+        repository.delete(1).blockingGet();
         resultBalance = getOrAwaitValue(
                 repository.getBalanceFromMonth(1, DateUtil.now().minusMonths(2)));
         testResultBalance(resultBalance,
@@ -478,8 +478,7 @@ public class MoneyTransactionRepositoryTest {
                 "425", // (stays the same)
                 "100"); // (stays the same)
 
-        testTransaction.setId(2);
-        repository.delete(testTransaction).blockingGet();
+        repository.delete(2).blockingGet();
         resultBalance = getOrAwaitValue(
                 repository.getBalanceFromMonth(1, DateUtil.now().minusMonths(2)));
         testResultBalance(resultBalance,
@@ -488,12 +487,12 @@ public class MoneyTransactionRepositoryTest {
                 "425", // (stays the same)
                 "100"); // (stays the same)
 
-        testTransaction.setId(3); // Mirror transfer: Expecting error
+        // Mirror transfer: Expecting error
         assertThrows(GnomyIllegalQueryException.class, () ->
-                repository.delete(testTransaction).blockingGet());
+                repository.delete(3).blockingGet());
 
-        testTransaction.setId(4); // Transfer has a +1 id from its mirrored version
-        repository.delete(testTransaction).blockingGet();
+        // Transfer has a +1 id from its mirrored version
+        repository.delete(4).blockingGet();
         resultBalance = getOrAwaitValue(
                 repository.getBalanceFromMonth(1, DateUtil.now().minusMonths(2)));
         mirrorResultBalance = getOrAwaitValue(

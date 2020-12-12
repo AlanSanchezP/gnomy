@@ -146,15 +146,15 @@ public class MoneyTransactionRepository {
      * In the case of transfers, it also deletes mirrored transfer in
      * the recipient account.
      *
-     * @param transaction   Transaction to be deleted
+     * @param transactionId Id of the Transaction row to be deleted
      * @return              Single object that can be observed in main thread
      */
-    public Single<Integer> delete(MoneyTransaction transaction) {
+    public Single<Integer> delete(int transactionId) {
         return db.toSingleInTransaction(() -> {
             // Have to retrieve the original transaction to prevent
             //  faulty balance alterations. Additionally it prevents
             //  access to mirrored transfer objects.
-            MoneyTransaction original = dao._find(transaction.getId());
+            MoneyTransaction original = dao._find(transactionId);
             if (original == null)
                 throw new GnomyIllegalQueryException("Trying to delete non-existent transaction.");
             if (original.getType() == MoneyTransaction.TRANSFER_MIRROR)
