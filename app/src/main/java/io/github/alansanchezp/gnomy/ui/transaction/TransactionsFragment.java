@@ -1,12 +1,15 @@
 package io.github.alansanchezp.gnomy.ui.transaction;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.xwray.groupie.GroupAdapter;
 import com.xwray.groupie.Item;
@@ -19,17 +22,25 @@ import java.util.TreeMap;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
+import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
+import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.viewmodel.transaction.TransactionsListViewModel;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
-public class TransactionsFragment extends MainNavigationFragment {
+public class TransactionsFragment extends MainNavigationFragment
+    implements ConfirmationDialogFragment.OnConfirmationDialogListener {
+
+    private static final String TAG_DELETE_TRANSACTION_DIALOG = "TransactionsFragment.DeleteTransactionDialog";
     // Not sure as to what else to do to avoid this warning
     @SuppressWarnings("rawtypes")
     private GroupAdapter mAdapter;
@@ -41,6 +52,11 @@ public class TransactionsFragment extends MainNavigationFragment {
         // Required empty public constructor
     }
 
+    private GnomyFragmentFactory getFragmentFactory() {
+        return new GnomyFragmentFactory()
+                .addMapElement(ConfirmationDialogFragment.class, this);
+    }
+
     /* ANDROID LIFECYCLE METHODS */
     @Override
     public void onAttach(@NonNull Context context) {
@@ -48,12 +64,15 @@ public class TransactionsFragment extends MainNavigationFragment {
         //noinspection rawtypes
         mAdapter = new GroupAdapter();
         mAdapter.setOnItemClickListener(this::onItemClickListener);
+        // TODO: Is this the best way to present a delete option to the user?
+        mAdapter.setOnItemLongClickListener(this::onItemLongClickListener);
         // TODO: Is alert icon gonna do any action? It doesn't seem like we can
         //  set a listener to it, so that might be a problem
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        getChildFragmentManager().setFragmentFactory(getFragmentFactory());
         super.onCreate(savedInstanceState);
         mViewModel = new ViewModelProvider(this)
                 .get(TransactionsListViewModel.class);
@@ -150,6 +169,20 @@ public class TransactionsFragment extends MainNavigationFragment {
         }
     }
 
+    private void effectiveDeleteTransaction(int transactionId) {
+        mCompositeDisposable.add(
+                mViewModel.delete(transactionId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                integer ->
+                                        mViewModel.setTargetIdToDelete(0),
+                                throwable ->
+                                        Toast.makeText(getContext(), R.string.generic_data_error, Toast.LENGTH_LONG).show()));
+    }
+
+    /* INTERFACE METHODS */
+
     private void onItemClickListener(@SuppressWarnings("rawtypes") Item item, View view) {
         if (!mAllowClicks) return;
         // Headers trigger this too, so better to be safe
@@ -163,5 +196,51 @@ public class TransactionsFragment extends MainNavigationFragment {
             updateTransactionIntent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, transactionType);
             requireActivity().startActivity(updateTransactionIntent);
         }
+    }
+
+    private boolean onItemLongClickListener(@SuppressWarnings("rawtypes") Item item, View view) {
+        if (!mAllowClicks) return false;
+        // Headers trigger this too, so better to be safe
+        if (view.getId() == R.id.transaction_card) {
+            FragmentManager fm = getChildFragmentManager();
+            if (fm.findFragmentByTag(TAG_DELETE_TRANSACTION_DIALOG) != null) return false;
+
+            TransactionItem _item = (TransactionItem) item;
+            mAllowClicks = false;
+            mViewModel.setTargetIdToDelete(_item.getTransactionId());
+            ConfirmationDialogFragment dialog = new ConfirmationDialogFragment(this);
+            Bundle args = new Bundle();
+            args.putString(ConfirmationDialogFragment.ARG_TITLE, getString(R.string.transaction_card_delete));
+            args.putString(ConfirmationDialogFragment.ARG_MESSAGE, getString(R.string.account_card_delete_warning));
+            dialog.setArguments(args);
+            dialog.show(fm, TAG_DELETE_TRANSACTION_DIALOG);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onConfirmationDialogYes(DialogInterface dialog, String dialogTag, int which) {
+        if (dialogTag.equals(TAG_DELETE_TRANSACTION_DIALOG)) {
+            int idToDelete = mViewModel.getTargetIdToDelete();
+            if (idToDelete == 0)  {
+                Log.wtf("TransactionsFragment", "onConfirmationDialogYes: Trying to delete null object.");
+                return;
+            }
+            effectiveDeleteTransaction(idToDelete);
+        }
+    }
+
+    @Override
+    public void onConfirmationDialogNo(DialogInterface dialog, String dialogTag, int which) {
+    }
+
+    @Override
+    public void onConfirmationDialogCancel(DialogInterface dialog, String dialogTag) {
+    }
+
+    @Override
+    public void onConfirmationDialogDismiss(DialogInterface dialog, String dialogTag) {
+        mAllowClicks = true;
     }
 }

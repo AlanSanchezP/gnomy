@@ -77,7 +77,7 @@ public class TransactionItem
             throws GnomyCurrencyException {
         // TODO: Best format for incomes and expenses?
         //  Options are:
-        //      a) + por incomes, - for expenses (current implementation)
+        //      a) + for incomes, - for expenses (current implementation)
         //      b) nothing for incomes, () for expenses
         //      c) rising/falling arrows (drawables)
         BigDecimal amount = mItem.transaction.getCalculatedValue();
@@ -88,6 +88,9 @@ public class TransactionItem
             amount = amount.negate();
             viewBinding.transactionCardAmount.setTextColor(
                     viewBinding.getRoot().getResources().getColor(R.color.colorExpensesDark));
+        } else {
+            viewBinding.transactionCardAmount.setTextColor(
+                    viewBinding.getRoot().getResources().getColor(R.color.colorTextSecondary));
         }
         viewBinding.transactionCardAmount.setText(
                 CurrencyUtil.format(amount, mItem.transaction.getCurrency()));

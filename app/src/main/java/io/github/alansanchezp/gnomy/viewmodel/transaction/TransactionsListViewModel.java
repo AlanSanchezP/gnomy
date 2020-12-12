@@ -13,8 +13,10 @@ import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionRepository;
 import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
+import io.reactivex.Single;
 
 public class TransactionsListViewModel extends AndroidViewModel {
+    private static final String TAG_TARGET_TO_DELETE = "TransactionsListVM.TargetToDelete";
     private final SavedStateHandle mSavedState;
     private final MoneyTransactionRepository mTransactionRepository;
     private LiveData<YearMonth> mActiveMonth;
@@ -52,5 +54,20 @@ public class TransactionsListViewModel extends AndroidViewModel {
             });
         }
         return mTransactionGroups;
+    }
+    public int getTargetIdToDelete() {
+        if (mSavedState.get(TAG_TARGET_TO_DELETE) == null) {
+            setTargetIdToDelete(0);
+        }
+        //noinspection ConstantConditions
+        return mSavedState.get(TAG_TARGET_TO_DELETE);
+    }
+
+    public void setTargetIdToDelete(int transactionId) {
+        mSavedState.set(TAG_TARGET_TO_DELETE, transactionId);
+    }
+
+    public Single<Integer> delete(int transactionId) {
+        return mTransactionRepository.delete(transactionId);
     }
 }
