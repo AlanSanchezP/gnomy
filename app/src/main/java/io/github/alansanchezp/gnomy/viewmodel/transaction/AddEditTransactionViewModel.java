@@ -7,6 +7,7 @@ import java.util.List;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.SavedStateHandle;
+import io.github.alansanchezp.gnomy.database.RepositoryBuilder;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.database.category.Category;
@@ -28,9 +29,9 @@ public class AddEditTransactionViewModel extends AndroidViewModel {
 
     public AddEditTransactionViewModel(Application application, SavedStateHandle savedStateHandle) {
         super(application);
-        mAccountRepository = new AccountRepository(application);
-        mTransactionRepository = new MoneyTransactionRepository(application);
-        mCategoryRepository = new CategoryRepository(application);
+        mAccountRepository = RepositoryBuilder.getRepository(AccountRepository.class, application);
+        mTransactionRepository = RepositoryBuilder.getRepository(MoneyTransactionRepository.class, application);
+        mCategoryRepository = RepositoryBuilder.getRepository(CategoryRepository.class, application);
         mAccountsFirstArrival = false;
         mState = savedStateHandle;
         if (mState.get(TAG_SHOW_MORE_OPTIONS) == null) {

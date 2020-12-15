@@ -15,8 +15,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.database.MockDatabaseOperationsUtil;
 import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
@@ -30,6 +30,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static io.github.alansanchezp.gnomy.database.MockRepositoryBuilder.initMockRepository;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -55,19 +56,18 @@ public class AccountsFragmentInstrumentedTest {
         factory = new GnomyFragmentFactory()
                 .addMapElement(AccountsFragment.class, _interface);
 
-        final MockDatabaseOperationsUtil.MockableAccountDAO mockAccountDAO = mock(MockDatabaseOperationsUtil.MockableAccountDAO.class);
-        MockDatabaseOperationsUtil.setAccountDAO(mockAccountDAO);
+        final AccountRepository mockAccountRepository = initMockRepository(AccountRepository.class);
 
-        when(mockAccountDAO.getArchivedAccounts())
+        when(mockAccountRepository.getArchivedAccounts())
                 .thenReturn(new MutableLiveData<>());
-        when(mockAccountDAO.find(anyInt()))
+        when(mockAccountRepository.getAccount(anyInt()))
                 .thenReturn(new MutableLiveData<>());
 
-        when(mockAccountDAO.getTodayAccumulatesList())
+        when(mockAccountRepository.getTodayAccumulatesList())
                 .thenReturn(new MutableLiveData<>());
-        when(mockAccountDAO.getAccumulatesListAtMonth(any(YearMonth.class)))
+        when(mockAccountRepository.getAccumulatesListAtMonth(any(YearMonth.class)))
                 .thenReturn(new MutableLiveData<>());
-        when(mockAccountDAO.getAccumulatedAtMonth(anyInt(), any(YearMonth.class)))
+        when(mockAccountRepository.getAccumulatedAtMonth(anyInt(), any(YearMonth.class)))
                 .thenReturn(new MutableLiveData<>());
 
         mockMenuItem = mock(MenuItem.class);

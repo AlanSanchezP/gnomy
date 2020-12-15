@@ -43,7 +43,6 @@ public class AccountRepositoryTest {
 
     @Before
     public void setUp() {
-        MockDatabaseOperationsUtil.disableMocking();
         repository = new AccountRepository(
                 InstrumentationRegistry.getInstrumentation().getContext());
         transactionRepository = new MoneyTransactionRepository(

@@ -11,6 +11,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
+import io.github.alansanchezp.gnomy.database.RepositoryBuilder;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionRepository;
 import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
 import io.reactivex.Single;
@@ -26,7 +27,7 @@ public class TransactionsListViewModel extends AndroidViewModel {
     public TransactionsListViewModel(Application application, SavedStateHandle savedStateHandle) {
         super(application);
         mSavedState = savedStateHandle;
-        mTransactionRepository = new MoneyTransactionRepository(application);
+        mTransactionRepository = RepositoryBuilder.getRepository(MoneyTransactionRepository.class, application);
     }
 
     public void bindMonth(LiveData<YearMonth> month) {

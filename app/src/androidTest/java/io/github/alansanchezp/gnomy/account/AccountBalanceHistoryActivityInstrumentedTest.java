@@ -18,8 +18,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.database.MockDatabaseOperationsUtil;
 import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
 import io.github.alansanchezp.gnomy.ui.account.AccountBalanceHistoryActivity;
 import io.github.alansanchezp.gnomy.util.DateUtil;
@@ -31,6 +31,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.hasTextColor;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static io.github.alansanchezp.gnomy.database.MockRepositoryBuilder.initMockRepository;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -59,8 +60,7 @@ public class AccountBalanceHistoryActivityInstrumentedTest {
     @BeforeClass
     public static void init_mocks() {
         // Needed so that ViewModel instance doesn't crash
-        final MockDatabaseOperationsUtil.MockableAccountDAO mockAccountDAO = mock(MockDatabaseOperationsUtil.MockableAccountDAO.class);
-        MockDatabaseOperationsUtil.setAccountDAO(mockAccountDAO);
+        final AccountRepository mockAccountRepository = initMockRepository(AccountRepository.class);
 
         testAWA = mock(AccountWithAccumulated.class);
         testAWA.account = mock(Account.class);
@@ -70,7 +70,7 @@ public class AccountBalanceHistoryActivityInstrumentedTest {
         when(testAWA.getPendingExpensesAtMonth()).thenReturn(BigDecimal.ZERO);
         when(testAWA.getPendingIncomesAtMonth()).thenReturn(BigDecimal.ZERO);
 
-        when(mockAccountDAO.getAccumulatedAtMonth(anyInt(), any(YearMonth.class)))
+        when(mockAccountRepository.getAccumulatedAtMonth(anyInt(), any(YearMonth.class)))
                 .thenReturn(mutableAWA);
     }
 

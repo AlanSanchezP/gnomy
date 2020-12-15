@@ -5,6 +5,7 @@ import android.app.Application;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
+import io.github.alansanchezp.gnomy.database.RepositoryBuilder;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
 import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
@@ -16,7 +17,7 @@ public class AccountBalanceHistoryViewModel
 
     public AccountBalanceHistoryViewModel(Application application, SavedStateHandle savedStateHandle) {
         super(application, savedStateHandle);
-        mRepository = new AccountRepository(application);
+        mRepository = RepositoryBuilder.getRepository(AccountRepository.class, application);
     }
 
     public LiveData<AccountWithAccumulated> getAccumulatedAtMonth(final int accountId) {

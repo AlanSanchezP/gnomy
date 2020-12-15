@@ -35,7 +35,6 @@ public class MoneyTransactionRepositoryTest {
     public void setUp() {
         // Fixing test clock to avoid changes in dates when calling DateUtil.OffsetDateTimeNow()
         DateUtil.setFixedClockAtTime("2018-01-08T15:34:42.00Z");
-        MockDatabaseOperationsUtil.disableMocking();
         repository = new MoneyTransactionRepository(
                 InstrumentationRegistry.getInstrumentation().getContext());
         AccountRepository accountRepository = new AccountRepository(

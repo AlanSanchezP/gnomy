@@ -5,6 +5,7 @@ import android.app.Application;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
+import io.github.alansanchezp.gnomy.database.RepositoryBuilder;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
 import io.github.alansanchezp.gnomy.util.DateUtil;
@@ -15,7 +16,7 @@ public class AccountViewModel extends AndroidViewModel {
 
     public AccountViewModel (Application application) {
         super(application);
-        mRepository = new AccountRepository(application);
+        mRepository = RepositoryBuilder.getRepository(AccountRepository.class, application);
     }
 
     public LiveData<AccountWithAccumulated> getAccountWithAccumulated(int accountId) {

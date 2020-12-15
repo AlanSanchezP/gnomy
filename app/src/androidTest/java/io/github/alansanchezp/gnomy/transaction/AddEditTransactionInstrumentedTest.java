@@ -25,15 +25,18 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.database.MockDatabaseOperationsUtil;
 import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.database.category.Category;
+import io.github.alansanchezp.gnomy.database.category.CategoryRepository;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionRepository;
 import io.github.alansanchezp.gnomy.ui.transaction.AddEditTransactionActivity;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
+import io.reactivex.Single;
 
 import static androidx.test.core.app.ActivityScenario.launch;
 import static androidx.test.espresso.Espresso.onData;
@@ -59,6 +62,7 @@ import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertThrows;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.clickIcon;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.nestedScrollTo;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.setChecked;
+import static io.github.alansanchezp.gnomy.database.MockRepositoryBuilder.initMockRepository;
 import static io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction.EXPENSE;
 import static io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction.INCOME;
 import static io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction.TRANSFER;
@@ -69,7 +73,6 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -84,7 +87,7 @@ public class AddEditTransactionInstrumentedTest {
             new ActivityScenarioRule<>(AddEditTransactionActivity.class);
     @Rule
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
-    private static final MockDatabaseOperationsUtil.MockableMoneyTransactionDAO mockTransactionDAO = mock(MockDatabaseOperationsUtil.MockableMoneyTransactionDAO.class);
+    private static final MoneyTransactionRepository mockTransactionRepository = initMockRepository(MoneyTransactionRepository.class);
     private static MutableLiveData<List<Account>> testAccountListLD;
     private static List<Account> testAccountList = new ArrayList<>();
     private static Account testAccountA, testAccountB;
@@ -92,12 +95,8 @@ public class AddEditTransactionInstrumentedTest {
 
     @BeforeClass
     public static void init_mocks() {
-        final MockDatabaseOperationsUtil.MockableAccountDAO mockAccountDAO = mock(MockDatabaseOperationsUtil.MockableAccountDAO.class);
-        final MockDatabaseOperationsUtil.MockableCategoryDAO mockCategoryDAO = mock(MockDatabaseOperationsUtil.MockableCategoryDAO.class);
-
-        MockDatabaseOperationsUtil.setTransactionDAO(mockTransactionDAO);
-        MockDatabaseOperationsUtil.setAccountDAO(mockAccountDAO);
-        MockDatabaseOperationsUtil.setCategoryDAO(mockCategoryDAO);
+        final AccountRepository mockAccountRepository = initMockRepository(AccountRepository.class);
+        final CategoryRepository mockCategoryRepository = initMockRepository(CategoryRepository.class);
 
         testAccountA = new Account(1);
         testAccountA.setName("Test account A");
@@ -124,11 +123,11 @@ public class AddEditTransactionInstrumentedTest {
         testCategoryList.add(testCategory);
         MutableLiveData<List<Category>> testCategoryListLD = new MutableLiveData<>(testCategoryList);
 
-        when(mockTransactionDAO._insert(any(MoneyTransaction.class)))
-                .thenReturn(1L);
-        when(mockAccountDAO.getAll())
+        when(mockTransactionRepository.insert(any(MoneyTransaction.class)))
+                .thenReturn(Single.just(1L));
+        when(mockAccountRepository.getAll())
                 .thenReturn(testAccountListLD);
-        when(mockCategoryDAO.getAll())
+        when(mockCategoryRepository.getAll())
                 .thenReturn(testCategoryListLD);
     }
 
@@ -287,19 +286,24 @@ public class AddEditTransactionInstrumentedTest {
 
     @Test
     public void data_is_sent_to_repository() throws GnomyCurrencyException {
-        when(mockTransactionDAO._insert(any(MoneyTransaction.class)))
+        when(mockTransactionRepository.insert(any(MoneyTransaction.class)))
                 .then(invocation -> {
+                    RuntimeException exception = null;
                     // I don't like this, but it was the only way I found to test this
                     MoneyTransaction sentByForm = invocation.getArgument(0);
-                    if (sentByForm.getAccount() != testAccountB.getId()) throw new RuntimeException();
-                    if (sentByForm.getCategory() != testCategory.getId()) throw new RuntimeException();
-                    if (!sentByForm.getCurrency().equals("USD")) throw new RuntimeException();
+                    if (sentByForm.getAccount() != testAccountB.getId()) exception = new RuntimeException();
+                    if (sentByForm.getCategory() != testCategory.getId()) exception =  new RuntimeException();
+                    if (!sentByForm.getCurrency().equals("USD")) exception =  new RuntimeException();
                     if (!sentByForm.getOriginalValue().equals(
-                            BigDecimalUtil.fromString("40"))) throw new RuntimeException();
-                    if (!sentByForm.getConcept().equals("Test concept")) throw new RuntimeException();
-                    if (sentByForm.isConfirmed()) throw new RuntimeException();
-                    if (!sentByForm.getNotes().equals("Test notes")) throw new RuntimeException();
-                    return 1L;
+                            BigDecimalUtil.fromString("40"))) exception =  new RuntimeException();
+                    if (!sentByForm.getConcept().equals("Test concept")) exception =  new RuntimeException();
+                    if (sentByForm.isConfirmed()) exception =  new RuntimeException();
+                    if (!sentByForm.getNotes().equals("Test notes")) exception =  new RuntimeException();
+
+                    if (exception == null)
+                        return Single.just(1L);
+                    else
+                        return Single.error(exception);
                 });
         // Force more options
         onView(withId(R.id.addedit_transaction_more_options_toggle))
@@ -337,7 +341,7 @@ public class AddEditTransactionInstrumentedTest {
         onView(withId(R.id.addedit_transaction_FAB))
                 .perform(click());
 
-        // These calls should only be possible if _insert fails and activity is not
+        // These calls should only be possible if insert fails and activity is not
         //  automatically finished
         onView(withId(R.id.addedit_transaction_concept_input))
                 .perform(nestedScrollTo(), click())
@@ -352,8 +356,8 @@ public class AddEditTransactionInstrumentedTest {
                 () -> onView(withId(R.id.addedit_account_FAB))
                         .perform(click()));
         // return to default state
-        when(mockTransactionDAO._insert(any(MoneyTransaction.class)))
-                .thenReturn(1L);
+        when(mockTransactionRepository.insert(any(MoneyTransaction.class)))
+                .thenReturn(Single.just(1L));
         assert true;
     }
 

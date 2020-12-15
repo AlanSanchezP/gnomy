@@ -10,9 +10,10 @@ import org.junit.runner.RunWith;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.database.MockDatabaseOperationsUtil;
 import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.ui.account.AddEditAccountActivity;
+import io.reactivex.Single;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -26,9 +27,9 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertThrows;
+import static io.github.alansanchezp.gnomy.database.MockRepositoryBuilder.initMockRepository;
 import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -45,10 +46,9 @@ public class AddAccountActivityInstrumentedTest {
     // Needed so that ViewModel instance doesn't crash
     @BeforeClass
     public static void init_mocks() {
-        final MockDatabaseOperationsUtil.MockableAccountDAO mockAccountDAO = mock(MockDatabaseOperationsUtil.MockableAccountDAO.class);
-        MockDatabaseOperationsUtil.setAccountDAO(mockAccountDAO);
-        when(mockAccountDAO._insert(any(Account.class)))
-                .thenReturn(1L);
+        final AccountRepository mockAccountRepository = initMockRepository(AccountRepository.class);
+        when(mockAccountRepository.insert(any(Account.class)))
+                .thenReturn(Single.just(1L));
     }
 
     @Test

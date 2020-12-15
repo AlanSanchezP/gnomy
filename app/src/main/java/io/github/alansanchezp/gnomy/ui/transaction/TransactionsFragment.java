@@ -143,6 +143,7 @@ public class TransactionsFragment extends MainNavigationFragment
     @Override
     public void onFABClick(View v) {
         Intent newTransactionIntent = new Intent(getActivity(), AddEditTransactionActivity.class);
+        newTransactionIntent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, 3);
         requireActivity().startActivity(newTransactionIntent);
     }
 
