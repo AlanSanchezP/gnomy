@@ -15,6 +15,7 @@ import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.ui.account.AddEditAccountActivity;
 import io.reactivex.Single;
 
+import static androidx.lifecycle.Lifecycle.State.DESTROYED;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.replaceText;
@@ -26,6 +27,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertActivityState;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertThrows;
 import static io.github.alansanchezp.gnomy.database.MockRepositoryBuilder.initMockRepository;
 import static org.hamcrest.Matchers.not;
@@ -170,9 +172,7 @@ public class AddAccountActivityInstrumentedTest {
         onView(withId(R.id.addedit_account_FAB))
                 .perform(click());
 
-        assertThrows(RuntimeException.class,
-                () -> onView(withId(R.id.addedit_account_FAB))
-                        .perform(click()));
+        assertActivityState(DESTROYED, activityRule);
     }
 
     @Test

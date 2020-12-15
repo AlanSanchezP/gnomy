@@ -38,6 +38,7 @@ import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.reactivex.Single;
 
+import static androidx.lifecycle.Lifecycle.State.DESTROYED;
 import static androidx.test.core.app.ActivityScenario.launch;
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
@@ -58,6 +59,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.END_ICON;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.ERROR_ICON;
+import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertActivityState;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertThrows;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.clickIcon;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.nestedScrollTo;
@@ -224,9 +226,7 @@ public class AddEditTransactionInstrumentedTest {
         onView(withId(R.id.addedit_transaction_FAB))
                 .perform(click());
 
-        assertThrows(RuntimeException.class,
-                () -> onView(withId(R.id.addedit_transaction_FAB))
-                        .perform(click()));
+        assertActivityState(DESTROYED, activityRule);
     }
 
     @Test
@@ -358,7 +358,6 @@ public class AddEditTransactionInstrumentedTest {
         // return to default state
         when(mockTransactionRepository.insert(any(MoneyTransaction.class)))
                 .thenReturn(Single.just(1L));
-        assert true;
     }
 
     @Test

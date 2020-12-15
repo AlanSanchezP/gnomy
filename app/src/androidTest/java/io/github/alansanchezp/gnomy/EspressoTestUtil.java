@@ -13,11 +13,14 @@ import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 
 import androidx.core.widget.NestedScrollView;
+import androidx.lifecycle.Lifecycle.State;
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.PerformException;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.espresso.util.HumanReadables;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
@@ -34,6 +37,17 @@ public class EspressoTestUtil {
         } catch (Throwable thr) {
             if (thr.getClass().equals(throwable)) assert true;
             else throw thr;
+        }
+    }
+
+    public static void assertActivityState(State state, ActivityScenarioRule rule) {
+        assertActivityState(state, rule.getScenario());
+    }
+
+    // TODO: Evaluate if this method is needed, or using only ActivityScenarioRule is enough
+    public static void assertActivityState(State state, ActivityScenario scenario) {
+        if (scenario.getState() != state) {
+            fail();
         }
     }
 
