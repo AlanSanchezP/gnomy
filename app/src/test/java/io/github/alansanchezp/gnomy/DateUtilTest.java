@@ -14,13 +14,17 @@ import static org.junit.Assert.assertEquals;
 public class DateUtilTest {
     @Test
     public void sets_clock_with_instant_string() {
-        DateUtil.setFixedClockAtTime("2018-01-08T15:34:42.00Z");
+        DateUtil.setFixedClockAtTime("2018-01-08T15:34:42.00Z", ZoneOffset.ofHours(-4));
         assertEquals("2018-01", DateUtil.now().toString());
+        assertEquals(8, DateUtil.OffsetDateTimeNow().getDayOfMonth());
+        assertEquals(11, DateUtil.OffsetDateTimeNow().getHour());
+        assertEquals(34, DateUtil.OffsetDateTimeNow().getMinute());
+        assertEquals(42, DateUtil.OffsetDateTimeNow().getSecond());
     }
 
     @Test
     public void setting_clock_fallbacks_to_current_instant() {
-        DateUtil.setFixedClockAtTime("dka0");
+        DateUtil.setFixedClockAtTime("dka0", null);
         assertEquals(YearMonth.now().toString(), DateUtil.now().toString());
     }
 
@@ -32,7 +36,7 @@ public class DateUtilTest {
     @Test
     public void year_month_string_is_correct() {
         Locale.setDefault(Locale.ENGLISH);
-        DateUtil.setFixedClockAtTime("2018-01-01T15:34:42.00Z");
+        DateUtil.setFixedClockAtTime("2018-01-01T15:34:42.00Z", ZoneOffset.ofHours(0));
         YearMonth march2018 = YearMonth.of(2018,3);
         YearMonth march2017 = YearMonth.of(2017,3);
         YearMonth march2019 = YearMonth.of(2019,3);
@@ -46,7 +50,7 @@ public class DateUtilTest {
     public void year_month_is_capitalized_across_languages() {
         // TESTING SOME LANGUAGES THAT USE "TRADITIONAL" ALPHABET
         Locale.setDefault(Locale.ENGLISH);
-        DateUtil.setFixedClockAtTime("2018-01-01T15:34:42.00Z");
+        DateUtil.setFixedClockAtTime("2018-01-01T15:34:42.00Z", ZoneOffset.ofHours(-4));
         YearMonth march2018 = YearMonth.of(2018,3);
 
         assertEquals("March", DateUtil.getYearMonthString(march2018));
@@ -96,5 +100,18 @@ public class DateUtilTest {
 
         Locale.setDefault(Locale.GERMAN);
         assertEquals("Mittwoch, 1", DateUtil.getDayString(dateTime));
+    }
+
+    @Test
+    public void month_boundaries_are_correct() {
+        ZoneOffset offset = ZoneOffset.ofHours(-4);
+        DateUtil.setFixedClockAtTime("2018-01-08T15:34:42.00Z", offset);
+        OffsetDateTime expectedFirstInstant = OffsetDateTime.parse("2018-01-01T00:00:00.00Z")
+                .withOffsetSameLocal(offset);
+        OffsetDateTime expectedLastSecond = OffsetDateTime.parse("2018-02-01T00:00:00.00Z")
+                .withOffsetSameLocal(offset);
+        OffsetDateTime[] results = DateUtil.getMonthBoundaries(DateUtil.now());
+        assertEquals(expectedFirstInstant, results[0]);
+        assertEquals(expectedLastSecond, results[1]);
     }
 }

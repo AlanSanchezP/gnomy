@@ -8,6 +8,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.time.ZoneOffset;
+import java.util.List;
+
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -15,13 +18,16 @@ import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionFilter;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionRepository;
+import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertThrows;
 import static io.github.alansanchezp.gnomy.LiveDataTestUtil.getOrAwaitValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
 public class MoneyTransactionRepositoryTest {
@@ -34,7 +40,7 @@ public class MoneyTransactionRepositoryTest {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public void setUp() {
         // Fixing test clock to avoid changes in dates when calling DateUtil.OffsetDateTimeNow()
-        DateUtil.setFixedClockAtTime("2018-01-08T15:34:42.00Z");
+        DateUtil.setFixedClockAtTime("2018-01-08T15:34:42.00Z", ZoneOffset.UTC);
         repository = new MoneyTransactionRepository(
                 InstrumentationRegistry.getInstrumentation().getContext());
         AccountRepository accountRepository = new AccountRepository(
@@ -56,6 +62,8 @@ public class MoneyTransactionRepositoryTest {
         accountRepository.update(firstBalance).blockingGet();
 
         // Insert second account (for update testing)
+        accountRepository.insert(account).blockingGet();
+        // Insert third account (for filter testing)
         accountRepository.insert(account).blockingGet();
     }
 
@@ -506,6 +514,324 @@ public class MoneyTransactionRepositoryTest {
                 "0", // (stays the same)
                 "0", // (stays the same)
                 "0"); // (stays the same)
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    @Test
+    public void getByFilter_works() throws InterruptedException {
+        // TODO: Complement with more categories once CategoryRepository is ready
+        /*
+         * This test will insert several (15) money transaction rows and
+         * test MoneyTransactionRepository.getByFilter() with different
+         * values for each of the 10 fields that compose MoneyTransactionFilter.
+         * The distribution of these money transaction instances will be:
+         *
+         * 1:   Confirmed income, 2 months before now, account 1, original value 10
+         * 2:   Confirmed income, 2 months 1 second before now, account 1, original value 20
+         * 3:   Unconfirmed income, 1 months before now, account 1, original value 30
+         * 4:   Confirmed expense, 1 months after now, account 2, original value 40
+         * 5:   Confirmed expense, 1 months after now, account 1, original value 50
+         * 6:   Unconfirmed expense, 2 months 1 second after now, account 2, original value 60
+         * 7:   Transfer, 2 months before now, from account 1 to account 2, original value 70
+         * 8:   Transfer, 2 months before now, from account 2 to account 1, original value 80
+         * 9:   Transfer, 2 months before now, from account 2 to account 1, original value 90
+         * 10:  Transfer, 1 months before now, from account 3 to account 2, original value 100
+         * 11:  Transfer, 1 months before now, from account 2 to account 3, original value 110
+         * 12:  Confirmed income, this day, account 2, original value 120
+         * 13:  Confirmed expense, this day, account 2, original value 130
+         * 14:  Unconfirmed income, 2 months after now, account 2, original value 140
+         * 15:  Unconfirmed expense, 2 months after now, account 2, original value 150
+         *
+         * */
+
+        MoneyTransaction testTransaction = getDefaultTestTransaction();
+        testTransaction.setOriginalValue("10");
+        repository.insert(testTransaction).blockingGet(); // 1
+
+        testTransaction.setOriginalValue("20");
+        // Ensure this transaction is the LEAST recent one
+        testTransaction.setDate(testTransaction.getDate().minusSeconds(1));
+        repository.insert(testTransaction).blockingGet(); // 2
+
+        testTransaction.setConfirmed(false);
+        testTransaction.setDate(DateUtil.OffsetDateTimeNow().minusMonths(1));
+        testTransaction.setOriginalValue("30");
+        repository.insert(testTransaction).blockingGet(); // 3
+
+        testTransaction.setConfirmed(true);
+        testTransaction.setType(MoneyTransaction.EXPENSE);
+        testTransaction.setDate(DateUtil.OffsetDateTimeNow().plusMonths(1));
+        testTransaction.setAccount(2);
+        testTransaction.setOriginalValue("40");
+        repository.insert(testTransaction).blockingGet(); // 4
+
+        testTransaction.setAccount(1);
+        testTransaction.setOriginalValue("50");
+        repository.insert(testTransaction).blockingGet(); // 5
+
+        testTransaction.setConfirmed(false);
+        // Ensure this transaction is the MOST recent one
+        testTransaction.setDate(DateUtil.OffsetDateTimeNow().plusMonths(2).plusSeconds(1));
+        testTransaction.setAccount(2);
+        testTransaction.setOriginalValue("60");
+        repository.insert(testTransaction).blockingGet(); // 6
+
+        testTransaction.setConfirmed(true);
+        testTransaction.setType(MoneyTransaction.TRANSFER);
+        testTransaction.setDate(DateUtil.OffsetDateTimeNow().minusMonths(2));
+        testTransaction.setAccount(1);
+        testTransaction.setTransferDestinationAccount(2);
+        testTransaction.setOriginalValue("70");
+        repository.insert(testTransaction).blockingGet(); // 7
+
+        testTransaction.setAccount(2);
+        testTransaction.setTransferDestinationAccount(1);
+        testTransaction.setOriginalValue("80");
+        repository.insert(testTransaction).blockingGet(); // 8
+
+        testTransaction.setOriginalValue("90");
+        repository.insert(testTransaction).blockingGet(); // 9
+
+        testTransaction.setDate(DateUtil.OffsetDateTimeNow().minusMonths(1));
+        testTransaction.setAccount(3);
+        testTransaction.setTransferDestinationAccount(2);
+        testTransaction.setOriginalValue("100");
+        repository.insert(testTransaction).blockingGet(); // 10
+
+        testTransaction.setAccount(2);
+        testTransaction.setTransferDestinationAccount(3);
+        testTransaction.setOriginalValue("110");
+        repository.insert(testTransaction).blockingGet(); // 11
+
+        testTransaction.setTransferDestinationAccount(null);
+        testTransaction.setType(MoneyTransaction.INCOME);
+        testTransaction.setDate(DateUtil.OffsetDateTimeNow());
+        testTransaction.setOriginalValue("120");
+        repository.insert(testTransaction).blockingGet(); // 12
+
+        testTransaction.setType(MoneyTransaction.EXPENSE);
+        testTransaction.setOriginalValue("130");
+        repository.insert(testTransaction).blockingGet(); // 13
+
+        testTransaction.setConfirmed(false);
+        testTransaction.setType(MoneyTransaction.INCOME);
+        testTransaction.setDate(DateUtil.OffsetDateTimeNow().plusMonths(2));
+        testTransaction.setOriginalValue("140");
+        repository.insert(testTransaction).blockingGet(); // 14
+
+        testTransaction.setType(MoneyTransaction.EXPENSE);
+        testTransaction.setOriginalValue("150");
+        repository.insert(testTransaction).blockingGet(); // 15
+
+        MoneyTransactionFilter filter = new MoneyTransactionFilter();
+        List<TransactionDisplayData> results;
+        // Default settings: should return ALL transactions (except mirror transfers)
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(15, results.size());
+
+        // Returns empty list if NO_STATUS is sent
+        filter.setTransactionStatus(MoneyTransactionFilter.NO_STATUS);
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertTrue(results.isEmpty());
+        filter.setTransactionStatus(MoneyTransactionFilter.ANY_STATUS); // Back to default
+
+        // Rejects non-transfers with destination account
+        filter.setTransferDestinationAccountId(2);
+        assertThrows(RuntimeException.class, () -> repository.getByFilter(filter));
+
+        // Rejects if origin and destination accounts are the same
+        filter.setAccountId(2);
+        filter.setTransactionType(MoneyTransaction.TRANSFER);
+        assertThrows(RuntimeException.class, () -> repository.getByFilter(filter));
+        filter.setTransferDestinationAccountId(0); // Back to default
+        filter.setAccountId(0); // Back to default
+        filter.setTransactionType(MoneyTransactionFilter.ANY_STATUS); // Back to default
+
+        // Testing sorting strategy
+        results = getOrAwaitValue(repository.getByFilter(filter)); // default is MOST_RECENT
+        assertEquals(BigDecimalUtil.fromString("60"), results.get(0).transaction.getOriginalValue());
+        assertEquals(BigDecimalUtil.fromString("20"), results.get(14).transaction.getOriginalValue());
+
+        filter.setSortingMethod(MoneyTransactionFilter.LEAST_RECENT);
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(BigDecimalUtil.fromString("20"), results.get(0).transaction.getOriginalValue());
+        assertEquals(BigDecimalUtil.fromString("60"), results.get(14).transaction.getOriginalValue());
+
+        // Tests by account id
+        filter.setAccountId(1);
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(5, results.size());
+
+        filter.setAccountId(2);
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(9, results.size());
+
+        filter.setAccountId(3);
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(1, results.size());
+        filter.setAccountId(0); // Back to default
+
+        // Test by transaction type
+        filter.setTransactionType(MoneyTransaction.INCOME);
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(5, results.size());
+
+        filter.setTransactionType(MoneyTransaction.EXPENSE);
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(5, results.size());
+
+        filter.setTransactionType(MoneyTransaction.TRANSFER);
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(5, results.size());
+
+        // Transfers by destination
+        filter.setTransferDestinationAccountId(1);
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(2, results.size());
+
+        filter.setTransferDestinationAccountId(2);
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(2, results.size());
+
+        filter.setTransferDestinationAccountId(3);
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(1, results.size());
+
+        // Transfers by both accounts
+        filter.setAccountId(2);
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(1, results.size()); // 2 -> 3
+        filter.setTransferDestinationAccountId(1);
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(2, results.size()); // 2 -> 1
+
+        filter.setAccountId(3);
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertTrue(results.isEmpty()); // 3 -> 1
+        filter.setTransferDestinationAccountId(2);
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(1, results.size()); // 3 -> 2
+
+        filter.setAccountId(1);
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(1, results.size()); // 1 -> 2
+        filter.setTransferDestinationAccountId(3);
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertTrue(results.isEmpty()); // 1 -> 3
+        filter.setAccountId(0); // Back to default
+        filter.setTransferDestinationAccountId(0); // Back to default
+        filter.setTransactionType(MoneyTransactionFilter.ALL_TRANSACTION_TYPES); // Back to default
+
+        // Filter by status
+        filter.setTransactionStatus(MoneyTransactionFilter.CONFIRMED_STATUS);
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(11, results.size());
+
+        filter.setTransactionStatus(MoneyTransactionFilter.UNCONFIRMED_STATUS);
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(4, results.size());
+        filter.setTransactionStatus(MoneyTransactionFilter.ANY_STATUS); // Back to default
+
+        // Filter by date
+        filter.setMonth(DateUtil.now().minusMonths(2));
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(5, results.size());
+
+        filter.setMonth(DateUtil.now().minusMonths(1));
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(3, results.size());
+
+        filter.setMonth(DateUtil.now());
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(2, results.size());
+
+        filter.setMonth(DateUtil.now().plusMonths(1));
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(2, results.size());
+
+        filter.setMonth(DateUtil.now().plusMonths(2));
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(3, results.size());
+
+        filter.setStartDate(DateUtil.OffsetDateTimeNow().minusMonths(1)
+                .minusMinutes(1)); // Not sure why, but it's necessary to adjust this
+        filter.setEndDate(DateUtil.OffsetDateTimeNow().plusMonths(1));
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(7, results.size()); // Custom date range
+
+        filter.setStartDate(null);
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(12, results.size()); // All until +1 months
+
+        filter.setStartDate(DateUtil.OffsetDateTimeNow().minusMonths(1)
+                .minusMinutes(1)); // Not sure why, but it's necessary to adjust this
+        filter.setEndDate(null);
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(10, results.size()); // All from -1 months
+        filter.setStartDate(null); // Back to default
+
+        // Test filter by amount
+        filter.setMinAmount("50");
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(11, results.size());
+
+        filter.setMaxAmount("130");
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(9, results.size());
+
+        filter.setMinAmount(null);
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(13, results.size());
+        filter.setMaxAmount(null); // Back to default
+
+        /*
+        * Now we test a few combinations of filters:
+        * 1) Unconfirmed incomes in a range of [-2 months, now]
+        * 2) Confirmed incomes until now
+        * 3) Transfers from 1 to 2 of at least $90
+        * 4) Transfers from 2 to 1 of at most $80
+        * 5) Unconfirmed expenses from account 1,
+        *     ranging (date) from [-1 months, +2 months], amount range [20, 70]
+        * */
+
+        filter.setTransactionStatus(MoneyTransactionFilter.UNCONFIRMED_STATUS);
+        filter.setTransactionType(MoneyTransaction.INCOME);
+        filter.setStartDate(DateUtil.OffsetDateTimeNow().minusMonths(2));
+        filter.setEndDate(DateUtil.OffsetDateTimeNow());
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(1, results.size());
+
+        filter.setTransactionStatus(MoneyTransactionFilter.CONFIRMED_STATUS);
+        filter.setStartDate(null);
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(3, results.size());
+
+        filter.setEndDate(null);
+        filter.setTransactionType(MoneyTransaction.TRANSFER);
+        filter.setTransactionStatus(MoneyTransactionFilter.ANY_STATUS);
+        filter.setAccountId(1);
+        filter.setTransferDestinationAccountId(2);
+        filter.setMinAmount("90");
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertTrue(results.isEmpty());
+
+        filter.setAccountId(2);
+        filter.setTransferDestinationAccountId(1);
+        filter.setMinAmount(null);
+        filter.setMaxAmount("80");
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertEquals(1, results.size());
+
+        filter.setAccountId(1);
+        filter.setTransferDestinationAccountId(0);
+        filter.setTransactionStatus(MoneyTransactionFilter.UNCONFIRMED_STATUS);
+        filter.setTransactionType(MoneyTransaction.EXPENSE);
+        filter.setStartDate(DateUtil.OffsetDateTimeNow().minusMonths(1));
+        filter.setEndDate(DateUtil.OffsetDateTimeNow().plusMonths(2));
+        filter.setMinAmount("20");
+        filter.setMaxAmount("70");
+        results = getOrAwaitValue(repository.getByFilter(filter));
+        assertTrue(results.isEmpty());
     }
 
     private void testResultBalance(MonthlyBalance resultBalance,

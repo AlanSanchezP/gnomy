@@ -2,9 +2,11 @@ package io.github.alansanchezp.gnomy.util;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.YearMonth;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.logging.Level;
@@ -28,10 +30,11 @@ public class DateUtil {
         }
     }
 
-    public static void setFixedClockAtTime(String timeString) {
+    public static void setFixedClockAtTime(String timeString, ZoneOffset offset) {
         try {
             Instant instant = Instant.parse(timeString);
-            setClock(Clock.fixed(instant, ZoneId.systemDefault()));
+            if (offset == null) offset = ZoneOffset.of(ZoneId.systemDefault().getId());
+            setClock(Clock.fixed(instant, offset));
         } catch(DateTimeParseException dtpe) {
             LOGGER.log(Level.WARNING, "[DateUtil] setClock: Invalid timeString. Fallback to current system Instant.");
             setClock(Clock.fixed(Instant.now(), ZoneId.systemDefault()));
@@ -99,5 +102,24 @@ public class DateUtil {
         string = string.substring(0, 1).toUpperCase()
                 + string.substring(1);
         return string;
+    }
+
+    /**
+     * Returns the first instant of the specified {@link YearMonth}, as well
+     * as its last SECOND, using the local ZoneOffset value.
+     *
+     * @param month     YearMonth instance.
+     * @return          An array of two elements. The first element (index 0)
+     *                  corresponds to the first instant of the month. The
+     *                  second element (index 1) corresponds to the last
+     *                  second of the momth.
+     */
+    public static OffsetDateTime[] getMonthBoundaries(YearMonth month) {
+        ZoneOffset localOffset = OffsetDateTimeNow().getOffset();
+        LocalDateTime firstInstant = month.atDay(1).atStartOfDay();
+        LocalDateTime lastSecond = month.atEndOfMonth().atStartOfDay().plusDays(1);
+        return new OffsetDateTime[] {
+                firstInstant.atOffset(localOffset),
+                lastSecond.atOffset(localOffset)};
     }
 }

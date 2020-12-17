@@ -1,17 +1,26 @@
 package io.github.alansanchezp.gnomy.database.transaction;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.sqlite.db.SimpleSQLiteQuery;
+import androidx.sqlite.db.SupportSQLiteQuery;
 import io.github.alansanchezp.gnomy.database.GnomyDatabase;
 import io.github.alansanchezp.gnomy.database.GnomyIllegalQueryException;
 import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.reactivex.Single;
+
+import static io.github.alansanchezp.gnomy.database.GnomyTypeConverters.dateToTimestamp;
+import static io.github.alansanchezp.gnomy.database.GnomyTypeConverters.decimalToLong;
+import static io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionDAO.BASE_JOIN_FOR_QUERIES;
 
 public class MoneyTransactionRepository {
     private final GnomyDatabase db;
@@ -25,6 +34,82 @@ public class MoneyTransactionRepository {
     // TODO: Implement advanced filters
     public LiveData<List<TransactionDisplayData>> getAllFromMonth(YearMonth month) {
         return dao.getAllFromMonth(month);
+    }
+
+    /**
+     * Returns an observable List of {@link TransactionDisplayData} objects,
+     * filtered according to the contents of a {@link MoneyTransactionFilter} object.
+     *
+     * This method generates a dynamic query that is later passed to Room.
+     *
+     * @param filter    MoneyTransactionFilter instance to work with.
+     * @return          Filtered set of transactions.
+     */
+    public LiveData<List<TransactionDisplayData>> getByFilter(MoneyTransactionFilter filter) {
+        // Checking special cases first
+        if (filter.getTransferDestinationAccountId() != 0 &&
+                filter.getTransactionType() != MoneyTransaction.TRANSFER)
+            throw new RuntimeException("Only transfers can be filtered by destination account.");
+        if (filter.getAccountId() != 0 &&
+                filter.getTransferDestinationAccountId() == filter.getAccountId())
+            throw new RuntimeException("Origin and destination account cannot be the same.");
+        if (filter.getTransactionStatus() == MoneyTransactionFilter.NO_STATUS) {
+            Log.w("MoneyTransactionRepo", "getByFilter: Why is the UI allowing the user to filter using NO_STATUS ?");
+            return new MutableLiveData<>(new ArrayList<>());
+        }
+
+        // Initialize SimpleSQLiteQuery arguments
+        String queryString = BASE_JOIN_FOR_QUERIES + "WHERE ";
+        List<Object> queryArgs = new ArrayList<>();
+
+        // Scan filter settings
+        if (filter.getTransactionType() == MoneyTransactionFilter.ALL_TRANSACTION_TYPES) {
+            queryString += "transactions.transaction_type != 4 ";
+        } else {
+            queryString += "transactions.transaction_type = ? ";
+            queryArgs.add(filter.getTransactionType());
+        }
+        if (filter.getTransactionStatus() != MoneyTransactionFilter.ANY_STATUS) {
+            queryString += "AND transactions.is_confirmed = ? ";
+            boolean status = (filter.getTransactionStatus() == MoneyTransactionFilter.CONFIRMED_STATUS);
+            queryArgs.add(status);
+        }
+        // TODO: Support multiple accounts and categories when filtering
+        if (filter.getAccountId() != 0) {
+            queryString += "AND transactions.account_id = ? ";
+            queryArgs.add(filter.getAccountId());
+        }
+        if (filter.getTransferDestinationAccountId() != 0) {
+            queryString += "AND transactions.transfer_destination_account_id = ? ";
+            queryArgs.add(filter.getTransferDestinationAccountId());
+        }
+        if (filter.getCategoryId() != 0) {
+            queryString += "AND transactions.category_id = ? ";
+            queryArgs.add(filter.getCategoryId());
+        }
+        if (filter.getStartDate() != null) {
+            queryString += "AND transactions.transaction_date >= ? ";
+            queryArgs.add(dateToTimestamp(filter.getStartDate()));
+        }
+        if (filter.getEndDate() != null) {
+            queryString += "AND transactions.transaction_date <= ? ";
+            queryArgs.add(dateToTimestamp(filter.getEndDate()));
+        }
+        if (filter.getMinAmount() != null) {
+            queryString += "AND transactions.original_value >= ? ";
+            queryArgs.add(decimalToLong(filter.getMinAmount()));
+        }
+        if (filter.getMaxAmount() != null) {
+            queryString += "AND transactions.original_value <= ? ";
+            queryArgs.add(decimalToLong(filter.getMaxAmount()));
+        }
+        if (filter.getSortingMethod() == MoneyTransactionFilter.MOST_RECENT) {
+            queryString += "ORDER BY transactions.transaction_date DESC;";
+        } else {
+            queryString += "ORDER BY transactions.transaction_date ASC;";
+        }
+        SupportSQLiteQuery query = new SimpleSQLiteQuery(queryString, queryArgs.toArray());
+        return dao.getWithRawQuery(query);
     }
 
     public LiveData<MoneyTransaction> find(int id) {
