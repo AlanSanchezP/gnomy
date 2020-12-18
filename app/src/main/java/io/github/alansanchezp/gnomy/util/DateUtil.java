@@ -12,6 +12,8 @@ import java.time.format.DateTimeParseException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import androidx.annotation.NonNull;
+
 public class DateUtil {
     private static final Logger LOGGER = Logger.getLogger("tests");
     private static Clock CLOCK;
@@ -121,5 +123,17 @@ public class DateUtil {
         return new OffsetDateTime[] {
                 firstInstant.atOffset(localOffset),
                 lastSecond.atOffset(localOffset)};
+    }
+
+    /**
+     * Returns an Integer representation of a given {@link OffsetDateTime} object,
+     * using the format uuuuMMdd    (4 digits year, 2 digits monthOfYear and 2 digits dayOfMonth)
+     * example: 20200101 for January 1st of 2020.
+     *
+     * @param dateTime  OffsetDateTime object to parse.
+     * @return          Integer representation of the given object.
+     */
+    public static Integer getDayId(@NonNull OffsetDateTime dateTime) {
+        return Integer.parseInt(dateTime.format(DateTimeFormatter.ofPattern("uuuuMMdd")));
     }
 }

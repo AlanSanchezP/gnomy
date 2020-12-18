@@ -7,10 +7,11 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.YearMonth;
 
+import androidx.annotation.Nullable;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 
-public class MoneyTransactionFilter implements Parcelable {
+public class MoneyTransactionFilters implements Parcelable {
     private int accountId = 0;
     private int transferDestinationAccountId = 0;
     private int transactionType = ALL_TRANSACTION_TYPES;
@@ -32,11 +33,11 @@ public class MoneyTransactionFilter implements Parcelable {
     public static final int CONFIRMED_STATUS = 1;
     public static final int UNCONFIRMED_STATUS = 2;
 
-    public MoneyTransactionFilter() {
+    public MoneyTransactionFilters() {
         /* Empty constructor */
     }
 
-    private MoneyTransactionFilter(Parcel in) {
+    private MoneyTransactionFilters(Parcel in) {
         accountId = in.readInt();
         transferDestinationAccountId = in.readInt();
         transactionType = in.readInt();
@@ -45,14 +46,14 @@ public class MoneyTransactionFilter implements Parcelable {
         transactionStatus = in.readInt();
     }
 
-    public static final Parcelable.Creator<MoneyTransactionFilter> CREATOR
-            = new Parcelable.Creator<MoneyTransactionFilter>() {
-        public MoneyTransactionFilter createFromParcel(Parcel in) {
-            return new MoneyTransactionFilter(in);
+    public static final Parcelable.Creator<MoneyTransactionFilters> CREATOR
+            = new Parcelable.Creator<MoneyTransactionFilters>() {
+        public MoneyTransactionFilters createFromParcel(Parcel in) {
+            return new MoneyTransactionFilters(in);
         }
 
-        public MoneyTransactionFilter[] newArray(int size) {
-            return new MoneyTransactionFilter[size];
+        public MoneyTransactionFilters[] newArray(int size) {
+            return new MoneyTransactionFilters[size];
         }
     };
 
@@ -182,5 +183,31 @@ public class MoneyTransactionFilter implements Parcelable {
     public void setMaxAmount(String value) {
         if (value == null) this.maxAmount = null;
         else this.maxAmount = BigDecimalUtil.fromString(value);
+    }
+
+    /**
+     * Determines if the filter instance has all default values but transaction type.
+     *
+     *
+     * @param month     YearMonth instance to match. If null, the method will
+     *                  check that both startDate and endDate are null as well.
+     * @return          True only if instance is a simple filter.
+     */
+    public boolean isSimpleFilterWithMonth(@Nullable YearMonth month) {
+        if (this.sortingMethod != MOST_RECENT) return false;
+        if (this.categoryId != 0) return false;
+        if (this.accountId != 0) return false;
+        if (this.transferDestinationAccountId != 0) return false;
+        if (this.transactionStatus != ANY_STATUS) return false;
+        if (this.minAmount != null) return false;
+        if (this.maxAmount != null) return false;
+        if (month == null) {
+            return this.startDate == null && this.endDate == null;
+        } else {
+            OffsetDateTime[] monthBoundaries = DateUtil.getMonthBoundaries(month);
+            if (!monthBoundaries[0].equals(this.startDate)) return false;
+            if (!monthBoundaries[1].equals(this.endDate)) return false;
+        }
+        return true;
     }
 }

@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -18,34 +19,42 @@ import com.xwray.groupie.Section;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.TreeMap;
+import java.util.NavigableMap;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.alansanchezp.gnomy.R;
+import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.database.category.Category;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionFilters;
 import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
 import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
 import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
+import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.viewmodel.transaction.TransactionsListViewModel;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 public class TransactionsFragment extends MainNavigationFragment
-    implements ConfirmationDialogFragment.OnConfirmationDialogListener {
+    implements ConfirmationDialogFragment.OnConfirmationDialogListener,
+        TransactionFiltersDialogFragment.TransactionFiltersDialogInterface {
 
     private static final String TAG_DELETE_TRANSACTION_DIALOG = "TransactionsFragment.DeleteTransactionDialog";
+    private static final String TAG_FILTERS_DIALOG = "TransactionsFragment.FiltersDialog";
     // Not sure as to what else to do to avoid this warning
     @SuppressWarnings("rawtypes")
     private GroupAdapter mAdapter;
     private TransactionsListViewModel mViewModel;
     private boolean mAllowClicks = true;
+    private int mMainColor;
 
     public TransactionsFragment(MainNavigationInteractionInterface _interface) {
         super(_interface);
@@ -54,7 +63,8 @@ public class TransactionsFragment extends MainNavigationFragment
 
     private GnomyFragmentFactory getFragmentFactory() {
         return new GnomyFragmentFactory()
-                .addMapElement(ConfirmationDialogFragment.class, this);
+                .addMapElement(ConfirmationDialogFragment.class, this)
+                .addMapElement(TransactionFiltersDialogFragment.class, this);
     }
 
     /* ANDROID LIFECYCLE METHODS */
@@ -94,13 +104,67 @@ public class TransactionsFragment extends MainNavigationFragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mViewModel.getFilters().observe(getViewLifecycleOwner(), this::onFiltersChanged);
         mViewModel.getGroupsByDay().observe(getViewLifecycleOwner(), this::onTransactionsMapChanged);
+    }
+
+    private void onFiltersChanged(MoneyTransactionFilters filters) {
+        // TODO: Update activity title
+        if (filters.getTransactionType() == MoneyTransactionFilters.ALL_TRANSACTION_TYPES)
+            mMainColor = getResources().getColor(R.color.colorPrimary);
+        else if (filters.getTransactionType() == MoneyTransaction.INCOME)
+            mMainColor = getResources().getColor(R.color.colorIncomes);
+        else if (filters.getTransactionType() == MoneyTransaction.EXPENSE)
+            mMainColor = getResources().getColor(R.color.colorExpenses);
+        else
+            mMainColor = getResources().getColor(R.color.colorTransfers);
+        mNavigationInterface.tintNavigationElements(mMainColor);
+        tintMenuIcons();
+        if (mMenu == null) return;
+        // TODO: Move clear filters button somewhere else
+        // TODO: Replace clear filters icon
+        // TODO: Block month bar if not simple filters
+        if (filters.isSimpleFilterWithMonth(mNavigationInterface.getActiveMonth().getValue())) {
+            mMenu.findItem(R.id.action_filter).setVisible(true);
+            mMenu.findItem(R.id.action_clear_filters).setVisible(false);
+        } else {
+            mMenu.findItem(R.id.action_filter).setVisible(false);
+            mMenu.findItem(R.id.action_clear_filters).setVisible(true);
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
         mAllowClicks = true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_filter_all:
+                mViewModel.setTransactionsType(MoneyTransactionFilters.ALL_TRANSACTION_TYPES);
+                break;
+            case R.id.action_filter_incomes:
+                mViewModel.setTransactionsType(MoneyTransaction.INCOME);
+                break;
+            case R.id.action_filter_expenses:
+                mViewModel.setTransactionsType(MoneyTransaction.EXPENSE);
+                break;
+            case R.id.action_filter_transfers:
+                mViewModel.setTransactionsType(MoneyTransaction.TRANSFER);
+                break;
+            case R.id.action_filter_more:
+                TransactionFiltersDialogFragment d = new TransactionFiltersDialogFragment(this);
+                d.show(getChildFragmentManager(), TAG_FILTERS_DIALOG);
+                break;
+            case R.id.action_clear_filters:
+                mViewModel.clearFilters();
+                break;
+            default:
+                return false;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /* CONCRETE METHODS INHERITED FROM ABSTRACT CLASS */
@@ -132,31 +196,52 @@ public class TransactionsFragment extends MainNavigationFragment
 
     @Override
     protected void tintMenuIcons() {
+        if (mMenu == null) return;
+        if (mMainColor == 0) mMainColor = getResources().getColor(R.color.colorPrimary);
+        int textColor = ColorUtil.getTextColor(mMainColor);
         mMenu.findItem(R.id.action_search)
                 .getIcon()
-                .setTint(getResources().getColor(R.color.colorTextInverse));
+                .setTint(textColor);
         mMenu.findItem(R.id.action_filter)
                 .getIcon()
-                .setTint(getResources().getColor(R.color.colorTextInverse));
+                .setTint(textColor);
+        mMenu.findItem(R.id.action_clear_filters)
+                .getIcon()
+                .setTint(textColor);
     }
 
     @Override
     public void onFABClick(View v) {
-        Intent newTransactionIntent = new Intent(getActivity(), AddEditTransactionActivity.class);
-        newTransactionIntent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, 3);
-        requireActivity().startActivity(newTransactionIntent);
+        int transactionType = mViewModel.getCurrentFilters().getTransactionType();
+        if (transactionType == MoneyTransactionFilters.ALL_TRANSACTION_TYPES) {
+            // TODO: If no specific transaction type is selected, expand FAB
+            // TODO: Evaluate if should hide if filter.isSimpleFilterWithMonth() is false
+        } else {
+            Intent newTransactionIntent = new Intent(getActivity(), AddEditTransactionActivity.class);
+            newTransactionIntent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, transactionType);
+            requireActivity().startActivity(newTransactionIntent);
+        }
     }
 
     @Override
     public void onMonthChanged(YearMonth month) {
     }
 
-    private void onTransactionsMapChanged(TreeMap<Integer, List<TransactionDisplayData>> map) {
+    private void onTransactionsMapChanged(NavigableMap<Integer, List<TransactionDisplayData>> map) {
         mAdapter.clear();
+        // Both getCurrentFilters() and getActiveMonth() should never return null
+        // as the arrival of a new set of items implies those two LiveData objects
+        // already have some value on them.
+        boolean isSimpleFilter = mViewModel.getCurrentFilters().isSimpleFilterWithMonth(
+                mNavigationInterface.getActiveMonth().getValue());
         for (List<TransactionDisplayData> list : map.values()) {
             Section daySection = new Section();
             BigDecimal dayTotal = BigDecimalUtil.ZERO;
-            String dayName = DateUtil.getDayString(list.get(0).transaction.getDate());
+            String dayName;
+            if (isSimpleFilter)
+                dayName = DateUtil.getDayString(list.get(0).transaction.getDate());
+            else
+                dayName = DateUtil.getOffsetDateTimeString(list.get(0).transaction.getDate(), false);
             for (TransactionDisplayData item : list) {
                 // TODO: Use global currency during total calculation as default
                 daySection.add(new TransactionItem(item));
@@ -243,5 +328,28 @@ public class TransactionsFragment extends MainNavigationFragment
     @Override
     public void onConfirmationDialogDismiss(DialogInterface dialog, String dialogTag) {
         mAllowClicks = true;
+    }
+
+    @Override
+    public void applyFilters(@NonNull MoneyTransactionFilters filters) {
+        mViewModel.applyFilters(filters);
+    }
+
+    @NonNull
+    @Override
+    public MoneyTransactionFilters getInitialFilters() {
+        return mViewModel.getCurrentFilters();
+    }
+
+    @NonNull
+    @Override
+    public LiveData<List<Category>> getCategoriesLiveData() {
+        return mViewModel.getCategories();
+    }
+
+    @NonNull
+    @Override
+    public LiveData<List<Account>> getAccountsLiveData() {
+        return mViewModel.getAccounts();
     }
 }

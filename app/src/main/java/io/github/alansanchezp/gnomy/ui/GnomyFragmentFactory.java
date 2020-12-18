@@ -20,6 +20,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentFactory;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 import io.github.alansanchezp.gnomy.ui.account.ArchivedAccountsDialogFragment;
+import io.github.alansanchezp.gnomy.ui.transaction.TransactionFiltersDialogFragment;
 import io.github.alansanchezp.gnomy.ui.transaction.TransactionsFragment;
 
 public class GnomyFragmentFactory extends FragmentFactory {
@@ -68,6 +69,7 @@ public class GnomyFragmentFactory extends FragmentFactory {
         Object interfaceToAttach
                 = mClassToInterfaceMapping.get(loadFragmentClass(classLoader, className));
 
+        // TODO: Find a better way to achieve this. Adding fragment classes is tiresome
         if (interfaceToAttach == null) {
             instance = super.instantiate(classLoader, className);
         } else if (fragmentClass.equals(DatePickerDialog.class)) {
@@ -81,8 +83,10 @@ public class GnomyFragmentFactory extends FragmentFactory {
             instance = new ConfirmationDialogFragment((ConfirmationDialogFragment.OnConfirmationDialogListener) interfaceToAttach);
         } else if (fragmentClass.equals(AccountsFragment.class)) {
             instance = new AccountsFragment((MainNavigationFragment.MainNavigationInteractionInterface) interfaceToAttach);
-        } else if(fragmentClass.equals(TransactionsFragment.class)) {
+        } else if (fragmentClass.equals(TransactionsFragment.class)) {
             instance = new TransactionsFragment((MainNavigationFragment.MainNavigationInteractionInterface) interfaceToAttach);
+        } else if (fragmentClass.equals(TransactionFiltersDialogFragment.class)) {
+            instance = new TransactionFiltersDialogFragment((TransactionFiltersDialogFragment.TransactionFiltersDialogInterface) interfaceToAttach);
         } else {
             throw new UnsupportedOperationException("No interface was provided for the requested Fragment class.");
         }

@@ -20,4 +20,18 @@
                https://stackoverflow.com/questions/6860886/custom-attributes-in-styles-xml#6868308 -->
     </style>
 
+    <style name="Theme.App.Dialog.FullScreen"
+        parent="Theme.MaterialComponents.Dialog">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="android:textColor">@color/colorText</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:statusBarColor">@android:color/background_light</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:spinnerDropDownItemStyle">@android:style/Widget.Holo.DropDownItem</item>
+        <item name="colorSurface">@color/colorSurface</item>
+    </style>
 </resources>

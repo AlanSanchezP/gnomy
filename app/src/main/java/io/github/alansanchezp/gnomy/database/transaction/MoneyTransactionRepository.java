@@ -31,30 +31,25 @@ public class MoneyTransactionRepository {
         dao = db.transactionDAO();
     }
 
-    // TODO: Implement advanced filters
-    public LiveData<List<TransactionDisplayData>> getAllFromMonth(YearMonth month) {
-        return dao.getAllFromMonth(month);
-    }
-
     /**
      * Returns an observable List of {@link TransactionDisplayData} objects,
-     * filtered according to the contents of a {@link MoneyTransactionFilter} object.
+     * filtered according to the contents of a {@link MoneyTransactionFilters} object.
      *
      * This method generates a dynamic query that is later passed to Room.
      *
-     * @param filter    MoneyTransactionFilter instance to work with.
+     * @param filters    MoneyTransactionFilter instance to work with.
      * @return          Filtered set of transactions.
      */
-    public LiveData<List<TransactionDisplayData>> getByFilter(MoneyTransactionFilter filter) {
+    public LiveData<List<TransactionDisplayData>> getByFilters(MoneyTransactionFilters filters) {
         // Checking special cases first
-        if (filter.getTransferDestinationAccountId() != 0 &&
-                filter.getTransactionType() != MoneyTransaction.TRANSFER)
+        if (filters.getTransferDestinationAccountId() != 0 &&
+                filters.getTransactionType() != MoneyTransaction.TRANSFER)
             throw new RuntimeException("Only transfers can be filtered by destination account.");
-        if (filter.getAccountId() != 0 &&
-                filter.getTransferDestinationAccountId() == filter.getAccountId())
+        if (filters.getAccountId() != 0 &&
+                filters.getTransferDestinationAccountId() == filters.getAccountId())
             throw new RuntimeException("Origin and destination account cannot be the same.");
-        if (filter.getTransactionStatus() == MoneyTransactionFilter.NO_STATUS) {
-            Log.w("MoneyTransactionRepo", "getByFilter: Why is the UI allowing the user to filter using NO_STATUS ?");
+        if (filters.getTransactionStatus() == MoneyTransactionFilters.NO_STATUS) {
+            Log.w("MoneyTransactionRepo", "getByFilters: Why is the UI allowing the user to filter using NO_STATUS ?");
             return new MutableLiveData<>(new ArrayList<>());
         }
 
@@ -63,47 +58,47 @@ public class MoneyTransactionRepository {
         List<Object> queryArgs = new ArrayList<>();
 
         // Scan filter settings
-        if (filter.getTransactionType() == MoneyTransactionFilter.ALL_TRANSACTION_TYPES) {
+        if (filters.getTransactionType() == MoneyTransactionFilters.ALL_TRANSACTION_TYPES) {
             queryString += "transactions.transaction_type != 4 ";
         } else {
             queryString += "transactions.transaction_type = ? ";
-            queryArgs.add(filter.getTransactionType());
+            queryArgs.add(filters.getTransactionType());
         }
-        if (filter.getTransactionStatus() != MoneyTransactionFilter.ANY_STATUS) {
+        if (filters.getTransactionStatus() != MoneyTransactionFilters.ANY_STATUS) {
             queryString += "AND transactions.is_confirmed = ? ";
-            boolean status = (filter.getTransactionStatus() == MoneyTransactionFilter.CONFIRMED_STATUS);
+            boolean status = (filters.getTransactionStatus() == MoneyTransactionFilters.CONFIRMED_STATUS);
             queryArgs.add(status);
         }
         // TODO: Support multiple accounts and categories when filtering
-        if (filter.getAccountId() != 0) {
+        if (filters.getAccountId() != 0) {
             queryString += "AND transactions.account_id = ? ";
-            queryArgs.add(filter.getAccountId());
+            queryArgs.add(filters.getAccountId());
         }
-        if (filter.getTransferDestinationAccountId() != 0) {
+        if (filters.getTransferDestinationAccountId() != 0) {
             queryString += "AND transactions.transfer_destination_account_id = ? ";
-            queryArgs.add(filter.getTransferDestinationAccountId());
+            queryArgs.add(filters.getTransferDestinationAccountId());
         }
-        if (filter.getCategoryId() != 0) {
+        if (filters.getCategoryId() != 0) {
             queryString += "AND transactions.category_id = ? ";
-            queryArgs.add(filter.getCategoryId());
+            queryArgs.add(filters.getCategoryId());
         }
-        if (filter.getStartDate() != null) {
+        if (filters.getStartDate() != null) {
             queryString += "AND transactions.transaction_date >= ? ";
-            queryArgs.add(dateToTimestamp(filter.getStartDate()));
+            queryArgs.add(dateToTimestamp(filters.getStartDate()));
         }
-        if (filter.getEndDate() != null) {
+        if (filters.getEndDate() != null) {
             queryString += "AND transactions.transaction_date <= ? ";
-            queryArgs.add(dateToTimestamp(filter.getEndDate()));
+            queryArgs.add(dateToTimestamp(filters.getEndDate()));
         }
-        if (filter.getMinAmount() != null) {
+        if (filters.getMinAmount() != null) {
             queryString += "AND transactions.original_value >= ? ";
-            queryArgs.add(decimalToLong(filter.getMinAmount()));
+            queryArgs.add(decimalToLong(filters.getMinAmount()));
         }
-        if (filter.getMaxAmount() != null) {
+        if (filters.getMaxAmount() != null) {
             queryString += "AND transactions.original_value <= ? ";
-            queryArgs.add(decimalToLong(filter.getMaxAmount()));
+            queryArgs.add(decimalToLong(filters.getMaxAmount()));
         }
-        if (filter.getSortingMethod() == MoneyTransactionFilter.MOST_RECENT) {
+        if (filters.getSortingMethod() == MoneyTransactionFilters.MOST_RECENT) {
             queryString += "ORDER BY transactions.transaction_date DESC;";
         } else {
             queryString += "ORDER BY transactions.transaction_date ASC;";

@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorSurface"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/filters_dialog_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_gravity="top"
+        android:background="@color/colorSurface"
+        app:elevation="6dp"
+        app:contentInsetEnd="12dp"
+        app:contentInsetStart="6dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageButton
+                android:id="@+id/filters_dialog_close_btn"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:contentDescription="@string/action_close_dialog"
+                android:focusable="true"
+                android:src="@drawable/ic_close_black_24dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/filters_dialog_static_title"
+                android:textSize="19sp"
+                android:fontFamily="@font/robotomedium"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/transaction_filters_dialog_static"
+                android:layout_marginStart="12dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/filters_dialog_close_btn"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Spinner
+                android:id="@+id/filters_dialog_type_spinner"
+                style="@style/Widget.AppCompat.Spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:popupBackground="@color/colorSurface"
+                android:spinnerMode="dropdown"
+                android:textColor="@android:color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@id/filters_dialog_static_title" />
+
+            <Button
+                android:id="@+id/filters_dialog_apply_btn"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Dialog.Flush"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="10dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:contentDescription="@string/action_apply_description"
+                android:focusable="true"
+                android:text="@string/action_apply"
+                android:tint="@color/colorTextInverse"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.appcompat.widget.Toolbar>
+    <androidx.core.widget.NestedScrollView
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:paddingHorizontal="22dp"
+            android:paddingBottom="50dp" >
+
+            <com.jaredrummler.materialspinner.MaterialSpinner
+                android:id="@+id/filters_dialog_category_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:height="50dp"
+                android:backgroundTint="#FFFFFF"
+                android:hint="@string/transaction_category"
+                android:textColorHint="@color/colorTextSecondary"
+                app:ms_text_color="@color/colorTextHighlight" />
+
+            <com.jaredrummler.materialspinner.MaterialSpinner
+                android:id="@+id/filters_dialog_account_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:height="50dp"
+                android:backgroundTint="#FFFFFF"
+                android:hint="@string/transaction_from_account"
+                android:textColorHint="@color/colorTextSecondary"
+                app:ms_text_color="@color/colorTextHighlight" />
+
+            <com.jaredrummler.materialspinner.MaterialSpinner
+                android:id="@+id/filters_dialog_transfer_destination_account_spinner"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:height="50dp"
+                android:backgroundTint="#FFFFFF"
+                android:hint="@string/transaction_to_account"
+                android:textColorHint="@color/colorTextSecondary"
+                app:ms_text_color="@color/colorTextHighlight" />
+
+            <com.jaredrummler.materialspinner.MaterialSpinner
+                android:id="@+id/filters_dialog_sorting_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:height="50dp"
+                android:backgroundTint="#FFFFFF"
+                android:hint="@string/transaction_filters_sort_by"
+                android:textColorHint="@color/colorTextSecondary"
+                app:ms_text_color="@color/colorTextHighlight" />
+
+            <TextView
+                android:id="@+id/filters_dialog_status_radio_group_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="@string/transaction_filters_status" />
+            <RadioGroup
+                android:id="@+id/filters_dialog_status_radio_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+                <RadioButton android:id="@+id/filters_dialog_status_radio_any"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/transaction_filters_any_status"
+                    android:textColor="@color/colorText" />
+                <RadioButton android:id="@+id/filters_dialog_status_radio_confirmed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/transaction_filters_confirmed_status"
+                    android:textColor="@color/colorText" />
+                <RadioButton android:id="@+id/filters_dialog_status_radio_unconfirmed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/transaction_filters_unconfirmed_status"
+                    android:textColor="@color/colorText" />
+            </RadioGroup>
+            <Switch
+                android:id="@+id/filters_dialog_period_switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="@string/transaction_filters_period"
+                android:textColor="@color/colorTextHighlight"
+                android:textDirection="locale"
+                android:checked="true" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/filters_dialog_period_from"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/colorTextSecondary"
+                app:endIconDrawable="@drawable/ic_date_range_black_24dp"
+                app:endIconTint="#000000"
+                app:endIconMode="custom">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/filters_dialog_period_from_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@android:color/transparent"
+                    android:drawablePadding="0dp"
+                    android:hint="@string/transaction_filters_from_date"
+                    android:enabled="false"
+                    android:layoutDirection="locale"
+                    android:textColor="@color/colorTextHighlight"
+                    android:textDirection="locale" />
+            </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/filters_dialog_period_to"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/colorTextSecondary"
+                app:endIconDrawable="@drawable/ic_date_range_black_24dp"
+                app:endIconTint="#000000"
+                app:endIconMode="custom">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/filters_dialog_period_to_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@android:color/transparent"
+                    android:drawablePadding="0dp"
+                    android:hint="@string/transaction_filters_to_date"
+                    android:enabled="false"
+                    android:layoutDirection="locale"
+                    android:textColor="@color/colorTextHighlight"
+                    android:textDirection="locale" />
+            </com.google.android.material.textfield.TextInputLayout>
+            <Switch
+                android:id="@+id/filters_dialog_amount_switch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="@string/transaction_filters_amount"
+                android:textColor="@color/colorTextHighlight"
+                android:textDirection="locale"
+                android:checked="false" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/filters_dialog_amount_group"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/filters_dialog_amount_min"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:textColorHint="@color/colorTextSecondary"
+                    android:textDirection="locale"
+                    app:layout_constraintWidth_default="percent"
+                    app:layout_constraintWidth_percent="0.47"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" >
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/filters_dialog_amount_min_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@android:color/transparent"
+                        android:drawablePadding="0dp"
+                        android:hint="@string/transaction_filters_min_amount"
+                        android:inputType="numberDecimal"
+                        android:maxLength="55"
+                        android:singleLine="true"
+                        android:textColor="@color/colorText" />
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/filters_dialog_amount_max"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:textColorHint="@color/colorTextSecondary"
+                    android:textDirection="locale"
+                    app:layout_constraintWidth_default="percent"
+                    app:layout_constraintWidth_percent="0.47"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" >
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/filters_dialog_amount_max_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@android:color/transparent"
+                        android:drawablePadding="0dp"
+                        android:hint="@string/transaction_filters_max_amount"
+                        android:inputType="numberDecimal"
+                        android:maxLength="55"
+                        android:singleLine="true"
+                        android:textColor="@color/colorText" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

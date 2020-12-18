@@ -39,6 +39,9 @@ import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
 // TODO: Write README.md contents
 // TODO: Handle dark mode
 // TODO: (Wishlist) implement tooltips for non-menu buttons
+// TODO: Animations
+// TODO: Replace findById with viewbinding
+// TODO: Improve Layout naming
 // These TODOs are placed here just because MainActivity acts as a "root" file
 // even if they are not related to the class
 public class MainActivity
