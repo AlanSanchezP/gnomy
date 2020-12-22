@@ -5,10 +5,6 @@ import androidx.annotation.NonNull;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-
-import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -16,24 +12,19 @@ import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import java.time.YearMonth;
-import java.util.Map;
 import java.util.Objects;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 
-import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.NavigationUI;
 import io.github.alansanchezp.gnomy.ui.GnomyActivity;
-import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
 import io.github.alansanchezp.gnomy.ui.customView.MonthToolbarView;
-import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
-import io.github.alansanchezp.gnomy.ui.transaction.TransactionsFragment;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 import io.github.alansanchezp.gnomy.util.android.ViewTintingUtil;
-import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
+import io.github.alansanchezp.gnomy.viewmodel.MainActivityViewModel;
 
 // TODO: Add Javadoc comments to project
 // TODO: Write README.md contents
@@ -45,8 +36,7 @@ import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
 // These TODOs are placed here just because MainActivity acts as a "root" file
 // even if they are not related to the class
 public class MainActivity
-        extends GnomyActivity
-        implements MainNavigationFragment.MainNavigationInteractionInterface {
+        extends GnomyActivity {
     private static final String TAG_ACTIVE_FRAGMENT = "MainActivity.ActiveFragment";
     private static final int
             SUMMARY_FRAGMENT_INDEX = 1,
@@ -57,30 +47,7 @@ public class MainActivity
 
     private MonthToolbarView mMonthBar;
     private SingleClickViewHolder<FloatingActionButton> mFABVH;
-    private MonthToolbarViewModel mViewModel;
-
-    private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = item -> {
-                switch (item.getItemId()) {
-                    case R.id.navigation_home:
-                        return switchFragment(SUMMARY_FRAGMENT_INDEX);
-                    case R.id.navigation_transactions:
-                        return switchFragment(TRANSACTIONS_FRAGMENT_INDEX);
-                    case R.id.navigation_accounts:
-                        return switchFragment(ACCOUNTS_FRAGMENT_INDEX);
-                    case R.id.navigation_notifications:
-                        return switchFragment(NOTIFICATIONS_FRAGMENT_INDEX);
-                    default:
-                        return false;
-                }
-            };
-
-    @Override
-    protected GnomyFragmentFactory getFragmentFactory() {
-        return super.getFragmentFactory()
-                .addMapElement(AccountsFragment.class, this)
-                .addMapElement(TransactionsFragment.class, this);
-    }
+    private MainActivityViewModel mViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,16 +57,20 @@ public class MainActivity
         mFABVH = new SingleClickViewHolder<>(findViewById(R.id.main_floating_action_button));
         mFABVH.setOnClickListener(this::onFABClick);
 
-        mViewModel = new ViewModelProvider(
-                this,
-                new SavedStateViewModelFactory(
-                        getApplication(),
-                        this
-                )).get(MonthToolbarViewModel.class);
-        mMonthBar.setViewModel(mViewModel);
-
         BottomNavigationView navigation = findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        NavHostFragment host = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.main_container);
+        NavController navController = Objects.requireNonNull(host).getNavController();
+        NavigationUI.setupWithNavController(navigation, navController);
+        navigation.setOnNavigationItemReselectedListener(item -> {
+            // Just do nothing when an item is reselected from the bottom navigation bar
+        });
+
+        mViewModel = new ViewModelProvider(this)
+                .get(MainActivityViewModel.class);
+        mViewModel.getThemeToUse().observe(this, this::tintNavigationElements);
+        mViewModel.getShowOptionalNavigationElements().observe(this, this::toggleOptionalNavigationElements);
+        mViewModel.getTitle().observe(this, this::setTitle);
+        mMonthBar.setViewModel(mViewModel);
     }
 
     @Override
@@ -128,58 +99,11 @@ public class MainActivity
         return R.layout.activity_main;
     }
 
-    // TODO: Evaluate if Navigation Component can be used here
-    //  Custom interface might be an issue, as well as the desired
-    //  dynamic color for transactions fragment
-    //  https://developer.android.com/guide/navigation/navigation-getting-started
-    //  https://developer.android.com/guide/navigation/navigation-ui#java
-    public boolean switchFragment(int newIndex) {
-        final FragmentManager manager = getSupportFragmentManager();
-        final MainNavigationFragment fragment;
-
-        if (newIndex == mCurrentFragmentIndex) return true;
-
-        //noinspection SwitchStatementWithTooFewBranches
-        switch (newIndex) {
-            case ACCOUNTS_FRAGMENT_INDEX:
-                fragment = new AccountsFragment(this);
-                break;
-            case TRANSACTIONS_FRAGMENT_INDEX:
-                fragment = new TransactionsFragment(this);
-                break;
-            default:
-                return false;
-        }
-
-        // TODO: Is there a better way to prevent animation lag?
-        //  Can this delay cause any undesired behavior?
-        new Handler().postDelayed(() -> manager.beginTransaction()
-                .replace(R.id.main_container, fragment, TAG_ACTIVE_FRAGMENT)
-                .commit(), 230);
-
-        return true;
+    private void onFABClick(View v) {
+        mViewModel.notifyFABClick((FloatingActionButton) v);
     }
 
-    public void onFABClick(View v) {
-        MainNavigationFragment currentFragment = (MainNavigationFragment) getSupportFragmentManager().findFragmentByTag(TAG_ACTIVE_FRAGMENT);
-        if (currentFragment == null) return;
-
-        currentFragment.onFABClick(v);
-    }
-
-    public void onFragmentChanged(Class<? extends MainNavigationFragment> clazz) {
-        if (clazz.equals(AccountsFragment.class)) {
-            mCurrentFragmentIndex = ACCOUNTS_FRAGMENT_INDEX;
-        } else if (clazz.equals(TransactionsFragment.class)) {
-            mCurrentFragmentIndex = TRANSACTIONS_FRAGMENT_INDEX;
-        }
-    }
-
-    public LiveData<YearMonth> getActiveMonth() {
-        return mViewModel.activeMonth;
-    }
-
-    public void tintNavigationElements(int themeColor) {
+    private void tintNavigationElements(int themeColor) {
         setThemeColor(themeColor);
         int darkVariant =  ColorUtil.getDarkVariant(themeColor);
 
@@ -191,7 +115,7 @@ public class MainActivity
         });
     }
 
-    public void toggleOptionalNavigationElements(boolean showOptionalElements) {
+    private void toggleOptionalNavigationElements(boolean showOptionalElements) {
         mMonthBar.toggleVisibility(showOptionalElements);
         if (showOptionalElements) {
             mFABVH.onView(this, v -> v.setVisibility(View.VISIBLE));

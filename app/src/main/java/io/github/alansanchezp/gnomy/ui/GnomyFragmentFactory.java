@@ -18,10 +18,8 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentFactory;
-import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 import io.github.alansanchezp.gnomy.ui.account.ArchivedAccountsDialogFragment;
 import io.github.alansanchezp.gnomy.ui.transaction.TransactionFiltersDialogFragment;
-import io.github.alansanchezp.gnomy.ui.transaction.TransactionsFragment;
 
 public class GnomyFragmentFactory extends FragmentFactory {
     private Map<Class<? extends Fragment>, Object> mClassToInterfaceMapping;
@@ -81,10 +79,6 @@ public class GnomyFragmentFactory extends FragmentFactory {
             instance = new ArchivedAccountsDialogFragment((ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface) interfaceToAttach);
         } else if (fragmentClass.equals(ConfirmationDialogFragment.class)) {
             instance = new ConfirmationDialogFragment((ConfirmationDialogFragment.OnConfirmationDialogListener) interfaceToAttach);
-        } else if (fragmentClass.equals(AccountsFragment.class)) {
-            instance = new AccountsFragment((MainNavigationFragment.MainNavigationInteractionInterface) interfaceToAttach);
-        } else if (fragmentClass.equals(TransactionsFragment.class)) {
-            instance = new TransactionsFragment((MainNavigationFragment.MainNavigationInteractionInterface) interfaceToAttach);
         } else if (fragmentClass.equals(TransactionFiltersDialogFragment.class)) {
             instance = new TransactionFiltersDialogFragment((TransactionFiltersDialogFragment.TransactionFiltersDialogInterface) interfaceToAttach);
         } else {

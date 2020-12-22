@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_main_activity_graph"
+    app:startDestination="@id/navigation_transactions">
+
+    <fragment
+        android:id="@+id/navigation_transactions"
+        android:name="io.github.alansanchezp.gnomy.ui.transaction.TransactionsFragment"
+        android:label="fragment_transactions"
+        tools:layout="@layout/fragment_transactions" />
+    <fragment
+        android:id="@+id/navigation_accounts"
+        android:name="io.github.alansanchezp.gnomy.ui.account.AccountsFragment"
+        android:label="fragment_accounts"
+        tools:layout="@layout/fragment_accounts" />
+</navigation>

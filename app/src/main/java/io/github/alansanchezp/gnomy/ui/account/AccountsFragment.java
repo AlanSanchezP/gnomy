@@ -54,10 +54,6 @@ public class AccountsFragment extends MainNavigationFragment
     private Map<Integer, AccountWithAccumulated> mTodayAccumulatesMap;
     private TextView mBalance, mProjected;
 
-    public AccountsFragment(MainNavigationInteractionInterface _interface) {
-        super(_interface);
-    }
-
     private GnomyFragmentFactory getFragmentFactory() {
         return new GnomyFragmentFactory()
                 .addMapElement(ArchivedAccountsDialogFragment.class, this)
@@ -95,8 +91,6 @@ public class AccountsFragment extends MainNavigationFragment
         recyclerView.setAdapter(mAdapter);
         recyclerView.setNestedScrollingEnabled(false);
 
-        mListViewModel.bindMonth(mNavigationInterface.getActiveMonth());
-
         return view;
     }
 
@@ -106,8 +100,7 @@ public class AccountsFragment extends MainNavigationFragment
         mBalance = view.findViewById(R.id.total_balance);
         mProjected = view.findViewById(R.id.total_projected);
 
-        mNavigationInterface.getActiveMonth()
-                .observe(getViewLifecycleOwner(), this::onMonthChanged);
+        mListViewModel.bindMonth(mSharedViewModel.activeMonth);
         mListViewModel.getTodayAccumulatesList()
                 .observe(getViewLifecycleOwner(), this::onTodayAccumulatesListChanged);
         mListViewModel.getAccumulatesListAtMonth()

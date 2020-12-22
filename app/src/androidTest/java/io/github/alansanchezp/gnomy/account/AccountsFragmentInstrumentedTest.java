@@ -18,7 +18,6 @@ import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
-import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 
@@ -48,13 +47,9 @@ public class AccountsFragmentInstrumentedTest {
     // Needed so that ViewModel instance doesn't crash
     @BeforeClass
     public static void init_mocks() {
-        MainNavigationFragment.MainNavigationInteractionInterface _interface
-                = mock(MainNavigationFragment.MainNavigationInteractionInterface.class);
         MutableLiveData<YearMonth> mld = new MutableLiveData<>();
         mld.postValue(DateUtil.now());
-        when(_interface.getActiveMonth()).thenReturn(mld);
-        factory = new GnomyFragmentFactory()
-                .addMapElement(AccountsFragment.class, _interface);
+        factory = new GnomyFragmentFactory();
 
         final AccountRepository mockAccountRepository = initMockRepository(AccountRepository.class);
 

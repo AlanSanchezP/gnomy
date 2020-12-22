@@ -56,11 +56,6 @@ public class TransactionsFragment extends MainNavigationFragment
     private boolean mAllowClicks = true;
     private int mMainColor;
 
-    public TransactionsFragment(MainNavigationInteractionInterface _interface) {
-        super(_interface);
-        // Required empty public constructor
-    }
-
     private GnomyFragmentFactory getFragmentFactory() {
         return new GnomyFragmentFactory()
                 .addMapElement(ConfirmationDialogFragment.class, this)
@@ -96,7 +91,6 @@ public class TransactionsFragment extends MainNavigationFragment
 
         recyclerView.setAdapter(mAdapter);
         recyclerView.setNestedScrollingEnabled(false);
-        mViewModel.bindMonth(mNavigationInterface.getActiveMonth());
 
         return view;
     }
@@ -104,27 +98,34 @@ public class TransactionsFragment extends MainNavigationFragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mViewModel.bindMonth(mSharedViewModel.activeMonth);
         mViewModel.getFilters().observe(getViewLifecycleOwner(), this::onFiltersChanged);
         mViewModel.getGroupsByDay().observe(getViewLifecycleOwner(), this::onTransactionsMapChanged);
     }
 
     private void onFiltersChanged(MoneyTransactionFilters filters) {
-        // TODO: Update activity title
-        if (filters.getTransactionType() == MoneyTransactionFilters.ALL_TRANSACTION_TYPES)
+        String title;
+        if (filters.getTransactionType() == MoneyTransactionFilters.ALL_TRANSACTION_TYPES) {
             mMainColor = getResources().getColor(R.color.colorPrimary);
-        else if (filters.getTransactionType() == MoneyTransaction.INCOME)
+            title = getResources().getString(R.string.title_transactions);
+        } else if (filters.getTransactionType() == MoneyTransaction.INCOME) {
             mMainColor = getResources().getColor(R.color.colorIncomes);
-        else if (filters.getTransactionType() == MoneyTransaction.EXPENSE)
+            title = getResources().getString(R.string.action_filter_incomes);
+        } else if (filters.getTransactionType() == MoneyTransaction.EXPENSE) {
             mMainColor = getResources().getColor(R.color.colorExpenses);
-        else
+            title = getResources().getString(R.string.action_filter_expenses);
+        } else {
             mMainColor = getResources().getColor(R.color.colorTransfers);
-        mNavigationInterface.tintNavigationElements(mMainColor);
+            title = getResources().getString(R.string.action_filter_transfers);
+        }
+        mSharedViewModel.changeThemeColor(mMainColor);
+        mSharedViewModel.changeTitle(title);
         tintMenuIcons();
         if (mMenu == null) return;
         // TODO: Move clear filters button somewhere else
         // TODO: Replace clear filters icon
         // TODO: Block month bar if not simple filters
-        if (filters.isSimpleFilterWithMonth(mNavigationInterface.getActiveMonth().getValue())) {
+        if (filters.isSimpleFilterWithMonth(mSharedViewModel.activeMonth.getValue())) {
             mMenu.findItem(R.id.action_filter).setVisible(true);
             mMenu.findItem(R.id.action_clear_filters).setVisible(false);
         } else {
@@ -233,7 +234,7 @@ public class TransactionsFragment extends MainNavigationFragment
         // as the arrival of a new set of items implies those two LiveData objects
         // already have some value on them.
         boolean isSimpleFilter = mViewModel.getCurrentFilters().isSimpleFilterWithMonth(
-                mNavigationInterface.getActiveMonth().getValue());
+                mSharedViewModel.activeMonth.getValue());
         for (List<TransactionDisplayData> list : map.values()) {
             Section daySection = new Section();
             BigDecimal dayTotal = BigDecimalUtil.ZERO;
