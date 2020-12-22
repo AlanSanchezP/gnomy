@@ -9,6 +9,7 @@ import java.time.ZoneId;
 import java.math.BigDecimal;
 
 import androidx.room.TypeConverter;
+import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 
 public class GnomyTypeConverters {
     @TypeConverter
@@ -32,9 +33,7 @@ public class GnomyTypeConverters {
     @TypeConverter
     public static BigDecimal longToDecimal(Long longNumber) {
         if (longNumber != null) {
-            return new BigDecimal(longNumber.toString())
-                    .divide(new BigDecimal(10000), 4, BigDecimal.ROUND_HALF_EVEN)
-                    .stripTrailingZeros();
+            return BigDecimalUtil.fromLong(longNumber);
         }
         return null;
     }
@@ -42,9 +41,7 @@ public class GnomyTypeConverters {
     @TypeConverter
     public static Long decimalToLong(BigDecimal decimalNumber) {
         if (decimalNumber != null) {
-            return decimalNumber
-                    .multiply(new BigDecimal(10000))
-                    .longValue();
+            return BigDecimalUtil.toLong(decimalNumber);
         }
         return null;
     }

@@ -5,10 +5,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.espresso.matcher.ViewMatchers;
@@ -24,6 +22,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,13 +39,11 @@ public class ArchivedAccountsDialogFragmentInstrumentedTest {
 
     @BeforeClass
     public static void init_accounts_list() {
-        HashMap<Class<? extends Fragment>, GnomyFragmentFactory.GnomyFragmentInterface>
-                mapper = new HashMap<>();
         ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface _interface =
                 mock(ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface.class);
         when(_interface.getArchivedAccounts()).thenReturn(mutableAccountsList);
-        mapper.put(ArchivedAccountsDialogFragment.class, _interface);
-        factory = new GnomyFragmentFactory(mapper);
+        factory = new GnomyFragmentFactory()
+                .addMapElement(ArchivedAccountsDialogFragment.class, _interface);
 
         accounts[0] = new Account();
         accounts[0].setName("Test account 1");
@@ -104,14 +101,9 @@ public class ArchivedAccountsDialogFragmentInstrumentedTest {
         accountsList.clear();
         mutableAccountsList.postValue(accountsList);
 
-        try {
-            onView(withId(R.id.archived_items_container))
-                    .check(matches(isDisplayed()));
-            throw new RuntimeException("Modal is still present in hierarchy");
-        } catch (NoMatchingViewException nmve) {
-            // Modal is not in hierarchy anymore
-            assert(true);
-        }
+        assertThrows(NoMatchingViewException.class,
+                () -> onView(withId(R.id.archived_items_container))
+                            .check(matches(isDisplayed())));
     }
 }
 

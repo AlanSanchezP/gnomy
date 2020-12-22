@@ -10,7 +10,9 @@ import java.time.YearMonth;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import io.github.alansanchezp.gnomy.database.MockDatabaseOperationsUtil;
+import static io.github.alansanchezp.gnomy.database.MockRepositoryBuilder.initMockRepository;
+import io.github.alansanchezp.gnomy.database.account.AccountRepository;
+import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionRepository;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -20,8 +22,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -38,16 +38,16 @@ public class MainNavigationInstrumentedTest {
     // Needed so that ViewModel instance doesn't crash
     @BeforeClass
     public static void init_mocks() {
-        final MockDatabaseOperationsUtil.MockableAccountDAO mockAccountDAO = mock(MockDatabaseOperationsUtil.MockableAccountDAO.class);
-        MockDatabaseOperationsUtil.setAccountDAO(mockAccountDAO);
+        final AccountRepository mockAccountRepository = initMockRepository(AccountRepository.class);
+        final MoneyTransactionRepository mockTransactionRepository = initMockRepository(MoneyTransactionRepository.class);
 
-        when(mockAccountDAO.getArchivedAccounts())
+        when(mockAccountRepository.getArchivedAccounts())
                 .thenReturn(new MutableLiveData<>());
-        when(mockAccountDAO.getTodayAccumulatesList())
+        when(mockAccountRepository.getTodayAccumulatesList())
                 .thenReturn(new MutableLiveData<>());
-        when(mockAccountDAO.getAccumulatesListAtMonth(any(YearMonth.class)))
+        when(mockAccountRepository.getAccumulatesListAtMonth(any(YearMonth.class)))
                 .thenReturn(new MutableLiveData<>());
-        when(mockAccountDAO.find(anyInt()))
+        when(mockTransactionRepository.getAllFromMonth(any(YearMonth.class)))
                 .thenReturn(new MutableLiveData<>());
     }
 
@@ -63,5 +63,16 @@ public class MainNavigationInstrumentedTest {
 
         onView(withId(R.id.total_balance_label))
                 .check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void switches_to_transactions() {
+        onView(withId(R.id.navigation_transactions))
+                .perform(click());
+
+        onView(withId(R.id.custom_appbar))
+                .check(matches(hasDescendant(
+                        withText(R.string.title_transactions)
+                )));
     }
 }

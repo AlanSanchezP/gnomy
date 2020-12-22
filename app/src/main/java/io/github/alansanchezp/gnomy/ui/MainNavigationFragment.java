@@ -94,8 +94,7 @@ public abstract class MainNavigationFragment
 
     public abstract void onMonthChanged(YearMonth month);
 
-    public interface MainNavigationInteractionInterface
-            extends GnomyFragmentFactory.GnomyFragmentInterface {
+    public interface MainNavigationInteractionInterface {
         void tintNavigationElements(int themeColor);
         void toggleOptionalNavigationElements(boolean showOptionalElements);
         // TODO: Is this method really necessary? Evaluate (current idea is to use these indexes

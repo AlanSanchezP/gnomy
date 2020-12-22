@@ -14,8 +14,8 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.database.MockDatabaseOperationsUtil;
 import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
 import io.github.alansanchezp.gnomy.ui.account.AccountDetailsActivity;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
@@ -32,6 +32,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withSubstring;
 import static androidx.test.espresso.matcher.ViewMatchers.withTagValue;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertThrows;
+import static io.github.alansanchezp.gnomy.database.MockRepositoryBuilder.initMockRepository;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
@@ -51,12 +53,11 @@ public class AccountDetailsActivityInstrumentedTest {
 
     @BeforeClass
     public static void init_mocks() {
-        final MockDatabaseOperationsUtil.MockableAccountDAO mockAccountDAO = mock(MockDatabaseOperationsUtil.MockableAccountDAO.class);
-        MockDatabaseOperationsUtil.setAccountDAO(mockAccountDAO);
+        final AccountRepository mockAccountRepository = initMockRepository(AccountRepository.class);
         testAWA = mock(AccountWithAccumulated.class);
         testAWA.account = mock(Account.class);
 
-        when(mockAccountDAO.getAccumulatedAtMonth(anyInt(), any(YearMonth.class)))
+        when(mockAccountRepository.getAccumulatedAtMonth(anyInt(), any(YearMonth.class)))
                 .thenReturn(mutableAWA);
 
         // Needed dummy elements so that AccountDetailsActivity, AccountBalanceHistoryActivity
@@ -71,7 +72,7 @@ public class AccountDetailsActivityInstrumentedTest {
         when(testAWA.getConfirmedIncomesAtMonth()).thenReturn(BigDecimal.ZERO);
         when(testAWA.getPendingExpensesAtMonth()).thenReturn(BigDecimal.ZERO);
         when(testAWA.getPendingIncomesAtMonth()).thenReturn(BigDecimal.ZERO);
-        when(mockAccountDAO.find(anyInt())).thenReturn(new MutableLiveData<>());
+        when(mockAccountRepository.getAccount(anyInt())).thenReturn(new MutableLiveData<>());
     }
 
     @Rule
@@ -108,18 +109,17 @@ public class AccountDetailsActivityInstrumentedTest {
         onView(withId(R.id.action_archive_account))
                 .perform(click());
 
-        try {
-            onView(withId(R.id.action_archive_account))
-                    .check(matches(not(isEnabled())));
+        assertThrows(NoMatchingViewException.class,
+                () -> {
+                    onView(withId(R.id.action_archive_account))
+                            .check(matches(not(isEnabled())));
 
-            onView(withId(R.id.account_floating_action_button))
-                    .check(matches(not(isEnabled())));
+                    onView(withId(R.id.account_floating_action_button))
+                            .check(matches(not(isEnabled())));
 
-            onView(withId(R.id.account_see_more_button))
-                    .check(matches(not(isEnabled())));
-        } catch (NoMatchingViewException nmve) {
-            assert(true);
-        }
+                    onView(withId(R.id.account_see_more_button))
+                            .check(matches(not(isEnabled())));
+                });
 
         onView(withText(R.string.account_card_archive))
                 .inRoot(isDialog())

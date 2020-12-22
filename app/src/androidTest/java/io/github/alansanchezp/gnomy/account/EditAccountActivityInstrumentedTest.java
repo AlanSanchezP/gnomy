@@ -12,18 +12,19 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.database.MockDatabaseOperationsUtil;
 import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.ui.account.AddEditAccountActivity;
+import io.reactivex.Single;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static io.github.alansanchezp.gnomy.database.MockRepositoryBuilder.initMockRepository;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class)
@@ -38,13 +39,12 @@ public class EditAccountActivityInstrumentedTest {
 
     @BeforeClass
     public static void init_mocks() {
-        final MockDatabaseOperationsUtil.MockableAccountDAO mockAccountDAO = mock(MockDatabaseOperationsUtil.MockableAccountDAO.class);
-        // Needed so that ViewModel instance doesn't crash
-        MockDatabaseOperationsUtil.setAccountDAO(mockAccountDAO);
-        when(mockAccountDAO.find(anyInt()))
+        final AccountRepository mockAccountRepository = initMockRepository(AccountRepository.class);
+
+        when(mockAccountRepository.getAccount(anyInt()))
                 .thenReturn(new MutableLiveData<>());
-        when(mockAccountDAO._update(any(Account.class)))
-                .thenReturn(1);
+        when(mockAccountRepository.update(any(Account.class)))
+                .thenReturn(Single.just(1));
     }
 
     @Test

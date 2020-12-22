@@ -29,6 +29,7 @@ import io.github.alansanchezp.gnomy.ui.GnomyActivity;
 import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
 import io.github.alansanchezp.gnomy.ui.customView.MonthToolbarView;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
+import io.github.alansanchezp.gnomy.ui.transaction.TransactionsFragment;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 import io.github.alansanchezp.gnomy.util.android.ViewTintingUtil;
@@ -38,6 +39,9 @@ import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
 // TODO: Write README.md contents
 // TODO: Handle dark mode
 // TODO: (Wishlist) implement tooltips for non-menu buttons
+// TODO: Animations
+// TODO: Replace findById with viewbinding
+// TODO: Improve Layout naming
 // These TODOs are placed here just because MainActivity acts as a "root" file
 // even if they are not related to the class
 public class MainActivity
@@ -72,13 +76,10 @@ public class MainActivity
             };
 
     @Override
-    protected Map<Class<? extends Fragment>, GnomyFragmentFactory.GnomyFragmentInterface>
-    getInterfacesMapping() {
-        Map<Class<? extends Fragment>, GnomyFragmentFactory.GnomyFragmentInterface>
-                interfacesMapping = super.getInterfacesMapping();
-        interfacesMapping.put(
-                AccountsFragment.class, this);
-        return interfacesMapping;
+    protected GnomyFragmentFactory getFragmentFactory() {
+        return super.getFragmentFactory()
+                .addMapElement(AccountsFragment.class, this)
+                .addMapElement(TransactionsFragment.class, this);
     }
 
     @Override
@@ -143,6 +144,9 @@ public class MainActivity
             case ACCOUNTS_FRAGMENT_INDEX:
                 fragment = new AccountsFragment(this);
                 break;
+            case TRANSACTIONS_FRAGMENT_INDEX:
+                fragment = new TransactionsFragment(this);
+                break;
             default:
                 return false;
         }
@@ -166,6 +170,8 @@ public class MainActivity
     public void onFragmentChanged(Class<? extends MainNavigationFragment> clazz) {
         if (clazz.equals(AccountsFragment.class)) {
             mCurrentFragmentIndex = ACCOUNTS_FRAGMENT_INDEX;
+        } else if (clazz.equals(TransactionsFragment.class)) {
+            mCurrentFragmentIndex = TRANSACTIONS_FRAGMENT_INDEX;
         }
     }
 

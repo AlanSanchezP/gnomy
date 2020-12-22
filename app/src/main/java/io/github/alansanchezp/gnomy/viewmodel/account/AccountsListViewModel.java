@@ -12,6 +12,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
+import io.github.alansanchezp.gnomy.database.RepositoryBuilder;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
@@ -29,7 +30,7 @@ public class AccountsListViewModel extends AndroidViewModel {
 
     public AccountsListViewModel(Application application, SavedStateHandle savedStateHandle) {
         super(application);
-        mRepository = new AccountRepository(application);
+        mRepository = RepositoryBuilder.getRepository(AccountRepository.class, application);
         mState = savedStateHandle;
     }
 

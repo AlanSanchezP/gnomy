@@ -1,5 +1,6 @@
 package io.github.alansanchezp.gnomy.database.account;
 
+import java.math.BigDecimal;
 import java.time.YearMonth;
 
 import androidx.lifecycle.LiveData;
@@ -22,4 +23,17 @@ public interface MonthlyBalanceDAO {
 
     @Update
     int _updateBalance(MonthlyBalance balance);
+
+    @Query("UPDATE monthly_balances SET " +
+            "total_incomes = total_incomes + :additionalIncomes, " +
+            "total_expenses = total_expenses + :additionalExpenses, " +
+            "projected_incomes = projected_incomes + :additionalProjectedIncomes, " +
+            "projected_expenses = projected_expenses + :additionalProjectedExpenses " +
+            "WHERE account_id=:accountId AND balance_date=:balanceDate;")
+    int _adjustBalance(int accountId,
+                       YearMonth balanceDate,
+                       BigDecimal additionalIncomes,
+                       BigDecimal additionalExpenses,
+                       BigDecimal additionalProjectedIncomes,
+                       BigDecimal additionalProjectedExpenses);
 }

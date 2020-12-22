@@ -14,7 +14,6 @@ public class DatabaseTriggersTest {
 
     @Before
     public void setUp() {
-        MockDatabaseOperationsUtil.disableMocking();
     }
 
     @After

@@ -101,8 +101,7 @@ public class ConfirmationDialogFragment extends DialogFragment {
         return tag;
     }
 
-    public interface OnConfirmationDialogListener
-            extends GnomyFragmentFactory.GnomyFragmentInterface {
+    public interface OnConfirmationDialogListener {
         void onConfirmationDialogYes(DialogInterface dialog, String dialogTag, int which);
         void onConfirmationDialogNo(DialogInterface dialog, String dialogTag, int which);
         void onConfirmationDialogCancel(DialogInterface dialog, String dialogTag);

@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
+import io.github.alansanchezp.gnomy.database.RepositoryBuilder;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.reactivex.Single;
@@ -22,7 +23,7 @@ public class AddEditAccountViewModel extends AndroidViewModel {
 
     public AddEditAccountViewModel(Application application, SavedStateHandle savedStateHandle) {
         super(application);
-        mRepository = new AccountRepository(application);
+        mRepository = RepositoryBuilder.getRepository(AccountRepository.class, application);
         mState = savedStateHandle;
 
         mutableAccountColor = mState.getLiveData(TAG_SELECTED_COLOR, 1);

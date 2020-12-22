@@ -10,19 +10,19 @@ import androidx.room.Query;
 import androidx.room.Update;
 
 @Dao
-public interface CategoryDAO {
+public abstract class CategoryDAO {
     @Query("SELECT * FROM categories")
-    LiveData<List<Category>> getAll();
+    protected abstract LiveData<List<Category>> getAll();
 
     @Query("SELECT * FROM categories WHERE category_id = :id")
-    LiveData<Category> find(int id);
+    protected abstract LiveData<Category> find(int id);
 
     @Insert
-    void insert(Category... categories);
+    protected abstract void insert(Category... categories);
 
     @Update
-    void update(Category... categories);
+    protected abstract void update(Category... categories);
 
     @Delete
-    void delete(Category... categories);
+    protected abstract void delete(Category... categories);
 }

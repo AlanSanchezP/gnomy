@@ -18,10 +18,14 @@ import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
 import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
+import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionRepository;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 
+import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertThrows;
+import static io.github.alansanchezp.gnomy.LiveDataTestUtil.getOrAwaitValue;
 import static org.hamcrest.Matchers.comparesEqualTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -32,14 +36,16 @@ import static org.junit.Assert.assertThat;
 public class AccountRepositoryTest {
 
     private AccountRepository repository;
+    private MoneyTransactionRepository transactionRepository;
 
     @Rule
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
     @Before
     public void setUp() {
-        MockDatabaseOperationsUtil.disableMocking();
         repository = new AccountRepository(
+                InstrumentationRegistry.getInstrumentation().getContext());
+        transactionRepository = new MoneyTransactionRepository(
                 InstrumentationRegistry.getInstrumentation().getContext());
     }
 
@@ -87,24 +93,14 @@ public class AccountRepositoryTest {
         account.setId((int)(long)result);
         assertEquals(Integer.valueOf(0), repository.update(account).blockingGet());
 
-        try {
-            account.setId(3);
-            repository.update(account).blockingGet();
-            assert false;
-        } catch (GnomyIllegalQueryException e) {
-            // Didn't update as there is no matching account
-            assert true;
-        }
+        account.setId(3);
+        assertThrows(GnomyIllegalQueryException.class,
+                () -> repository.update(account).blockingGet());
 
-        try {
-            account.setId((int)(long)result);
-            account.setDefaultCurrency(CurrencyUtil.getCurrencyCode(0));
-            repository.update(account).blockingGet();
-            assert false;
-        } catch (GnomyIllegalQueryException e) {
-            // Didn't update as there are conflicts
-            assert true;
-        }
+        account.setId((int)(long)result);
+        account.setDefaultCurrency(CurrencyUtil.getCurrencyCode(0));
+        assertThrows(GnomyIllegalQueryException.class,
+                () -> repository.update(account).blockingGet());
 
         // Reset to avoid exceptions
         account.setId((int)(long)result);
@@ -112,6 +108,67 @@ public class AccountRepositoryTest {
         // Change to avoid a matching equals() call
         account.setName("Other name");
         assertEquals(Integer.valueOf(1), repository.update(account).blockingGet());
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    @Test
+    public void custom_delete_method_works() throws InterruptedException {
+        // Will create three accounts (A,B,C) and insert the following transfers:
+        // A -> C
+        // B -> C
+        // B -> A
+        // C -> B
+        // Test will check that:
+        //  - After deleting C, B has two orphan transfers,
+        //  one becoming income and the other expense. A will have one orphan expense.
+        //  - After deleting B, A will have an additional orphan income.
+        Account testAccount = new Account();
+        testAccount.setName("Test account");
+        int A = (int)(long) repository.insert(testAccount).blockingGet();
+        int B = (int)(long) repository.insert(testAccount).blockingGet();
+        int C = (int)(long) repository.insert(testAccount).blockingGet();
+
+        // Shared test data
+        MoneyTransaction testTransaction = new MoneyTransaction();
+        testTransaction.setType(MoneyTransaction.TRANSFER);
+        testTransaction.setConcept("test");
+        testTransaction.setOriginalValue("10");
+        testTransaction.setCategory(1);
+
+        // A -> C
+        testTransaction.setAccount(A);
+        testTransaction.setTransferDestinationAccount(C);
+        transactionRepository.insert(testTransaction).blockingGet(); // id 2 (mirror id 1)
+
+        // B -> C
+        testTransaction.setAccount(B);
+        transactionRepository.insert(testTransaction).blockingGet(); // id 4 (mirror id 3)
+
+        // B -> A
+        testTransaction.setTransferDestinationAccount(A);
+        transactionRepository.insert(testTransaction).blockingGet(); // id 6 (mirror id 5)
+
+        // C -> B
+        testTransaction.setAccount(C);
+        testTransaction.setTransferDestinationAccount(B);
+        transactionRepository.insert(testTransaction).blockingGet(); // id 8 (mirror id 7)
+
+        repository.delete(new Account(C)).blockingGet();
+
+        MoneyTransaction modifiedTransfer1 = getOrAwaitValue(transactionRepository.find(2));
+        MoneyTransaction modifiedTransfer2 = getOrAwaitValue(transactionRepository.find(4));
+        MoneyTransaction modifiedTransfer3 = getOrAwaitValue(transactionRepository.find(7));
+        assertEquals(MoneyTransaction.EXPENSE, modifiedTransfer1.getType());
+        assertNull(modifiedTransfer1.getTransferDestinationAccount());
+        assertEquals(MoneyTransaction.EXPENSE, modifiedTransfer2.getType());
+        assertNull(modifiedTransfer2.getTransferDestinationAccount());
+        assertEquals(MoneyTransaction.INCOME, modifiedTransfer3.getType());
+        assertNull(modifiedTransfer3.getTransferDestinationAccount());
+
+        repository.delete(new Account(B)).blockingGet();
+        MoneyTransaction modifiedTransfer4 = getOrAwaitValue(transactionRepository.find(5));
+        assertEquals(MoneyTransaction.INCOME, modifiedTransfer4.getType());
+        assertNull(modifiedTransfer4.getTransferDestinationAccount());
     }
 
     // TESTS FOR MonthlyBalanceDAO

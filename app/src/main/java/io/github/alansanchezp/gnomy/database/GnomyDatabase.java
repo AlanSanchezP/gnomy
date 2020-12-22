@@ -10,15 +10,13 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountDAO;
 import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
-import io.github.alansanchezp.gnomy.database.account.MonthlyBalanceDAO;
 import io.github.alansanchezp.gnomy.database.category.Category;
 import io.github.alansanchezp.gnomy.database.category.CategoryDAO;
 import io.github.alansanchezp.gnomy.database.recurrentTransaction.RecurrentTransaction;
 import io.github.alansanchezp.gnomy.database.recurrentTransaction.RecurrentTransactionDAO;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionDAO;
-import io.github.alansanchezp.gnomy.database.transfer.Transfer;
-import io.github.alansanchezp.gnomy.database.transfer.TransferDAO;
+import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.reactivex.Single;
 
 import android.content.Context;
@@ -36,15 +34,13 @@ import java.util.concurrent.Executors;
     Account.class,
     MoneyTransaction.class,
     MonthlyBalance.class,
-    RecurrentTransaction.class,
-    Transfer.class
+    RecurrentTransaction.class
 }, version = 1, exportSchema = false)
 // TODO: Implement schemaLocation when app (and therefore db model) is
 //  (at least) beta-release ready
 @TypeConverters({GnomyTypeConverters.class})
 public abstract class GnomyDatabase extends RoomDatabase {
     private static GnomyDatabase INSTANCE;
-    private static Class<?> MockDatabaseOperationsUtil = null;
 
     public static GnomyDatabase getInstance(Context context, String userEnteredPassphrase) {
         if (INSTANCE == null) {
@@ -61,19 +57,21 @@ public abstract class GnomyDatabase extends RoomDatabase {
         byte[] passphrase = SQLiteDatabase.getBytes(userEnteredPassphrase.toCharArray());
         SupportFactory factory = new SupportFactory(passphrase);
         Builder<GnomyDatabase> builder;
-        MockDatabaseOperationsUtil = getMockDatabaseOperationsUtil();
 
-        if (MockDatabaseOperationsUtil == null) {
-            Log.d("GnomyDatabase", "buildDatabaseInstance: Getting persistent database.");
-            builder = Room.databaseBuilder(context,
-                    GnomyDatabase.class,
-                    "gnomy.db");
-        } else {
+        try {
+            // DO NOT IMPLEMENT THIS CLASS IN MAIN SOURCE SET
+            // IT EXISTS ONLY FOR TESTING PURPOSES
+            Class.forName("io.github.alansanchezp.gnomy.database.MockRepositoryBuilder");
             Log.d("GnomyDatabase", "buildDatabaseInstance: Getting test database.");
             builder = Room.inMemoryDatabaseBuilder(context,
                     GnomyDatabase.class)
                     .setTransactionExecutor(Executors.newSingleThreadExecutor())
                     .allowMainThreadQueries();
+        } catch (ClassNotFoundException e) {
+            Log.d("GnomyDatabase", "buildDatabaseInstance: Getting persistent database.");
+            builder = Room.databaseBuilder(context,
+                    GnomyDatabase.class,
+                    "gnomy.db");
         }
 
         builder = builder
@@ -91,6 +89,11 @@ public abstract class GnomyDatabase extends RoomDatabase {
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
             super.onCreate(db);
             // TODO: Prepopulate categories
+            db.execSQL("INSERT INTO categories (category_name, category_icon, category_type, bg_color) " +
+                    "VALUES ('Dummy category', " +
+                    "'ic_calculate_24', "+
+                    Category.BOTH_CATEGORY + ", " +
+                    ColorUtil.getRandomColor() +")");
         }
     };
 
@@ -107,56 +110,13 @@ public abstract class GnomyDatabase extends RoomDatabase {
         });
     }
 
-    private static Class<?> getMockDatabaseOperationsUtil() {
-        try {
-            // DO NOT IMPLEMENT THIS CLASS IN MAIN SOURCE SET
-            // IT EXISTS ONLY FOR TESTING PURPOSES
-            return Class.forName("io.github.alansanchezp.gnomy.database.MockDatabaseOperationsUtil");
-        } catch (ClassNotFoundException e) {
-            Log.d("GnomyDatabase", "getMockDatabaseOperationsUtil: ", e);
-            return null;
-        }
-    }
+    public abstract CategoryDAO categoryDAO();
 
-    private Object getMockDAO(String getDAOMethodName) {
-        if (MockDatabaseOperationsUtil == null) return null;
-        try {
-            return MockDatabaseOperationsUtil
-                    .getMethod(getDAOMethodName).invoke(null);
-        } catch (InvocationTargetException e) {
-            Log.w("GnomyDatabase", "getMockDAO: ", e);
-            return null;
-        } catch (IllegalAccessException |
-                SecurityException |
-                IllegalArgumentException |
-                NullPointerException |
-                ExceptionInInitializerError |
-                NoSuchMethodException e) {
-            throw new RuntimeException("An error occurred trying to retrieve the specified DAO.", e);
-        }
-    }
+    public abstract AccountDAO accountDAO();
 
-    // WRAPPER DAO methods
-    public AccountDAO accountDAO() {
-        AccountDAO mockDAO = (AccountDAO) getMockDAO("getAccountDAO");
-        if (mockDAO != null) return mockDAO;
+    public abstract MoneyTransactionDAO transactionDAO();
 
-        return _accountDAO();
-    }
-
-    public CategoryDAO categoryDAO() {
-        return _categoryDAO();
-    }
-
-    protected abstract CategoryDAO _categoryDAO();
-
-    protected abstract AccountDAO _accountDAO();
-
-    protected abstract MoneyTransactionDAO _transactionDAO();
-
-    protected abstract RecurrentTransactionDAO _recurrentTransactionDAO();
-
-    protected abstract TransferDAO _transferDAO();
+    public abstract RecurrentTransactionDAO _recurrentTransactionDAO();
 
     public static void cleanUp(){
         INSTANCE = null;

@@ -56,7 +56,11 @@ public class AccountRepository {
     }
 
     public Single<Integer> delete(Account account) {
-        return accountDAO.delete(account);
+        return db.toSingleInTransaction(() -> {
+           int savedOrphans = accountDAO._savePotentiallyOrphanMirrorTransfers(account.getId());
+           savedOrphans += accountDAO._savePotentiallyOrphanTransfers(account.getId());
+           return accountDAO._delete(account) + savedOrphans;
+        });
     }
 
     // TODO: Test the (hopefully) few manually implemented db operations
