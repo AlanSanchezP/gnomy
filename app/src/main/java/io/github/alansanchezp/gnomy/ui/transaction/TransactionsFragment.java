@@ -120,8 +120,10 @@ public class TransactionsFragment extends MainNavigationFragment
         }
         mSharedViewModel.changeThemeColor(mMainColor);
         mSharedViewModel.changeTitle(title);
-        tintMenuIcons();
         if (mMenu == null) return;
+        // For some reason, items are null if navigating through back button
+        if (mMenu.findItem(R.id.action_filter) == null) return;
+        tintMenuIcons();
         // TODO: Move clear filters button somewhere else
         // TODO: Replace clear filters icon
         // TODO: Block month bar if not simple filters
@@ -195,6 +197,7 @@ public class TransactionsFragment extends MainNavigationFragment
         if (mMenu == null) return;
         if (mMainColor == 0) mMainColor = getResources().getColor(R.color.colorPrimary);
         int textColor = ColorUtil.getTextColor(mMainColor);
+
         mMenu.findItem(R.id.action_search)
                 .getIcon()
                 .setTint(textColor);
