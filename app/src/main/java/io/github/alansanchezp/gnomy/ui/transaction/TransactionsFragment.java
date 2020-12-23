@@ -171,12 +171,7 @@ public class TransactionsFragment extends MainNavigationFragment
     /* CONCRETE METHODS INHERITED FROM ABSTRACT CLASS */
 
     @Override
-    protected boolean hasAppbarActions() {
-        return true;
-    }
-
-    @Override
-    protected int getMenuResourceId() {
+    protected Integer getMenuResourceId() {
         return R.menu.transactions_fragment_toolbar;
     }
 

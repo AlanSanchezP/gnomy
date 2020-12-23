@@ -130,11 +130,7 @@ public class AccountsFragment extends MainNavigationFragment
 
     /* CONCRETE METHODS INHERITED FROM ABSTRACT CLASS */
 
-    protected boolean hasAppbarActions() {
-        return true;
-    }
-
-    protected int getMenuResourceId() {
+    protected Integer getMenuResourceId() {
         return R.menu.accounts_fragment_toolbar;
     }
 
@@ -173,8 +169,6 @@ public class AccountsFragment extends MainNavigationFragment
         } else {
             ((TextView) v.findViewById(R.id.total_projected_label)).setText(R.string.account_projected_balance);
         }
-
-        mCurrentMonth = month;
     }
 
     private void onTodayAccumulatesListChanged(List<AccountWithAccumulated> accumulates) {
@@ -197,7 +191,7 @@ public class AccountsFragment extends MainNavigationFragment
     private void onAccumulatesListChanged(List<AccountWithAccumulated> accumulates) {
         // TODO: Display some helpful information if list is empty, current behavior
         //  just doesn't display any data in recyclerview (not a bug, but UX can be improved)
-        if (mCurrentMonth == null) return;
+        if (mSharedViewModel.activeMonth.getValue() == null) return;
         mAdapter.setValues(accumulates);
 
         // TODO: Use global user currency when implemented

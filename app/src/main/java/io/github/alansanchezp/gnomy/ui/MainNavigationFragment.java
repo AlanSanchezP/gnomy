@@ -22,7 +22,6 @@ public abstract class MainNavigationFragment
         extends Fragment
         implements Observer {
 
-    protected YearMonth mCurrentMonth;
     protected Menu mMenu;
     protected final CompositeDisposable mCompositeDisposable
             = new CompositeDisposable();
@@ -37,7 +36,7 @@ public abstract class MainNavigationFragment
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(hasAppbarActions());
+        setHasOptionsMenu(getMenuResourceId() != null);
     }
 
     @Override
@@ -49,6 +48,7 @@ public abstract class MainNavigationFragment
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
+        //noinspection ConstantConditions
         inflater.inflate(getMenuResourceId(), menu);
         mMenu = menu;
         tintMenuIcons();
@@ -84,9 +84,7 @@ public abstract class MainNavigationFragment
 
     /* ABSTRACT METHODS */
 
-    protected abstract boolean hasAppbarActions();
-
-    protected abstract int getMenuResourceId();
+    protected abstract @Nullable Integer getMenuResourceId();
 
     protected abstract boolean withOptionalNavigationElements();
 
@@ -98,7 +96,7 @@ public abstract class MainNavigationFragment
 
     /* ABSTRACT CUSTOM LISTENERS */
 
-    public abstract void onFABClick(View v);
+    protected abstract void onFABClick(View v);
 
-    public abstract void onMonthChanged(YearMonth month);
+    protected abstract void onMonthChanged(YearMonth month);
 }
