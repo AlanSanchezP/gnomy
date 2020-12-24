@@ -6,17 +6,9 @@ import android.os.Bundle;
 import android.text.InputFilter;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.Switch;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.maltaisn.calcdialog.CalcDialog;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
@@ -37,6 +29,7 @@ import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.category.Category;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.databinding.ActivityAddEditTransactionBinding;
 import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
 import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.ui.account.AddEditAccountActivity;
@@ -58,7 +51,7 @@ import static io.github.alansanchezp.gnomy.util.android.SimpleTextWatcherWrapper
 
 // TODO: Implement recurrent transactions
 public class AddEditTransactionActivity
-        extends BackButtonActivity
+        extends BackButtonActivity<ActivityAddEditTransactionBinding>
         implements DatePickerDialog.OnDateSetListener,
         TimePickerDialog.OnTimeSetListener,
         CalcDialog.CalcDialogCallback {
@@ -79,26 +72,7 @@ public class AddEditTransactionActivity
     private AddEditTransactionViewModel mViewModel;
 
     // Layout objects
-    private LinearLayout mBoxLayout;
-    private TextInputLayout mTransactionConceptTIL;
-    private TextInputEditText mTransactionConceptTIET;
-    private TextInputLayout mAmountTIL;
-    private TextInputEditText mAmountTIET;
-    private TextInputLayout mDateTIL;
-    private TextInputEditText mDateTIET;
-    private Switch mDateTimeSwitch;
-    private MaterialSpinner mCurrencySpinner;
-    private MaterialSpinner mCategorySpinner;
-    private MaterialSpinner mAccountSpinner;
-    private MaterialSpinner mDestinationAccountSpinner;
-    private TextInputLayout mNotesTIL;
-    private TextInputEditText mNotesTIET;
-    private Switch mMarkAsDoneSwitch;
     private SingleClickViewHolder<FloatingActionButton> mFABVH;
-    private RelativeLayout mMoreOptionsToggle;
-    private LinearLayout mMoreOptionsContainer;
-    private TextView mMoreOptionsText;
-    private ImageView mMoreOptionsArrow;
 
     // Flags for async operations
     private List<Account> mAccountsList;
@@ -116,33 +90,14 @@ public class AddEditTransactionActivity
 
         mViewModel = new ViewModelProvider(this)
                 .get(AddEditTransactionViewModel.class);
-        mBoxLayout = findViewById(R.id.addedit_transaction_box);
-        mTransactionConceptTIL = findViewById(R.id.addedit_transaction_concept);
-        mTransactionConceptTIET = findViewById(R.id.addedit_transaction_concept_input);
-        mAmountTIL = findViewById(R.id.addedit_transaction_amount);
-        mAmountTIET = findViewById(R.id.addedit_transaction_amount_input);
-        mDateTIL = findViewById(R.id.addedit_transaction_date);
-        mDateTIET = findViewById(R.id.addedit_transaction_date_input);
-        mDateTimeSwitch = findViewById(R.id.addedit_transaction_include_time);
-        mCurrencySpinner = findViewById(R.id.addedit_transaction_currency);
-        mCategorySpinner = findViewById(R.id.addedit_transaction_category);
-        mAccountSpinner = findViewById(R.id.addedit_transaction_from_account);
-        mDestinationAccountSpinner = findViewById(R.id.addedit_transaction_to_account);
-        mNotesTIL = findViewById(R.id.addedit_transaction_notes);
-        mNotesTIET = findViewById(R.id.addedit_transaction_notes_input);
-        mMarkAsDoneSwitch = findViewById(R.id.addedit_transaction_mark_as_done);
-        mFABVH = new SingleClickViewHolder<>(findViewById(R.id.addedit_transaction_FAB), true);
-        mMoreOptionsToggle = findViewById(R.id.addedit_transaction_more_options_toggle);
-        mMoreOptionsArrow = findViewById(R.id.addedit_transaction_more_options_arrow);
-        mMoreOptionsText = findViewById(R.id.addedit_transaction_more_options_text);
-        mMoreOptionsContainer = findViewById(R.id.addedit_transaction_more_options_container);
+        mFABVH = new SingleClickViewHolder<>($.addeditTransactionFAB, true);
         // TODO: Find a better way to present these as actions
-        TextView newAccountTV = findViewById(R.id.addedit_transaction_new_account);
-        TextView newCategoryTV = findViewById(R.id.addedit_transaction_new_category);
-        newAccountTV.setPaintFlags(newAccountTV.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        newCategoryTV.setPaintFlags(newCategoryTV.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        newAccountTV.setOnClickListener(this::openNewAccountActivity);
-        newCategoryTV.setOnClickListener(this::openNewCategoryActivity);
+        $.addeditTransactionNewAccount.setPaintFlags(
+                $.addeditTransactionNewAccount.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        $.addeditTransactionNewCategory.setPaintFlags(
+                $.addeditTransactionNewCategory.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        $.addeditTransactionNewAccount.setOnClickListener(this::openNewAccountActivity);
+        $.addeditTransactionNewCategory.setOnClickListener(this::openNewCategoryActivity);
         toggleMoreOptions();
 
         Intent intent = getIntent();
@@ -156,15 +111,15 @@ public class AddEditTransactionActivity
             if (transactionId == 0) setTitle(R.string.transaction_new_income);
             else setTitle(R.string.transaction_modify_income);
             setThemeColor(getResources().getColor(R.color.colorIncomes));
-            mAccountSpinner.setHint(R.string.transaction_to_account);
+            $.addeditTransactionFromAccount.setHint(R.string.transaction_to_account);
         } else if (mTransactionType == MoneyTransaction.TRANSFER) {
             if (transactionId == 0) setTitle(R.string.transaction_new_transfer);
             else setTitle(R.string.transaction_modify_transfer);
             setThemeColor(getResources().getColor(R.color.colorTransfers));
-            mMarkAsDoneSwitch.setEnabled(false);
-            mMarkAsDoneSwitch.setChecked(true);
-            mMarkAsDoneSwitch.setVisibility(View.GONE);
-            mDestinationAccountSpinner.setVisibility(View.VISIBLE);
+            $.addeditTransactionMarkAsDone.setEnabled(false);
+            $.addeditTransactionMarkAsDone.setChecked(true);
+            $.addeditTransactionMarkAsDone.setVisibility(View.GONE);
+            $.addeditTransactionToAccount.setVisibility(View.VISIBLE);
         } else {
             throw new RuntimeException("Invalid transaction type.");
         }
@@ -177,7 +132,7 @@ public class AddEditTransactionActivity
             onTransactionChanged(transaction);
         } else {
             mIsNewScreen = false;
-            mBoxLayout.setVisibility(View.INVISIBLE);
+            $.addeditTransactionBox.setVisibility(View.INVISIBLE);
             mFABVH.onView(this, v -> v.setVisibility(View.INVISIBLE));
             ld.observe(this, this::onTransactionChanged);
         }
@@ -187,26 +142,26 @@ public class AddEditTransactionActivity
         mViewModel.getAccounts().observe(this, this::onAccountsListChanged);
         mViewModel.getCategories().observe(this, this::onCategoriesListChanged);
         mFABVH.setOnClickListener(this::processData);
-        mAmountTIL.setEndIconOnClickListener(this::openCalculator);
-        mDateTIL.setEndIconOnClickListener(this::openDatePicker);
+        $.addeditTransactionAmount.setEndIconOnClickListener(this::openCalculator);
+        $.addeditTransactionDate.setEndIconOnClickListener(this::openDatePicker);
         // As data gets reset to its stored value after rotation it is possible
         //  that date and/or time pickers allow selection of an invalid date,
         //  and then FAB is expected to trigger an error on date field.
         //  If this happens, it would be impossible for the user to select
         //  a valid date if error icon doesn't hold a callback too.
-        mDateTIL.setErrorIconOnClickListener(this::openDatePicker);
-        mAmountTIL.setErrorIconOnClickListener(this::openCalculator);
-        mDateTimeSwitch.setOnCheckedChangeListener((btn, b) -> updateDateText());
-        mMoreOptionsToggle.setOnClickListener(v -> {
+        $.addeditTransactionDate.setErrorIconOnClickListener(this::openDatePicker);
+        $.addeditTransactionAmount.setErrorIconOnClickListener(this::openCalculator);
+        $.addeditTransactionIncludeTime.setOnCheckedChangeListener((btn, b) -> updateDateText());
+        $.addeditTransactionMoreOptionsToggle.setOnClickListener(v -> {
             mViewModel.toggleShowMoreOptions();
             toggleMoreOptions();
         });
 
-        mAmountTIET.addTextChangedListener(onlyOnTextChanged((s, start, count, after) ->
+        $.addeditTransactionAmountInput.addTextChangedListener(onlyOnTextChanged((s, start, count, after) ->
                 onTransactionAmountChanges(s.toString())));
-        mTransactionConceptTIET.addTextChangedListener(onlyOnTextChanged((s, start, count, after) ->
+        $.addeditTransactionConceptInput.addTextChangedListener(onlyOnTextChanged((s, start, count, after) ->
                 onTransactionConceptChanges(s.toString())));
-        mNotesTIET.addTextChangedListener(onlyOnTextChanged((s, start, count, after) -> {
+        $.addeditTransactionNotesInput.addTextChangedListener(onlyOnTextChanged((s, start, count, after) -> {
             if (mTransaction != null)
                 mTransaction.setNotes(s.toString());
         }));
@@ -232,22 +187,21 @@ public class AddEditTransactionActivity
         int fabBgColor = ColorUtil.getVariantByFactor(mThemeColor, 0.86f);
         int fabTextColor = ColorUtil.getTextColor(fabBgColor);
 
-        findViewById(R.id.addedit_transaction_container)
-                .setBackgroundColor(mThemeColor);
+        $.addeditTransactionContainer.setBackgroundColor(mThemeColor);
         ViewTintingUtil
-                .monotintTextInputLayout(mAmountTIL, mThemeTextColor);
+                .monotintTextInputLayout($.addeditTransactionAmount, mThemeTextColor);
         ViewTintingUtil
-                .tintTextInputLayout(mTransactionConceptTIL, mThemeColor);
+                .tintTextInputLayout($.addeditTransactionConcept, mThemeColor);
         ViewTintingUtil
-                .tintTextInputLayout(mDateTIL, mThemeColor);
+                .tintTextInputLayout($.addeditTransactionDate, mThemeColor);
         ViewTintingUtil
-                .tintSwitch(mDateTimeSwitch, mThemeColor);
+                .tintSwitch($.addeditTransactionIncludeTime, mThemeColor);
         ViewTintingUtil
-                .tintTextInputLayout(mNotesTIL, mThemeColor);
+                .tintTextInputLayout($.addeditTransactionNotes, mThemeColor);
         mFABVH.onView(this, v ->
                 ViewTintingUtil.tintFAB(v, fabBgColor, fabTextColor));
         ViewTintingUtil
-                .tintSwitch(mMarkAsDoneSwitch, mThemeColor);
+                .tintSwitch($.addeditTransactionMarkAsDone, mThemeColor);
 
     }
 
@@ -265,27 +219,27 @@ public class AddEditTransactionActivity
 
     private void toggleMoreOptions() {
         if (mViewModel.showMoreOptions()) {
-            mMoreOptionsArrow.setRotation(180f);
-            mMoreOptionsText.setText(R.string.show_less_options);
-            mMoreOptionsContainer.setVisibility(View.VISIBLE);
+            $.addeditTransactionMoreOptionsArrow.setRotation(180f);
+            $.addeditTransactionMoreOptionsText.setText(R.string.show_less_options);
+            $.addeditTransactionMoreOptionsContainer.setVisibility(View.VISIBLE);
         } else {
-            mMoreOptionsArrow.setRotation(0);
-            mMoreOptionsText.setText(R.string.show_more_options);
-            mMoreOptionsContainer.setVisibility(View.GONE);
+            $.addeditTransactionMoreOptionsArrow.setRotation(0);
+            $.addeditTransactionMoreOptionsText.setText(R.string.show_more_options);
+            $.addeditTransactionMoreOptionsContainer.setVisibility(View.GONE);
         }
     }
 
     private void updateDateText() {
         if (mTransaction == null) return;
-        mDateTIET.setText(DateUtil.getOffsetDateTimeString(mTransaction.getDate(),
-                mDateTimeSwitch.isChecked()));
+        $.addeditTransactionDateInput.setText(DateUtil.getOffsetDateTimeString(mTransaction.getDate(),
+                $.addeditTransactionIncludeTime.isChecked()));
     }
 
     private void setCurrencySpinner() {
         try {
             String[] currencies = CurrencyUtil.getDisplayArray();
-            mCurrencySpinner.setItems(currencies);
-            mCurrencySpinner.setOnItemSelectedListener((view, position, id, item) ->
+            $.addeditTransactionCurrency.setItems(currencies);
+            $.addeditTransactionCurrency.setOnItemSelectedListener((view, position, id, item) ->
                     mTransaction.setCurrency(CurrencyUtil.getCurrencyCode(position)));
             // TODO: Use global default currency (WHEN IMPLEMENTED)
             if (mIsNewScreen) {
@@ -298,7 +252,7 @@ public class AddEditTransactionActivity
     }
 
     private void setInputFilters() {
-        mAmountTIET.setFilters(new InputFilter[]{new InputFilterMinMax(MoneyTransaction.MIN_VALUE, MoneyTransaction.MAX_VALUE, BigDecimalUtil.DECIMAL_SCALE)});
+        $.addeditTransactionAmountInput.setFilters(new InputFilter[]{new InputFilterMinMax(MoneyTransaction.MIN_VALUE, MoneyTransaction.MAX_VALUE, BigDecimalUtil.DECIMAL_SCALE)});
     }
 
     /* EDITTEXT WATCHERS */
@@ -306,10 +260,10 @@ public class AddEditTransactionActivity
     private void onTransactionAmountChanges(String value) {
         if (value.length() == 0) {
             if (mViewModel.transactionAmountIsPristine()) return;
-            mAmountTIL.setError(getResources().getString(R.string.transaction_error_amount));
+            $.addeditTransactionAmount.setError(getResources().getString(R.string.transaction_error_amount));
         } else {
             if (mTransaction != null) mTransaction.setOriginalValue(value);
-            mAmountTIL.setErrorEnabled(false);
+            $.addeditTransactionAmount.setErrorEnabled(false);
         }
 
         mViewModel.notifyTransactionAmountChanged();
@@ -320,9 +274,9 @@ public class AddEditTransactionActivity
 
         if (value.trim().length() == 0) {
             if (mViewModel.transactionConceptIsPristine()) return;
-            mTransactionConceptTIL.setError(getResources().getString(R.string.transaction_error_concept));
+            $.addeditTransactionConcept.setError(getResources().getString(R.string.transaction_error_concept));
         } else {
-            mTransactionConceptTIL.setErrorEnabled(false);
+            $.addeditTransactionConcept.setErrorEnabled(false);
         }
 
         mViewModel.notifyTransactionConceptChanged();
@@ -345,15 +299,15 @@ public class AddEditTransactionActivity
         tryToForceConfirmedStatus();
         updateDateText();
         if (mTransactionType != MoneyTransaction.TRANSFER) {
-            mMarkAsDoneSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            $.addeditTransactionMarkAsDone.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 mTransaction.setConfirmed(isChecked);
                 mViewModel.setUserSelectedConfirmedStatus(isChecked);
             });
         }
         if(!mIsNewScreen) {
-            mAmountTIET.setText(transaction.getOriginalValue().toPlainString());
-            mTransactionConceptTIET.setText(transaction.getConcept());
-            mNotesTIET.setText(transaction.getNotes());
+            $.addeditTransactionAmountInput.setText(transaction.getOriginalValue().toPlainString());
+            $.addeditTransactionConceptInput.setText(transaction.getConcept());
+            $.addeditTransactionNotesInput.setText(transaction.getNotes());
             tryToDisplayContainer();
         }
     }
@@ -362,8 +316,8 @@ public class AddEditTransactionActivity
         if (categories == null || categories.size() == 0)
             throw new RuntimeException("Categories list is not meant to be empty.");
         mCategoriesList = categories;
-        mCategorySpinner.setItems(categories.toArray());
-        mCategorySpinner.setOnItemSelectedListener((view, position, id, item) ->
+        $.addeditTransactionCategory.setItems(categories.toArray());
+        $.addeditTransactionCategory.setOnItemSelectedListener((view, position, id, item) ->
                 mTransaction.setCategory(categories.get(position).getId()));
         if (mIsNewScreen)
             mTransaction.setCategory(categories.get(0).getId());
@@ -378,54 +332,54 @@ public class AddEditTransactionActivity
         else accounts = _accounts;
 
         mAccountsList = accounts;
-        mAccountSpinner.setItems(accounts.toArray());
+        $.addeditTransactionFromAccount.setItems(accounts.toArray());
         // Clean after error
-        mAccountSpinner.setError(null);
-        mAccountSpinner.setHintTextColor(getResources().getColor(R.color.colorTextSecondary));
+        $.addeditTransactionFromAccount.setError(null);
+        $.addeditTransactionFromAccount.setHintTextColor(getResources().getColor(R.color.colorTextSecondary));
         if (mTransactionType == MoneyTransaction.INCOME) {
-            mAccountSpinner.setHint(R.string.transaction_to_account);
+            $.addeditTransactionFromAccount.setHint(R.string.transaction_to_account);
         } else {
-            mAccountSpinner.setHint(R.string.transaction_from_account);
+            $.addeditTransactionFromAccount.setHint(R.string.transaction_from_account);
         }
 
-        mAccountSpinner.setOnItemSelectedListener((view, position, id, item) -> {
+        $.addeditTransactionFromAccount.setOnItemSelectedListener((view, position, id, item) -> {
             setTransactionAccount((Account) item);
             if (mTransactionType == MoneyTransaction.TRANSFER) {
-                mDestinationAccountSpinner.setError(null);
-                findViewById(R.id.addedit_transaction_same_account_error).setVisibility(View.GONE);
+                $.addeditTransactionToAccount.setError(null);
+                $.addeditTransactionSameAccountError.setVisibility(View.GONE);
                 if (((Account) item).getId() == mTransaction.getTransferDestinationAccount()) {
-                    mDestinationAccountSpinner.setError(getResources().getString(R.string.form_error));
-                    findViewById(R.id.addedit_transaction_same_account_error).setVisibility(View.VISIBLE);
+                    $.addeditTransactionToAccount.setError(getResources().getString(R.string.form_error));
+                    $.addeditTransactionSameAccountError.setVisibility(View.VISIBLE);
                 }
             }
         });
 
         if(mTransactionType == MoneyTransaction.TRANSFER) {
             if (accounts.size() > 1) {
-                mDestinationAccountSpinner.setItems(accounts.toArray());
+                $.addeditTransactionToAccount.setItems(accounts.toArray());
             } else { // Send empty list that prevents ONE possible occurrence of same-account error
-                mDestinationAccountSpinner.setItems(new ArrayList<>());
+                $.addeditTransactionToAccount.setItems(new ArrayList<>());
                 mTransaction.setTransferDestinationAccount(null);
-                mDestinationAccountSpinner.setOnItemSelectedListener(null);
+                $.addeditTransactionToAccount.setOnItemSelectedListener(null);
             }
-            findViewById(R.id.addedit_transaction_same_account_error).setVisibility(View.GONE);
-            mDestinationAccountSpinner.setError(null);
-            mDestinationAccountSpinner.setHintTextColor(getResources().getColor(R.color.colorTextSecondary));
-            mDestinationAccountSpinner.setHint(R.string.transaction_to_account);
-            mDestinationAccountSpinner.setOnItemSelectedListener((view, position, id, item) -> {
+            $.addeditTransactionSameAccountError.setVisibility(View.GONE);
+            $.addeditTransactionToAccount.setError(null);
+            $.addeditTransactionToAccount.setHintTextColor(getResources().getColor(R.color.colorTextSecondary));
+            $.addeditTransactionToAccount.setHint(R.string.transaction_to_account);
+            $.addeditTransactionToAccount.setOnItemSelectedListener((view, position, id, item) -> {
                 view.setError(null);
-                findViewById(R.id.addedit_transaction_same_account_error).setVisibility(View.GONE);
+                $.addeditTransactionSameAccountError.setVisibility(View.GONE);
                 setDestinationAccount((Account) item);
                 if (((Account) item).getId() == mTransaction.getAccount()) {
                     view.setError(getResources().getString(R.string.form_error));
-                    findViewById(R.id.addedit_transaction_same_account_error).setVisibility(View.VISIBLE);
+                    $.addeditTransactionSameAccountError.setVisibility(View.VISIBLE);
                 }
             });
         }
 
         if (mViewModel.accountsListHasArrivedBefore() && accounts.size() > 0) {
             // Sets last account as selected
-            mAccountSpinner.setSelectedIndex(accounts.size() - 1);
+            $.addeditTransactionFromAccount.setSelectedIndex(accounts.size() - 1);
             setTransactionAccount(accounts.get(accounts.size() - 1));
             if (mTransactionType == MoneyTransaction.TRANSFER &&
                     mTransaction.getTransferDestinationAccount() == null) {
@@ -437,7 +391,7 @@ public class AddEditTransactionActivity
             if (mTransactionType == MoneyTransaction.TRANSFER) {
                 if (accounts.size() > 1) {
                     setDestinationAccount(accounts.get(1));
-                    mDestinationAccountSpinner.setSelectedIndex(1);
+                    $.addeditTransactionToAccount.setSelectedIndex(1);
                 } else {
                     setDestinationAccount(null);
                 }
@@ -463,14 +417,13 @@ public class AddEditTransactionActivity
                 Account destinationAccount = mAccountsList.get(
                         getItemIndexById(mAccountsList, mTransaction.getTransferDestinationAccount()));
                 setDestinationAccount(destinationAccount);
-                mDestinationAccountSpinner.setSelectedIndex(getItemIndexById(mAccountsList, mTransaction.getTransferDestinationAccount()));
+                $.addeditTransactionToAccount.setSelectedIndex(getItemIndexById(mAccountsList, mTransaction.getTransferDestinationAccount()));
             }
-            mCurrencySpinner.setSelectedIndex(CurrencyUtil.getCurrencyIndex(mTransaction.getCurrency()));
-            mAccountSpinner.setSelectedIndex(getItemIndexById(mAccountsList, mTransaction.getAccount()));
-            mAccountSpinner.setSelectedIndex(getItemIndexById(mAccountsList, mTransaction.getAccount()));
-            mCategorySpinner.setSelectedIndex(getItemIndexById(mCategoriesList, mTransaction.getCategory()));
+            $.addeditTransactionCurrency.setSelectedIndex(CurrencyUtil.getCurrencyIndex(mTransaction.getCurrency()));
+            $.addeditTransactionFromAccount.setSelectedIndex(getItemIndexById(mAccountsList, mTransaction.getAccount()));
+            $.addeditTransactionCategory.setSelectedIndex(getItemIndexById(mCategoriesList, mTransaction.getCategory()));
         }
-        mBoxLayout.setVisibility(View.VISIBLE);
+        $.addeditTransactionBox.setVisibility(View.VISIBLE);
         mFABVH.onView(this, v -> v.setVisibility(View.VISIBLE));
     }
 
@@ -480,13 +433,13 @@ public class AddEditTransactionActivity
         if (mTransactionType == MoneyTransaction.TRANSFER) return;
         if (mTransaction.getDate().isAfter(OffsetDateTime.now())) {
             boolean previousSelectedState = mTransaction.isConfirmed();
-            mMarkAsDoneSwitch.setChecked(false); // event listener will update mTransaction too
-            mMarkAsDoneSwitch.setEnabled(false);
+            $.addeditTransactionMarkAsDone.setChecked(false); // event listener will update mTransaction too
+            $.addeditTransactionMarkAsDone.setEnabled(false);
             // event listener will set status as false, we restore it manually here
             mViewModel.setUserSelectedConfirmedStatus(previousSelectedState);
         } else {
-            mMarkAsDoneSwitch.setEnabled(true);
-            mMarkAsDoneSwitch.setChecked(mViewModel.getUserSelectedConfirmedStatus()); // event listener will update mTransaction too
+            $.addeditTransactionMarkAsDone.setEnabled(true);
+            $.addeditTransactionMarkAsDone.setChecked(mViewModel.getUserSelectedConfirmedStatus()); // event listener will update mTransaction too
         }
     }
 
@@ -525,7 +478,7 @@ public class AddEditTransactionActivity
 
     private void setAccountCurrency(Account account) {
         if (mIsNewScreen)
-            mCurrencySpinner.setSelectedIndex(
+            $.addeditTransactionCurrency.setSelectedIndex(
                     CurrencyUtil.getCurrencyIndex(
                             account.getDefaultCurrency()));
     }
@@ -536,8 +489,8 @@ public class AddEditTransactionActivity
         mViewModel.notifyTransactionAmountChanged();
         mViewModel.notifyTransactionConceptChanged();
 
-        String amountString = Objects.requireNonNull(mAmountTIET.getText()).toString();
-        String transactionConcept = Objects.requireNonNull(mTransactionConceptTIET.getText()).toString();
+        String amountString = Objects.requireNonNull($.addeditTransactionAmountInput.getText()).toString();
+        String transactionConcept = Objects.requireNonNull($.addeditTransactionConceptInput.getText()).toString();
         onTransactionAmountChanges(amountString);
         onTransactionConceptChanges(transactionConcept);
 
@@ -549,13 +502,13 @@ public class AddEditTransactionActivity
         if (mAccountsList == null || mAccountsList.size() == 0) {
             // MaterialSpinner doesn't have custom setError() implementation,
             //  and doesn't show the message, but espresso can still test it.
-            mAccountSpinner.setError(getResources().getString(R.string.transaction_error_account));
-            mAccountSpinner.setHintTextColor(getResources().getColor(R.color.colorError));
-            mAccountSpinner.setHint(R.string.transaction_error_account);
+            $.addeditTransactionFromAccount.setError(getResources().getString(R.string.transaction_error_account));
+            $.addeditTransactionFromAccount.setHintTextColor(getResources().getColor(R.color.colorError));
+            $.addeditTransactionFromAccount.setHint(R.string.transaction_error_account);
             if (mTransactionType == MoneyTransaction.TRANSFER) {
-                mDestinationAccountSpinner.setError(getResources().getString(R.string.transaction_error_account));
-                mDestinationAccountSpinner.setHintTextColor(getResources().getColor(R.color.colorError));
-                mDestinationAccountSpinner.setHint(R.string.transaction_error_account);
+                $.addeditTransactionToAccount.setError(getResources().getString(R.string.transaction_error_account));
+                $.addeditTransactionToAccount.setHintTextColor(getResources().getColor(R.color.colorError));
+                $.addeditTransactionToAccount.setHint(R.string.transaction_error_account);
             }
             return false;
         }
@@ -566,9 +519,9 @@ public class AddEditTransactionActivity
         }
         if (mTransactionType == MoneyTransaction.TRANSFER) {
             if (mTransaction.getTransferDestinationAccount() == null) {
-                mDestinationAccountSpinner.setError(getResources().getString(R.string.transaction_error_account));
-                mDestinationAccountSpinner.setHintTextColor(getResources().getColor(R.color.colorError));
-                mDestinationAccountSpinner.setHint(R.string.transaction_error_account);
+                $.addeditTransactionToAccount.setError(getResources().getString(R.string.transaction_error_account));
+                $.addeditTransactionToAccount.setHintTextColor(getResources().getColor(R.color.colorError));
+                $.addeditTransactionToAccount.setHint(R.string.transaction_error_account);
                 return false;
             }
 
@@ -576,8 +529,8 @@ public class AddEditTransactionActivity
                     != mTransaction.getTransferDestinationAccount();
             if (differentAccounts) return true;
             else {
-                findViewById(R.id.addedit_transaction_same_account_error).setVisibility(View.VISIBLE);
-                mDestinationAccountSpinner.setError(getResources().getString(R.string.transaction_error_transfer_destination_account));
+                $.addeditTransactionSameAccountError.setVisibility(View.VISIBLE);
+                $.addeditTransactionToAccount.setError(getResources().getString(R.string.transaction_error_transfer_destination_account));
                 return false;
             }
         } else if (mTransaction.getTransferDestinationAccount() != null) {
@@ -589,10 +542,10 @@ public class AddEditTransactionActivity
     private boolean validateDate() {
         if (mTransactionMinDate == null) return false;
         if(!mTransaction.getDate().isBefore(mTransactionMinDate)) {
-            mDateTIL.setError(null);
+            $.addeditTransactionDate.setError(null);
             return true;
         }
-        mDateTIL.setError(getResources().getString(R.string.transaction_error_date));
+        $.addeditTransactionDate.setError(getResources().getString(R.string.transaction_error_date));
         return false;
     }
 
@@ -727,7 +680,7 @@ public class AddEditTransactionActivity
                 .withMonth(monthOfYear+1)
                 .withDayOfMonth(dayOfMonth);
         mTransaction.setDate(dateTime);
-        if (mDateTimeSwitch.isChecked()) {
+        if ($.addeditTransactionIncludeTime.isChecked()) {
             openTimePicker();
         } else {
             tryToForceConfirmedStatus();
@@ -749,6 +702,6 @@ public class AddEditTransactionActivity
     @Override
     public void onValueEntered(int requestCode, @Nullable BigDecimal value) {
         if (value != null)
-            mAmountTIET.setText(value.toPlainString());
+            $.addeditTransactionAmountInput.setText(value.toPlainString());
     }
 }

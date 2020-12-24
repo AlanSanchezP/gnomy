@@ -2,17 +2,33 @@ package io.github.alansanchezp.gnomy.ui;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.View;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Objects;
 
 import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import androidx.viewbinding.ViewBinding;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.reactivex.disposables.CompositeDisposable;
 
-public abstract class GnomyActivity
+/**
+ * Base Activity to use in the application.
+ *
+ * @param <B>   ViewBinding class to use. If null (not recommended),
+ *              a layout ID must be provided by the concrete class instead.
+ */
+public abstract class GnomyActivity<B extends ViewBinding>
         extends AppCompatActivity
         implements ConfirmationDialogFragment.OnConfirmationDialogListener {
 
@@ -22,12 +38,27 @@ public abstract class GnomyActivity
     protected int mThemeTextColor;
     protected final CompositeDisposable mCompositeDisposable
             = new CompositeDisposable();
+    protected B $;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getSupportFragmentManager().setFragmentFactory(getFragmentFactory());
         super.onCreate(savedInstanceState);
-        setContentView(getLayoutResourceId());
+        try {
+            Class<B> clazz = getBindingClass();
+            Method inflate = clazz.getMethod("inflate", LayoutInflater.class);
+            //noinspection unchecked
+            $ = (B) inflate.invoke(null, getLayoutInflater());
+            View v = Objects.requireNonNull($).getRoot();
+            setContentView(v);
+        } catch (NullPointerException |
+                NoSuchMethodException |
+                IllegalAccessException |
+                InvocationTargetException e) {
+            Log.w("GnomyActivity", "onCreate: Failed to initialize ViewBinding object. ", e);
+            setContentView(getLayoutResourceId());
+        }
+
         mAppbar = findViewById(R.id.custom_appbar);
         setSupportActionBar(mAppbar);
     }
@@ -100,4 +131,17 @@ public abstract class GnomyActivity
     }
 
     protected abstract int getLayoutResourceId();
+
+    private Class<B> getBindingClass() {
+        Class<B> result = null;
+        Type type = this.getClass().getGenericSuperclass();
+
+        if (type instanceof ParameterizedType) {
+            ParameterizedType pt = (ParameterizedType) type;
+            Type[] fieldArgTypes = pt.getActualTypeArguments();
+            //noinspection unchecked
+            result = (Class<B>) fieldArgTypes[0];
+        }
+        return result;
+    }
 }

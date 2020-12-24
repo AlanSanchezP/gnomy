@@ -18,7 +18,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.time.YearMonth;
@@ -31,6 +30,7 @@ import java.util.Objects;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
+import io.github.alansanchezp.gnomy.databinding.FragmentAccountsBinding;
 import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
 import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
@@ -42,7 +42,7 @@ import io.github.alansanchezp.gnomy.viewmodel.account.AccountsListViewModel;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-public class AccountsFragment extends MainNavigationFragment
+public class AccountsFragment extends MainNavigationFragment<FragmentAccountsBinding>
         implements AccountRecyclerViewAdapter.OnListItemInteractionListener,
         ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface,
         ConfirmationDialogFragment.OnConfirmationDialogListener {
@@ -52,7 +52,6 @@ public class AccountsFragment extends MainNavigationFragment
     private AccountRecyclerViewAdapter mAdapter;
     private AccountsListViewModel mListViewModel;
     private Map<Integer, AccountWithAccumulated> mTodayAccumulatesMap;
-    private TextView mBalance, mProjected;
 
     private GnomyFragmentFactory getFragmentFactory() {
         return new GnomyFragmentFactory()
@@ -81,11 +80,12 @@ public class AccountsFragment extends MainNavigationFragment
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_accounts, container, false);
+        View view = super.onCreateView(inflater,container,savedInstanceState);
+        assert view != null;
         Context context = view.getContext();
-        RecyclerView recyclerView = view.findViewById(R.id.items_list);
+        RecyclerView recyclerView = $.itemsList;
 
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(mAdapter);
@@ -97,9 +97,6 @@ public class AccountsFragment extends MainNavigationFragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mBalance = view.findViewById(R.id.total_balance);
-        mProjected = view.findViewById(R.id.total_projected);
-
         mListViewModel.bindMonth(mSharedViewModel.activeMonth);
         mListViewModel.getTodayAccumulatesList()
                 .observe(getViewLifecycleOwner(), this::onTodayAccumulatesListChanged);
@@ -162,12 +159,11 @@ public class AccountsFragment extends MainNavigationFragment
 
     public void onMonthChanged(YearMonth month) {
         if (month == null) return;
-        View v = getView();
-        assert v != null;
+        assert $ != null;
         if (month.isBefore(DateUtil.now())) {
-            ((TextView) v.findViewById(R.id.total_projected_label)).setText(R.string.account_balance_end_of_month);
+            $.totalProjectedLabel.setText(R.string.account_balance_end_of_month);
         } else {
-            ((TextView) v.findViewById(R.id.total_projected_label)).setText(R.string.account_projected_balance);
+            $.totalProjectedLabel.setText(R.string.account_projected_balance);
         }
     }
 
@@ -181,7 +177,7 @@ public class AccountsFragment extends MainNavigationFragment
                     true,
                     accumulates,
                     userCurrencyCode);
-            mBalance.setText(CurrencyUtil.format(totalAccumulates, userCurrencyCode));
+            $.totalBalance.setText(CurrencyUtil.format(totalAccumulates, userCurrencyCode));
         } catch (GnomyCurrencyException e) {
             // This shouldn't happen
             Log.wtf("AccountsFragment", "setObserver: ", e);
@@ -201,7 +197,7 @@ public class AccountsFragment extends MainNavigationFragment
                     false,
                     accumulates,
                     userCurrencyCode);
-            mProjected.setText(CurrencyUtil.format(totalEndOfMonth, userCurrencyCode));
+            $.totalProjected.setText(CurrencyUtil.format(totalEndOfMonth, userCurrencyCode));
         } catch (GnomyCurrencyException e) {
             // This shouldn't happen
             Log.wtf("AccountsFragment", "setObserver: ", e);

@@ -9,10 +9,17 @@ import java.util.Objects;
 
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
+import androidx.viewbinding.ViewBinding;
 import io.github.alansanchezp.gnomy.R;
 
-public abstract class BackButtonActivity
-        extends GnomyActivity {
+/**
+ * Generic class that handles the implementation of a Back button
+ * logic in Activity's appbar.
+ *
+ * @param <B>   ViewBinding class to use. See {@link GnomyActivity}.
+ */
+public abstract class BackButtonActivity<B extends ViewBinding>
+        extends GnomyActivity<B> {
 
     public static final String TAG_BACK_DIALOG = "BackButtonActivity.BackConfirmationDialog";
     protected Drawable mUpArrowDrawable;

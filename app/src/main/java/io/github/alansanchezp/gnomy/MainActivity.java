@@ -19,8 +19,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
+import io.github.alansanchezp.gnomy.databinding.ActivityMainBinding;
 import io.github.alansanchezp.gnomy.ui.GnomyActivity;
-import io.github.alansanchezp.gnomy.ui.customView.MonthToolbarView;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 import io.github.alansanchezp.gnomy.util.android.ViewTintingUtil;
@@ -36,25 +36,15 @@ import io.github.alansanchezp.gnomy.viewmodel.MainActivityViewModel;
 // These TODOs are placed here just because MainActivity acts as a "root" file
 // even if they are not related to the class
 public class MainActivity
-        extends GnomyActivity {
-    private static final String TAG_ACTIVE_FRAGMENT = "MainActivity.ActiveFragment";
-    private static final int
-            SUMMARY_FRAGMENT_INDEX = 1,
-            TRANSACTIONS_FRAGMENT_INDEX = 2,
-            ACCOUNTS_FRAGMENT_INDEX = 3,
-            NOTIFICATIONS_FRAGMENT_INDEX = 4;
-    private int mCurrentFragmentIndex = 0;
+        extends GnomyActivity<ActivityMainBinding> {
 
-    private MonthToolbarView mMonthBar;
     private SingleClickViewHolder<FloatingActionButton> mFABVH;
     private MainActivityViewModel mViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mMonthBar = findViewById(R.id.monthtoolbar);
-        mFABVH = new SingleClickViewHolder<>(findViewById(R.id.main_floating_action_button));
+        mFABVH = new SingleClickViewHolder<>($.mainFloatingActionButton);
         mFABVH.setOnClickListener(this::onFABClick);
 
         BottomNavigationView navigation = findViewById(R.id.navigation);
@@ -70,7 +60,7 @@ public class MainActivity
         mViewModel.getThemeToUse().observe(this, this::tintNavigationElements);
         mViewModel.getShowOptionalNavigationElements().observe(this, this::toggleOptionalNavigationElements);
         mViewModel.getTitle().observe(this, this::setTitle);
-        mMonthBar.setViewModel(mViewModel);
+        $.monthtoolbar.setViewModel(mViewModel);
     }
 
     @Override
@@ -107,7 +97,7 @@ public class MainActivity
         setThemeColor(themeColor);
         int darkVariant =  ColorUtil.getDarkVariant(themeColor);
 
-        if (mMonthBar.isVisible()) mMonthBar.tintElements(themeColor);
+        if ($.monthtoolbar.isVisible()) $.monthtoolbar.tintElements(themeColor);
         mFABVH.onView(this, v -> {
             if (v.getVisibility() == View.VISIBLE) {
                 ViewTintingUtil.tintFAB(v, darkVariant, mThemeTextColor);
@@ -116,7 +106,7 @@ public class MainActivity
     }
 
     private void toggleOptionalNavigationElements(boolean showOptionalElements) {
-        mMonthBar.toggleVisibility(showOptionalElements);
+        $.monthtoolbar.toggleVisibility(showOptionalElements);
         if (showOptionalElements) {
             mFABVH.onView(this, v -> v.setVisibility(View.VISIBLE));
         } else {

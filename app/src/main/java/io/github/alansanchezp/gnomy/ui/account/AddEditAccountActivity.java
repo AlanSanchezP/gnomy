@@ -6,6 +6,7 @@ import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.databinding.ActivityAddEditAccountBinding;
 import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.android.InputFilterMinMax;
@@ -27,14 +28,9 @@ import android.text.InputFilter;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import com.jaredrummler.materialspinner.MaterialSpinner;
 import com.thebluealliance.spectrum.SpectrumDialog;
 
 import java.util.Arrays;
@@ -43,19 +39,11 @@ import java.util.Objects;
 import static io.github.alansanchezp.gnomy.util.android.SimpleTextWatcherWrapper.onlyOnTextChanged;
 
 public class AddEditAccountActivity
-        extends BackButtonActivity {
+        extends BackButtonActivity<ActivityAddEditAccountBinding> {
     public static final String EXTRA_ACCOUNT_ID = "AddEditAccountActivity.AccountId";
     private static final String TAG_PICKER_DIALOG = "AddEditAccountActivity.ColorPickerDialog";
     private AddEditAccountViewModel mAddEditAccountViewModel;
     private Account mAccount;
-    private LinearLayout mBoxLayout;
-    private TextInputLayout mAccountNameTIL;
-    private TextInputLayout mInitialValueTIL;
-    private TextInputEditText mAccountNameTIET;
-    private TextInputEditText mInitialValueTIET;
-    private MaterialSpinner mCurrencySpinner;
-    private MaterialSpinner mTypeSpinner;
-    private Switch mShownInDashboardSwitch;
     private SingleClickViewHolder<ImageButton> mColorPickerBtnVH;
     private SingleClickViewHolder<FloatingActionButton> mFABVH;
 
@@ -69,20 +57,11 @@ public class AddEditAccountActivity
 
         // Prevent potential noticeable blink in color
         mAppbar.setBackgroundColor(getResources().getColor(android.R.color.transparent));
-
-        mBoxLayout = findViewById(R.id.addedit_account_box);
-        mAccountNameTIL = findViewById(R.id.addedit_account_name);
-        mInitialValueTIL = findViewById(R.id.addedit_account_initial_value);
-        mAccountNameTIET = findViewById(R.id.addedit_account_name_input);
-        mInitialValueTIET = findViewById(R.id.addedit_account_initial_value_input);
-        mCurrencySpinner = findViewById(R.id.addedit_account_currency);
-        mTypeSpinner = findViewById(R.id.addedit_account_type);
-        mShownInDashboardSwitch = findViewById(R.id.addedit_account_show_in_home);
         // TODO: Either dynamically show/hide FAB on landscape or find a better UI behavior for it
         //  It makes UX unpleasant on landscape because it overlays with other elements
-        mFABVH = new SingleClickViewHolder<>(findViewById(R.id.addedit_account_FAB), true);
+        mFABVH = new SingleClickViewHolder<>($.addeditAccountFAB, true);
         mFABVH.setOnClickListener(this::processData);
-        mColorPickerBtnVH = new SingleClickViewHolder<>(findViewById(R.id.addedit_account_color_button));
+        mColorPickerBtnVH = new SingleClickViewHolder<>($.addeditAccountColorButton);
         mColorPickerBtnVH.setOnClickListener(this::showColorPicker);
 
         mAddEditAccountViewModel.accountColor.observe(this, this::onAccountColorChanged);
@@ -98,7 +77,7 @@ public class AddEditAccountActivity
         if (accountLD != null) {
             activityTitle = getString(R.string.account_card_modify);
             // Prevent potential noticeable blink in spinners
-            mBoxLayout.setVisibility(View.INVISIBLE);
+            $.addeditAccountBox.setVisibility(View.INVISIBLE);
 
             // TODO: (When currency support is implemented) (only edit mode)
             //  update: Do we even want this behavior? Analyze it, maybe we are fine just disabling the spinner on edit mode
@@ -106,9 +85,8 @@ public class AddEditAccountActivity
              Monitor currency change and display an alert to either preserve ALL transactions values or convert them to their equivalents
              on the new selected currency (and perform this operation until submitting the new data)
             */
-            mCurrencySpinner.setEnabled(false);
-            findViewById(R.id.addedit_account_currency_cannot_change)
-                    .setVisibility(View.VISIBLE);
+            $.addeditAccountCurrency.setEnabled(false);
+            $.addeditAccountCurrencyCannotChange.setVisibility(View.VISIBLE);
             accountLD.observe(this, this::onAccountChanged);
         } else {
             activityTitle = getString(R.string.account_new);
@@ -121,9 +99,9 @@ public class AddEditAccountActivity
 
         setTitle(activityTitle);
 
-        mAccountNameTIET.addTextChangedListener(onlyOnTextChanged((s, start, count, after) ->
+        $.addeditAccountNameInput.addTextChangedListener(onlyOnTextChanged((s, start, count, after) ->
                 onAccountNameEditTextChanges(s.toString())));
-        mInitialValueTIET.addTextChangedListener(onlyOnTextChanged((s, start, count, after) ->
+        $.addeditAccountInitialValueInput.addTextChangedListener(onlyOnTextChanged((s, start, count, after) ->
                 onInitialValueEditTextChanges(s.toString())));
     }
 
@@ -155,17 +133,17 @@ public class AddEditAccountActivity
         }
         mAccount = account;
         mAddEditAccountViewModel.setAccountColor(account.getBackgroundColor());
-        mAccountNameTIET.setText(account.getName());
-        mInitialValueTIET.setText(account.getInitialValue().toPlainString());
-        mCurrencySpinner.setSelectedIndex(
+        $.addeditAccountNameInput.setText(account.getName());
+        $.addeditAccountInitialValueInput.setText(account.getInitialValue().toPlainString());
+        $.addeditAccountCurrency.setSelectedIndex(
                 Arrays.asList(CurrencyUtil.getCurrencies()).indexOf(mAccount.getDefaultCurrency())
         );
-        mTypeSpinner.setSelectedIndex(mAccount.getType() - 1);
-        mShownInDashboardSwitch.setChecked(account.isShowInDashboard());
+        $.addeditAccountType.setSelectedIndex(mAccount.getType() - 1);
+        $.addeditAccountShowInHome.setChecked(account.isShowInDashboard());
         // Restore container visibility once all data has been initialized
         // TODO: How can we prevent Switch animation from triggering?
         //  When on edit mode, the animation is triggered if account.isShowInDashboard() is true
-        mBoxLayout.setVisibility(View.VISIBLE);
+        $.addeditAccountBox.setVisibility(View.VISIBLE);
     }
 
     private void onAccountColorChanged(@ColorInt int color) {
@@ -182,28 +160,27 @@ public class AddEditAccountActivity
         int fabBgColor = ColorUtil.getVariantByFactor(color, 0.86f);
         int fabTextColor = ColorUtil.getTextColor(fabBgColor);
 
-        findViewById(R.id.addedit_account_container)
-                .setBackgroundColor(color);
+        $.addeditAccountContainer.setBackgroundColor(color);
 
         // TODO: There is a blink in both FAB and color picker button
         //  that is sometimes noticeable.
         mFABVH.onView(this, v -> ViewTintingUtil.tintFAB(v, fabBgColor, fabTextColor));
         ViewTintingUtil
-                .monotintTextInputLayout(mAccountNameTIL, mThemeTextColor);
+                .monotintTextInputLayout($.addeditAccountName, mThemeTextColor);
         // TODO: Lighter colors make the hint barely readable
         //  Possible solutions:
         //      A) Use a darker variant of the selected color
         //      B) Change UI of this element (any ideas?)
         //      C) Is it possible to add a shadow or border to the hint text?
         ViewTintingUtil
-                .tintTextInputLayout(mInitialValueTIL, mThemeColor);
+                .tintTextInputLayout($.addeditAccountInitialValue, mThemeColor);
         ViewTintingUtil
-                .tintSwitch(mShownInDashboardSwitch, mThemeColor);
+                .tintSwitch($.addeditAccountShowInHome, mThemeColor);
 
         // TODO: (Wishlist, not a big deal) How can we unify the ripple color with the one from FAB?
         mColorPickerBtnVH.onView(this, v -> {
-            findViewById(R.id.addedit_account_color_button).setBackgroundTintList(ColorStateList.valueOf(mThemeColor));
-            ((ImageButton) findViewById(R.id.addedit_account_color_button)).getDrawable().mutate().setTint(mThemeTextColor);
+            $.addeditAccountColorButton.setBackgroundTintList(ColorStateList.valueOf(mThemeColor));
+            $.addeditAccountColorButton.getDrawable().mutate().setTint(mThemeTextColor);
         });
     }
 
@@ -212,8 +189,8 @@ public class AddEditAccountActivity
             String[] currencies = CurrencyUtil.getDisplayArray();
             String[] accountTypes = getResources().getStringArray(R.array.account_types);
 
-            mCurrencySpinner.setItems(currencies);
-            mTypeSpinner.setItems(accountTypes);
+            $.addeditAccountCurrency.setItems(currencies);
+            $.addeditAccountType.setItems(accountTypes);
         } catch (GnomyCurrencyException e) {
             // This shouldn't happen
             Log.wtf("AddEditAccount", "setLists: CURRENCIES array triggers error", e);
@@ -221,7 +198,7 @@ public class AddEditAccountActivity
     }
 
     private void setInputFilters() {
-        mInitialValueTIET.setFilters(new InputFilter[]{new InputFilterMinMax(Account.MIN_INITIAL, Account.MAX_INITIAL, BigDecimalUtil.DECIMAL_SCALE)});
+        $.addeditAccountInitialValueInput.setFilters(new InputFilter[]{new InputFilterMinMax(Account.MIN_INITIAL, Account.MAX_INITIAL, BigDecimalUtil.DECIMAL_SCALE)});
     }
 
     public void showColorPicker(View v) {
@@ -244,9 +221,9 @@ public class AddEditAccountActivity
 
         if (texFieldsAreValid) {
             String currencyCode = CurrencyUtil.getCurrencyCode(
-                    mCurrencySpinner.getSelectedIndex());
-            int accountType = mTypeSpinner.getSelectedIndex() + 1;
-            boolean showInDashboard = mShownInDashboardSwitch.isChecked();
+                    $.addeditAccountCurrency.getSelectedIndex());
+            int accountType = $.addeditAccountType.getSelectedIndex() + 1;
+            boolean showInDashboard = $.addeditAccountShowInHome.isChecked();
 
             saveData(currencyCode, accountType, showInDashboard);
         } else {
@@ -260,9 +237,9 @@ public class AddEditAccountActivity
 
         if (value.trim().length() == 0) {
             if (mAddEditAccountViewModel.accountNameIsPristine()) return;
-            mAccountNameTIL.setError(getResources().getString(R.string.account_error_name));
+            $.addeditAccountName.setError(getResources().getString(R.string.account_error_name));
         } else {
-            mAccountNameTIL.setErrorEnabled(false);
+            $.addeditAccountName.setErrorEnabled(false);
         }
 
         mAddEditAccountViewModel.notifyAccountNameChanged();
@@ -271,10 +248,10 @@ public class AddEditAccountActivity
     private void onInitialValueEditTextChanges(String value) {
         if (value.length() == 0) {
             if (mAddEditAccountViewModel.initialValueIsPristine()) return;
-            mInitialValueTIL.setError(getResources().getString(R.string.account_error_initial_value));
+            $.addeditAccountInitialValue.setError(getResources().getString(R.string.account_error_initial_value));
         } else {
             if (mAccount != null) mAccount.setInitialValue(value);
-            mInitialValueTIL.setErrorEnabled(false);
+            $.addeditAccountInitialValue.setErrorEnabled(false);
         }
 
         mAddEditAccountViewModel.notifyInitialValueChanged();
@@ -285,8 +262,8 @@ public class AddEditAccountActivity
         mAddEditAccountViewModel.notifyAccountNameChanged();
         mAddEditAccountViewModel.notifyInitialValueChanged();
 
-        String accountName = mAccountNameTIET.getText().toString();
-        String initialValueString = mInitialValueTIET.getText().toString();
+        String accountName = $.addeditAccountNameInput.getText().toString();
+        String initialValueString = $.addeditAccountInitialValueInput.getText().toString();
         onAccountNameEditTextChanges(accountName);
         onInitialValueEditTextChanges(initialValueString);
 

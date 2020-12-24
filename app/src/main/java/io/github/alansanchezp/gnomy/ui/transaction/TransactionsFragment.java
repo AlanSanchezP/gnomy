@@ -33,6 +33,7 @@ import io.github.alansanchezp.gnomy.database.category.Category;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionFilters;
 import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
+import io.github.alansanchezp.gnomy.databinding.FragmentTransactionsBinding;
 import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
 import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
@@ -43,7 +44,7 @@ import io.github.alansanchezp.gnomy.viewmodel.transaction.TransactionsListViewMo
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-public class TransactionsFragment extends MainNavigationFragment
+public class TransactionsFragment extends MainNavigationFragment<FragmentTransactionsBinding>
     implements ConfirmationDialogFragment.OnConfirmationDialogListener,
         TransactionFiltersDialogFragment.TransactionFiltersDialogInterface {
 
@@ -84,15 +85,15 @@ public class TransactionsFragment extends MainNavigationFragment
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_transactions, container, false);
-        RecyclerView recyclerView = view.findViewById(R.id.items_list);
+        View v = super.onCreateView(inflater, container, savedInstanceState);
 
+        RecyclerView recyclerView = $.itemsList;
         recyclerView.setAdapter(mAdapter);
         recyclerView.setNestedScrollingEnabled(false);
 
-        return view;
+        return v;
     }
 
     @Override

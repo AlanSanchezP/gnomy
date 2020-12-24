@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 
 import java.util.List;
 
@@ -21,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.databinding.FragmentArchivedAccountsDialogBinding;
 import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 
 public class ArchivedAccountsDialogFragment extends DialogFragment {
@@ -29,8 +29,8 @@ public class ArchivedAccountsDialogFragment extends DialogFragment {
     private ArchivedAccountsRecyclerViewAdapter mAdapter;
     private final ArchivedAccountsDialogInterface mListener;
     private SingleClickViewHolder<Button> mRestoreAllButtonVH;
-    private TextView mEmptyListText;
     private int mListSize = -1;
+    private FragmentArchivedAccountsDialogBinding $;
 
     public ArchivedAccountsDialogFragment() {
         throw new IllegalArgumentException("This class must be provided with an ArchivedAccountsDialogInterface instance.");
@@ -70,24 +70,23 @@ public class ArchivedAccountsDialogFragment extends DialogFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_archived_accounts_dialog, container, false);
+        $ = FragmentArchivedAccountsDialogBinding.inflate(inflater, container, false);
+        View view = $.getRoot();
         Context context = view.getContext();
 
         mAdapter = new ArchivedAccountsRecyclerViewAdapter(mListener);
 
-        RecyclerView recyclerView = view.findViewById(R.id.archived_items_list);
+        RecyclerView recyclerView = $.archivedItemsList;
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(mAdapter);
 
-        mRestoreAllButtonVH = new SingleClickViewHolder<>(view.findViewById(R.id.restore_all_accounts_button));
+        mRestoreAllButtonVH = new SingleClickViewHolder<>($.restoreAllAccountsButton);
         mRestoreAllButtonVH.setOnClickListener(v -> {
             mListener.restoreAllAccounts();
             dismiss();
         });
-
-        mEmptyListText = view.findViewById(R.id.archived_items_empty);
 
         mListener.getArchivedAccounts()
                 .observe(getViewLifecycleOwner(), this::onAccountsListChanged);
@@ -102,13 +101,13 @@ public class ArchivedAccountsDialogFragment extends DialogFragment {
         }
 
         if (itemsCount == 0) {
-            mEmptyListText.setVisibility(View.VISIBLE);
+            $.archivedItemsEmpty.setVisibility(View.VISIBLE);
             mRestoreAllButtonVH.onView(requireActivity(), v -> v.setVisibility(View.GONE));
         } else if (itemsCount == 1) {
-            mEmptyListText.setVisibility(View.GONE);
+            $.archivedItemsEmpty.setVisibility(View.GONE);
             mRestoreAllButtonVH.onView(requireActivity(), v -> v.setVisibility(View.GONE));
         } else {
-            mEmptyListText.setVisibility(View.GONE);
+            $.archivedItemsEmpty.setVisibility(View.GONE);
             mRestoreAllButtonVH.onView(requireActivity(), v -> v.setVisibility(View.VISIBLE));
         }
 

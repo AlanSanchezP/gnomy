@@ -12,7 +12,6 @@ import com.github.dewinjm.monthyearpicker.MonthYearPickerDialogFragment;
 
 import java.time.YearMonth;
 
-import java.util.Calendar;
 import java.util.Objects;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,6 +26,7 @@ import static com.github.dewinjm.monthyearpicker.MonthYearPickerDialogFragment.N
 public class MonthToolbarView extends LinearLayout {
     final static String CALENDAR_PICKER_TAG = "CALENDAR PICKER MODAL";
     private LayoutMonthToolbarBinding mBinding;
+    private MonthToolbarViewModel mViewModel;
 
     public MonthToolbarView(Context context) {
         this(context, null);
@@ -49,15 +49,19 @@ public class MonthToolbarView extends LinearLayout {
         LayoutInflater inflater = (LayoutInflater)
                 context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mBinding = LayoutMonthToolbarBinding.inflate(Objects.requireNonNull(inflater),
-                this, true);
+                this);
     }
 
     public void setViewModel(MonthToolbarViewModel viewModel) {
-        mBinding.setViewmodel(viewModel);
-        SingleClickViewHolder<TextView> monthNameVH = new SingleClickViewHolder<>(mBinding.monthNameView);
+        mViewModel = viewModel;
+        SingleClickViewHolder<TextView> monthNameVH =
+                new SingleClickViewHolder<>(mBinding.monthNameView);
         monthNameVH.setOnClickListener(v -> onMonthPickerClick());
-        mBinding.getViewmodel().activeMonth
+        mViewModel.activeMonth
                 .observe(((AppCompatActivity) getContext()), this::updateMonthText);
+        mBinding.prevMonthBtn.setOnClickListener(v -> mViewModel.prevMonth());
+        mBinding.nextMonthBtn.setOnClickListener(v -> mViewModel.nextMonth());
+        mBinding.returnToTodayBth.setOnClickListener(v -> mViewModel.today());
     }
 
     private void onMonthPickerClick() {
@@ -66,7 +70,7 @@ public class MonthToolbarView extends LinearLayout {
         //  implementing material design do not support
         //  a range limit, and it might still be desirable to limit
         //  past dates to the month of account's creation
-        YearMonth activeYearMonth = mBinding.getViewmodel().activeMonth.getValue();
+        YearMonth activeYearMonth = mViewModel.activeMonth.getValue();
         int activeYear = Objects.requireNonNull(activeYearMonth).getYear();
         int activeMonth = activeYearMonth.getMonthValue();
 
@@ -75,7 +79,7 @@ public class MonthToolbarView extends LinearLayout {
 
         dialogFragment.setOnDateSetListener((year, monthOfYear) -> {
             YearMonth month = YearMonth.of(year, monthOfYear+1);
-            mBinding.getViewmodel().setMonth(month);
+            mViewModel.setMonth(month);
         });
 
         try {

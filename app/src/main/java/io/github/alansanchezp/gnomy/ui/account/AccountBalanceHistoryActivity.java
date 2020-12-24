@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.time.YearMonth;
@@ -16,8 +15,8 @@ import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
+import io.github.alansanchezp.gnomy.databinding.ActivityAccountHistoryBinding;
 import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
-import io.github.alansanchezp.gnomy.ui.customView.MonthToolbarView;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
@@ -25,7 +24,7 @@ import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 import io.github.alansanchezp.gnomy.viewmodel.account.AccountBalanceHistoryViewModel;
 
 public class AccountBalanceHistoryActivity
-        extends BackButtonActivity {
+        extends BackButtonActivity<ActivityAccountHistoryBinding> {
     public static final String EXTRA_ACCOUNT_ID = "AccountBalanceHistoryActivity.AccountId";
     // Unlike DetailsActivity, account data is passed through Intent
     // in order to avoid an extra query that we have already performed
@@ -44,7 +43,7 @@ public class AccountBalanceHistoryActivity
         int accountId = intent.getIntExtra(EXTRA_ACCOUNT_ID, 0);
         if (accountId < 1) throw new RuntimeException("No account id was provided.");
 
-        mCheckPendingButtonVH = new SingleClickViewHolder<>(findViewById(R.id.account_history_check_btn));
+        mCheckPendingButtonVH = new SingleClickViewHolder<>($.accountHistoryCheckBtn);
         mCheckPendingButtonVH.setOnClickListener(this::onCheckPendingTransactionsClick);
 
         String accountName = intent.getStringExtra(EXTRA_NAME);
@@ -60,10 +59,9 @@ public class AccountBalanceHistoryActivity
                         getApplication(),
                         this
                 )).get(AccountBalanceHistoryViewModel.class);
-        MonthToolbarView monthBar = findViewById(R.id.monthtoolbar);
 
-        monthBar.setViewModel(accountBalanceHistoryViewModel);
-        monthBar.tintElements(mThemeColor, mThemeTextColor);
+        $.monthtoolbar.setViewModel(accountBalanceHistoryViewModel);
+        $.monthtoolbar.tintElements(mThemeColor, mThemeTextColor);
 
         accountBalanceHistoryViewModel.getAccumulatedAtMonth(accountId)
                 .observe(this, this::onAccumulatedBalanceChanged);
@@ -83,31 +81,25 @@ public class AccountBalanceHistoryActivity
     }
 
     private void onMonthChanged(YearMonth month) {
-        TextView accumulatedTitleTV = findViewById(R.id.account_history_accumulated_balance_label);
-        TextView confirmedTitleTV = findViewById(R.id.account_history_confirmed_title);
-        View confirmedTransactionsCard = findViewById(R.id.account_history_confirmed_card);
-        TextView pendingTitleTV = findViewById(R.id.account_history_pending_title);
-        TextView bottomLegendTV = findViewById(R.id.account_history_bottom_legend);
-
         String accumulatedTitle;
         String confirmedTitle = null;
         String pendingTitle;
         String bottomLegend = "* ";
 
         if (month.isAfter(DateUtil.now())) {
-            confirmedTitleTV.setVisibility(View.GONE);
-            confirmedTransactionsCard.setVisibility(View.GONE);
+            $.accountHistoryConfirmedTitle.setVisibility(View.GONE);
+            $.accountHistoryConfirmedCard.setVisibility(View.GONE);
             accumulatedTitle = getString(R.string.account_accumulated_balance);
             pendingTitle = getString(R.string.pending_transactions);
         } else if (month.equals(DateUtil.now())) {
-            confirmedTitleTV.setVisibility(View.VISIBLE);
-            confirmedTransactionsCard.setVisibility(View.VISIBLE);
+            $.accountHistoryConfirmedTitle.setVisibility(View.VISIBLE);
+            $.accountHistoryConfirmedCard.setVisibility(View.VISIBLE);
             accumulatedTitle = getString(R.string.account_current_accumulated_balance);
             confirmedTitle = getString(R.string.account_confirmed_balance);
             pendingTitle = getString(R.string.pending_transactions);
         } else {
-            confirmedTitleTV.setVisibility(View.VISIBLE);
-            confirmedTransactionsCard.setVisibility(View.VISIBLE);
+            $.accountHistoryConfirmedTitle.setVisibility(View.VISIBLE);
+            $.accountHistoryConfirmedCard.setVisibility(View.VISIBLE);
             accumulatedTitle = getString(R.string.account_accumulated_balance);
             confirmedTitle = getString(R.string.account_balance_end_of_month);
             pendingTitle = getString(R.string.unresolved_transactions);
@@ -115,26 +107,16 @@ public class AccountBalanceHistoryActivity
 
         bottomLegend += pendingTitle + " " + getString(R.string.account_balance_not_included_legend);
 
-        accumulatedTitleTV.setText(accumulatedTitle);
-        confirmedTitleTV.setText(confirmedTitle);
-        pendingTitleTV.setText(pendingTitle);
-        bottomLegendTV.setText(bottomLegend);
+        $.accountHistoryAccumulatedBalanceLabel.setText(accumulatedTitle);
+        $.accountHistoryConfirmedTitle.setText(confirmedTitle);
+        $.accountHistoryPendingTitle.setText(pendingTitle);
+        $.accountHistoryBottomLegend.setText(bottomLegend);
     }
 
     private void onAccumulatedBalanceChanged(AccountWithAccumulated awa) {
         // TODO: Display some helpful information if month predates account creation
         onMonthChanged(awa.targetMonth);
         String accountCurrency = awa.account.getDefaultCurrency();
-
-        TextView accumulatedTV = findViewById(R.id.account_history_accumulated_balance);
-        TextView confirmedIncomesTV = findViewById(R.id.account_history_confirmed_incomes);
-        TextView confirmedExpensesTV = findViewById(R.id.account_history_confirmed_expenses);
-        TextView confirmedTotalTV = findViewById(R.id.account_history_confirmed_total);
-
-        TextView pendingIncomesTV = findViewById(R.id.account_history_pending_incomes);
-        TextView pendingExpensesTV = findViewById(R.id.account_history_pending_expenses);
-        TextView pendingTotalTV = findViewById(R.id.account_history_pending_total);
-
         BigDecimal confirmedIncomes = awa.getConfirmedIncomesAtMonth();
         BigDecimal confirmedExpenses = awa.getConfirmedExpensesAtMonth();
         BigDecimal confirmedTotal = confirmedIncomes.subtract(confirmedExpenses);
@@ -144,13 +126,13 @@ public class AccountBalanceHistoryActivity
 
         switch (confirmedTotal.compareTo(BigDecimal.ZERO)) {
             case -1:
-                confirmedTotalTV.setTextColor(getResources().getColor(R.color.colorExpenses));
+                $.accountHistoryConfirmedTotal.setTextColor(getResources().getColor(R.color.colorExpenses));
                 break;
             case 0:
-                confirmedTotalTV.setTextColor(getResources().getColor(R.color.colorText));
+                $.accountHistoryConfirmedTotal.setTextColor(getResources().getColor(R.color.colorText));
                 break;
             case 1:
-                confirmedTotalTV.setTextColor(getResources().getColor(R.color.colorIncomes));
+                $.accountHistoryConfirmedTotal.setTextColor(getResources().getColor(R.color.colorIncomes));
                 break;
             default:
                 break;
@@ -164,29 +146,29 @@ public class AccountBalanceHistoryActivity
 
         switch (pendingTotal.compareTo(BigDecimal.ZERO)) {
             case -1:
-                pendingTotalTV.setTextColor(getResources().getColor(R.color.colorExpenses));
+                $.accountHistoryPendingTotal.setTextColor(getResources().getColor(R.color.colorExpenses));
                 break;
             case 0:
-                pendingTotalTV.setTextColor(getResources().getColor(R.color.colorText));
+                $.accountHistoryPendingTotal.setTextColor(getResources().getColor(R.color.colorText));
                 break;
             case 1:
-                pendingTotalTV.setTextColor(getResources().getColor(R.color.colorIncomes));
+                $.accountHistoryPendingTotal.setTextColor(getResources().getColor(R.color.colorIncomes));
                 break;
             default:
                 break;
         }
 
         try {
-            accumulatedTV.setText(CurrencyUtil.format(awa.getConfirmedAccumulatedBalanceAtMonth(),
+            $.accountHistoryAccumulatedBalance.setText(CurrencyUtil.format(awa.getConfirmedAccumulatedBalanceAtMonth(),
                     awa.account.getDefaultCurrency()));
 
-            confirmedIncomesTV.setText(CurrencyUtil.format(confirmedIncomes, accountCurrency));
-            confirmedExpensesTV.setText(CurrencyUtil.format(confirmedExpenses, accountCurrency));
-            confirmedTotalTV.setText(CurrencyUtil.format(confirmedTotal, accountCurrency));
+            $.accountHistoryConfirmedIncomes.setText(CurrencyUtil.format(confirmedIncomes, accountCurrency));
+            $.accountHistoryConfirmedExpenses.setText(CurrencyUtil.format(confirmedExpenses, accountCurrency));
+            $.accountHistoryConfirmedTotal.setText(CurrencyUtil.format(confirmedTotal, accountCurrency));
 
-            pendingIncomesTV.setText(CurrencyUtil.format(pendingIncomes, accountCurrency));
-            pendingExpensesTV.setText(CurrencyUtil.format(pendingExpenses, accountCurrency));
-            pendingTotalTV.setText(CurrencyUtil.format(pendingTotal, accountCurrency));
+            $.accountHistoryPendingIncomes.setText(CurrencyUtil.format(pendingIncomes, accountCurrency));
+            $.accountHistoryPendingExpenses.setText(CurrencyUtil.format(pendingExpenses, accountCurrency));
+            $.accountHistoryPendingTotal.setText(CurrencyUtil.format(pendingTotal, accountCurrency));
         } catch(GnomyCurrencyException gce) {
             Log.wtf("AccountHistoryActivity", "updateAccumulated: ", gce);
         }

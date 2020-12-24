@@ -2,20 +2,16 @@ package io.github.alansanchezp.gnomy.ui.account;
 
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
-import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
+import io.github.alansanchezp.gnomy.databinding.FragmentArchivedAccountCardBinding;
 import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 
 public class ArchivedAccountsRecyclerViewAdapter
@@ -34,10 +30,10 @@ public class ArchivedAccountsRecyclerViewAdapter
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_archived_account_card, parent, false);
-        return new ViewHolder(view);
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        FragmentArchivedAccountCardBinding viewBinding = FragmentArchivedAccountCardBinding
+                .inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        return new ViewHolder(viewBinding);
     }
 
     @Override
@@ -58,37 +54,28 @@ public class ArchivedAccountsRecyclerViewAdapter
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         private Account mItem;
-        private final View mView;
+        private final FragmentArchivedAccountCardBinding $;
 
-        private final TextView mNameView;
-        private final ImageView mIconView;
-        private final Button mRestoreButton;
-        private final Button mDeleteButton;
-
-        public ViewHolder(View view) {
-            super(view);
-            mView = view;
-            mNameView = view.findViewById(R.id.archived_account_card_name);
-            mIconView = view.findViewById(R.id.archived_account_card_icon);
-            mRestoreButton = view.findViewById(R.id.archived_account_restore_button);
-            mDeleteButton = view.findViewById(R.id.archived_account_delete_button);
+        public ViewHolder(FragmentArchivedAccountCardBinding viewBinding) {
+            super(viewBinding.getRoot());
+            $ = viewBinding;
         }
 
         public void setAccountData(@NonNull Account account) {
             mItem = account;
 
             int iconResId = Account.getDrawableResourceId(mItem.getType());
-            Drawable icon = ContextCompat.getDrawable(mView.getContext(), iconResId);
+            Drawable icon = ContextCompat.getDrawable($.getRoot().getContext(), iconResId);
 
-            mNameView.setText(mItem.getName());
-            mIconView.setImageDrawable(icon);
-            mIconView.setColorFilter(mItem.getBackgroundColor());
-            mIconView.setTag(iconResId);
+            $.archivedAccountCardName.setText(mItem.getName());
+            $.archivedAccountCardIcon.setImageDrawable(icon);
+            $.archivedAccountCardIcon.setColorFilter(mItem.getBackgroundColor());
+            $.archivedAccountCardIcon.setTag(iconResId);
         }
 
         private void setEventListeners(OnArchivedItemInteractionListener listener) {
-            SingleClickViewHolder<Button> restoreVH = new SingleClickViewHolder<>(mRestoreButton);
-            SingleClickViewHolder<Button> deleteVH = new SingleClickViewHolder<>(mDeleteButton);
+            SingleClickViewHolder<Button> restoreVH = new SingleClickViewHolder<>($.archivedAccountRestoreButton);
+            SingleClickViewHolder<Button> deleteVH = new SingleClickViewHolder<>($.archivedAccountDeleteButton);
             restoreVH.setOnClickListener(v -> listener.restoreAccount(mItem));
             deleteVH.setOnClickListener(v -> listener.deleteAccount(mItem));
         }

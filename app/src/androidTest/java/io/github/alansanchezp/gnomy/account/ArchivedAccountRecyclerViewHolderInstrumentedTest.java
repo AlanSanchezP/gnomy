@@ -1,7 +1,5 @@
 package io.github.alansanchezp.gnomy.account;
 
-import android.view.View;
-
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -12,6 +10,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.ViewScenarioRule;
 import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.databinding.FragmentArchivedAccountCardBinding;
 import io.github.alansanchezp.gnomy.dummy.DummyActivity;
 import io.github.alansanchezp.gnomy.ui.account.ArchivedAccountsRecyclerViewAdapter;
 
@@ -41,12 +40,12 @@ public class ArchivedAccountRecyclerViewHolderInstrumentedTest {
     @Test
     public void account_name_is_displayed_in_card() {
         ActivityScenario<DummyActivity> scenario = viewRule.getScenario();
-        View[] view = new View[1];
         ArchivedAccountsRecyclerViewAdapter.ViewHolder[] holder
                 = new ArchivedAccountsRecyclerViewAdapter.ViewHolder[1];
         scenario.onActivity(activity -> {
-            view[0] = activity.findViewById(R.id.archived_account_card);
-            holder[0] = new ArchivedAccountsRecyclerViewAdapter.ViewHolder(view[0]);
+            FragmentArchivedAccountCardBinding viewBinding = FragmentArchivedAccountCardBinding.inflate(
+                    activity.getLayoutInflater(), activity.findViewById(R.id.dummy_activity_root),true);
+            holder[0] = new ArchivedAccountsRecyclerViewAdapter.ViewHolder(viewBinding);
             holder[0].setAccountData(testAccount);
         });
 
@@ -57,12 +56,12 @@ public class ArchivedAccountRecyclerViewHolderInstrumentedTest {
     @Test
     public void account_icon_in_card_is_correct() {
         ActivityScenario<DummyActivity> scenario = viewRule.getScenario();
-        View[] view = new View[1];
         ArchivedAccountsRecyclerViewAdapter.ViewHolder[] holder
                 = new ArchivedAccountsRecyclerViewAdapter.ViewHolder[1];
         scenario.onActivity(activity -> {
-            view[0] = activity.findViewById(R.id.archived_account_card);
-            holder[0] = new ArchivedAccountsRecyclerViewAdapter.ViewHolder(view[0]);
+            FragmentArchivedAccountCardBinding viewBinding = FragmentArchivedAccountCardBinding.inflate(
+                    activity.getLayoutInflater(), activity.findViewById(R.id.dummy_activity_root),true);
+            holder[0] = new ArchivedAccountsRecyclerViewAdapter.ViewHolder(viewBinding);
         });
 
         for (int type=Account.BANK; type <= Account.OTHER; type++) {
