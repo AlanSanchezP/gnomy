@@ -30,10 +30,10 @@ public class TransactionGroupHeader
     }
 
     @Override
-    public void bind(@NonNull LayoutTransactionGroupHeaderBinding viewBinding, int position) {
-        viewBinding.transactionGroupHeaderText.setText(mTitle);
+    public void bind(@NonNull LayoutTransactionGroupHeaderBinding $, int position) {
+        $.transactionGroupHeaderText.setText(mTitle);
         try {
-            setSumText(viewBinding);
+            setSumText($);
         } catch (GnomyCurrencyException e) {
             Log.wtf("TransactionGroupHeader", "bind: ", e);
         }
@@ -44,23 +44,25 @@ public class TransactionGroupHeader
         return R.layout.layout_transaction_group_header;
     }
 
-    private void setSumText(LayoutTransactionGroupHeaderBinding viewBinding)
+    private void setSumText(LayoutTransactionGroupHeaderBinding $)
             throws GnomyCurrencyException {
         switch (mSum.compareTo(BigDecimal.ZERO)) {
             case -1:
-                viewBinding.transactionGroupHeaderSum.setTextColor(
-                        viewBinding.getRoot().getResources().getColor(R.color.colorExpensesDark));
+                $.transactionGroupHeaderSum.setVisibility(View.VISIBLE);
+                $.transactionGroupHeaderSum.setTextColor(
+                        $.getRoot().getResources().getColor(R.color.colorExpensesDark));
                 break;
             case 0:
-                viewBinding.transactionGroupHeaderSum.setVisibility(View.INVISIBLE);
+                $.transactionGroupHeaderSum.setVisibility(View.INVISIBLE);
                 break;
             case 1:
-                viewBinding.transactionGroupHeaderSum.setTextColor(
-                        viewBinding.getRoot().getResources().getColor(R.color.colorIncomesDark));
+                $.transactionGroupHeaderSum.setVisibility(View.VISIBLE);
+                $.transactionGroupHeaderSum.setTextColor(
+                        $.getRoot().getResources().getColor(R.color.colorIncomesDark));
                 break;
         }
         // TODO: Implement global default currency
-        viewBinding.transactionGroupHeaderSum.setText("\u2211 = ".concat(
+        $.transactionGroupHeaderSum.setText("\u2211 = ".concat(
                 CurrencyUtil.format(mSum, "USD")));
     }
 }
