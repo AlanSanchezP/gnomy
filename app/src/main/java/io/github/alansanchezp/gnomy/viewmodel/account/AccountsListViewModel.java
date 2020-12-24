@@ -19,8 +19,8 @@ import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
 import io.reactivex.Single;
 
 public class AccountsListViewModel extends AndroidViewModel {
-    private static final String TAG_TARGET_TO_ARCHIVE = "account-id-to-archive";
-    private static final String TAG_TARGET_TO_DELETE = "account-id-to-delete";
+    private static final String TAG_TARGET_TO_ARCHIVE = "AccountsListVM.IdToArchive";
+    private static final String TAG_TARGET_TO_DELETE = "AccountsListVM.IdToDelete";
     private final AccountRepository mRepository;
     private final SavedStateHandle mState;
     private LiveData<YearMonth> mActiveMonth;

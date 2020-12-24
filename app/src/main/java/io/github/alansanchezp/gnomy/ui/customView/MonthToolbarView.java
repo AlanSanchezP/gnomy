@@ -24,7 +24,7 @@ import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
 import static com.github.dewinjm.monthyearpicker.MonthYearPickerDialogFragment.NULL_INT;
 
 public class MonthToolbarView extends LinearLayout {
-    final static String CALENDAR_PICKER_TAG = "CALENDAR PICKER MODAL";
+    final static String CALENDAR_PICKER_TAG = "MonthToolbarView.CalendarDialog";
     private LayoutMonthToolbarBinding mBinding;
     private MonthToolbarViewModel mViewModel;
 

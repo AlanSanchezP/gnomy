@@ -47,11 +47,11 @@ public class TransactionFiltersDialogFragment
         implements DatePickerDialog.OnDateSetListener,
         TimePickerDialog.OnTimeSetListener {
     // TODO: Instrumented Test
-    private static final String BUNDLE_FILTER_INSTANCE = "TransactionfiltersDialogFragment.FilterInstance";
-    private static final String TAG_START_DATE_DIALOG = "TransactionfiltersDialogFragment.StartDateDialog";
-    private static final String TAG_END_DATE_DIALOG = "TransactionfiltersDialogFragment.EndDateDialog";
-    private static final String TAG_START_TIME_DIALOG = "TransactionfiltersDialogFragment.StartTimeDialog";
-    private static final String TAG_END_TIME_DIALOG = "TransactionfiltersDialogFragment.EndTimeDialog";
+    private static final String BUNDLE_FILTER_INSTANCE = "TransactionFiltersDialogFragment.FilterInstance";
+    private static final String TAG_START_DATE_DIALOG = "TransactionFiltersDialogFragment.StartDateDialog";
+    private static final String TAG_END_DATE_DIALOG = "TransactionFiltersDialogFragment.EndDateDialog";
+    private static final String TAG_START_TIME_DIALOG = "TransactionFiltersDialogFragment.StartTimeDialog";
+    private static final String TAG_END_TIME_DIALOG = "TransactionFiltersDialogFragment.EndTimeDialog";
     // Using jQuery syntax to make code more compact
     private DialogTransactionFiltersBinding $;
     private final TransactionFiltersDialogInterface mListener;
@@ -60,7 +60,7 @@ public class TransactionFiltersDialogFragment
     private int mThemeColor;
 
     public TransactionFiltersDialogFragment() {
-        throw new IllegalArgumentException("This class must be provided with a TransactionfiltersDialogInterface instance.");
+        throw new IllegalArgumentException("This class must be provided with a TransactionFiltersDialogInterface instance.");
 
     }
 
