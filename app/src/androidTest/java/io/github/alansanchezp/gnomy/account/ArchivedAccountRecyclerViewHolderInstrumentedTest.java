@@ -5,13 +5,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import androidx.test.core.app.ActivityScenario;
+import java.util.Objects;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.ViewScenarioRule;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.databinding.LayoutArchivedAccountCardBinding;
-import io.github.alansanchezp.gnomy.dummy.DummyActivity;
 import io.github.alansanchezp.gnomy.ui.account.ArchivedAccountsRecyclerViewAdapter;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -26,8 +27,8 @@ public class ArchivedAccountRecyclerViewHolderInstrumentedTest {
     static final Account testAccount = new Account();
 
     @Rule
-    public final ViewScenarioRule viewRule =
-            new ViewScenarioRule(R.layout.layout_archived_account_card);
+    public final ViewScenarioRule viewRule = new ViewScenarioRule(
+            LayoutArchivedAccountCardBinding.class);
 
     @BeforeClass
     public static void init_test_account() {
@@ -39,15 +40,10 @@ public class ArchivedAccountRecyclerViewHolderInstrumentedTest {
 
     @Test
     public void account_name_is_displayed_in_card() {
-        ActivityScenario<DummyActivity> scenario = viewRule.getScenario();
-        ArchivedAccountsRecyclerViewAdapter.ViewHolder[] holder
-                = new ArchivedAccountsRecyclerViewAdapter.ViewHolder[1];
-        scenario.onActivity(activity -> {
-            LayoutArchivedAccountCardBinding viewBinding = LayoutArchivedAccountCardBinding.inflate(
-                    activity.getLayoutInflater(), activity.findViewById(R.id.dummy_activity_root),true);
-            holder[0] = new ArchivedAccountsRecyclerViewAdapter.ViewHolder(viewBinding);
-            holder[0].setAccountData(testAccount);
-        });
+        ArchivedAccountsRecyclerViewAdapter.ViewHolder holder
+                = new ArchivedAccountsRecyclerViewAdapter.ViewHolder(Objects.requireNonNull(viewRule.retrieveViewBinding()));
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                holder.setAccountData(testAccount));
 
         onView(withId(R.id.archived_account_card_name))
                 .check(matches(withText(testAccount.getName())));
@@ -55,19 +51,15 @@ public class ArchivedAccountRecyclerViewHolderInstrumentedTest {
 
     @Test
     public void account_icon_in_card_is_correct() {
-        ActivityScenario<DummyActivity> scenario = viewRule.getScenario();
-        ArchivedAccountsRecyclerViewAdapter.ViewHolder[] holder
-                = new ArchivedAccountsRecyclerViewAdapter.ViewHolder[1];
-        scenario.onActivity(activity -> {
-            LayoutArchivedAccountCardBinding viewBinding = LayoutArchivedAccountCardBinding.inflate(
-                    activity.getLayoutInflater(), activity.findViewById(R.id.dummy_activity_root),true);
-            holder[0] = new ArchivedAccountsRecyclerViewAdapter.ViewHolder(viewBinding);
-        });
+
+        ArchivedAccountsRecyclerViewAdapter.ViewHolder holder
+                = new ArchivedAccountsRecyclerViewAdapter.ViewHolder(Objects.requireNonNull(viewRule.retrieveViewBinding()));
+
 
         for (int type=Account.BANK; type <= Account.OTHER; type++) {
             testAccount.setType(type);
-            scenario.onActivity(activity ->
-                    holder[0].setAccountData(testAccount));
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                    holder.setAccountData(testAccount));
             onView(withId(R.id.archived_account_card_icon))
                     .check(matches(
                         withTagValue(

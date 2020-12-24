@@ -7,16 +7,16 @@ import org.junit.runner.RunWith;
 
 import java.math.BigDecimal;
 import java.util.Locale;
+import java.util.Objects;
 
-import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.ViewScenarioRule;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
 import io.github.alansanchezp.gnomy.databinding.LayoutAccountCardBinding;
-import io.github.alansanchezp.gnomy.dummy.DummyActivity;
 import io.github.alansanchezp.gnomy.ui.account.AccountRecyclerViewAdapter;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 
@@ -36,8 +36,8 @@ public class AccountRecyclerViewHolderInstrumentedTest {
     static final AccountWithAccumulated testTodayAccumulated = mock(AccountWithAccumulated.class);
 
     @Rule
-    public final ViewScenarioRule viewRule =
-            new ViewScenarioRule(R.layout.layout_account_card);
+    public final ViewScenarioRule viewRule = new ViewScenarioRule(
+            LayoutAccountCardBinding.class);
 
     @BeforeClass
     public static void init_test_account_and_set_locale() {
@@ -57,15 +57,12 @@ public class AccountRecyclerViewHolderInstrumentedTest {
 
     @Test
     public void dynamic_balance_labels_are_correct() {
-        ActivityScenario<DummyActivity> scenario = viewRule.getScenario();
-        AccountRecyclerViewAdapter.ViewHolder[] holder = new AccountRecyclerViewAdapter.ViewHolder[1];
+        AccountRecyclerViewAdapter.ViewHolder holder =
+                new AccountRecyclerViewAdapter.ViewHolder(Objects.requireNonNull(viewRule.retrieveViewBinding()));
         testAccumulated.targetMonth = DateUtil.now();
-        scenario.onActivity(activity -> {
-            LayoutAccountCardBinding viewBinding = LayoutAccountCardBinding.inflate(
-                    activity.getLayoutInflater(), activity.findViewById(R.id.dummy_activity_root),true);
-            holder[0] = new AccountRecyclerViewAdapter.ViewHolder(viewBinding);
-            holder[0].setAccountData(testAccumulated, testTodayAccumulated);
-        });
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+            holder.setAccountData(testAccumulated, testTodayAccumulated));
 
         onView(withId(R.id.account_card_current_label))
                 .check(matches(withText(R.string.account_current_balance)));
@@ -74,8 +71,8 @@ public class AccountRecyclerViewHolderInstrumentedTest {
                 .check(matches(withText(R.string.account_projected_balance)));
 
         testAccumulated.targetMonth = DateUtil.now().minusMonths(1);
-        scenario.onActivity(activity ->
-                holder[0].setAccountData(testAccumulated, testTodayAccumulated));
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                holder.setAccountData(testAccumulated, testTodayAccumulated));
 
         onView(withId(R.id.account_card_current_label))
                 .check(matches(withText(R.string.account_current_balance)));
@@ -84,8 +81,8 @@ public class AccountRecyclerViewHolderInstrumentedTest {
                 .check(matches(withText(R.string.account_balance_end_of_month)));
 
         testAccumulated.targetMonth = DateUtil.now().plusMonths(1);
-        scenario.onActivity(activity ->
-                holder[0].setAccountData(testAccumulated, testTodayAccumulated));
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                holder.setAccountData(testAccumulated, testTodayAccumulated));
 
         onView(withId(R.id.account_card_current_label))
                 .check(matches(withText(R.string.account_current_balance)));
@@ -96,15 +93,12 @@ public class AccountRecyclerViewHolderInstrumentedTest {
 
     @Test
     public void account_information_is_displayed_in_card() {
-        ActivityScenario<DummyActivity> scenario = viewRule.getScenario();
-        AccountRecyclerViewAdapter.ViewHolder[] holder = new AccountRecyclerViewAdapter.ViewHolder[1];
+        AccountRecyclerViewAdapter.ViewHolder holder =
+                new AccountRecyclerViewAdapter.ViewHolder(Objects.requireNonNull(viewRule.retrieveViewBinding()));
         testAccumulated.targetMonth = DateUtil.now();
-        scenario.onActivity(activity -> {
-            LayoutAccountCardBinding viewBinding = LayoutAccountCardBinding.inflate(
-                    activity.getLayoutInflater(), activity.findViewById(R.id.dummy_activity_root),true);
-            holder[0] = new AccountRecyclerViewAdapter.ViewHolder(viewBinding);
-            holder[0].setAccountData(testAccumulated, testTodayAccumulated);
-        });
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                holder.setAccountData(testAccumulated, testTodayAccumulated));
 
         onView(withId(R.id.account_card_name))
                 .check(matches(withText(testAccumulated.account.getName())));
@@ -118,19 +112,14 @@ public class AccountRecyclerViewHolderInstrumentedTest {
 
     @Test
     public void account_icon_in_card_is_correct() {
-        ActivityScenario<DummyActivity> scenario = viewRule.getScenario();
-        AccountRecyclerViewAdapter.ViewHolder[] holder = new AccountRecyclerViewAdapter.ViewHolder[1];
-        scenario.onActivity(activity -> {
-            LayoutAccountCardBinding viewBinding = LayoutAccountCardBinding.inflate(
-                    activity.getLayoutInflater(), activity.findViewById(R.id.dummy_activity_root),true);
-            holder[0] = new AccountRecyclerViewAdapter.ViewHolder(viewBinding);
-        });
+        AccountRecyclerViewAdapter.ViewHolder holder =
+                new AccountRecyclerViewAdapter.ViewHolder(Objects.requireNonNull(viewRule.retrieveViewBinding()));
 
         for (int type=Account.BANK; type <= Account.OTHER; type++) {
             when(testAccumulated.account.getType()).thenReturn(type);
             testAccumulated.targetMonth = DateUtil.now();
-            scenario.onActivity(activity ->
-                    holder[0].setAccountData(testAccumulated, testTodayAccumulated));
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                    holder.setAccountData(testAccumulated, testTodayAccumulated));
             onView(withId(R.id.account_card_icon))
                     .check(matches(
                         withTagValue(
