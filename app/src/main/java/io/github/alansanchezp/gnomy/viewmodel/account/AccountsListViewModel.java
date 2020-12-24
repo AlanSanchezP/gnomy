@@ -89,8 +89,8 @@ public class AccountsListViewModel extends AndroidViewModel {
         mState.set(TAG_TARGET_TO_DELETE, targetId);
     }
 
-    public Single<Integer> delete(Account account) {
-        return mRepository.delete(account);
+    public Single<Integer> delete(int accountId) {
+        return mRepository.delete(accountId);
     }
 
     public Single<Integer> archive(int accountId) {

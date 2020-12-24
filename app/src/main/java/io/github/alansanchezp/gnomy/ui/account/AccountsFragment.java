@@ -302,7 +302,7 @@ public class AccountsFragment extends MainNavigationFragment<FragmentAccountsBin
 
     private void effectiveDeleteAccount(Account account) {
         mCompositeDisposable.add(
-                mListViewModel.delete(account)
+                mListViewModel.delete(account.getId())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(

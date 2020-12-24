@@ -55,11 +55,11 @@ public class AccountRepository {
         });
     }
 
-    public Single<Integer> delete(Account account) {
+    public Single<Integer> delete(int accountId) {
         return db.toSingleInTransaction(() -> {
-           int savedOrphans = accountDAO._savePotentiallyOrphanMirrorTransfers(account.getId());
-           savedOrphans += accountDAO._savePotentiallyOrphanTransfers(account.getId());
-           return accountDAO._delete(account) + savedOrphans;
+           int savedOrphans = accountDAO._savePotentiallyOrphanMirrorTransfers(accountId);
+           savedOrphans += accountDAO._savePotentiallyOrphanTransfers(accountId);
+           return accountDAO._delete(new Account(accountId)) + savedOrphans;
         });
     }
 
