@@ -11,7 +11,7 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.databinding.FragmentConfirmationDialogBinding;
+import io.github.alansanchezp.gnomy.databinding.DialogConfirmationBinding;
 import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 
 public class ConfirmationDialogFragment extends DialogFragment {
@@ -54,7 +54,7 @@ public class ConfirmationDialogFragment extends DialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        FragmentConfirmationDialogBinding $ = FragmentConfirmationDialogBinding.inflate(inflater, container, false);
+        DialogConfirmationBinding $ = DialogConfirmationBinding.inflate(inflater, container, false);
         Dialog dialog = getDialog();
 
         $.confirmationDialogMessage.setText(mMessage);

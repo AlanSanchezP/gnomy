@@ -20,7 +20,7 @@ import java.time.YearMonth;
 
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
-import io.github.alansanchezp.gnomy.databinding.FragmentAccountCardBinding;
+import io.github.alansanchezp.gnomy.databinding.LayoutAccountCardBinding;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
@@ -68,7 +68,7 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        FragmentAccountCardBinding viewBinding = FragmentAccountCardBinding.inflate(
+        LayoutAccountCardBinding viewBinding = LayoutAccountCardBinding.inflate(
                 LayoutInflater.from(parent.getContext()), parent, false);
         return new ViewHolder(viewBinding);
     }
@@ -107,9 +107,9 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private AccountWithAccumulated mItem;
         private final PopupMenu popup;
-        private final FragmentAccountCardBinding $;
+        private final LayoutAccountCardBinding $;
 
-        public ViewHolder(FragmentAccountCardBinding viewBinding) {
+        public ViewHolder(LayoutAccountCardBinding viewBinding) {
             super(viewBinding.getRoot());
             $ = viewBinding;
 

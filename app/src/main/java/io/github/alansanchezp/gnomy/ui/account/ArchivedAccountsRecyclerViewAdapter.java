@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.databinding.FragmentArchivedAccountCardBinding;
+import io.github.alansanchezp.gnomy.databinding.LayoutArchivedAccountCardBinding;
 import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 
 public class ArchivedAccountsRecyclerViewAdapter
@@ -31,7 +31,7 @@ public class ArchivedAccountsRecyclerViewAdapter
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        FragmentArchivedAccountCardBinding viewBinding = FragmentArchivedAccountCardBinding
+        LayoutArchivedAccountCardBinding viewBinding = LayoutArchivedAccountCardBinding
                 .inflate(LayoutInflater.from(parent.getContext()), parent, false);
         return new ViewHolder(viewBinding);
     }
@@ -54,9 +54,9 @@ public class ArchivedAccountsRecyclerViewAdapter
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         private Account mItem;
-        private final FragmentArchivedAccountCardBinding $;
+        private final LayoutArchivedAccountCardBinding $;
 
-        public ViewHolder(FragmentArchivedAccountCardBinding viewBinding) {
+        public ViewHolder(LayoutArchivedAccountCardBinding viewBinding) {
             super(viewBinding.getRoot());
             $ = viewBinding;
         }

@@ -31,7 +31,7 @@ import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.category.Category;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionFilters;
-import io.github.alansanchezp.gnomy.databinding.DialogFragmentTransactionFiltersBinding;
+import io.github.alansanchezp.gnomy.databinding.DialogTransactionFiltersBinding;
 import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
@@ -53,7 +53,7 @@ public class TransactionFiltersDialogFragment
     private static final String TAG_START_TIME_DIALOG = "TransactionfiltersDialogFragment.StartTimeDialog";
     private static final String TAG_END_TIME_DIALOG = "TransactionfiltersDialogFragment.EndTimeDialog";
     // Using jQuery syntax to make code more compact
-    private DialogFragmentTransactionFiltersBinding $;
+    private DialogTransactionFiltersBinding $;
     private final TransactionFiltersDialogInterface mListener;
     private MoneyTransactionFilters mFiltersInstance;
     private boolean mInitialTintingFlag = false;
@@ -89,7 +89,7 @@ public class TransactionFiltersDialogFragment
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        $ = DialogFragmentTransactionFiltersBinding.inflate(inflater, container, false);
+        $ = DialogTransactionFiltersBinding.inflate(inflater, container, false);
         View view = $.getRoot();
         SingleClickViewHolder<Button> applyFiltersBtn = new SingleClickViewHolder<>($.filtersDialogApplyBtn);
         if (mFiltersInstance == null)

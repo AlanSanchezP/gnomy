@@ -15,13 +15,13 @@ import androidx.core.content.ContextCompat;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
-import io.github.alansanchezp.gnomy.databinding.FragmentTransactionCardBinding;
+import io.github.alansanchezp.gnomy.databinding.LayoutTransactionCardBinding;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 
 public class TransactionItem
-        extends BindableItem<FragmentTransactionCardBinding> {
+        extends BindableItem<LayoutTransactionCardBinding> {
     private final TransactionDisplayData mItem;
 
     public TransactionItem(TransactionDisplayData item) {
@@ -30,12 +30,12 @@ public class TransactionItem
 
     @NonNull
     @Override
-    protected FragmentTransactionCardBinding initializeViewBinding(@NonNull View view) {
-        return FragmentTransactionCardBinding.bind(view);
+    protected LayoutTransactionCardBinding initializeViewBinding(@NonNull View view) {
+        return LayoutTransactionCardBinding.bind(view);
     }
 
     @Override
-    public void bind(@NonNull FragmentTransactionCardBinding viewBinding, int position) {
+    public void bind(@NonNull LayoutTransactionCardBinding viewBinding, int position) {
         Context context = viewBinding.getRoot().getContext();
         int iconResId;
         int iconBgColor;
@@ -69,10 +69,10 @@ public class TransactionItem
 
     @Override
     public int getLayout() {
-        return R.layout.fragment_transaction_card;
+        return R.layout.layout_transaction_card;
     }
 
-    private void setAmountText(FragmentTransactionCardBinding viewBinding)
+    private void setAmountText(LayoutTransactionCardBinding viewBinding)
             throws GnomyCurrencyException {
         // TODO: Best format for incomes and expenses?
         //  Options are:

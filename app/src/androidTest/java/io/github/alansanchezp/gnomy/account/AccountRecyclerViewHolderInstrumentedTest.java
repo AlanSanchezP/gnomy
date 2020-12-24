@@ -15,7 +15,7 @@ import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.ViewScenarioRule;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
-import io.github.alansanchezp.gnomy.databinding.FragmentAccountCardBinding;
+import io.github.alansanchezp.gnomy.databinding.LayoutAccountCardBinding;
 import io.github.alansanchezp.gnomy.dummy.DummyActivity;
 import io.github.alansanchezp.gnomy.ui.account.AccountRecyclerViewAdapter;
 import io.github.alansanchezp.gnomy.util.DateUtil;
@@ -37,7 +37,7 @@ public class AccountRecyclerViewHolderInstrumentedTest {
 
     @Rule
     public final ViewScenarioRule viewRule =
-            new ViewScenarioRule(R.layout.fragment_account_card);
+            new ViewScenarioRule(R.layout.layout_account_card);
 
     @BeforeClass
     public static void init_test_account_and_set_locale() {
@@ -61,7 +61,7 @@ public class AccountRecyclerViewHolderInstrumentedTest {
         AccountRecyclerViewAdapter.ViewHolder[] holder = new AccountRecyclerViewAdapter.ViewHolder[1];
         testAccumulated.targetMonth = DateUtil.now();
         scenario.onActivity(activity -> {
-            FragmentAccountCardBinding viewBinding = FragmentAccountCardBinding.inflate(
+            LayoutAccountCardBinding viewBinding = LayoutAccountCardBinding.inflate(
                     activity.getLayoutInflater(), activity.findViewById(R.id.dummy_activity_root),true);
             holder[0] = new AccountRecyclerViewAdapter.ViewHolder(viewBinding);
             holder[0].setAccountData(testAccumulated, testTodayAccumulated);
@@ -100,7 +100,7 @@ public class AccountRecyclerViewHolderInstrumentedTest {
         AccountRecyclerViewAdapter.ViewHolder[] holder = new AccountRecyclerViewAdapter.ViewHolder[1];
         testAccumulated.targetMonth = DateUtil.now();
         scenario.onActivity(activity -> {
-            FragmentAccountCardBinding viewBinding = FragmentAccountCardBinding.inflate(
+            LayoutAccountCardBinding viewBinding = LayoutAccountCardBinding.inflate(
                     activity.getLayoutInflater(), activity.findViewById(R.id.dummy_activity_root),true);
             holder[0] = new AccountRecyclerViewAdapter.ViewHolder(viewBinding);
             holder[0].setAccountData(testAccumulated, testTodayAccumulated);
@@ -121,7 +121,7 @@ public class AccountRecyclerViewHolderInstrumentedTest {
         ActivityScenario<DummyActivity> scenario = viewRule.getScenario();
         AccountRecyclerViewAdapter.ViewHolder[] holder = new AccountRecyclerViewAdapter.ViewHolder[1];
         scenario.onActivity(activity -> {
-            FragmentAccountCardBinding viewBinding = FragmentAccountCardBinding.inflate(
+            LayoutAccountCardBinding viewBinding = LayoutAccountCardBinding.inflate(
                     activity.getLayoutInflater(), activity.findViewById(R.id.dummy_activity_root),true);
             holder[0] = new AccountRecyclerViewAdapter.ViewHolder(viewBinding);
         });
