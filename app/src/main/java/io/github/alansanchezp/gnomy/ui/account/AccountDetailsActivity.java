@@ -154,10 +154,6 @@ public class AccountDetailsActivity
         mFABVH.allowClicks();
     }
 
-    protected int getLayoutResourceId() {
-        return R.layout.activity_account_details;
-    }
-
     protected boolean displayDialogOnBackPress() {
         return false;
     }

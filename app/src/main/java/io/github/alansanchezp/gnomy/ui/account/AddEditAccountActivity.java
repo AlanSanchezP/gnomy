@@ -105,10 +105,6 @@ public class AddEditAccountActivity
                 onInitialValueEditTextChanges(s.toString())));
     }
 
-    protected int getLayoutResourceId() {
-        return R.layout.activity_add_edit_account;
-    }
-
     protected boolean displayDialogOnBackPress() {
         return true;
     }

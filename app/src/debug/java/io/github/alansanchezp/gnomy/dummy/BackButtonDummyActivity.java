@@ -19,11 +19,6 @@ public class BackButtonDummyActivity
     }
 
     @Override
-    protected int getLayoutResourceId() {
-        return R.layout.d_activity_empty;
-    }
-
-    @Override
     protected boolean displayDialogOnBackPress() {
         return true;
     }

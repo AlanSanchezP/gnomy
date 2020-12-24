@@ -67,10 +67,6 @@ public class AccountBalanceHistoryActivity
                 .observe(this, this::onAccumulatedBalanceChanged);
     }
 
-    protected int getLayoutResourceId() {
-        return R.layout.activity_account_history;
-    }
-
     protected boolean displayDialogOnBackPress() {
         return false;
     }

@@ -206,11 +206,6 @@ public class AddEditTransactionActivity
     }
 
     @Override
-    protected int getLayoutResourceId() {
-        return R.layout.activity_add_edit_transaction;
-    }
-
-    @Override
     protected boolean displayDialogOnBackPress() {
         return true;
     }

@@ -84,11 +84,6 @@ public class MainActivity
             Log.e("MainActivity", "tintNavigationElements: Why is menu not collapsed?", npe);
         }
     }
-
-    protected int getLayoutResourceId() {
-        return R.layout.activity_main;
-    }
-
     private void onFABClick(View v) {
         mViewModel.notifyFABClick((FloatingActionButton) v);
     }

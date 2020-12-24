@@ -56,6 +56,7 @@ public abstract class GnomyActivity<B extends ViewBinding>
                 IllegalAccessException |
                 InvocationTargetException e) {
             Log.w("GnomyActivity", "onCreate: Failed to initialize ViewBinding object. ", e);
+            if (getLayoutResourceId() == null) throw new IllegalStateException("No layout id was provided as an alternative to view binding.");
             setContentView(getLayoutResourceId());
         }
 
@@ -130,7 +131,15 @@ public abstract class GnomyActivity<B extends ViewBinding>
         // @Override to implement custom actions
     }
 
-    protected abstract int getLayoutResourceId();
+    /**
+     * Returns a layout resource id to use only when view binding is,
+     * for some reason, not desired in the concrete Activity.
+     *
+     * @return  Layout id to use.
+     */
+    protected Integer getLayoutResourceId() {
+        return null;
+    }
 
     private Class<B> getBindingClass() {
         Class<B> result = null;
