@@ -3,10 +3,8 @@ package io.github.alansanchezp.gnomy.viewmodel.transaction;
 import android.app.Application;
 
 import java.time.YearMonth;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.NavigableMap;
-import java.util.TreeMap;
+import java.util.Objects;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -23,8 +21,6 @@ import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionReposit
 import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
 import io.reactivex.Single;
 
-import static io.github.alansanchezp.gnomy.util.DateUtil.getDayId;
-
 public class TransactionsListViewModel extends AndroidViewModel {
     private static final String TAG_FILTERS = "TransactionsListViewModel.TransactionFilters";
     private static final String TAG_TARGET_TO_DELETE = "TransactionsListVM.TargetToDelete";
@@ -36,7 +32,6 @@ public class TransactionsListViewModel extends AndroidViewModel {
     private LiveData<List<TransactionDisplayData>> mTransactions;
     private LiveData<List<Account>> mAccounts;
     private LiveData<List<Category>> mCategories;
-    private LiveData<NavigableMap<Integer, List<TransactionDisplayData>>> mTransactionGroups;
     private MutableLiveData<MoneyTransactionFilters> mFilters;
 
     public TransactionsListViewModel(Application application, SavedStateHandle savedStateHandle) {
@@ -61,7 +56,7 @@ public class TransactionsListViewModel extends AndroidViewModel {
     private MoneyTransactionFilters bindMonthToFilters(YearMonth month) {
         // A change in month resets all filters but transaction type
         MoneyTransactionFilters filters = mSavedState.get(TAG_FILTERS);
-        int type = filters.getTransactionType();
+        int type = Objects.requireNonNull(filters).getTransactionType();
         filters = new MoneyTransactionFilters();
         filters.setTransactionType(type);
         filters.setMonth(month);
@@ -69,29 +64,10 @@ public class TransactionsListViewModel extends AndroidViewModel {
         return filters;
     }
 
-    public LiveData<NavigableMap<Integer, List<TransactionDisplayData>>> getGroupsByDay() {
-        if (mTransactionGroups == null) {
-            mTransactionGroups = Transformations.map(mTransactions, a -> {
-                NavigableMap<Integer, List<TransactionDisplayData>> map = new TreeMap<>();
-                if (a == null || a.isEmpty()) return map;
-                for (TransactionDisplayData item : a) {
-                    Integer dayOfMonth = getDayId(item.transaction.getDate());
-                    List<TransactionDisplayData> dayList = map.get(dayOfMonth);
-                    if (dayList == null) {
-                        dayList = new ArrayList<>();
-                        map.put(dayOfMonth, dayList);
-                    }
-                    dayList.add(item);
-                }
-                if (mFilters.getValue().getSortingMethod() == MoneyTransactionFilters.MOST_RECENT) {
-                    return map.descendingMap();
-                } else {
-                    return map;
-                }
-            });
-        }
-        return mTransactionGroups;
+    public LiveData<List<TransactionDisplayData>> getTransactionsList() {
+        return mTransactions;
     }
+
     public int getTargetIdToDelete() {
         if (mSavedState.get(TAG_TARGET_TO_DELETE) == null) {
             setTargetIdToDelete(0);
@@ -127,7 +103,7 @@ public class TransactionsListViewModel extends AndroidViewModel {
 
     public void setTransactionsType(int type) {
         MoneyTransactionFilters newFilters = mFilters.getValue();
-        newFilters.setTransactionType(type);
+        Objects.requireNonNull(newFilters).setTransactionType(type);
         applyFilters(newFilters);
     }
 

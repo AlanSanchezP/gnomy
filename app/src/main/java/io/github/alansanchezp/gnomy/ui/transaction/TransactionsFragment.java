@@ -15,9 +15,9 @@ import com.xwray.groupie.Item;
 import com.xwray.groupie.Section;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.NavigableMap;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -99,7 +99,7 @@ public class TransactionsFragment
 
         mViewModel.bindMonth(mSharedViewModel.activeMonth);
         mViewModel.getFilters().observe(getViewLifecycleOwner(), this::onFiltersChanged);
-        mViewModel.getGroupsByDay().observe(getViewLifecycleOwner(), this::onTransactionsMapChanged);
+        mViewModel.getTransactionsList().observe(getViewLifecycleOwner(), this::onTransactionsListChanged);
     }
 
     private void onFiltersChanged(MoneyTransactionFilters filters) {
@@ -205,30 +205,46 @@ public class TransactionsFragment
     public void onMonthChanged(YearMonth month) {
     }
 
-    private void onTransactionsMapChanged(NavigableMap<Integer, List<TransactionDisplayData>> map) {
+    private void onTransactionsListChanged(final List<TransactionDisplayData> transactions) {
         mAdapter.clear();
         // Both getCurrentFilters() and getActiveMonth() should never return null
         // as the arrival of a new set of items implies those two LiveData objects
         // already have some value on them.
         boolean isSimpleFilter = mViewModel.getCurrentFilters().isSimpleFilterWithMonth(
                 mSharedViewModel.activeMonth.getValue());
-        for (List<TransactionDisplayData> list : map.values()) {
+
+        if (!transactions.isEmpty()) {
+            // Init data holders
+            int daySectionId = DateUtil.getDayId(transactions.get(0).transaction.getDate());
             Section daySection = new Section();
             BigDecimal dayTotal = BigDecimalUtil.ZERO;
-            String dayName;
-            if (isSimpleFilter)
-                dayName = DateUtil.getDayString(list.get(0).transaction.getDate());
-            else
-                dayName = DateUtil.getOffsetDateTimeString(list.get(0).transaction.getDate(), false);
-            for (TransactionDisplayData item : list) {
-                // TODO: Use global currency during total calculation as default
+            String daySectionName = getDayGroupName(transactions.get(0).transaction.getDate(), isSimpleFilter);
+
+            for (TransactionDisplayData item : transactions) {
+                // Retrieve current item day id
+                int itemDayId = DateUtil.getDayId(item.transaction.getDate());
+
+                // If current item's day isn't the same as last item, add section to adapter
+                //  and reset data holders
+                if (itemDayId != daySectionId) {
+                    daySection.setHeader(new TransactionGroupHeader(daySectionName, dayTotal));
+                    mAdapter.add(daySection);
+
+                    daySectionId = itemDayId;
+                    daySection = new Section();
+                    dayTotal = BigDecimalUtil.ZERO;
+                    daySectionName = getDayGroupName(item.transaction.getDate(), isSimpleFilter);
+                }
+
+                // Add the current item to the day's group
                 daySection.add(new TransactionItem(item));
                 if (item.transaction.getType() == MoneyTransaction.INCOME)
                     dayTotal = dayTotal.add(item.transaction.getCalculatedValue());
                 else if (item.transaction.getType() == MoneyTransaction.EXPENSE)
                     dayTotal = dayTotal.subtract(item.transaction.getCalculatedValue());
             }
-            daySection.setHeader(new TransactionGroupHeader(dayName, dayTotal));
+            // Insert last generated section (it never entered inner if statement)
+            daySection.setHeader(new TransactionGroupHeader(daySectionName, dayTotal));
             mAdapter.add(daySection);
         }
     }
@@ -243,6 +259,23 @@ public class TransactionsFragment
                                         mViewModel.setTargetIdToDelete(0),
                                 throwable ->
                                         Toast.makeText(getContext(), R.string.generic_data_error, Toast.LENGTH_LONG).show()));
+    }
+
+    /**
+     * Generates the header title for a group of transactions.
+     * Transactions are grouped by day.
+     *
+     * @param groupDate             OffsetDateTime representing the day to group.
+     * @param isLimitedToOneMonth   If true, the generated String will use a friendly
+     *                              format with the value of dayOfMonth from groupDate.
+     *                              If false, will use a YY/MM/DD string.
+     * @return                      Generated string.
+     */
+    private String getDayGroupName(OffsetDateTime groupDate, boolean isLimitedToOneMonth) {
+        if (isLimitedToOneMonth)
+            return DateUtil.getDayString(groupDate);
+        else
+            return DateUtil.getOffsetDateTimeString(groupDate, false);
     }
 
     /* INTERFACE METHODS */

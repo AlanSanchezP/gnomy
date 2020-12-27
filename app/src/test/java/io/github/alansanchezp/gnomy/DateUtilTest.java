@@ -118,12 +118,12 @@ public class DateUtilTest {
     @Test
     public void day_id_are_correct() {
         OffsetDateTime dateTime = OffsetDateTime.parse("2020-01-01T00:00:00.00Z");
-        assertEquals(Integer.valueOf(20200101), DateUtil.getDayId(dateTime));
+        assertEquals(20200101, DateUtil.getDayId(dateTime));
 
         dateTime = OffsetDateTime.parse("2000-01-31T00:00:00.00Z");
-        assertEquals(Integer.valueOf(20000131), DateUtil.getDayId(dateTime));
+        assertEquals(20000131, DateUtil.getDayId(dateTime));
 
         dateTime = OffsetDateTime.parse("1995-12-20T00:00:00.00Z");
-        assertEquals(Integer.valueOf(19951220), DateUtil.getDayId(dateTime));
+        assertEquals(19951220, DateUtil.getDayId(dateTime));
     }
 }
