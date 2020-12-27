@@ -2,18 +2,12 @@ package io.github.alansanchezp.gnomy.ui;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.View;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.Objects;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -38,26 +32,62 @@ public abstract class GnomyActivity<B extends ViewBinding>
     protected int mThemeTextColor;
     protected final CompositeDisposable mCompositeDisposable
             = new CompositeDisposable();
+    protected final Integer mMenuResourceId;
+    protected final ActivityViewBindingInflater<B> mViewBindingInflater;
+    protected final Integer mLayoutResourceId;
     protected B $;
+
+    /**
+     * Creates a new instance, initializing class fields and specifying
+     * that ViewBinding will be used.
+     *
+     * @param menuResourceId                    Menu to use in the appbar.
+     *                                          Set to null if no menu is required.
+     * @param viewBindingInflater               Inflater method to retrieve the ViewBinding object.
+     *                                          In order to avoid using Java reflection, this must be
+     *                                          provided by each child class. Lambda method
+     *                                          references can be used as follows:
+     *                                          ViewBindingClass::inflate
+     */
+    protected GnomyActivity(@Nullable Integer menuResourceId,
+                            @NonNull ActivityViewBindingInflater<B> viewBindingInflater) {
+        super();
+        mMenuResourceId = menuResourceId;
+        mViewBindingInflater = viewBindingInflater;
+        mLayoutResourceId = null;
+    }
+
+    /**
+     * Creates a new instance, initializing class fields and specifying
+     * that traditional inflater method (with R.layout.ID) will be used.
+     * Not recommended, but available if needed.
+     *
+     * @param menuResourceId                    Menu to use in the host appbar.
+     *                                          Set to null if no menu is required.
+     * @param layoutResourceId                  Layout resource id that will be used to
+     *                                          inflate the Fragment View hierarchy.
+     */
+    @SuppressWarnings("unused")
+    protected GnomyActivity(@Nullable Integer menuResourceId,
+                            @NonNull Integer layoutResourceId) {
+        super();
+        mMenuResourceId = menuResourceId;
+        mLayoutResourceId = layoutResourceId;
+        mViewBindingInflater = null;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getSupportFragmentManager().setFragmentFactory(getFragmentFactory());
         super.onCreate(savedInstanceState);
-        try {
-            Class<B> clazz = getBindingClass();
-            Method inflate = clazz.getMethod("inflate", LayoutInflater.class);
-            //noinspection unchecked
-            $ = (B) inflate.invoke(null, getLayoutInflater());
-            View v = Objects.requireNonNull($).getRoot();
-            setContentView(v);
-        } catch (NullPointerException |
-                NoSuchMethodException |
-                IllegalAccessException |
-                InvocationTargetException e) {
-            Log.w("GnomyActivity", "onCreate: Failed to initialize ViewBinding object. ", e);
-            if (getLayoutResourceId() == null) throw new IllegalStateException("No layout id was provided as an alternative to view binding.");
-            setContentView(getLayoutResourceId());
+
+        if (mViewBindingInflater != null) {
+            $ = mViewBindingInflater.inflateViewBinding(getLayoutInflater());
+            setContentView($.getRoot());
+        } else if (mLayoutResourceId != null) {
+            setContentView(mLayoutResourceId);
+        } else {
+            throw new RuntimeException("Activity must provide either a ViewBinding inflater or a layout resource id.");
         }
 
         mAppbar = findViewById(R.id.custom_appbar);
@@ -67,6 +97,8 @@ public abstract class GnomyActivity<B extends ViewBinding>
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         mMenu = menu;
+        if (mMenuResourceId != null)
+            getMenuInflater().inflate(mMenuResourceId, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -132,25 +164,18 @@ public abstract class GnomyActivity<B extends ViewBinding>
     }
 
     /**
-     * Returns a layout resource id to use only when view binding is,
-     * for some reason, not desired in the concrete Activity.
+     * Helper interface to dynamically inflate a layout using ViewBinding.
+     * Intended to wrap a ViewBindingSubClass.inflate method.
      *
-     * @return  Layout id to use.
+     * @param <B>   Target ViewBinding subclass
      */
-    protected Integer getLayoutResourceId() {
-        return null;
-    }
-
-    private Class<B> getBindingClass() {
-        Class<B> result = null;
-        Type type = this.getClass().getGenericSuperclass();
-
-        if (type instanceof ParameterizedType) {
-            ParameterizedType pt = (ParameterizedType) type;
-            Type[] fieldArgTypes = pt.getActualTypeArguments();
-            //noinspection unchecked
-            result = (Class<B>) fieldArgTypes[0];
-        }
-        return result;
+    protected interface ActivityViewBindingInflater<B extends ViewBinding> {
+        /**
+         * Wrapper for ViewBindingSubClass.inflate method.
+         *
+         * @param inflater          LayoutInflater to use.
+         */
+        @NonNull
+        B inflateViewBinding(@NonNull LayoutInflater inflater);
     }
 }

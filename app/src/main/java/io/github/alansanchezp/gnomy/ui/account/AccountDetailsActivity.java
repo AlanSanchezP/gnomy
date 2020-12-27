@@ -44,6 +44,10 @@ public class AccountDetailsActivity
     private AccountViewModel mAccountViewModel;
     private Account mAccount;
 
+    public AccountDetailsActivity() {
+        super(R.menu.account_details_menu, false, ActivityAccountDetailsBinding::inflate);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,7 +79,6 @@ public class AccountDetailsActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean superResponse = super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.account_details_menu, menu);
         toggleMenuItems();
         tintMenuItems();
 
@@ -152,10 +155,6 @@ public class AccountDetailsActivity
     protected void enableActions() {
         mSeeMoreBtnVH.allowClicks();
         mFABVH.allowClicks();
-    }
-
-    protected boolean displayDialogOnBackPress() {
-        return false;
     }
 
     public void onFABClick(View v) {

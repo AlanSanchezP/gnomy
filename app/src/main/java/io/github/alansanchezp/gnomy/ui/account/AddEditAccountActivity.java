@@ -47,6 +47,10 @@ public class AddEditAccountActivity
     private SingleClickViewHolder<ImageButton> mColorPickerBtnVH;
     private SingleClickViewHolder<FloatingActionButton> mFABVH;
 
+    public AddEditAccountActivity() {
+        super(null,true, ActivityAddEditAccountBinding::inflate);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,10 +107,6 @@ public class AddEditAccountActivity
                 onAccountNameEditTextChanges(s.toString())));
         $.addeditAccountInitialValueInput.addTextChangedListener(onlyOnTextChanged((s, start, count, after) ->
                 onInitialValueEditTextChanges(s.toString())));
-    }
-
-    protected boolean displayDialogOnBackPress() {
-        return true;
     }
 
     @Override

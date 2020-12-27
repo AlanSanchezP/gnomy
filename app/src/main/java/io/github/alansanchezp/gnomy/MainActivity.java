@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.view.MenuItem;
 
@@ -41,12 +40,15 @@ public class MainActivity
     private SingleClickViewHolder<FloatingActionButton> mFABVH;
     private MainActivityViewModel mViewModel;
 
+    public MainActivity() {
+        super(R.menu.main_activity_toolbar, ActivityMainBinding::inflate);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mFABVH = new SingleClickViewHolder<>($.mainFloatingActionButton);
         mFABVH.setOnClickListener(this::onFABClick);
-
         BottomNavigationView navigation = findViewById(R.id.navigation);
         NavHostFragment host = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.main_container);
         NavController navController = Objects.requireNonNull(host).getNavController();
@@ -61,12 +63,6 @@ public class MainActivity
         mViewModel.getShowOptionalNavigationElements().observe(this, this::toggleOptionalNavigationElements);
         mViewModel.getTitle().observe(this, this::setTitle);
         $.monthtoolbar.setViewModel(mViewModel);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_activity_toolbar, menu);
-        return super.onCreateOptionsMenu(menu);
     }
 
     @Override

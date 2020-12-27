@@ -78,6 +78,10 @@ public class AddEditTransactionActivity
     private List<Account> mAccountsList;
     private List<Category> mCategoriesList;
 
+    public AddEditTransactionActivity() {
+        super(null,true,ActivityAddEditTransactionBinding::inflate);
+    }
+
     @Override
     protected GnomyFragmentFactory getFragmentFactory() {
         return super.getFragmentFactory()
@@ -203,11 +207,6 @@ public class AddEditTransactionActivity
         ViewTintingUtil
                 .tintSwitch($.addeditTransactionMarkAsDone, mThemeColor);
 
-    }
-
-    @Override
-    protected boolean displayDialogOnBackPress() {
-        return true;
     }
 
     /* UI METHODS*/

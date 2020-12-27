@@ -14,10 +14,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import java.time.YearMonth;
@@ -42,16 +40,24 @@ import io.github.alansanchezp.gnomy.viewmodel.account.AccountsListViewModel;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-public class AccountsFragment extends MainNavigationFragment<FragmentAccountsBinding>
-        implements AccountRecyclerViewAdapter.OnListItemInteractionListener,
-        ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface,
-        ConfirmationDialogFragment.OnConfirmationDialogListener {
+public class AccountsFragment
+        extends MainNavigationFragment<FragmentAccountsBinding>
+        implements  AccountRecyclerViewAdapter.OnListItemInteractionListener,
+                    ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface,
+                    ConfirmationDialogFragment.OnConfirmationDialogListener {
 
     public static final String TAG_ARCHIVE_ACCOUNT_DIALOG = "AccountsFragment.ArchiveAccountDialog";
     public static final String TAG_DELETE_ACCOUNT_DIALOG = "AccountsFragment.DeleteAccountDialog";
     private AccountRecyclerViewAdapter mAdapter;
     private AccountsListViewModel mListViewModel;
     private Map<Integer, AccountWithAccumulated> mTodayAccumulatesMap;
+
+    public AccountsFragment() {
+        super(R.string.title_accounts,
+                R.menu.accounts_fragment_toolbar,
+                true,
+                FragmentAccountsBinding::inflate);
+    }
 
     private GnomyFragmentFactory getFragmentFactory() {
         return new GnomyFragmentFactory()
@@ -80,23 +86,14 @@ public class AccountsFragment extends MainNavigationFragment<FragmentAccountsBin
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = super.onCreateView(inflater,container,savedInstanceState);
-        assert view != null;
-        Context context = view.getContext();
-        RecyclerView recyclerView = $.itemsList;
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        RecyclerView recyclerView = $.itemsList;
+        recyclerView.setLayoutManager(new LinearLayoutManager($.getRoot().getContext()));
         recyclerView.setAdapter(mAdapter);
         recyclerView.setNestedScrollingEnabled(false);
 
-        return view;
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
         mListViewModel.bindMonth(mSharedViewModel.activeMonth);
         mListViewModel.getTodayAccumulatesList()
                 .observe(getViewLifecycleOwner(), this::onTodayAccumulatesListChanged);
@@ -126,22 +123,6 @@ public class AccountsFragment extends MainNavigationFragment<FragmentAccountsBin
     }
 
     /* CONCRETE METHODS INHERITED FROM ABSTRACT CLASS */
-
-    protected Integer getMenuResourceId() {
-        return R.menu.accounts_fragment_toolbar;
-    }
-
-    protected boolean withOptionalNavigationElements() {
-        return true;
-    }
-
-    protected int getThemeColor() {
-        return getResources().getColor(R.color.colorPrimary);
-    }
-
-    protected String getTitle() {
-        return getResources().getString(R.string.title_accounts);
-    }
 
     protected void tintMenuIcons() {
         mMenu.findItem(R.id.action_show_archived)

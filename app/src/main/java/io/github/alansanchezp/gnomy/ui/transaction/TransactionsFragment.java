@@ -6,10 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.xwray.groupie.GroupAdapter;
@@ -44,9 +42,10 @@ import io.github.alansanchezp.gnomy.viewmodel.transaction.TransactionsListViewMo
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-public class TransactionsFragment extends MainNavigationFragment<FragmentTransactionsBinding>
-    implements ConfirmationDialogFragment.OnConfirmationDialogListener,
-        TransactionFiltersDialogFragment.TransactionFiltersDialogInterface {
+public class TransactionsFragment
+        extends MainNavigationFragment<FragmentTransactionsBinding>
+        implements  ConfirmationDialogFragment.OnConfirmationDialogListener,
+                    TransactionFiltersDialogFragment.TransactionFiltersDialogInterface {
 
     private static final String TAG_DELETE_TRANSACTION_DIALOG = "TransactionsFragment.DeleteTransactionDialog";
     private static final String TAG_FILTERS_DIALOG = "TransactionsFragment.FiltersDialog";
@@ -56,6 +55,13 @@ public class TransactionsFragment extends MainNavigationFragment<FragmentTransac
     private TransactionsListViewModel mViewModel;
     private boolean mAllowClicks = true;
     private int mMainColor;
+
+    public TransactionsFragment() {
+        super(null,
+                R.menu.transactions_fragment_toolbar,
+                true,
+                FragmentTransactionsBinding::inflate);
+    }
 
     private GnomyFragmentFactory getFragmentFactory() {
         return new GnomyFragmentFactory()
@@ -85,20 +91,12 @@ public class TransactionsFragment extends MainNavigationFragment<FragmentTransac
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View v = super.onCreateView(inflater, container, savedInstanceState);
-
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         RecyclerView recyclerView = $.itemsList;
         recyclerView.setAdapter(mAdapter);
         recyclerView.setNestedScrollingEnabled(false);
 
-        return v;
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
         mViewModel.bindMonth(mSharedViewModel.activeMonth);
         mViewModel.getFilters().observe(getViewLifecycleOwner(), this::onFiltersChanged);
         mViewModel.getGroupsByDay().observe(getViewLifecycleOwner(), this::onTransactionsMapChanged);
@@ -172,26 +170,6 @@ public class TransactionsFragment extends MainNavigationFragment<FragmentTransac
     }
 
     /* CONCRETE METHODS INHERITED FROM ABSTRACT CLASS */
-
-    @Override
-    protected Integer getMenuResourceId() {
-        return R.menu.transactions_fragment_toolbar;
-    }
-
-    @Override
-    protected boolean withOptionalNavigationElements() {
-        return true;
-    }
-
-    @Override
-    protected int getThemeColor() {
-        return getResources().getColor(R.color.colorPrimary);
-    }
-
-    @Override
-    protected String getTitle() {
-        return  getResources().getString(R.string.title_transactions);
-    }
 
     @Override
     protected void tintMenuIcons() {

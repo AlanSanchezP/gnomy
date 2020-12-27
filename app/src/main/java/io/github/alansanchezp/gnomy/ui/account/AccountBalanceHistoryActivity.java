@@ -35,6 +35,10 @@ public class AccountBalanceHistoryActivity
     public static final String EXTRA_BG_COLOR = "AccountBalanceHistoryActivity.BgColor";
     private SingleClickViewHolder<Button> mCheckPendingButtonVH;
 
+    public AccountBalanceHistoryActivity() {
+        super(null, false, ActivityAccountHistoryBinding::inflate);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,10 +69,6 @@ public class AccountBalanceHistoryActivity
 
         accountBalanceHistoryViewModel.getAccumulatedAtMonth(accountId)
                 .observe(this, this::onAccumulatedBalanceChanged);
-    }
-
-    protected boolean displayDialogOnBackPress() {
-        return false;
     }
 
     public void onCheckPendingTransactionsClick(View v) {
