@@ -86,7 +86,7 @@ public class DateUtil {
         } else {
             pattern = "YYYY/MM/dd";
         }
-        return dateTime.format(DateTimeFormatter.ofPattern(pattern));
+        return dateTime.toLocalDateTime().format(DateTimeFormatter.ofPattern(pattern));
     }
 
     /**

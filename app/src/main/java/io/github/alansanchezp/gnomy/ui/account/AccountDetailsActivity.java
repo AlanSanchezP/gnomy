@@ -35,6 +35,8 @@ import io.github.alansanchezp.gnomy.viewmodel.account.AccountViewModel;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
+import static io.github.alansanchezp.gnomy.util.DateUtil.getOffsetDateTimeString;
+
 public class AccountDetailsActivity
         extends BackButtonActivity<ActivityAccountDetailsBinding> {
     public static final String EXTRA_ACCOUNT_ID = "AccountDetailsActivity.AccountId";
@@ -197,7 +199,7 @@ public class AccountDetailsActivity
 
         Drawable typeIcon = ContextCompat.getDrawable(this,
                 Account.getDrawableResourceId(awa.account.getType()));
-        String createdAtString = awa.account.getCreatedAt().toLocalDate().toString();
+        String createdAtString = getOffsetDateTimeString(awa.account.getCreatedAt(), false);
         String typeString = getString(
                 Account.getTypeNameResourceId(awa.account.getType())
         );
