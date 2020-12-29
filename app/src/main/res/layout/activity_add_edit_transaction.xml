@@ -84,55 +84,28 @@
                             android:textDirection="locale" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- TODO: Replace material spinner: This one doesn't actually show
-                            neither hints or labels, which is confusing, specially here
-                            that we have two Account spinners. -->
-
-                    <com.jaredrummler.materialspinner.MaterialSpinner
+                    <com.tiper.MaterialSpinner
                         android:id="@+id/addedit_transaction_from_account"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="15dp"
-                        android:height="50dp"
-                        android:backgroundTint="#FFFFFF"
-                        android:drawableStart="@drawable/ic_account_balance_black_24dp"
-                        android:drawableLeft="@drawable/ic_account_balance_black_24dp"
-                        android:drawablePadding="16dp"
                         android:hint="@string/transaction_from_account"
                         android:textColorHint="@color/colorTextSecondary"
-                        app:ms_padding_left="13dp"
-                        app:ms_padding_right="13dp"
-                        app:ms_text_color="@color/colorTextHighlight"
-                        tools:ignore="RtlHardcoded" />
+                        app:boxBackgroundColor="@color/colorSurface"
+                        app:startIconDrawable="@drawable/ic_account_balance_black_24dp"
+                        app:boxStrokeWidth="0dp" />
 
-                    <com.jaredrummler.materialspinner.MaterialSpinner
+                    <com.tiper.MaterialSpinner
                         android:id="@+id/addedit_transaction_to_account"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="15dp"
-                        android:height="50dp"
                         android:visibility="gone"
-                        android:backgroundTint="#FFFFFF"
-                        android:drawableStart="@drawable/ic_account_balance_black_24dp"
-                        android:drawableLeft="@drawable/ic_account_balance_black_24dp"
-                        android:drawablePadding="16dp"
                         android:hint="@string/transaction_to_account"
                         android:textColorHint="@color/colorTextSecondary"
-                        app:ms_padding_left="13dp"
-                        app:ms_padding_right="13dp"
-                        app:ms_text_color="@color/colorTextHighlight"
-                        tools:ignore="RtlHardcoded" />
-
-                    <TextView
-                        android:layout_height="wrap_content"
-                        android:layout_width="match_parent"
-                        android:textColor="@color/colorError"
-                        android:text="@string/transaction_error_transfer_destination_account"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:textAlignment="textEnd"
-                        android:visibility="gone"
-                        android:id="@+id/addedit_transaction_same_account_error" />
+                        app:boxBackgroundColor="@color/colorSurface"
+                        app:startIconDrawable="@drawable/ic_account_balance_black_24dp"
+                        app:boxStrokeWidth="0dp" />
 
                     <TextView
                         android:layout_height="wrap_content"
@@ -144,21 +117,16 @@
                         android:textAlignment="textEnd"
                         android:id="@+id/addedit_transaction_new_account" />
 
-                    <com.jaredrummler.materialspinner.MaterialSpinner
+                    <com.tiper.MaterialSpinner
                         android:id="@+id/addedit_transaction_category"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="15dp"
-                        android:height="50dp"
-                        android:drawableStart="@drawable/ic_baseline_category_24"
-                        android:drawableLeft="@drawable/ic_baseline_category_24"
-                        android:drawablePadding="16dp"
                         android:hint="@string/transaction_category"
                         android:textColorHint="@color/colorTextSecondary"
-                        app:ms_padding_left="13dp"
-                        app:ms_padding_right="13dp"
-                        app:ms_text_color="@color/colorTextHighlight"
-                        tools:ignore="RtlHardcoded" />
+                        app:boxBackgroundColor="@color/colorSurface"
+                        app:startIconDrawable="@drawable/ic_baseline_category_24"
+                        app:boxStrokeWidth="0dp" />
 
                     <TextView
                         android:layout_height="wrap_content"
@@ -235,22 +203,17 @@
                                 tools:ignore="RtlSymmetry" />
                         </com.google.android.material.textfield.TextInputLayout>
 
-                        <com.jaredrummler.materialspinner.MaterialSpinner
+                        <com.tiper.MaterialSpinner
                             android:id="@+id/addedit_transaction_currency"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="15dp"
                             android:height="50dp"
-                            android:backgroundTint="#FFFFFF"
-                            android:drawableStart="@drawable/ic_attach_money_black_24dp"
-                            android:drawableLeft="@drawable/ic_attach_money_black_24dp"
-                            android:drawablePadding="16dp"
-                            android:hint="@string/transaction_currency"
+                            android:hint="@string/account_currency"
                             android:textColorHint="@color/colorTextSecondary"
-                            app:ms_padding_left="13dp"
-                            app:ms_padding_right="13dp"
-                            app:ms_text_color="@color/colorTextHighlight"
-                            tools:ignore="RtlHardcoded" />
+                            app:boxBackgroundColor="@color/colorSurface"
+                            app:startIconDrawable="@drawable/ic_attach_money_black_24dp"
+                            app:boxStrokeWidth="0dp" />
 
                         <TextView
                             android:id="@+id/addedit_transaction_currency_cannot_change"

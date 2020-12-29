@@ -1,18 +1,23 @@
 package io.github.alansanchezp.gnomy.ui.transaction;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.maltaisn.calcdialog.CalcDialog;
+import com.tiper.MaterialSpinner;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.Timepoint;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -22,6 +27,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
@@ -32,6 +38,7 @@ import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.databinding.ActivityAddEditTransactionBinding;
 import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
 import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
+import io.github.alansanchezp.gnomy.ui.GnomySpinnerAdapter;
 import io.github.alansanchezp.gnomy.ui.account.AddEditAccountActivity;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
@@ -131,8 +138,11 @@ public class AddEditTransactionActivity
         LiveData<MoneyTransaction> ld = mViewModel.getTransaction(transactionId);
         if (ld == null) {
             MoneyTransaction transaction = new MoneyTransaction();
-            transaction.setDate(DateUtil.OffsetDateTimeNow());
             transaction.setType(mTransactionType);
+            transaction.setAccount(mViewModel.getSelectedAccount());
+            transaction.setCategory(mViewModel.getSelectedCategory());
+            if (mTransactionType == MoneyTransaction.TRANSFER)
+                transaction.setTransferDestinationAccount(mViewModel.getSelectedTransferAccount());
             onTransactionChanged(transaction);
         } else {
             mIsNewScreen = false;
@@ -206,6 +216,14 @@ public class AddEditTransactionActivity
                 ViewTintingUtil.tintFAB(v, fabBgColor, fabTextColor));
         ViewTintingUtil
                 .tintSwitch($.addeditTransactionMarkAsDone, mThemeColor);
+        $.addeditTransactionFromAccount.setBoxStrokeColor(mThemeColor);
+        $.addeditTransactionToAccount.setBoxStrokeColor(mThemeColor);
+        $.addeditTransactionCurrency.setBoxStrokeColor(mThemeColor);
+        $.addeditTransactionCategory.setBoxStrokeColor(mThemeColor);
+        $.addeditTransactionFromAccount.setHintTextColor(ColorStateList.valueOf(mThemeColor));
+        $.addeditTransactionToAccount.setHintTextColor(ColorStateList.valueOf(mThemeColor));
+        $.addeditTransactionCurrency.setHintTextColor(ColorStateList.valueOf(mThemeColor));
+        $.addeditTransactionCategory.setHintTextColor(ColorStateList.valueOf(mThemeColor));
 
     }
 
@@ -232,9 +250,18 @@ public class AddEditTransactionActivity
     private void setCurrencySpinner() {
         try {
             String[] currencies = CurrencyUtil.getDisplayArray();
-            $.addeditTransactionCurrency.setItems(currencies);
-            $.addeditTransactionCurrency.setOnItemSelectedListener((view, position, id, item) ->
-                    mTransaction.setCurrency(CurrencyUtil.getCurrencyCode(position)));
+            $.addeditTransactionCurrency.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, currencies));
+            $.addeditTransactionCurrency.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(@NotNull MaterialSpinner parent, @Nullable View view, int position, long id) {
+                    if (mTransaction == null) return; // Should only happen when spinner is restored
+                    mTransaction.setCurrency(CurrencyUtil.getCurrencyCode(position));
+                }
+
+                @Override
+                public void onNothingSelected(@NotNull MaterialSpinner parent) {
+                }
+            });
             // TODO: Use global default currency (WHEN IMPLEMENTED)
             if (mIsNewScreen) {
                 mTransaction.setCurrency("USD");
@@ -292,7 +319,7 @@ public class AddEditTransactionActivity
         mViewModel.setUserSelectedConfirmedStatus(transaction.isConfirmed());
         tryToForceConfirmedStatus();
         updateDateText();
-        if (mTransactionType != MoneyTransaction.TRANSFER) {
+        if (mTransactionType != MoneyTransaction.TRANSFER) { // This switch is disabled for transfers
             $.addeditTransactionMarkAsDone.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 mTransaction.setConfirmed(isChecked);
                 mViewModel.setUserSelectedConfirmedStatus(isChecked);
@@ -302,21 +329,32 @@ public class AddEditTransactionActivity
             $.addeditTransactionAmountInput.setText(transaction.getOriginalValue().toPlainString());
             $.addeditTransactionConceptInput.setText(transaction.getConcept());
             $.addeditTransactionNotesInput.setText(transaction.getNotes());
-            tryToDisplayContainer();
         }
+        attemptMixedDataSourceOperations();
     }
 
     private void onCategoriesListChanged(List<Category> categories) {
-        if (categories == null || categories.size() == 0)
+        if (categories == null || categories.isEmpty())
             throw new RuntimeException("Categories list is not meant to be empty.");
         mCategoriesList = categories;
-        $.addeditTransactionCategory.setItems(categories.toArray());
-        $.addeditTransactionCategory.setOnItemSelectedListener((view, position, id, item) ->
-                mTransaction.setCategory(categories.get(position).getId()));
-        if (mIsNewScreen)
-            mTransaction.setCategory(categories.get(0).getId());
-        else
-            tryToDisplayContainer();
+        GnomySpinnerAdapter<Category> adapter = new GnomySpinnerAdapter<>(this, categories);
+        $.addeditTransactionCategory.setAdapter(adapter);
+        $.addeditTransactionCategory.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(@NotNull MaterialSpinner parent, @Nullable View view, int position, long id) {
+                if (mTransaction == null) return;
+                parent.setErrorEnabled(false);
+                mTransaction.setCategory((int) id);
+                // Edit mode discards changes after Activity gets recreated to avoid accidental updates
+                if (mIsNewScreen) mViewModel.setSelectedCategory((int) id);
+                parent.setStartIconDrawable(adapter.getItemDrawable(position));
+            }
+
+            @Override
+            public void onNothingSelected(@NotNull MaterialSpinner parent) {
+            }
+        });
+        attemptMixedDataSourceOperations();
     }
 
     private void onAccountsListChanged(List<Account> _accounts) {
@@ -326,99 +364,124 @@ public class AddEditTransactionActivity
         else accounts = _accounts;
 
         mAccountsList = accounts;
-        $.addeditTransactionFromAccount.setItems(accounts.toArray());
-        // Clean after error
-        $.addeditTransactionFromAccount.setError(null);
-        $.addeditTransactionFromAccount.setHintTextColor(getResources().getColor(R.color.colorTextSecondary));
-        if (mTransactionType == MoneyTransaction.INCOME) {
-            $.addeditTransactionFromAccount.setHint(R.string.transaction_to_account);
-        } else {
-            $.addeditTransactionFromAccount.setHint(R.string.transaction_from_account);
-        }
+        GnomySpinnerAdapter<Account> adapter = new GnomySpinnerAdapter<>(this, accounts);
 
-        $.addeditTransactionFromAccount.setOnItemSelectedListener((view, position, id, item) -> {
-            setTransactionAccount((Account) item);
-            if (mTransactionType == MoneyTransaction.TRANSFER) {
-                $.addeditTransactionToAccount.setError(null);
-                $.addeditTransactionSameAccountError.setVisibility(View.GONE);
-                if (((Account) item).getId() == mTransaction.getTransferDestinationAccount()) {
-                    $.addeditTransactionToAccount.setError(getResources().getString(R.string.form_error));
-                    $.addeditTransactionSameAccountError.setVisibility(View.VISIBLE);
+        $.addeditTransactionFromAccount.setAdapter(adapter);
+        $.addeditTransactionFromAccount.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(@NotNull MaterialSpinner parent, @Nullable View view, int position, long id) {
+                if (mTransaction == null) return;
+                parent.setErrorEnabled(false);
+                Account item = accounts.get(position);
+                setTransactionAccount(item);
+                if (mTransactionType == MoneyTransaction.TRANSFER) {
+                    if ($.addeditTransactionToAccount.getError() != null &&
+                        $.addeditTransactionToAccount.getError().toString().equals(
+                                getResources().getString(R.string.transaction_error_transfer_destination_account)
+                        )) {
+                        // Keeps non-null account error
+                        $.addeditTransactionToAccount.setErrorEnabled(false);
+                    }
+                    if (mTransaction.getTransferDestinationAccount() != null &&
+                            (int) id == mTransaction.getTransferDestinationAccount()) {
+                        $.addeditTransactionToAccount.setError(getResources().getString(R.string.transaction_error_transfer_destination_account));
+                        $.addeditTransactionToAccount.getChildAt(1).setVisibility(View.VISIBLE);
+                    }
                 }
+                parent.setStartIconDrawable(adapter.getItemDrawable(position));
+            }
+
+            @Override
+            public void onNothingSelected(@NotNull MaterialSpinner parent) {
             }
         });
 
-        if(mTransactionType == MoneyTransaction.TRANSFER) {
+        if (mTransactionType == MoneyTransaction.TRANSFER) {
+            GnomySpinnerAdapter<Account> transferAdapter = new GnomySpinnerAdapter<>(this, accounts);
             if (accounts.size() > 1) {
-                $.addeditTransactionToAccount.setItems(accounts.toArray());
+                $.addeditTransactionToAccount.setAdapter(transferAdapter);
+                $.addeditTransactionToAccount.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(@NotNull MaterialSpinner parent, @Nullable View view, int position, long id) {
+                        if (mTransaction == null) return;
+                        parent.setErrorEnabled(false);
+                        Account item = accounts.get(position);
+                        setDestinationAccount(item);
+                        if ((int) id == mTransaction.getAccount()) {
+                            parent.setError(getResources().getString(R.string.transaction_error_transfer_destination_account));
+                            parent.getChildAt(1).setVisibility(View.VISIBLE);
+                        }
+                        parent.setStartIconDrawable(adapter.getItemDrawable(position));
+                    }
+
+                    @Override
+                    public void onNothingSelected(@NotNull MaterialSpinner parent) {
+                    }
+                });
             } else { // Send empty list that prevents ONE possible occurrence of same-account error
-                $.addeditTransactionToAccount.setItems(new ArrayList<>());
+                $.addeditTransactionToAccount.setAdapter(new GnomySpinnerAdapter<>(this, new ArrayList<>()));
                 mTransaction.setTransferDestinationAccount(null);
                 $.addeditTransactionToAccount.setOnItemSelectedListener(null);
             }
-            $.addeditTransactionSameAccountError.setVisibility(View.GONE);
-            $.addeditTransactionToAccount.setError(null);
-            $.addeditTransactionToAccount.setHintTextColor(getResources().getColor(R.color.colorTextSecondary));
-            $.addeditTransactionToAccount.setHint(R.string.transaction_to_account);
-            $.addeditTransactionToAccount.setOnItemSelectedListener((view, position, id, item) -> {
-                view.setError(null);
-                $.addeditTransactionSameAccountError.setVisibility(View.GONE);
-                setDestinationAccount((Account) item);
-                if (((Account) item).getId() == mTransaction.getAccount()) {
-                    view.setError(getResources().getString(R.string.form_error));
-                    $.addeditTransactionSameAccountError.setVisibility(View.VISIBLE);
-                }
-            });
-        }
-
-        if (mViewModel.accountsListHasArrivedBefore() && accounts.size() > 0) {
-            // Sets last account as selected
-            $.addeditTransactionFromAccount.setSelectedIndex(accounts.size() - 1);
-            setTransactionAccount(accounts.get(accounts.size() - 1));
-            if (mTransactionType == MoneyTransaction.TRANSFER &&
-                    mTransaction.getTransferDestinationAccount() == null) {
-                setDestinationAccount(accounts.get(0));
+            if (mViewModel.isExpectingNewAccount()) {
+                // Selects last inserted account
+                $.addeditTransactionToAccount.setSelection(mAccountsList.size() - 1);
+                mViewModel.notifyExpectingNewAccount(false);
+            } else if ($.addeditTransactionToAccount.getError() != null &&
+                    $.addeditTransactionToAccount.getError().toString().equals(
+                            getResources().getString(R.string.transaction_error_account)
+                    )) {
+                // Keeps same-account account error
+                $.addeditTransactionToAccount.setErrorEnabled(false);
             }
-        } else if (mIsNewScreen && accounts.size() > 0) { // Prevent IndexOutOfBoundsException
-            // Initially selected index is 0
-            setTransactionAccount(accounts.get(0));
-            if (mTransactionType == MoneyTransaction.TRANSFER) {
-                if (accounts.size() > 1) {
-                    setDestinationAccount(accounts.get(1));
-                    $.addeditTransactionToAccount.setSelectedIndex(1);
-                } else {
-                    setDestinationAccount(null);
-                }
-            }
+        } else if (mViewModel.isExpectingNewAccount()) {
+            // Selects last inserted account
+            $.addeditTransactionFromAccount.setSelection(mAccountsList.size() - 1);
+            mViewModel.notifyExpectingNewAccount(false);
         }
-        tryToDisplayContainer();
-        mViewModel.notifyAccountsListFirstArrival();
+        attemptMixedDataSourceOperations();
     }
 
     /* DATA MANAGEMENT */
 
     // TODO: MediatorLiveData is probably a better approach
-    private void tryToDisplayContainer() {
-        if (mIsNewScreen) return;
+    private void attemptMixedDataSourceOperations() {
         if (mAccountsList == null ||
                 mCategoriesList == null ||
                 mTransaction == null) return;
-        if (!mViewModel.accountsListHasArrivedBefore()) {
-            Account selectedAccount = mAccountsList.get(
-                    getItemIndexById(mAccountsList, mTransaction.getAccount()));
-            setTransactionAccount(selectedAccount);
-            if (mTransaction.getType() == MoneyTransaction.TRANSFER) {
+
+        if (mViewModel.isExpectingNewAccount() && !mAccountsList.isEmpty()) {
+            $.addeditTransactionFromAccount.setSelection(mAccountsList.size() - 1);
+            setTransactionAccount(mAccountsList.get(mAccountsList.size() - 1));
+            if (mTransactionType == MoneyTransaction.TRANSFER &&
+                    mTransaction.getTransferDestinationAccount() == null) {
+                setDestinationAccount(mAccountsList.get(0));
+            }
+            mViewModel.notifyExpectingNewAccount(false);
+        } else {
+            if (mTransaction.getAccount() != 0) {
+                Account selectedAccount = mAccountsList.get(
+                        getItemIndexById(mAccountsList, mTransaction.getAccount()));
+                setTransactionAccount(selectedAccount);
+                $.addeditTransactionFromAccount.setSelection(getItemIndexById(mAccountsList, mTransaction.getAccount()));
+            }
+            if (mTransaction.getType() == MoneyTransaction.TRANSFER &&
+                    mTransaction.getTransferDestinationAccount() != null) {
                 Account destinationAccount = mAccountsList.get(
                         getItemIndexById(mAccountsList, mTransaction.getTransferDestinationAccount()));
                 setDestinationAccount(destinationAccount);
-                $.addeditTransactionToAccount.setSelectedIndex(getItemIndexById(mAccountsList, mTransaction.getTransferDestinationAccount()));
+                $.addeditTransactionToAccount.setSelection(getItemIndexById(mAccountsList, mTransaction.getTransferDestinationAccount()));
             }
-            $.addeditTransactionCurrency.setSelectedIndex(CurrencyUtil.getCurrencyIndex(mTransaction.getCurrency()));
-            $.addeditTransactionFromAccount.setSelectedIndex(getItemIndexById(mAccountsList, mTransaction.getAccount()));
-            $.addeditTransactionCategory.setSelectedIndex(getItemIndexById(mCategoriesList, mTransaction.getCategory()));
+            $.addeditTransactionCurrency.setSelection(CurrencyUtil.getCurrencyIndex(mTransaction.getCurrency()));
         }
-        $.addeditTransactionBox.setVisibility(View.VISIBLE);
-        mFABVH.onView(this, v -> v.setVisibility(View.VISIBLE));
+
+        if (!mViewModel.isExpectingNewCategory() && !mCategoriesList.isEmpty()) {
+            $.addeditTransactionCategory.setSelection(getItemIndexById(mCategoriesList, mTransaction.getCategory()));
+        }
+        if (!mIsNewScreen) {
+            $.addeditTransactionBox.setVisibility(View.VISIBLE);
+            mFABVH.onView(this, v -> v.setVisibility(View.VISIBLE));
+        }
     }
 
     private void tryToForceConfirmedStatus() {
@@ -437,12 +500,8 @@ public class AddEditTransactionActivity
         }
     }
 
-    private void setOrIgnoreMinDate(Account account) {
-        if (mTransactionMinDate == null)
-            mTransactionMinDate = DateUtil.OffsetDateTimeNow();
-        if (mTransactionMinDate.isBefore(account.getCreatedAt())) {
-            mTransactionMinDate = account.getCreatedAt();
-        }
+    private void setOrIgnoreMinDate(@NonNull Account account) {
+        mTransactionMinDate = account.getCreatedAt();
         if (mTransactionMinDate.isAfter(mTransaction.getDate())) {
             mTransaction.setDate(mTransactionMinDate);
             tryToForceConfirmedStatus();
@@ -450,9 +509,33 @@ public class AddEditTransactionActivity
         }
     }
 
+    private void setOrIgnoreMinDate(Account originAccount, Account destinationAccount) {
+        if (originAccount == null && destinationAccount == null)
+            return;
+        if (originAccount == null) {
+            setOrIgnoreMinDate(destinationAccount);
+            return;
+        }
+        if (destinationAccount == null) {
+            setOrIgnoreMinDate(originAccount);
+            return;
+        }
+        Account newerAccount;
+        if (originAccount.getCreatedAt().compareTo(destinationAccount.getCreatedAt()) < 0) {
+            newerAccount = destinationAccount;
+        } else {
+            newerAccount = originAccount;
+        }
+        setOrIgnoreMinDate(newerAccount);
+    }
+
     private void setTransactionAccount(Account account) {
         mTransaction.setAccount(account.getId());
-        setOrIgnoreMinDate(account);
+        if (mIsNewScreen) mViewModel.setSelectedAccount(account.getId());
+        if (mTransactionType != MoneyTransaction.TRANSFER)
+            setOrIgnoreMinDate(account);
+        else
+            setOrIgnoreMinDate(account, (Account) $.addeditTransactionToAccount.getSelectedItem());
         setAccountCurrency(account);
     }
 
@@ -463,16 +546,18 @@ public class AddEditTransactionActivity
             account = new Account();
             account.setCreatedAt(DateUtil.OffsetDateTimeNow());
             mTransaction.setTransferDestinationAccount(null);
+            if (mIsNewScreen) mViewModel.setSelectedTransferAccount(null);
         }
-        else {
+        else if (account.getId() != 0){
             mTransaction.setTransferDestinationAccount(account.getId());
+            if (mIsNewScreen) mViewModel.setSelectedTransferAccount(account.getId());
         }
-        setOrIgnoreMinDate(account);
+        setOrIgnoreMinDate((Account) $.addeditTransactionFromAccount.getSelectedItem(), account);
     }
 
     private void setAccountCurrency(Account account) {
         if (mIsNewScreen)
-            $.addeditTransactionCurrency.setSelectedIndex(
+            $.addeditTransactionCurrency.setSelection(
                     CurrencyUtil.getCurrencyIndex(
                             account.getDefaultCurrency()));
     }
@@ -492,43 +577,41 @@ public class AddEditTransactionActivity
                 && amountString.length() > 0;
     }
 
-    private boolean validateAccountSpinners() {
-        if (mAccountsList == null || mAccountsList.size() == 0) {
-            // MaterialSpinner doesn't have custom setError() implementation,
-            //  and doesn't show the message, but espresso can still test it.
-            $.addeditTransactionFromAccount.setError(getResources().getString(R.string.transaction_error_account));
-            $.addeditTransactionFromAccount.setHintTextColor(getResources().getColor(R.color.colorError));
-            $.addeditTransactionFromAccount.setHint(R.string.transaction_error_account);
-            if (mTransactionType == MoneyTransaction.TRANSFER) {
-                $.addeditTransactionToAccount.setError(getResources().getString(R.string.transaction_error_account));
-                $.addeditTransactionToAccount.setHintTextColor(getResources().getColor(R.color.colorError));
-                $.addeditTransactionToAccount.setHint(R.string.transaction_error_account);
-            }
-            return false;
-        }
-        // Throwing exceptions instead of displaying errors because these events
-        //  are the result of a programmer's error, not mistakes from the user
+    private boolean validateAccounts() {
+        boolean anySpinnerIsNull = false;
+
         if (mTransaction.getAccount() == 0) {
-            throw new RuntimeException("Transaction object doesn't have an associated account.");
+            anySpinnerIsNull = true;
+            $.addeditTransactionFromAccount.setError(getResources().getString(R.string.transaction_error_account));
+            $.addeditTransactionFromAccount.getChildAt(1).setVisibility(View.VISIBLE);
         }
+
         if (mTransactionType == MoneyTransaction.TRANSFER) {
-            if (mTransaction.getTransferDestinationAccount() == null) {
+            if (mTransaction.getTransferDestinationAccount() == null || mTransaction.getTransferDestinationAccount() == 0) {
+                anySpinnerIsNull = true;
                 $.addeditTransactionToAccount.setError(getResources().getString(R.string.transaction_error_account));
-                $.addeditTransactionToAccount.setHintTextColor(getResources().getColor(R.color.colorError));
-                $.addeditTransactionToAccount.setHint(R.string.transaction_error_account);
-                return false;
+                $.addeditTransactionToAccount.getChildAt(1).setVisibility(View.VISIBLE);
             }
 
-            boolean differentAccounts = mTransaction.getAccount()
-                    != mTransaction.getTransferDestinationAccount();
-            if (differentAccounts) return true;
-            else {
-                $.addeditTransactionSameAccountError.setVisibility(View.VISIBLE);
+            if (anySpinnerIsNull) return false;
+
+            if (mTransaction.getAccount() == mTransaction.getTransferDestinationAccount()) {
                 $.addeditTransactionToAccount.setError(getResources().getString(R.string.transaction_error_transfer_destination_account));
+                $.addeditTransactionToAccount.getChildAt(1).setVisibility(View.VISIBLE);
                 return false;
             }
         } else if (mTransaction.getTransferDestinationAccount() != null) {
             throw new RuntimeException("Non-transfers cannot have a transfer destination account.");
+        }
+
+        return true;
+    }
+
+    private boolean validateCategory() {
+        if (mTransaction.getCategory() == 0) {
+            $.addeditTransactionCategory.setError(getResources().getString(R.string.transaction_error_category));
+            $.addeditTransactionCategory.getChildAt(1).setVisibility(View.VISIBLE);
+            return false;
         }
         return true;
     }
@@ -536,7 +619,7 @@ public class AddEditTransactionActivity
     private boolean validateDate() {
         if (mTransactionMinDate == null) return false;
         if(!mTransaction.getDate().isBefore(mTransactionMinDate)) {
-            $.addeditTransactionDate.setError(null);
+            $.addeditTransactionDate.setErrorEnabled(false);
             return true;
         }
         $.addeditTransactionDate.setError(getResources().getString(R.string.transaction_error_date));
@@ -545,10 +628,11 @@ public class AddEditTransactionActivity
 
     private void processData(View v) {
         boolean texFieldsAreValid = validateTextFields();
-        boolean selectedAccountsAreValid = validateAccountSpinners();
+        boolean accountsAreValid = validateAccounts();
         boolean selectedDateIsValid = validateDate();
+        boolean categoryIsValid = validateCategory();
 
-        if (texFieldsAreValid  && selectedAccountsAreValid && selectedDateIsValid) {
+        if (texFieldsAreValid  && accountsAreValid && selectedDateIsValid && categoryIsValid) {
             saveData();
         } else {
             Toast.makeText(this, getResources().getString(R.string.form_error), Toast.LENGTH_LONG).show();
@@ -640,11 +724,13 @@ public class AddEditTransactionActivity
     }
 
     private void openNewAccountActivity(View view) {
+        mViewModel.notifyExpectingNewAccount(true);
         Intent intent = new Intent(this, AddEditAccountActivity.class);
         startActivity(intent);
     }
 
     private void openNewCategoryActivity(View view) {
+        mViewModel.notifyExpectingNewCategory(true);
         Toast.makeText(this, getResources().getString(R.string.wip), Toast.LENGTH_LONG).show();
     }
 

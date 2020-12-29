@@ -6,16 +6,18 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import io.github.alansanchezp.gnomy.R;
+import io.github.alansanchezp.gnomy.ui.ISpinnerItem;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 
 @Entity(tableName = "accounts")
-public class Account {
+public class Account implements ISpinnerItem {
     @Ignore
     public static final int BANK = 1;
     @Ignore
@@ -245,5 +247,33 @@ public class Account {
     @NonNull
     public String toString() {
         return name;
+    }
+
+    @Nullable
+    @Override
+    @Ignore
+    public String getDrawableResourceName() {
+        if (id == 0) return null;
+        switch (type) {
+            case BANK:
+                return "ic_account_balance_black_24dp";
+            case INFORMAL:
+                return "ic_account_balance_piggy_black_24dp";
+            case SAVINGS:
+                return "ic_account_balance_savings_black_24dp";
+            case INVERSIONS:
+                return "ic_account_balance_inversion_black_24dp";
+            case CREDIT_CARD:
+                return "ic_account_balance_credit_card_black_24dp";
+            case OTHER:
+            default:
+                return "ic_account_balance_wallet_black_24dp";
+        }
+    }
+
+    @Override
+    @Ignore
+    public int getDrawableColor() {
+        return backgroundColor;
     }
 }

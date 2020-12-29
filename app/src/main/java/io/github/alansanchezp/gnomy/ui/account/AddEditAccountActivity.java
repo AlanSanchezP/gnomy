@@ -8,6 +8,7 @@ import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.databinding.ActivityAddEditAccountBinding;
 import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
+import io.github.alansanchezp.gnomy.ui.GnomySpinnerAdapter;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.android.InputFilterMinMax;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
@@ -27,13 +28,20 @@ import android.os.Bundle;
 import android.text.InputFilter;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.thebluealliance.spectrum.SpectrumDialog;
+import com.tiper.MaterialSpinner;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import static io.github.alansanchezp.gnomy.util.android.SimpleTextWatcherWrapper.onlyOnTextChanged;
@@ -131,10 +139,10 @@ public class AddEditAccountActivity
         mAddEditAccountViewModel.setAccountColor(account.getBackgroundColor());
         $.addeditAccountNameInput.setText(account.getName());
         $.addeditAccountInitialValueInput.setText(account.getInitialValue().toPlainString());
-        $.addeditAccountCurrency.setSelectedIndex(
+        $.addeditAccountCurrency.setSelection(
                 Arrays.asList(CurrencyUtil.getCurrencies()).indexOf(mAccount.getDefaultCurrency())
         );
-        $.addeditAccountType.setSelectedIndex(mAccount.getType() - 1);
+        $.addeditAccountType.setSelection(mAccount.getType() - 1);
         $.addeditAccountShowInHome.setChecked(account.isShowInDashboard());
         // Restore container visibility once all data has been initialized
         // TODO: How can we prevent Switch animation from triggering?
@@ -158,8 +166,6 @@ public class AddEditAccountActivity
 
         $.addeditAccountContainer.setBackgroundColor(color);
 
-        // TODO: There is a blink in both FAB and color picker button
-        //  that is sometimes noticeable.
         mFABVH.onView(this, v -> ViewTintingUtil.tintFAB(v, fabBgColor, fabTextColor));
         ViewTintingUtil
                 .monotintTextInputLayout($.addeditAccountName, mThemeTextColor);
@@ -173,6 +179,11 @@ public class AddEditAccountActivity
         ViewTintingUtil
                 .tintSwitch($.addeditAccountShowInHome, mThemeColor);
 
+        $.addeditAccountType.setBoxStrokeColor(mThemeColor);
+        $.addeditAccountType.setHintTextColor(ColorStateList.valueOf(mThemeColor));
+        $.addeditAccountCurrency.setBoxStrokeColor(mThemeColor);
+        $.addeditAccountCurrency.setHintTextColor(ColorStateList.valueOf(mThemeColor));
+
         // TODO: (Wishlist, not a big deal) How can we unify the ripple color with the one from FAB?
         mColorPickerBtnVH.onView(this, v -> {
             $.addeditAccountColorButton.setBackgroundTintList(ColorStateList.valueOf(mThemeColor));
@@ -183,10 +194,30 @@ public class AddEditAccountActivity
     private void initSpinners() {
         try {
             String[] currencies = CurrencyUtil.getDisplayArray();
-            String[] accountTypes = getResources().getStringArray(R.array.account_types);
+            String[] accountTypeNames = getResources().getStringArray(R.array.account_types);
+            List<AccountTypeItem> accountTypes = new ArrayList<>();
+            for(int i = 0; i < accountTypeNames.length; i++) {
+                accountTypes.add(new AccountTypeItem(i+1, accountTypeNames[i]));
+            }
+            GnomySpinnerAdapter<AccountTypeItem> typesAdapter = new GnomySpinnerAdapter<>(this, accountTypes);
 
-            $.addeditAccountCurrency.setItems(currencies);
-            $.addeditAccountType.setItems(accountTypes);
+            $.addeditAccountCurrency.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, currencies));
+            $.addeditAccountType.setAdapter(typesAdapter);
+            $.addeditAccountType.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(@NotNull MaterialSpinner parent, @Nullable View view, int position, long id) {
+                    $.addeditAccountType.setStartIconDrawable(typesAdapter.getItemDrawable(position));
+                }
+
+                @Override
+                public void onNothingSelected(@NotNull MaterialSpinner parent) {
+                }
+            });
+            if ($.addeditAccountCurrency.getSelectedItem() == null)
+                // TODO: Use global default currency
+                $.addeditAccountCurrency.setSelection(CurrencyUtil.getCurrencyIndex("USD"));
+            if ($.addeditAccountType.getSelectedItem() == null)
+                $.addeditAccountType.setSelection(0);
         } catch (GnomyCurrencyException e) {
             // This shouldn't happen
             Log.wtf("AddEditAccount", "setLists: CURRENCIES array triggers error", e);
@@ -217,8 +248,8 @@ public class AddEditAccountActivity
 
         if (texFieldsAreValid) {
             String currencyCode = CurrencyUtil.getCurrencyCode(
-                    $.addeditAccountCurrency.getSelectedIndex());
-            int accountType = $.addeditAccountType.getSelectedIndex() + 1;
+                    $.addeditAccountCurrency.getSelection());
+            int accountType = (int) $.addeditAccountType.getSelectedItemId();
             boolean showInDashboard = $.addeditAccountShowInHome.isChecked();
 
             saveData(currencyCode, accountType, showInDashboard);

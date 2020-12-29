@@ -150,6 +150,7 @@
     <string name="transaction_error_amount">Specified amount is not a valid number.</string>
     <string name="transaction_error_date">Transaction must happen after account creation date.</string>
     <string name="transaction_error_account">Account can\'t be null</string>
+    <string name="transaction_error_category">Category can\'t be null</string>
     <string name="transaction_error_transfer_destination_account">Origin and destination accounts can\'t be the same.</string>
     <string name="transaction_message_saved">Your transaction was saved correctly.</string>
     <string name="transaction_message_updated">Your transaction was updated correctly.</string>

@@ -1,6 +1,10 @@
 package io.github.alansanchezp.gnomy.ui.transaction;
 
 import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.view.LayoutInflater;
@@ -11,9 +15,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.tiper.MaterialSpinner;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.Timepoint;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -33,6 +40,7 @@ import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionFilters;
 import io.github.alansanchezp.gnomy.databinding.DialogTransactionFiltersBinding;
 import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
+import io.github.alansanchezp.gnomy.ui.GnomySpinnerAdapter;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
@@ -133,10 +141,19 @@ public class TransactionFiltersDialogFragment
 
         mListener.getAccountsLiveData().observe(getViewLifecycleOwner(), this::onAccountsListChanged);
         mListener.getCategoriesLiveData().observe(getViewLifecycleOwner(), this::onCategoriesListChanged);
-        $.filtersDialogSortingSpinner.setItems(getResources().getStringArray(R.array.transaction_filters_sorting_strategies));
-        $.filtersDialogSortingSpinner.setSelectedIndex(mFiltersInstance.getSortingMethod());
-        $.filtersDialogSortingSpinner.setOnItemSelectedListener((v, p, id, item) ->
-                mFiltersInstance.setSortingMethod(p));
+        $.filtersDialogSortingSpinner.setAdapter(
+                ArrayAdapter.createFromResource(requireContext(), R.array.transaction_filters_sorting_strategies, android.R.layout.simple_spinner_dropdown_item));
+        $.filtersDialogSortingSpinner.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(@NotNull MaterialSpinner parent, @Nullable View view, int position, long id) {
+                mFiltersInstance.setSortingMethod(position);
+            }
+
+            @Override
+            public void onNothingSelected(@NotNull MaterialSpinner materialSpinner) {
+            }
+        });
+        $.filtersDialogSortingSpinner.setSelection(mFiltersInstance.getSortingMethod());
 
         switch (mFiltersInstance.getTransactionStatus()) {
             case MoneyTransactionFilters.ANY_STATUS:
@@ -215,11 +232,27 @@ public class TransactionFiltersDialogFragment
         final Account emptyAccount = new Account();
         emptyAccount.setName(getResources().getString(R.string.all_accounts));
         accounts.add(0, emptyAccount);
-        $.filtersDialogAccountSpinner.setItems(accounts);
-        $.filtersDialogAccountSpinner.setSelectedIndex(
+
+        GnomySpinnerAdapter<Account> adapter = new GnomySpinnerAdapter<>(requireContext(), accounts);
+        $.filtersDialogAccountSpinner.setAdapter(adapter);
+        $.filtersDialogAccountSpinner.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(@NotNull MaterialSpinner parent, @Nullable View view, int position, long id) {
+                mFiltersInstance.setAccountId((int) id);
+                Drawable drawable = adapter.getItemDrawable(position);
+                if (drawable == null) {
+                    drawable = requireContext().getDrawable(R.drawable.ic_account_balance_black_24dp);
+                    Objects.requireNonNull(drawable).setColorFilter(new PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP));
+                }
+                parent.setStartIconDrawable(drawable);
+            }
+
+            @Override
+            public void onNothingSelected(@NotNull MaterialSpinner parent) {
+            }
+        });
+        $.filtersDialogAccountSpinner.setSelection(
                 ListUtil.getItemIndexById(accounts, mFiltersInstance.getAccountId()));
-        $.filtersDialogAccountSpinner.setOnItemSelectedListener((view, position, id, item) ->
-                mFiltersInstance.setAccountId(((Account)item).getId()));
     }
 
     private void onCategoriesListChanged(List<Category> _categories) {
@@ -227,16 +260,35 @@ public class TransactionFiltersDialogFragment
         final Category emptyCategory = new Category();
         emptyCategory.setName(getResources().getString(R.string.all_categories));
         categories.add(0, emptyCategory);
-        $.filtersDialogCategorySpinner.setItems(categories);
-        $.filtersDialogCategorySpinner.setSelectedIndex(
+        GnomySpinnerAdapter<Category> adapter = new GnomySpinnerAdapter<>(requireContext(), categories);
+        $.filtersDialogCategorySpinner.setAdapter(adapter);
+        $.filtersDialogCategorySpinner.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(@NotNull MaterialSpinner parent, @Nullable View view, int position, long id) {
+                mFiltersInstance.setCategoryId((int) id);
+                Drawable drawable = adapter.getItemDrawable(position);
+                if (drawable == null) {
+                    drawable = requireContext().getDrawable(R.drawable.ic_baseline_category_24);
+                    Objects.requireNonNull(drawable).setColorFilter(new PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP));
+                }
+                parent.setStartIconDrawable(drawable);
+            }
+
+            @Override
+            public void onNothingSelected(@NotNull MaterialSpinner parent) {
+            }
+        });
+        $.filtersDialogCategorySpinner.setSelection(
                 ListUtil.getItemIndexById(categories, mFiltersInstance.getCategoryId()));
-        $.filtersDialogCategorySpinner.setOnItemSelectedListener((view, position, id, item) ->
-                mFiltersInstance.setCategoryId(((Category)item).getId()));
     }
 
     private void setTransactionSpinnerIndex(int spinnerIndex) {
-        // TODO: Fix Spinner text color getting reset after rotation
-        if (spinnerIndex == mFiltersInstance.getTransactionType() && mInitialTintingFlag) return;
+        if (spinnerIndex == mFiltersInstance.getTransactionType() && mInitialTintingFlag) {
+            // Needed so that spinner text doesn't get reset after rotation
+            TextView spinnerView = (TextView) $.filtersDialogTypeSpinner.getSelectedView();
+            spinnerView.setTextColor(ColorUtil.getTextColor(mThemeColor));
+            return;
+        }
         mFiltersInstance.setTransactionType(spinnerIndex);
         int textColor;
         switch (spinnerIndex) {

@@ -1,13 +1,15 @@
 package io.github.alansanchezp.gnomy.database.category;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
+import io.github.alansanchezp.gnomy.ui.ISpinnerItem;
 
 @Entity(tableName = "categories")
-public class Category {
+public class Category implements ISpinnerItem {
     @Ignore
     public static final int EXPENSE_CATEGORY = 1;
     @Ignore
@@ -32,6 +34,7 @@ public class Category {
 
     @ColumnInfo(name="bg_color")
     private int backgroundColor;
+
     public int getId() {
         return id;
     }
@@ -74,8 +77,23 @@ public class Category {
         this.backgroundColor = backgroundColor;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return name;
+    }
+
+    @Nullable
+    @Override
+    @Ignore
+    public String getDrawableResourceName() {
+        if (iconResName.equals("")) return null;
+        return iconResName;
+    }
+
+    @Override
+    @Ignore
+    public int getDrawableColor() {
+        return backgroundColor;
     }
 }

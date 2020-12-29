@@ -89,50 +89,42 @@
             android:paddingHorizontal="22dp"
             android:paddingBottom="50dp" >
 
-            <com.jaredrummler.materialspinner.MaterialSpinner
+            <com.tiper.MaterialSpinner
                 android:id="@+id/filters_dialog_category_spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
-                android:height="50dp"
-                android:backgroundTint="#FFFFFF"
                 android:hint="@string/transaction_category"
-                android:textColorHint="@color/colorTextSecondary"
-                app:ms_text_color="@color/colorTextHighlight" />
+                android:backgroundTint="#FFFFFF"
+                android:textColorHint="@color/colorTextSecondary" />
 
-            <com.jaredrummler.materialspinner.MaterialSpinner
+            <com.tiper.MaterialSpinner
                 android:id="@+id/filters_dialog_account_spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
-                android:height="50dp"
                 android:backgroundTint="#FFFFFF"
                 android:hint="@string/transaction_from_account"
-                android:textColorHint="@color/colorTextSecondary"
-                app:ms_text_color="@color/colorTextHighlight" />
+                android:textColorHint="@color/colorTextSecondary" />
 
-            <com.jaredrummler.materialspinner.MaterialSpinner
+            <com.tiper.MaterialSpinner
                 android:id="@+id/filters_dialog_transfer_destination_account_spinner"
                 android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
-                android:height="50dp"
                 android:backgroundTint="#FFFFFF"
                 android:hint="@string/transaction_to_account"
-                android:textColorHint="@color/colorTextSecondary"
-                app:ms_text_color="@color/colorTextHighlight" />
+                android:textColorHint="@color/colorTextSecondary" />
 
-            <com.jaredrummler.materialspinner.MaterialSpinner
+            <com.tiper.MaterialSpinner
                 android:id="@+id/filters_dialog_sorting_spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
-                android:height="50dp"
                 android:backgroundTint="#FFFFFF"
                 android:hint="@string/transaction_filters_sort_by"
-                android:textColorHint="@color/colorTextSecondary"
-                app:ms_text_color="@color/colorTextHighlight" />
+                android:textColorHint="@color/colorTextSecondary" />
 
             <TextView
                 android:id="@+id/filters_dialog_status_radio_group_header"

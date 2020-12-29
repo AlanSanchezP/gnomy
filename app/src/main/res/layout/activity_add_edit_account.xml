@@ -82,22 +82,17 @@
                             android:textDirection="locale" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <com.jaredrummler.materialspinner.MaterialSpinner
+                    <com.tiper.MaterialSpinner
                         android:id="@+id/addedit_account_currency"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="15dp"
                         android:height="50dp"
-                        android:backgroundTint="#FFFFFF"
-                        android:drawableStart="@drawable/ic_attach_money_black_24dp"
-                        android:drawableLeft="@drawable/ic_attach_money_black_24dp"
-                        android:drawablePadding="16dp"
                         android:hint="@string/account_currency"
                         android:textColorHint="@color/colorTextSecondary"
-                        app:ms_padding_left="13dp"
-                        app:ms_padding_right="13dp"
-                        app:ms_text_color="@color/colorTextHighlight"
-                        tools:ignore="RtlHardcoded" />
+                        app:boxBackgroundColor="@color/colorSurface"
+                        app:startIconDrawable="@drawable/ic_attach_money_black_24dp"
+                        app:boxStrokeWidth="0dp" />
 
                     <TextView
                         android:id="@+id/addedit_account_currency_cannot_change"
@@ -109,21 +104,16 @@
                         android:visibility="gone"
                         android:layout_marginStart="16dp" />
 
-                    <com.jaredrummler.materialspinner.MaterialSpinner
+                    <com.tiper.MaterialSpinner
                         android:id="@+id/addedit_account_type"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="15dp"
-                        android:height="50dp"
-                        android:drawableStart="@drawable/ic_account_balance_black_24dp"
-                        android:drawableLeft="@drawable/ic_account_balance_black_24dp"
-                        android:drawablePadding="16dp"
                         android:hint="@string/account_type"
                         android:textColorHint="@color/colorTextSecondary"
-                        app:ms_padding_left="13dp"
-                        app:ms_padding_right="13dp"
-                        app:ms_text_color="@color/colorTextHighlight"
-                        tools:ignore="RtlHardcoded" />
+                        app:boxStrokeWidth="0dp"
+                        app:startIconDrawable="@drawable/ic_account_balance_black_24dp"
+                        app:boxBackgroundColor="@color/colorSurface" />
 
                     <Switch
                         android:id="@+id/addedit_account_show_in_home"
