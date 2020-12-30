@@ -1,6 +1,7 @@
 package io.github.alansanchezp.gnomy.ui.transaction;
 
 import android.app.Dialog;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -46,6 +47,7 @@ import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.android.InputFilterMinMax;
 import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
+import io.github.alansanchezp.gnomy.util.android.ViewTintingUtil;
 
 import static io.github.alansanchezp.gnomy.util.ISpinnerItem.getItemIndexById;
 import static io.github.alansanchezp.gnomy.util.android.SimpleTextWatcherWrapper.onlyOnTextChanged;
@@ -314,6 +316,17 @@ public class TransactionFiltersDialogFragment
         $.filtersDialogApplyBtn.setTextColor(textColor);
         TextView spinnerView = (TextView) $.filtersDialogTypeSpinner.getSelectedView();
         spinnerView.setTextColor(textColor);
+        $.filtersDialogStatusRadioAny.setButtonTintList(ColorStateList.valueOf(mThemeColor));
+        $.filtersDialogStatusRadioConfirmed.setButtonTintList(ColorStateList.valueOf(mThemeColor));
+        $.filtersDialogStatusRadioUnconfirmed.setButtonTintList(ColorStateList.valueOf(mThemeColor));
+        ViewTintingUtil.tintSpinner($.filtersDialogAccountSpinner, mThemeColor);
+        ViewTintingUtil.tintSpinner($.filtersDialogTransferDestinationAccountSpinner, mThemeColor);
+        ViewTintingUtil.tintSpinner($.filtersDialogCategorySpinner, mThemeColor);
+        ViewTintingUtil.tintSpinner($.filtersDialogSortingSpinner, mThemeColor);
+        ViewTintingUtil.tintSwitch($.filtersDialogPeriodSwitch, mThemeColor);
+        ViewTintingUtil.tintSwitch($.filtersDialogAmountSwitch, mThemeColor);
+        ViewTintingUtil.tintTextInputLayout($.filtersDialogAmountMin, mThemeColor);
+        ViewTintingUtil.tintTextInputLayout($.filtersDialogAmountMax, mThemeColor);
     }
 
     private void openDatePicker(boolean isStartDate) {
