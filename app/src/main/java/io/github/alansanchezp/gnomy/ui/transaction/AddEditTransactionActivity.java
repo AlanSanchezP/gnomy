@@ -53,7 +53,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-import static io.github.alansanchezp.gnomy.util.ListUtil.getItemIndexById;
+import static io.github.alansanchezp.gnomy.util.ISpinnerItem.getItemIndexById;
 import static io.github.alansanchezp.gnomy.util.android.SimpleTextWatcherWrapper.onlyOnTextChanged;
 
 // TODO: Implement recurrent transactions
@@ -460,17 +460,17 @@ public class AddEditTransactionActivity
             mViewModel.notifyExpectingNewAccount(false);
         } else {
             if (mTransaction.getAccount() != 0) {
-                Account selectedAccount = mAccountsList.get(
-                        getItemIndexById(mAccountsList, mTransaction.getAccount()));
+                int selectedIndex = getItemIndexById(mAccountsList, mTransaction.getAccount());
+                Account selectedAccount = mAccountsList.get(selectedIndex);
                 setTransactionAccount(selectedAccount);
-                $.addeditTransactionFromAccount.setSelection(getItemIndexById(mAccountsList, mTransaction.getAccount()));
+                $.addeditTransactionFromAccount.setSelection(selectedIndex);
             }
             if (mTransaction.getType() == MoneyTransaction.TRANSFER &&
                     mTransaction.getTransferDestinationAccount() != null) {
-                Account destinationAccount = mAccountsList.get(
-                        getItemIndexById(mAccountsList, mTransaction.getTransferDestinationAccount()));
+                int selectedIndex = getItemIndexById(mAccountsList, mTransaction.getTransferDestinationAccount());
+                Account destinationAccount = mAccountsList.get(selectedIndex);
                 setDestinationAccount(destinationAccount);
-                $.addeditTransactionToAccount.setSelection(getItemIndexById(mAccountsList, mTransaction.getTransferDestinationAccount()));
+                $.addeditTransactionToAccount.setSelection(selectedIndex);
             }
             $.addeditTransactionCurrency.setSelection(CurrencyUtil.getCurrencyIndex(mTransaction.getCurrency()));
         }

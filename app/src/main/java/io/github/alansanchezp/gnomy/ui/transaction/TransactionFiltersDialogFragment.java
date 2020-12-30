@@ -44,10 +44,10 @@ import io.github.alansanchezp.gnomy.ui.GnomySpinnerAdapter;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
-import io.github.alansanchezp.gnomy.util.ListUtil;
 import io.github.alansanchezp.gnomy.util.android.InputFilterMinMax;
 import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 
+import static io.github.alansanchezp.gnomy.util.ISpinnerItem.getItemIndexById;
 import static io.github.alansanchezp.gnomy.util.android.SimpleTextWatcherWrapper.onlyOnTextChanged;
 
 public class TransactionFiltersDialogFragment
@@ -252,7 +252,7 @@ public class TransactionFiltersDialogFragment
             }
         });
         $.filtersDialogAccountSpinner.setSelection(
-                ListUtil.getItemIndexById(accounts, mFiltersInstance.getAccountId()));
+                getItemIndexById(accounts, mFiltersInstance.getAccountId()));
     }
 
     private void onCategoriesListChanged(List<Category> _categories) {
@@ -279,7 +279,7 @@ public class TransactionFiltersDialogFragment
             }
         });
         $.filtersDialogCategorySpinner.setSelection(
-                ListUtil.getItemIndexById(categories, mFiltersInstance.getCategoryId()));
+                getItemIndexById(categories, mFiltersInstance.getCategoryId()));
     }
 
     private void setTransactionSpinnerIndex(int spinnerIndex) {

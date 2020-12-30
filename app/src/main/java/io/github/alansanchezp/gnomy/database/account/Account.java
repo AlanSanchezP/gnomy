@@ -12,7 +12,7 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.ui.ISpinnerItem;
+import io.github.alansanchezp.gnomy.util.ISpinnerItem;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 

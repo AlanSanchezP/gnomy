@@ -6,7 +6,7 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
-import io.github.alansanchezp.gnomy.ui.ISpinnerItem;
+import io.github.alansanchezp.gnomy.util.ISpinnerItem;
 
 @Entity(tableName = "categories")
 public class Category implements ISpinnerItem {

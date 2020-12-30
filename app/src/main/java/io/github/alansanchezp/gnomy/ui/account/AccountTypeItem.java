@@ -4,7 +4,7 @@ import android.graphics.Color;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import io.github.alansanchezp.gnomy.ui.ISpinnerItem;
+import io.github.alansanchezp.gnomy.util.ISpinnerItem;
 
 import static io.github.alansanchezp.gnomy.database.account.Account.BANK;
 import static io.github.alansanchezp.gnomy.database.account.Account.CREDIT_CARD;

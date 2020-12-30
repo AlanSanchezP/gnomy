@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.databinding.LayoutGnomySpinnerItemBinding;
+import io.github.alansanchezp.gnomy.util.ISpinnerItem;
 
 public class GnomySpinnerAdapter<I extends ISpinnerItem> extends ArrayAdapter<I> {
 
