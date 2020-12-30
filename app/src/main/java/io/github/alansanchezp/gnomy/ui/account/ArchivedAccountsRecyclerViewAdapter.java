@@ -1,5 +1,6 @@
 package io.github.alansanchezp.gnomy.ui.account;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -64,7 +65,9 @@ public class ArchivedAccountsRecyclerViewAdapter
         public void setAccountData(@NonNull Account account) {
             mItem = account;
 
-            int iconResId = Account.getDrawableResourceId(mItem.getType());
+            Context context = $.getRoot().getContext();
+            int iconResId = context.getResources().getIdentifier(
+                    mItem.getDrawableResourceName(), "drawable", context.getPackageName());
             Drawable icon = ContextCompat.getDrawable($.getRoot().getContext(), iconResId);
 
             $.archivedAccountCardName.setText(mItem.getName());

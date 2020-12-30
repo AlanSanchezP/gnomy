@@ -6,6 +6,7 @@ import io.github.alansanchezp.gnomy.R;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
@@ -119,6 +120,7 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
 
         public void setAccountData(@NonNull AccountWithAccumulated targetAWA,
                                    @NonNull AccountWithAccumulated todayAWA) {
+            Context context = $.getRoot().getContext();
             mItem = targetAWA;
 
             if (mItem.getUnresolvedTransactions() == null ||
@@ -130,8 +132,9 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
 
             int accountColor = mItem.account.getBackgroundColor();
             int iconColor = ColorUtil.getTextColor(accountColor);
-            int iconResId = Account.getDrawableResourceId(mItem.account.getType());
-            Drawable icon = ContextCompat.getDrawable($.getRoot().getContext(), iconResId);
+            int iconResId = context.getResources().getIdentifier(
+                    mItem.account.getDrawableResourceName(), "drawable", context.getPackageName());
+            Drawable icon = ContextCompat.getDrawable(context, iconResId);
 
             ((GradientDrawable) $.accountCardIcon.getBackground()).setColor(accountColor);
             $.accountCardIcon.setImageDrawable(icon);

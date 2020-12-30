@@ -197,12 +197,13 @@ public class AccountDetailsActivity
     private void updateInfo(AccountWithAccumulated awa) {
         $.accountName.setText(awa.account.getName());
 
-        Drawable typeIcon = ContextCompat.getDrawable(this,
-                Account.getDrawableResourceId(awa.account.getType()));
+        int iconResId = getResources().getIdentifier(
+                awa.account.getDrawableResourceName(), "drawable", getPackageName());
+        int typeStringResId = getResources().getIdentifier(
+                awa.account.getTypeNameResourceName(), "string", getPackageName());
+        Drawable typeIcon = ContextCompat.getDrawable(this, iconResId);
         String createdAtString = getOffsetDateTimeString(awa.account.getCreatedAt(), false);
-        String typeString = getString(
-                Account.getTypeNameResourceId(awa.account.getType())
-        );
+        String typeString = getString(typeStringResId);
         Drawable includedInSumIcon;
         String includedInSumString;
 

@@ -1,5 +1,7 @@
 package io.github.alansanchezp.gnomy.account;
 
+import android.content.Context;
+
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,13 +44,11 @@ public class AccountRecyclerViewHolderInstrumentedTest {
     @BeforeClass
     public static void init_test_account_and_set_locale() {
         Locale.setDefault(Locale.US);
-        testAccumulated.account = mock(Account.class);
+        testAccumulated.account = new Account(1);
         testTodayAccumulated.targetMonth = DateUtil.now();
         testTodayAccumulated.account = testAccumulated.account;
-        when(testAccumulated.account.getName())
-                .thenReturn("Test account");
-        when(testAccumulated.account.getDefaultCurrency())
-                .thenReturn("USD");
+        testAccumulated.account.setName("Test account");
+        testAccumulated.account.setDefaultCurrency("USD");
         when(testAccumulated.getBalanceAtEndOfMonth())
                 .thenReturn(BigDecimal.ONE);
         when(testTodayAccumulated.getConfirmedAccumulatedBalanceAtMonth())
@@ -114,16 +114,18 @@ public class AccountRecyclerViewHolderInstrumentedTest {
     public void account_icon_in_card_is_correct() {
         AccountRecyclerViewAdapter.ViewHolder holder =
                 new AccountRecyclerViewAdapter.ViewHolder(Objects.requireNonNull(viewRule.retrieveViewBinding()));
+        testAccumulated.account.setId(1);
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
         for (int type=Account.BANK; type <= Account.OTHER; type++) {
-            when(testAccumulated.account.getType()).thenReturn(type);
+            testAccumulated.account.setType(type);
             testAccumulated.targetMonth = DateUtil.now();
             InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
                     holder.setAccountData(testAccumulated, testTodayAccumulated));
             onView(withId(R.id.account_card_icon))
                     .check(matches(
                         withTagValue(
-                            equalTo(Account.getDrawableResourceId(type))
+                            equalTo(context.getResources().getIdentifier(testAccumulated.account.getDrawableResourceName(), "drawable", context.getPackageName()))
                     )));
 
             // Couldn't find a way to test drawable tint

@@ -253,7 +253,7 @@ public class AddEditAccountActivity
 
             saveData(currencyCode, accountType, showInDashboard);
         } else {
-            Toast.makeText(this, getResources().getString(R.string.form_error), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.form_error), Toast.LENGTH_LONG).show();
             mFABVH.notifyOnAsyncOperationFinished();
         }
     }
@@ -263,7 +263,7 @@ public class AddEditAccountActivity
 
         if (value.trim().length() == 0) {
             if (mAddEditAccountViewModel.accountNameIsPristine()) return;
-            $.addeditAccountName.setError(getResources().getString(R.string.account_error_name));
+            $.addeditAccountName.setError(getString(R.string.account_error_name));
         } else {
             $.addeditAccountName.setErrorEnabled(false);
         }
@@ -274,7 +274,7 @@ public class AddEditAccountActivity
     private void onInitialValueEditTextChanges(String value) {
         if (value.length() == 0) {
             if (mAddEditAccountViewModel.initialValueIsPristine()) return;
-            $.addeditAccountInitialValue.setError(getResources().getString(R.string.account_error_initial_value));
+            $.addeditAccountInitialValue.setError(getString(R.string.account_error_initial_value));
         } else {
             if (mAccount != null) mAccount.setInitialValue(value);
             $.addeditAccountInitialValue.setErrorEnabled(false);

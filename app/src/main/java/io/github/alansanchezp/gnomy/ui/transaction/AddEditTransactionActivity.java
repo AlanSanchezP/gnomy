@@ -280,7 +280,7 @@ public class AddEditTransactionActivity
     private void onTransactionAmountChanges(String value) {
         if (value.length() == 0) {
             if (mViewModel.transactionAmountIsPristine()) return;
-            $.addeditTransactionAmount.setError(getResources().getString(R.string.transaction_error_amount));
+            $.addeditTransactionAmount.setError(getString(R.string.transaction_error_amount));
         } else {
             if (mTransaction != null) mTransaction.setOriginalValue(value);
             $.addeditTransactionAmount.setErrorEnabled(false);
@@ -294,7 +294,7 @@ public class AddEditTransactionActivity
 
         if (value.trim().length() == 0) {
             if (mViewModel.transactionConceptIsPristine()) return;
-            $.addeditTransactionConcept.setError(getResources().getString(R.string.transaction_error_concept));
+            $.addeditTransactionConcept.setError(getString(R.string.transaction_error_concept));
         } else {
             $.addeditTransactionConcept.setErrorEnabled(false);
         }
@@ -376,14 +376,14 @@ public class AddEditTransactionActivity
                 if (mTransactionType == MoneyTransaction.TRANSFER) {
                     if ($.addeditTransactionToAccount.getError() != null &&
                         $.addeditTransactionToAccount.getError().toString().equals(
-                                getResources().getString(R.string.transaction_error_transfer_destination_account)
+                                getString(R.string.transaction_error_transfer_destination_account)
                         )) {
                         // Keeps non-null account error
                         $.addeditTransactionToAccount.setErrorEnabled(false);
                     }
                     if (mTransaction.getTransferDestinationAccount() != null &&
                             (int) id == mTransaction.getTransferDestinationAccount()) {
-                        $.addeditTransactionToAccount.setError(getResources().getString(R.string.transaction_error_transfer_destination_account));
+                        $.addeditTransactionToAccount.setError(getString(R.string.transaction_error_transfer_destination_account));
                         $.addeditTransactionToAccount.getChildAt(1).setVisibility(View.VISIBLE);
                     }
                 }
@@ -407,7 +407,7 @@ public class AddEditTransactionActivity
                         Account item = accounts.get(position);
                         setDestinationAccount(item);
                         if ((int) id == mTransaction.getAccount()) {
-                            parent.setError(getResources().getString(R.string.transaction_error_transfer_destination_account));
+                            parent.setError(getString(R.string.transaction_error_transfer_destination_account));
                             parent.getChildAt(1).setVisibility(View.VISIBLE);
                         }
                         parent.setStartIconDrawable(adapter.getItemDrawable(position));
@@ -428,7 +428,7 @@ public class AddEditTransactionActivity
                 mViewModel.notifyExpectingNewAccount(false);
             } else if ($.addeditTransactionToAccount.getError() != null &&
                     $.addeditTransactionToAccount.getError().toString().equals(
-                            getResources().getString(R.string.transaction_error_account)
+                            getString(R.string.transaction_error_account)
                     )) {
                 // Keeps same-account account error
                 $.addeditTransactionToAccount.setErrorEnabled(false);
@@ -581,21 +581,21 @@ public class AddEditTransactionActivity
 
         if (mTransaction.getAccount() == 0) {
             anySpinnerIsNull = true;
-            $.addeditTransactionFromAccount.setError(getResources().getString(R.string.transaction_error_account));
+            $.addeditTransactionFromAccount.setError(getString(R.string.transaction_error_account));
             $.addeditTransactionFromAccount.getChildAt(1).setVisibility(View.VISIBLE);
         }
 
         if (mTransactionType == MoneyTransaction.TRANSFER) {
             if (mTransaction.getTransferDestinationAccount() == null || mTransaction.getTransferDestinationAccount() == 0) {
                 anySpinnerIsNull = true;
-                $.addeditTransactionToAccount.setError(getResources().getString(R.string.transaction_error_account));
+                $.addeditTransactionToAccount.setError(getString(R.string.transaction_error_account));
                 $.addeditTransactionToAccount.getChildAt(1).setVisibility(View.VISIBLE);
             }
 
             if (anySpinnerIsNull) return false;
 
             if (mTransaction.getAccount() == mTransaction.getTransferDestinationAccount()) {
-                $.addeditTransactionToAccount.setError(getResources().getString(R.string.transaction_error_transfer_destination_account));
+                $.addeditTransactionToAccount.setError(getString(R.string.transaction_error_transfer_destination_account));
                 $.addeditTransactionToAccount.getChildAt(1).setVisibility(View.VISIBLE);
                 return false;
             }
@@ -608,7 +608,7 @@ public class AddEditTransactionActivity
 
     private boolean validateCategory() {
         if (mTransaction.getCategory() == 0) {
-            $.addeditTransactionCategory.setError(getResources().getString(R.string.transaction_error_category));
+            $.addeditTransactionCategory.setError(getString(R.string.transaction_error_category));
             $.addeditTransactionCategory.getChildAt(1).setVisibility(View.VISIBLE);
             return false;
         }
@@ -621,7 +621,7 @@ public class AddEditTransactionActivity
             $.addeditTransactionDate.setErrorEnabled(false);
             return true;
         }
-        $.addeditTransactionDate.setError(getResources().getString(R.string.transaction_error_date));
+        $.addeditTransactionDate.setError(getString(R.string.transaction_error_date));
         return false;
     }
 
@@ -634,7 +634,7 @@ public class AddEditTransactionActivity
         if (texFieldsAreValid  && accountsAreValid && selectedDateIsValid && categoryIsValid) {
             saveData();
         } else {
-            Toast.makeText(this, getResources().getString(R.string.form_error), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.form_error), Toast.LENGTH_LONG).show();
             mFABVH.notifyOnAsyncOperationFinished();
         }
     }
@@ -730,7 +730,7 @@ public class AddEditTransactionActivity
 
     private void openNewCategoryActivity(View view) {
         mViewModel.notifyExpectingNewCategory(true);
-        Toast.makeText(this, getResources().getString(R.string.wip), Toast.LENGTH_LONG).show();
+        Toast.makeText(this, getString(R.string.wip), Toast.LENGTH_LONG).show();
     }
 
     private void openCalculator(View v) {

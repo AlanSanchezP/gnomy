@@ -1,5 +1,7 @@
 package io.github.alansanchezp.gnomy.account;
 
+import android.content.Context;
+
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,7 +26,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 
 @RunWith(AndroidJUnit4.class)
 public class ArchivedAccountRecyclerViewHolderInstrumentedTest {
-    static final Account testAccount = new Account();
+    static final Account testAccount = new Account(1);
 
     @Rule
     public final ViewScenarioRule viewRule = new ViewScenarioRule(
@@ -55,7 +57,7 @@ public class ArchivedAccountRecyclerViewHolderInstrumentedTest {
         ArchivedAccountsRecyclerViewAdapter.ViewHolder holder
                 = new ArchivedAccountsRecyclerViewAdapter.ViewHolder(Objects.requireNonNull(viewRule.retrieveViewBinding()));
 
-
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         for (int type=Account.BANK; type <= Account.OTHER; type++) {
             testAccount.setType(type);
             InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
@@ -63,7 +65,7 @@ public class ArchivedAccountRecyclerViewHolderInstrumentedTest {
             onView(withId(R.id.archived_account_card_icon))
                     .check(matches(
                         withTagValue(
-                            equalTo(Account.getDrawableResourceId(type))
+                            equalTo(context.getResources().getIdentifier(testAccount.getDrawableResourceName(), "drawable", context.getPackageName()))
                     )));
             // Couldn't find a way to test drawable tint
         }

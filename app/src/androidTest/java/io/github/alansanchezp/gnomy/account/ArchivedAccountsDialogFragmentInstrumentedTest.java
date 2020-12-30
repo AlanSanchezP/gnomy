@@ -47,9 +47,11 @@ public class ArchivedAccountsDialogFragmentInstrumentedTest {
 
         accounts[0] = new Account();
         accounts[0].setName("Test account 1");
+        accounts[0].setId(1);
 
         accounts[1] = new Account();
         accounts[1].setName("Test account 2");
+        accounts[1].setId(2);
     }
 
     @Test

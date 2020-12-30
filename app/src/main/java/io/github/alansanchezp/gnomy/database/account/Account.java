@@ -11,7 +11,6 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
-import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.util.ISpinnerItem;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
@@ -71,40 +70,21 @@ public class Account implements ISpinnerItem {
     }
 
     @Ignore
-    public static int getDrawableResourceId(int type) {
-        switch (type) {
+    public String getTypeNameResourceName() {
+        switch (this.type) {
             case BANK:
-                return R.drawable.ic_account_balance_black_24dp;
+                return "account_type_bank";
             case INFORMAL:
-                return R.drawable.ic_account_balance_piggy_black_24dp;
+                return "account_type_informal";
             case SAVINGS:
-                return R.drawable.ic_account_balance_savings_black_24dp;
+                return "account_type_savings";
             case INVERSIONS:
-                return R.drawable.ic_account_balance_inversion_black_24dp;
+                return "account_type_inversions";
             case CREDIT_CARD:
-                return R.drawable.ic_account_balance_credit_card_black_24dp;
+                return "account_type_credit_card";
             case OTHER:
             default:
-                return R.drawable.ic_account_balance_wallet_black_24dp;
-        }
-    }
-
-    @Ignore
-    public static int getTypeNameResourceId(int type) {
-        switch (type) {
-            case BANK:
-                return R.string.account_type_bank;
-            case INFORMAL:
-                return R.string.account_type_informal;
-            case SAVINGS:
-                return R.string.account_type_savings;
-            case INVERSIONS:
-                return R.string.account_type_inversions;
-            case CREDIT_CARD:
-                return R.string.account_type_credit_card;
-            case OTHER:
-            default:
-                return R.string.account_type_other;
+                return "account_type_other";
         }
     }
 
