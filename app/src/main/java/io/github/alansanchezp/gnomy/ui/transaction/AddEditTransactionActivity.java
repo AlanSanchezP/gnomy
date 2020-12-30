@@ -1,7 +1,6 @@
 package io.github.alansanchezp.gnomy.ui.transaction;
 
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.text.InputFilter;
@@ -216,14 +215,14 @@ public class AddEditTransactionActivity
                 ViewTintingUtil.tintFAB(v, fabBgColor, fabTextColor));
         ViewTintingUtil
                 .tintSwitch($.addeditTransactionMarkAsDone, mThemeColor);
-        $.addeditTransactionFromAccount.setBoxStrokeColor(mThemeColor);
-        $.addeditTransactionToAccount.setBoxStrokeColor(mThemeColor);
-        $.addeditTransactionCurrency.setBoxStrokeColor(mThemeColor);
-        $.addeditTransactionCategory.setBoxStrokeColor(mThemeColor);
-        $.addeditTransactionFromAccount.setHintTextColor(ColorStateList.valueOf(mThemeColor));
-        $.addeditTransactionToAccount.setHintTextColor(ColorStateList.valueOf(mThemeColor));
-        $.addeditTransactionCurrency.setHintTextColor(ColorStateList.valueOf(mThemeColor));
-        $.addeditTransactionCategory.setHintTextColor(ColorStateList.valueOf(mThemeColor));
+        ViewTintingUtil
+                .tintSpinner($.addeditTransactionFromAccount, mThemeColor);
+        ViewTintingUtil
+                .tintSpinner($.addeditTransactionToAccount, mThemeColor);
+        ViewTintingUtil
+                .tintSpinner($.addeditTransactionCategory, mThemeColor);
+        ViewTintingUtil
+                .tintSpinner($.addeditTransactionCurrency, mThemeColor);
 
     }
 

@@ -7,6 +7,7 @@ import android.widget.Switch;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
+import com.tiper.MaterialSpinner;
 
 import java.util.Objects;
 
@@ -67,6 +68,13 @@ public class ViewTintingUtil {
         ColorStateList themeCSL = getSwitchColorStateList(themeColor);
         _switch.getThumbDrawable().setTintList(themeCSL);
         _switch.getTrackDrawable().setTintList(themeCSL);
+    }
+
+    public static void tintSpinner(@NonNull MaterialSpinner spinner,
+                                  @ColorInt int themeColor) {
+        ColorStateList themeCSL = ColorStateList.valueOf(themeColor);
+        spinner.setHintTextColor(themeCSL);
+        spinner.setBoxStrokeColor(themeColor);
     }
 
     public static ColorStateList getTextInputLayoutColorStateList(

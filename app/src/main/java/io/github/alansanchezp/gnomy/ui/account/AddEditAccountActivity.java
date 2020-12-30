@@ -178,11 +178,10 @@ public class AddEditAccountActivity
                 .tintTextInputLayout($.addeditAccountInitialValue, mThemeColor);
         ViewTintingUtil
                 .tintSwitch($.addeditAccountShowInHome, mThemeColor);
-
-        $.addeditAccountType.setBoxStrokeColor(mThemeColor);
-        $.addeditAccountType.setHintTextColor(ColorStateList.valueOf(mThemeColor));
-        $.addeditAccountCurrency.setBoxStrokeColor(mThemeColor);
-        $.addeditAccountCurrency.setHintTextColor(ColorStateList.valueOf(mThemeColor));
+        ViewTintingUtil
+                .tintSpinner($.addeditAccountType, mThemeColor);
+        ViewTintingUtil
+                .tintSpinner($.addeditAccountCurrency, mThemeColor);
 
         // TODO: (Wishlist, not a big deal) How can we unify the ripple color with the one from FAB?
         mColorPickerBtnVH.onView(this, v -> {
