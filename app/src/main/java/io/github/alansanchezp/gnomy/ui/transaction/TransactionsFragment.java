@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.xwray.groupie.GroupAdapter;
@@ -38,6 +39,7 @@ import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
+import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
 import io.github.alansanchezp.gnomy.viewmodel.transaction.TransactionsListViewModel;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -100,39 +102,10 @@ public class TransactionsFragment
         mViewModel.bindMonth(mSharedViewModel.activeMonth);
         mViewModel.getFilters().observe(getViewLifecycleOwner(), this::onFiltersChanged);
         mViewModel.getTransactionsList().observe(getViewLifecycleOwner(), this::onTransactionsListChanged);
-    }
-
-    private void onFiltersChanged(MoneyTransactionFilters filters) {
-        String title;
-        if (filters.getTransactionType() == MoneyTransactionFilters.ALL_TRANSACTION_TYPES) {
-            mMainColor = getResources().getColor(R.color.colorPrimary);
-            title = getResources().getString(R.string.title_transactions);
-        } else if (filters.getTransactionType() == MoneyTransaction.INCOME) {
-            mMainColor = getResources().getColor(R.color.colorIncomes);
-            title = getResources().getString(R.string.action_filter_incomes);
-        } else if (filters.getTransactionType() == MoneyTransaction.EXPENSE) {
-            mMainColor = getResources().getColor(R.color.colorExpenses);
-            title = getResources().getString(R.string.action_filter_expenses);
-        } else {
-            mMainColor = getResources().getColor(R.color.colorTransfers);
-            title = getResources().getString(R.string.action_filter_transfers);
-        }
-        mSharedViewModel.changeThemeColor(mMainColor);
-        mSharedViewModel.changeTitle(title);
-        if (mMenu == null) return;
-        // For some reason, items are null if navigating through back button
-        if (mMenu.findItem(R.id.action_filter) == null) return;
-        tintMenuIcons();
-        // TODO: Move clear filters button somewhere else
-        // TODO: Replace clear filters icon
-        // TODO: Block month bar if not simple filters
-        if (filters.isSimpleFilterWithMonth(mSharedViewModel.activeMonth.getValue())) {
-            mMenu.findItem(R.id.action_filter).setVisible(true);
-            mMenu.findItem(R.id.action_clear_filters).setVisible(false);
-        } else {
-            mMenu.findItem(R.id.action_filter).setVisible(false);
-            mMenu.findItem(R.id.action_clear_filters).setVisible(true);
-        }
+        SingleClickViewHolder<Button> seeFiltersVH = new SingleClickViewHolder<>($.customFilterBannerEdit);
+        seeFiltersVH.setOnClickListener(this::openFiltersDialog);
+        SingleClickViewHolder<Button> clearFiltersVH = new SingleClickViewHolder<>($.customFilterBannerClear);
+        clearFiltersVH.setOnClickListener(v -> mViewModel.clearFilters());
     }
 
     @Override
@@ -157,11 +130,7 @@ public class TransactionsFragment
                 mViewModel.setTransactionsType(MoneyTransaction.TRANSFER);
                 break;
             case R.id.action_filter_more:
-                TransactionFiltersDialogFragment d = new TransactionFiltersDialogFragment(this);
-                d.show(getChildFragmentManager(), TAG_FILTERS_DIALOG);
-                break;
-            case R.id.action_clear_filters:
-                mViewModel.clearFilters();
+                openFiltersDialog(null);
                 break;
             default:
                 return false;
@@ -183,9 +152,6 @@ public class TransactionsFragment
         mMenu.findItem(R.id.action_filter)
                 .getIcon()
                 .setTint(textColor);
-        mMenu.findItem(R.id.action_clear_filters)
-                .getIcon()
-                .setTint(textColor);
     }
 
     @Override
@@ -203,6 +169,47 @@ public class TransactionsFragment
 
     @Override
     public void onMonthChanged(YearMonth month) {
+    }
+
+    /* CUSTOM METHODS */
+
+    private void openFiltersDialog(View v) {
+        TransactionFiltersDialogFragment d = new TransactionFiltersDialogFragment(this);
+        d.show(getChildFragmentManager(), TAG_FILTERS_DIALOG);
+    }
+
+    private void onFiltersChanged(MoneyTransactionFilters filters) {
+        String title;
+        if (filters.getTransactionType() == MoneyTransactionFilters.ALL_TRANSACTION_TYPES) {
+            mMainColor = getResources().getColor(R.color.colorPrimary);
+            title = getResources().getString(R.string.title_transactions);
+        } else if (filters.getTransactionType() == MoneyTransaction.INCOME) {
+            mMainColor = getResources().getColor(R.color.colorIncomes);
+            title = getResources().getString(R.string.action_filter_incomes);
+        } else if (filters.getTransactionType() == MoneyTransaction.EXPENSE) {
+            mMainColor = getResources().getColor(R.color.colorExpenses);
+            title = getResources().getString(R.string.action_filter_expenses);
+        } else {
+            mMainColor = getResources().getColor(R.color.colorTransfers);
+            title = getResources().getString(R.string.action_filter_transfers);
+        }
+
+        if (filters.isSimpleFilterWithMonth(mSharedViewModel.activeMonth.getValue())) {
+            mSharedViewModel.toggleOptionalNavigationElements(true);
+            $.customFilterBanner.setVisibility(View.GONE);
+        } else {
+            mSharedViewModel.toggleOptionalNavigationElements(false);
+            $.customFilterBanner.setVisibility(View.VISIBLE);
+            // VISIBILITY VISIBLE
+        }
+
+        mSharedViewModel.changeThemeColor(mMainColor);
+        mSharedViewModel.changeTitle(title);
+
+        if (mMenu == null) return;
+        // For some reason, items are null if navigating through back button
+        if (mMenu.findItem(R.id.action_filter) == null) return;
+        tintMenuIcons();
     }
 
     private void onTransactionsListChanged(final List<TransactionDisplayData> transactions) {

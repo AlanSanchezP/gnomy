@@ -102,8 +102,10 @@ public class TransactionsListViewModel extends AndroidViewModel {
     }
 
     public void setTransactionsType(int type) {
-        MoneyTransactionFilters newFilters = mFilters.getValue();
-        Objects.requireNonNull(newFilters).setTransactionType(type);
+        // Resets all filters to default value and links to active month
+        MoneyTransactionFilters newFilters = new MoneyTransactionFilters();
+        newFilters.setTransactionType(type);
+        newFilters.setMonth(mActiveMonth.getValue());
         applyFilters(newFilters);
     }
 

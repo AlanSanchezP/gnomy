@@ -8,12 +8,6 @@
         android:title="@string/action_search"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="ifRoom|collapseActionView" />
-    <item
-        android:id="@+id/action_clear_filters"
-        android:icon="@drawable/ic_baseline_clear_all_24"
-        android:title="@string/action_clear_filters"
-        android:visible="false"
-        app:showAsAction="ifRoom|collapseActionView" />
 
     <item
         android:id="@+id/action_filter"

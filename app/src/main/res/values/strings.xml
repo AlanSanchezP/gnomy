@@ -157,6 +157,9 @@
 
     <string name="transaction_card_delete">Delete transaction</string>
     <string name="transaction_filters_dialog_static">Filter</string>
+    <string name="transaction_filters_message">You are currently using a custom set of filters.</string>
+    <string name="transaction_filters_edit_btn">Edit them</string>
+    <string name="transaction_filters_clear_btn">Clear filters</string>
 
     <string-array name="transaction_types">
         <item>@string/title_transactions</item>
