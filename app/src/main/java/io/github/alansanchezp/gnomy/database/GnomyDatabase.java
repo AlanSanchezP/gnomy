@@ -25,7 +25,6 @@ import android.util.Log;
 import net.sqlcipher.database.SupportFactory;
 import net.sqlcipher.database.SQLiteDatabase;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 
