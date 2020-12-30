@@ -7,6 +7,7 @@ import android.view.View;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Consumer;
 
 public class SingleClickViewHolder<T extends View> {
     private final T mView;
@@ -52,8 +53,8 @@ public class SingleClickViewHolder<T extends View> {
      * @param performer     Interface that contains the operations to be
      *                      performed on the embedded View.
      */
-    public void onView(@NonNull Activity hostActivity, OnViewActionPerformer<T> performer) {
-        hostActivity.runOnUiThread(() -> performer.onView(mView));
+    public void onView(@NonNull Activity hostActivity, Consumer<T> performer) {
+        hostActivity.runOnUiThread(() -> performer.accept(mView));
     }
 
     public void setOnClickListener(View.OnClickListener listener) {
@@ -99,9 +100,5 @@ public class SingleClickViewHolder<T extends View> {
         if (!mAsyncInProcess) return;
         mAsyncInProcess = false;
         allowClicks();
-    }
-
-    public interface OnViewActionPerformer<T extends View> {
-        void onView(T v);
     }
 }

@@ -4,8 +4,10 @@ import android.content.DialogInterface;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 
 import java.util.Objects;
+import java.util.function.Function;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,7 +45,7 @@ public abstract class BackButtonActivity<B extends ViewBinding>
     @SuppressWarnings("unused")
     protected BackButtonActivity(@Nullable Integer menuResourceId,
                                  boolean displayDialogOnBackPress,
-                                 @NonNull ActivityViewBindingInflater<B> viewBindingInflater) {
+                                 @NonNull Function<LayoutInflater, B> viewBindingInflater) {
         super(menuResourceId, viewBindingInflater);
         mDisplayDialogOnBackPress = displayDialogOnBackPress;
     }

@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 
+import java.util.function.Function;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,7 +35,7 @@ public abstract class GnomyActivity<B extends ViewBinding>
     protected final CompositeDisposable mCompositeDisposable
             = new CompositeDisposable();
     protected final Integer mMenuResourceId;
-    protected final ActivityViewBindingInflater<B> mViewBindingInflater;
+    protected final Function<LayoutInflater, B> mViewBindingInflater;
     protected final Integer mLayoutResourceId;
     protected B $;
 
@@ -50,7 +52,7 @@ public abstract class GnomyActivity<B extends ViewBinding>
      *                                          ViewBindingClass::inflate
      */
     protected GnomyActivity(@Nullable Integer menuResourceId,
-                            @NonNull ActivityViewBindingInflater<B> viewBindingInflater) {
+                            @NonNull Function<LayoutInflater, B> viewBindingInflater) {
         super();
         mMenuResourceId = menuResourceId;
         mViewBindingInflater = viewBindingInflater;
@@ -82,7 +84,7 @@ public abstract class GnomyActivity<B extends ViewBinding>
         super.onCreate(savedInstanceState);
 
         if (mViewBindingInflater != null) {
-            $ = mViewBindingInflater.inflateViewBinding(getLayoutInflater());
+            $ = mViewBindingInflater.apply(getLayoutInflater());
             setContentView($.getRoot());
         } else if (mLayoutResourceId != null) {
             setContentView(mLayoutResourceId);
@@ -161,21 +163,5 @@ public abstract class GnomyActivity<B extends ViewBinding>
     @Override
     public void onConfirmationDialogDismiss(DialogInterface dialog, String dialogTag) {
         // @Override to implement custom actions
-    }
-
-    /**
-     * Helper interface to dynamically inflate a layout using ViewBinding.
-     * Intended to wrap a ViewBindingSubClass.inflate method.
-     *
-     * @param <B>   Target ViewBinding subclass
-     */
-    protected interface ActivityViewBindingInflater<B extends ViewBinding> {
-        /**
-         * Wrapper for ViewBindingSubClass.inflate method.
-         *
-         * @param inflater          LayoutInflater to use.
-         */
-        @NonNull
-        B inflateViewBinding(@NonNull LayoutInflater inflater);
     }
 }
