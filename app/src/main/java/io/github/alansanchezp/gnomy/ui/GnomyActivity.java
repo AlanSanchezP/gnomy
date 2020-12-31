@@ -131,6 +131,10 @@ public abstract class GnomyActivity<B extends ViewBinding>
         tintMenuItems();
     }
 
+    protected void tintNavigationBar() {
+        getWindow().setNavigationBarColor(ColorUtil.getDarkVariant(mThemeColor));
+    }
+
     protected void tintMenuItems() {
         // @Override to implement custom actions
     }
@@ -138,6 +142,7 @@ public abstract class GnomyActivity<B extends ViewBinding>
     protected void tintWindowElements() {
         tintStatusBar();
         tintAppbar();
+        tintNavigationBar();
     }
 
     protected void disableActions() {

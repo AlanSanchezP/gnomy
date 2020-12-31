@@ -1,6 +1,7 @@
 package io.github.alansanchezp.gnomy.ui.account;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -69,6 +70,11 @@ public class AccountBalanceHistoryActivity
 
         accountBalanceHistoryViewModel.getAccumulatedAtMonth(accountId)
                 .observe(this, this::onAccumulatedBalanceChanged);
+    }
+
+    @Override
+    protected void tintNavigationBar() {
+        getWindow().setNavigationBarColor(Color.TRANSPARENT);
     }
 
     public void onCheckPendingTransactionsClick(View v) {

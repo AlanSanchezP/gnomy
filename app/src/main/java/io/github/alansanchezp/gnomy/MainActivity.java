@@ -1,5 +1,6 @@
 package io.github.alansanchezp.gnomy;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 
@@ -80,6 +81,12 @@ public class MainActivity
             Log.e("MainActivity", "tintNavigationElements: Why is menu not collapsed?", npe);
         }
     }
+
+    @Override
+    protected void tintNavigationBar() {
+        getWindow().setNavigationBarColor(Color.TRANSPARENT);
+    }
+
     private void onFABClick(View v) {
         mViewModel.notifyFABClick((FloatingActionButton) v);
     }
