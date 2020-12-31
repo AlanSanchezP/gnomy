@@ -197,6 +197,7 @@ public class TransactionFiltersDialogFragment
             int visibility = checked ? View.VISIBLE : View.GONE;
             $.filtersDialogPeriodFrom.setVisibility(visibility);
             $.filtersDialogPeriodTo.setVisibility(visibility);
+            tryToEnableApplyButton();
         });
         $.filtersDialogPeriodSwitch.setChecked(
                 mFiltersInstance.getStartDate() != null && mFiltersInstance.getEndDate() != null);
@@ -214,6 +215,7 @@ public class TransactionFiltersDialogFragment
         $.filtersDialogAmountSwitch.setOnCheckedChangeListener((b, checked) -> {
             int visibility = checked ? View.VISIBLE : View.GONE;
             $.filtersDialogAmountGroup.setVisibility(visibility);
+            tryToEnableApplyButton();
         });
         $.filtersDialogAmountSwitch.setChecked(
                 mFiltersInstance.getMinAmount() != null && mFiltersInstance.getMaxAmount() != null);
@@ -346,6 +348,21 @@ public class TransactionFiltersDialogFragment
         ViewTintingUtil.tintTextInputLayout($.filtersDialogAmountMax, mThemeColor);
     }
 
+    private void tryToEnableApplyButton() {
+        boolean amountIsChecked = $.filtersDialogAmountSwitch.isChecked();
+        boolean dateIsChecked = $.filtersDialogPeriodSwitch.isChecked();
+        boolean shouldEnable = true;
+        if (dateIsChecked) {
+            if ($.filtersDialogPeriodFrom.isErrorEnabled()) shouldEnable = false;
+            if ($.filtersDialogPeriodTo.isErrorEnabled()) shouldEnable = false;
+        }
+        if (amountIsChecked) {
+            if ($.filtersDialogAmountMin.isErrorEnabled()) shouldEnable = false;
+            if ($.filtersDialogAmountMax.isErrorEnabled()) shouldEnable = false;
+        }
+        if (shouldEnable) $.filtersDialogApplyBtn.setEnabled(true);
+    }
+
     private void openDatePicker(boolean isStartDate) {
         Calendar originalDateCalendar = Calendar.getInstance();
         OffsetDateTime originalDate = null;
@@ -412,8 +429,10 @@ public class TransactionFiltersDialogFragment
         if (mFiltersInstance.getEndDate() != null &&
                 !datetime.isBefore(mFiltersInstance.getEndDate())) {
             $.filtersDialogPeriodFrom.setError(getResources().getString(R.string.transaction_filters_start_date_error));
+            $.filtersDialogApplyBtn.setEnabled(false);
         } else {
             $.filtersDialogPeriodFrom.setErrorEnabled(false);
+            tryToEnableApplyButton();
         }
     }
 
@@ -423,8 +442,10 @@ public class TransactionFiltersDialogFragment
         if (mFiltersInstance.getStartDate() != null &&
                 !datetime.isAfter(mFiltersInstance.getStartDate())) {
             $.filtersDialogPeriodTo.setError(getResources().getString(R.string.transaction_filters_end_date_error));
+            $.filtersDialogApplyBtn.setEnabled(false);
         } else {
             $.filtersDialogPeriodTo.setErrorEnabled(false);
+            tryToEnableApplyButton();
         }
     }
 
@@ -436,6 +457,7 @@ public class TransactionFiltersDialogFragment
             decimal = null;
             value = null;
         }
+
         if (isMin) {
             BigDecimal max = mFiltersInstance.getMaxAmount();
             $.filtersDialogAmountMax.setErrorEnabled(false);
@@ -443,10 +465,8 @@ public class TransactionFiltersDialogFragment
                 if (max != null && max.compareTo(decimal) <= 0) {
                     $.filtersDialogAmountMin.setError(getResources().getString(R.string.transaction_filters_min_amount_error));
                     $.filtersDialogApplyBtn.setEnabled(false);
-                } else {
+                } else
                     $.filtersDialogAmountMin.setErrorEnabled(false);
-                    $.filtersDialogApplyBtn.setEnabled(true);
-                }
             }
             mFiltersInstance.setMinAmount(value);
         } else {
@@ -456,13 +476,12 @@ public class TransactionFiltersDialogFragment
                 if (min != null && min.compareTo(decimal) >= 0) {
                     $.filtersDialogApplyBtn.setEnabled(false);
                     $.filtersDialogAmountMax.setError(getResources().getString(R.string.transaction_filters_max_amount_error));
-                } else {
+                } else
                     $.filtersDialogAmountMax.setErrorEnabled(false);
-                    $.filtersDialogApplyBtn.setEnabled(true);
-                }
             }
             mFiltersInstance.setMaxAmount(value);
         }
+        tryToEnableApplyButton();
     }
 
     @Override
