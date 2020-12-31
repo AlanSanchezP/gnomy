@@ -1,6 +1,5 @@
 package io.github.alansanchezp.gnomy.ui.transaction;
 
-import android.app.Dialog;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -8,12 +7,14 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.InputFilter;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.tiper.MaterialSpinner;
@@ -101,11 +102,30 @@ public class TransactionFiltersDialogFragment
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         $ = DialogTransactionFiltersBinding.inflate(inflater, container, false);
         View view = $.getRoot();
+        // Calculate default appbar/toolbar size
+        TypedValue tv = new TypedValue();
+        requireActivity().getTheme().resolveAttribute(R.attr.actionBarSize, tv, true);
+        final int originalAppBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
+
+        // Resize toolbar to avoid overlap with status bar
+        $.filtersDialogToolbar.setOnApplyWindowInsetsListener((v, insets) -> {
+            // HARDCODING PARENT LAYOUT TYPE: We used LinearLayout as Toolbar's parent
+            LinearLayout.LayoutParams layoutParams =  (LinearLayout.LayoutParams) v.getLayoutParams();
+            // Only alter view dimensions if it's the first time this inset set arrives
+            if (layoutParams.height == originalAppBarHeight && insets.getSystemWindowInsetTop() != v.getPaddingTop()) {
+                // Make toolbar taller (necessary due to layout_height constraints)
+                layoutParams.height += insets.getSystemWindowInsetTop();
+                // Add top padding to move content down
+                v.setPaddingRelative(v.getPaddingStart(), insets.getSystemWindowInsetTop(), v.getPaddingEnd(), v.getPaddingBottom());
+                v.setLayoutParams(layoutParams);
+            }
+           return insets;
+        });
         SingleClickViewHolder<Button> applyFiltersBtn = new SingleClickViewHolder<>($.filtersDialogApplyBtn);
         if (mFiltersInstance == null)
             mFiltersInstance = mListener.getInitialFilters();
 
-        // TODO: Replace spinner implementation (once plugin migration is ready)
+        // Keeping vanilla spinner since MaterialSpinner keeps hint space and it looks weird
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(view.getContext(),
                 R.array.transaction_types, android.R.layout.simple_spinner_dropdown_item);
         $.filtersDialogTypeSpinner.setAdapter(adapter);
@@ -123,10 +143,8 @@ public class TransactionFiltersDialogFragment
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
-        $.filtersDialogCloseBtn.setOnClickListener(v -> {
-            Dialog dialog = getDialog();
-            Objects.requireNonNull(dialog).cancel();
-        });
+        $.filtersDialogCloseBtn.setOnClickListener(v ->
+                requireDialog().cancel());
         applyFiltersBtn.setOnClickListener(v -> {
             if (!$.filtersDialogPeriodSwitch.isChecked()) {
                 mFiltersInstance.setStartDate(null);
@@ -137,8 +155,7 @@ public class TransactionFiltersDialogFragment
                 mFiltersInstance.setMaxAmount(null);
             }
             mListener.applyFilters(mFiltersInstance);
-            Dialog dialog = getDialog();
-            Objects.requireNonNull(dialog).dismiss();
+            requireDialog().dismiss();
         });
 
         mListener.getAccountsLiveData().observe(getViewLifecycleOwner(), this::onAccountsListChanged);
