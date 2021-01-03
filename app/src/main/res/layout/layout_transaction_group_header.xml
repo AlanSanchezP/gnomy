@@ -9,17 +9,19 @@
     <TextView
         android:id="@+id/transaction_group_header_text"
         android:layout_height="wrap_content"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:textSize="16sp"
         android:fontFamily="@font/robotomedium"
+        android:textDirection="locale"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/transaction_group_header_sum"
         app:layout_constraintTop_toTopOf="parent" />
     <TextView
         android:id="@+id/transaction_group_header_sum"
         android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:textSize="16sp"
+        android:textDirection="locale"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
     <!-- TODO: Is there a better way to achieve this separator? -->
