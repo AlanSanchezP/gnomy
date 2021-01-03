@@ -150,4 +150,8 @@ public class AddEditTransactionViewModel extends AndroidViewModel {
     public void setSelectedCategory(int categoryId) {
         mState.set(TAG_USER_SELECTED_CATEGORY, categoryId);
     }
+
+    public Single<Integer> restoreDestinationAccount(int accountId) {
+        return mAccountRepository.restore(accountId);
+    }
 }

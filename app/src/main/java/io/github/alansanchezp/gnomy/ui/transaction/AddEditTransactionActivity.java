@@ -1,5 +1,6 @@
 package io.github.alansanchezp.gnomy.ui.transaction;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
@@ -36,6 +37,7 @@ import io.github.alansanchezp.gnomy.database.category.Category;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.databinding.ActivityAddEditTransactionBinding;
 import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
+import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
 import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.ui.GnomySpinnerAdapter;
 import io.github.alansanchezp.gnomy.ui.account.AddEditAccountActivity;
@@ -66,6 +68,7 @@ public class AddEditTransactionActivity
     // TODO: Implement logic to use these two extras
     public static final String EXTRA_TRANSACTION_ACCOUNT = "AddEditTransactionActivity.TransactionAccount";
     public static final String EXTRA_TRANSFER_DESTINATION_ACCOUNT = "AddEditTransactionActivity.TransferDestinationAccount";
+    private static final String TAG_ARCHIVED_DESTINATION_DIALOG = "AddEditTransactionActivity.ArchivedDestinationDialog";
     private static final String TAG_DATE_DIALOG = "AddEditTransactionActivity.DateDialog";
     private static final String TAG_TIME_DIALOG = "AddEditTransactionActivity.TimeDialog";
     private static final String TAG_CALCULATOR_DIALOG = "AddEditTransactionActivity.CalculatorDialog";
@@ -466,10 +469,22 @@ public class AddEditTransactionActivity
             }
             if (mTransaction.getType() == MoneyTransaction.TRANSFER &&
                     mTransaction.getTransferDestinationAccount() != null) {
-                int selectedIndex = getItemIndexById(mAccountsList, mTransaction.getTransferDestinationAccount());
-                Account destinationAccount = mAccountsList.get(selectedIndex);
-                setDestinationAccount(destinationAccount);
-                $.addeditTransactionToAccount.setSelection(selectedIndex);
+                try {
+                    int selectedIndex = getItemIndexById(mAccountsList, mTransaction.getTransferDestinationAccount());
+                    Account destinationAccount = mAccountsList.get(selectedIndex);
+                    setDestinationAccount(destinationAccount);
+                    $.addeditTransactionToAccount.setSelection(selectedIndex);
+                } catch(ArrayIndexOutOfBoundsException e) {
+                    $.addeditTransactionToAccount.setVisibility(View.GONE);
+                    ConfirmationDialogFragment dialog = new ConfirmationDialogFragment(this);
+                    Bundle args = new Bundle();
+                    args.putString(ConfirmationDialogFragment.ARG_TITLE, getString(R.string.transaction_transfer_destination_archived));
+                    args.putString(ConfirmationDialogFragment.ARG_MESSAGE, getString(R.string.transaction_transfer_destination_archived_message));
+                    args.putString(ConfirmationDialogFragment.ARG_YES_STRING, getString(R.string.transaction_transfer_destination_archived_action));
+                    args.putString(ConfirmationDialogFragment.ARG_NO_STRING, getString(R.string.transaction_transfer_destination_archived_ignore));
+                    dialog.setArguments(args);
+                    dialog.show(getSupportFragmentManager(), TAG_ARCHIVED_DESTINATION_DIALOG);
+                }
             }
             $.addeditTransactionCurrency.setSelection(CurrencyUtil.getCurrencyIndex(mTransaction.getCurrency()));
         }
@@ -782,5 +797,24 @@ public class AddEditTransactionActivity
     public void onValueEntered(int requestCode, @Nullable BigDecimal value) {
         if (value != null)
             $.addeditTransactionAmountInput.setText(value.toPlainString());
+    }
+
+    @Override
+    public void onConfirmationDialogYes(DialogInterface dialog, String dialogTag, int which) {
+        if (dialogTag.equals(TAG_ARCHIVED_DESTINATION_DIALOG)) {
+            mCompositeDisposable.add(
+                mViewModel.restoreDestinationAccount(mTransaction.getTransferDestinationAccount())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            integer -> {
+                                $.addeditTransactionToAccount.setVisibility(View.VISIBLE);
+                            },
+                            throwable -> {
+                                Toast.makeText(this, R.string.generic_data_error, Toast.LENGTH_LONG).show();
+                            }));
+        } else {
+            super.onConfirmationDialogYes(dialog, dialogTag, which);
+        }
     }
 }
