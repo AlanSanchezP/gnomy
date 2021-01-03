@@ -22,14 +22,18 @@
 
     <TextView
         android:id="@+id/archived_account_card_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
         android:layout_toEndOf="@+id/archived_account_card_icon"
         android:textColor="@color/colorTextHighlight"
         android:textSize="17sp"
         android:textStyle="bold"
+        android:scrollHorizontally="true"
+        android:ellipsize="end"
+        android:maxLines="2"
         app:layout_constraintStart_toEndOf="@id/archived_account_card_icon"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/archived_account_card_icon" />
 
     <Button
