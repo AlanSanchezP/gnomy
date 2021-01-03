@@ -31,7 +31,8 @@
                 android:layout_marginTop="5dp"
                 android:textColorHint="@color/colorTextSecondary"
                 android:layout_marginEnd="36dp"
-                android:textDirection="locale" >
+                android:textDirection="locale"
+                app:hintAnimationEnabled="false" >
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/addedit_account_name_input"
@@ -67,7 +68,8 @@
                         android:layout_height="wrap_content"
                         android:textColorHint="@color/colorTextSecondary"
                         app:startIconTint="#000000"
-                        app:startIconDrawable="@drawable/ic_account_balance_24">
+                        app:startIconDrawable="@drawable/ic_account_balance_24"
+                        app:hintAnimationEnabled="false" >
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/addedit_account_initial_value_input"
@@ -92,7 +94,8 @@
                         android:textColorHint="@color/colorTextSecondary"
                         app:boxBackgroundColor="@color/colorSurface"
                         app:startIconDrawable="@drawable/ic_attach_money_black_24dp"
-                        app:boxStrokeWidth="0dp" />
+                        app:boxStrokeWidth="0dp"
+                        app:hintAnimationEnabled="false" />
 
                     <TextView
                         android:id="@+id/addedit_account_currency_cannot_change"
@@ -113,7 +116,8 @@
                         android:textColorHint="@color/colorTextSecondary"
                         app:boxStrokeWidth="0dp"
                         app:startIconDrawable="@drawable/ic_account_balance_bank_black_24dp"
-                        app:boxBackgroundColor="@color/colorSurface" />
+                        app:boxBackgroundColor="@color/colorSurface"
+                        app:hintAnimationEnabled="false" />
 
                     <Switch
                         android:id="@+id/addedit_account_show_in_home"

@@ -504,6 +504,14 @@ public class AddEditTransactionActivity
             $.addeditTransactionBox.setVisibility(View.VISIBLE);
             mFABVH.onView(this, v -> v.setVisibility(View.VISIBLE));
         }
+
+        // Restore hint animation for the fields that will likely use it
+        $.addeditTransactionConcept.setHintAnimationEnabled(true);
+        $.addeditTransactionAmount.setHintAnimationEnabled(true);
+        $.addeditTransactionFromAccount.setHintAnimationEnabled(true);
+        $.addeditTransactionToAccount.setHintAnimationEnabled(true);
+        $.addeditTransactionCategory.setHintAnimationEnabled(true);
+        $.addeditTransactionNotes.setHintAnimationEnabled(true);
     }
 
     private void tryToForceConfirmedStatus() {

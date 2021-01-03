@@ -34,7 +34,8 @@
                 android:textDirection="locale"
                 app:endIconTint="#000000"
                 app:endIconDrawable="@drawable/ic_calculate_24"
-                app:endIconMode="custom" >
+                app:endIconMode="custom"
+                app:hintAnimationEnabled="false" >
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/addedit_transaction_amount_input"
@@ -70,7 +71,8 @@
                         android:id="@+id/addedit_transaction_concept"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColorHint="@color/colorTextSecondary" >
+                        android:textColorHint="@color/colorTextSecondary"
+                        app:hintAnimationEnabled="false" >
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/addedit_transaction_concept_input"
@@ -93,7 +95,8 @@
                         android:textColorHint="@color/colorTextSecondary"
                         app:boxBackgroundColor="@color/colorSurface"
                         app:startIconDrawable="@drawable/ic_account_balance_bank_black_24dp"
-                        app:boxStrokeWidth="0dp" />
+                        app:boxStrokeWidth="0dp"
+                        app:hintAnimationEnabled="false" />
 
                     <com.tiper.MaterialSpinner
                         android:id="@+id/addedit_transaction_to_account"
@@ -105,7 +108,8 @@
                         android:textColorHint="@color/colorTextSecondary"
                         app:boxBackgroundColor="@color/colorSurface"
                         app:startIconDrawable="@drawable/ic_account_balance_bank_black_24dp"
-                        app:boxStrokeWidth="0dp" />
+                        app:boxStrokeWidth="0dp"
+                        app:hintAnimationEnabled="false" />
 
                     <TextView
                         android:layout_height="wrap_content"
@@ -126,7 +130,8 @@
                         android:textColorHint="@color/colorTextSecondary"
                         app:boxBackgroundColor="@color/colorSurface"
                         app:startIconDrawable="@drawable/ic_baseline_category_24"
-                        app:boxStrokeWidth="0dp" />
+                        app:boxStrokeWidth="0dp"
+                        app:hintAnimationEnabled="false" />
 
                     <TextView
                         android:layout_height="wrap_content"
@@ -176,7 +181,8 @@
                             android:textColorHint="@color/colorTextSecondary"
                             app:endIconDrawable="@drawable/ic_date_range_black_24dp"
                             app:endIconTint="#000000"
-                            app:endIconMode="custom">
+                            app:endIconMode="custom"
+                            app:hintAnimationEnabled="false" >
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/addedit_transaction_date_input"
@@ -213,7 +219,8 @@
                             android:textColorHint="@color/colorTextSecondary"
                             app:boxBackgroundColor="@color/colorSurface"
                             app:startIconDrawable="@drawable/ic_attach_money_black_24dp"
-                            app:boxStrokeWidth="0dp" />
+                            app:boxStrokeWidth="0dp"
+                            app:hintAnimationEnabled="false" />
 
                         <TextView
                             android:id="@+id/addedit_transaction_currency_cannot_change"
@@ -231,7 +238,8 @@
                             android:layout_marginTop="15dp"
                             android:textColorHint="@color/colorTextSecondary"
                             app:startIconTint="#000000"
-                            app:startIconDrawable="@drawable/ic_baseline_notes_24" >
+                            app:startIconDrawable="@drawable/ic_baseline_notes_24"
+                            app:hintAnimationEnabled="false" >
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/addedit_transaction_notes_input"

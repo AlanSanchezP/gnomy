@@ -148,6 +148,10 @@ public class AddEditAccountActivity
         // TODO: How can we prevent Switch animation from triggering?
         //  When on edit mode, the animation is triggered if account.isShowInDashboard() is true
         $.addeditAccountBox.setVisibility(View.VISIBLE);
+
+        // Restore hint animation for the fields that will likely use it
+        $.addeditAccountName.setHintAnimationEnabled(true);
+        $.addeditAccountInitialValue.setHintAnimationEnabled(true);
     }
 
     private void onAccountColorChanged(@ColorInt int color) {

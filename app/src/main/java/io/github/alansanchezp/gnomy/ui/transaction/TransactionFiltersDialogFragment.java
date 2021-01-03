@@ -233,6 +233,11 @@ public class TransactionFiltersDialogFragment
                 new InputFilter[]{new InputFilterMinMax(MoneyTransaction.MIN_VALUE, MoneyTransaction.MAX_VALUE, BigDecimalUtil.DECIMAL_SCALE)});
         $.filtersDialogAmountMaxInput.addTextChangedListener(onlyOnTextChanged((s, start, count, after) ->
                 onAmountTextChanged(s.toString(), false)));
+
+        // Restore hint animation for the fields that will likely use it
+        $.filtersDialogAmountMin.setHintAnimationEnabled(true);
+        $.filtersDialogAmountMax.setHintAnimationEnabled(true);
+
         return view;
     }
 
