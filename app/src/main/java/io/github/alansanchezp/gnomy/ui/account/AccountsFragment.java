@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,6 +33,7 @@ import io.github.alansanchezp.gnomy.databinding.FragmentAccountsBinding;
 import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
 import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
+import io.github.alansanchezp.gnomy.ui.transaction.TransactionsFragment;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
@@ -209,6 +211,10 @@ public class AccountsFragment
                 requireActivity().startActivity(modifyAccountIntent);
                 break;
             case R.id.account_card_transactions:
+                // TODO: Is it worth including the SafeArgs module?
+                Bundle args = new Bundle();
+                args.putInt(TransactionsFragment.ARG_DEFAULT_FILTER_ACCOUNT, account.getId());
+                NavHostFragment.findNavController(this).navigate(R.id.action_navigation_accounts_to_navigation_transactions, args);
                 break;
             case R.id.account_card_archive:
                 archiveAccount(account);

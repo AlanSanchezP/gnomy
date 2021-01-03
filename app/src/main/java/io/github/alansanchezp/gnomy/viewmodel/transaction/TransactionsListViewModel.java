@@ -64,6 +64,16 @@ public class TransactionsListViewModel extends AndroidViewModel {
         return filters;
     }
 
+    public void initAccount(int accountId) {
+        MoneyTransactionFilters initialFilters = getCurrentFilters();
+        if (initialFilters == null) {
+            initialFilters = new MoneyTransactionFilters();
+            initialFilters.setMonth(mActiveMonth.getValue());
+        }
+        initialFilters.setAccountId(accountId);
+        applyFilters(initialFilters);
+    }
+
     public LiveData<List<TransactionDisplayData>> getTransactionsList() {
         return mTransactions;
     }
@@ -95,7 +105,7 @@ public class TransactionsListViewModel extends AndroidViewModel {
     public void clearFilters() {
         mFilters.postValue(bindMonthToFilters(mActiveMonth.getValue()));
     }
-
+    // TODO: IS IT NECESSARY TO USE BOTH SAVEDSTATE AND CUSTOM MUTABLELIVEDATA?
     public void applyFilters (MoneyTransactionFilters filters) {
         mSavedState.set(TAG_FILTERS, filters);
         mFilters.postValue(filters);

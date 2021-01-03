@@ -49,6 +49,7 @@ public class TransactionsFragment
         implements  ConfirmationDialogFragment.OnConfirmationDialogListener,
                     TransactionFiltersDialogFragment.TransactionFiltersDialogInterface {
 
+    public static final String ARG_DEFAULT_FILTER_ACCOUNT = "TransactionsFragment.DefaultFilterAccount";
     private static final String TAG_DELETE_TRANSACTION_DIALOG = "TransactionsFragment.DeleteTransactionDialog";
     private static final String TAG_FILTERS_DIALOG = "TransactionsFragment.FiltersDialog";
     // Not sure as to what else to do to avoid this warning
@@ -100,6 +101,16 @@ public class TransactionsFragment
         recyclerView.setNestedScrollingEnabled(false);
 
         mViewModel.bindMonth(mSharedViewModel.activeMonth);
+
+        // TODO: IS THERE A BETTER WAY TO HANDLE THE INITIAL ACCOUNT?
+        // Handle "See transactions" from accounts fragment
+        Bundle args = getArguments();
+        if (args != null && args.size() != 0) {
+            int initialAccount = args.getInt(ARG_DEFAULT_FILTER_ACCOUNT, 0);
+            args.remove(ARG_DEFAULT_FILTER_ACCOUNT);
+            if (initialAccount != 0)  mViewModel.initAccount(initialAccount);
+        }
+
         mViewModel.getFilters().observe(getViewLifecycleOwner(), this::onFiltersChanged);
         mViewModel.getTransactionsList().observe(getViewLifecycleOwner(), this::onTransactionsListChanged);
         SingleClickViewHolder<Button> seeFiltersVH = new SingleClickViewHolder<>($.customFilterBannerEdit);
