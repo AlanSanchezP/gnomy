@@ -65,7 +65,6 @@ public class AddEditTransactionActivity
         CalcDialog.CalcDialogCallback {
     public static final String EXTRA_TRANSACTION_TYPE = "AddEditTransactionActivity.TransactionType";
     public static final String EXTRA_TRANSACTION_ID = "AddEditTransactionActivity.TransactionId";
-    // TODO: Implement logic to use these two extras
     public static final String EXTRA_TRANSACTION_ACCOUNT = "AddEditTransactionActivity.TransactionAccount";
     public static final String EXTRA_TRANSFER_DESTINATION_ACCOUNT = "AddEditTransactionActivity.TransferDestinationAccount";
     private static final String TAG_ARCHIVED_DESTINATION_DIALOG = "AddEditTransactionActivity.ArchivedDestinationDialog";
@@ -116,6 +115,7 @@ public class AddEditTransactionActivity
         Intent intent = getIntent();
         int transactionId = intent.getIntExtra(EXTRA_TRANSACTION_ID, 0);
         mTransactionType = intent.getIntExtra(EXTRA_TRANSACTION_TYPE, MoneyTransaction.EXPENSE);
+
         if (mTransactionType == MoneyTransaction.EXPENSE) {
             if (transactionId == 0) setTitle(R.string.transaction_new_expense);
             else setTitle(R.string.transaction_modify_expense);
@@ -139,6 +139,17 @@ public class AddEditTransactionActivity
 
         LiveData<MoneyTransaction> ld = mViewModel.getTransaction(transactionId);
         if (ld == null) {
+            // Only handle these extras if no account is found
+            if (mViewModel.getSelectedAccount() == 0) {
+                int initialAccount = intent.getIntExtra(EXTRA_TRANSACTION_ACCOUNT, 0);
+                if (initialAccount != 0) mViewModel.setSelectedAccount(initialAccount);
+            }
+
+            if (mViewModel.getSelectedTransferAccount() == null && mTransactionType == MoneyTransaction.TRANSFER) {
+                int initialTransferDestinationAccount = intent.getIntExtra(EXTRA_TRANSFER_DESTINATION_ACCOUNT, 0);
+                if (initialTransferDestinationAccount != 0) mViewModel.setSelectedTransferAccount(initialTransferDestinationAccount);
+            }
+
             MoneyTransaction transaction = new MoneyTransaction();
             transaction.setType(mTransactionType);
             transaction.setAccount(mViewModel.getSelectedAccount());
@@ -400,31 +411,25 @@ public class AddEditTransactionActivity
 
         if (mTransactionType == MoneyTransaction.TRANSFER) {
             GnomySpinnerAdapter<Account> transferAdapter = new GnomySpinnerAdapter<>(this, accounts);
-            if (accounts.size() > 1) {
-                $.addeditTransactionToAccount.setAdapter(transferAdapter);
-                $.addeditTransactionToAccount.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(@NotNull MaterialSpinner parent, @Nullable View view, int position, long id) {
-                        if (mTransaction == null) return;
-                        parent.setErrorEnabled(false);
-                        Account item = accounts.get(position);
-                        setDestinationAccount(item);
-                        if ((int) id == mTransaction.getAccount()) {
-                            parent.setError(getString(R.string.transaction_error_transfer_destination_account));
-                            parent.getChildAt(1).setVisibility(View.VISIBLE);
-                        }
-                        parent.setStartIconDrawable(adapter.getItemDrawable(position));
+            $.addeditTransactionToAccount.setAdapter(transferAdapter);
+            $.addeditTransactionToAccount.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(@NotNull MaterialSpinner parent, @Nullable View view, int position, long id) {
+                    if (mTransaction == null) return;
+                    parent.setErrorEnabled(false);
+                    Account item = accounts.get(position);
+                    setDestinationAccount(item);
+                    if ((int) id == mTransaction.getAccount()) {
+                        parent.setError(getString(R.string.transaction_error_transfer_destination_account));
+                        parent.getChildAt(1).setVisibility(View.VISIBLE);
                     }
+                    parent.setStartIconDrawable(adapter.getItemDrawable(position));
+                }
 
-                    @Override
-                    public void onNothingSelected(@NotNull MaterialSpinner parent) {
-                    }
-                });
-            } else { // Send empty list that prevents ONE possible occurrence of same-account error
-                $.addeditTransactionToAccount.setAdapter(new GnomySpinnerAdapter<>(this, new ArrayList<>()));
-                mTransaction.setTransferDestinationAccount(null);
-                $.addeditTransactionToAccount.setOnItemSelectedListener(null);
-            }
+                @Override
+                public void onNothingSelected(@NotNull MaterialSpinner parent) {
+                }
+            });
             if (mViewModel.isExpectingNewAccount()) {
                 // Selects last inserted account
                 $.addeditTransactionToAccount.setSelection(mAccountsList.size() - 1);
@@ -475,6 +480,9 @@ public class AddEditTransactionActivity
                     setDestinationAccount(destinationAccount);
                     $.addeditTransactionToAccount.setSelection(selectedIndex);
                 } catch(ArrayIndexOutOfBoundsException e) {
+                    if (mIsNewScreen) throw e;
+                    // Only display this if the account id was retrieved directly from the database
+                    //   otherwise it's a programmer's error and therefore an exception should be thrown
                     $.addeditTransactionToAccount.setVisibility(View.GONE);
                     ConfirmationDialogFragment dialog = new ConfirmationDialogFragment(this);
                     Bundle args = new Bundle();
@@ -807,12 +815,10 @@ public class AddEditTransactionActivity
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
-                            integer -> {
-                                $.addeditTransactionToAccount.setVisibility(View.VISIBLE);
-                            },
-                            throwable -> {
-                                Toast.makeText(this, R.string.generic_data_error, Toast.LENGTH_LONG).show();
-                            }));
+                            integer ->
+                                $.addeditTransactionToAccount.setVisibility(View.VISIBLE),
+                            throwable ->
+                                Toast.makeText(this, R.string.generic_data_error, Toast.LENGTH_LONG).show()));
         } else {
             super.onConfirmationDialogYes(dialog, dialogTag, which);
         }

@@ -1,3 +1,6 @@
+// TODO: Test archived destination account (transfers only) management
+// TODO: Test account extras management
+
 package io.github.alansanchezp.gnomy.transaction;
 
 import android.content.Intent;

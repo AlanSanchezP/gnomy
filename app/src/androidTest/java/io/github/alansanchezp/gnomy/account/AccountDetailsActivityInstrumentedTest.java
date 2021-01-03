@@ -1,3 +1,5 @@
+// TODO: Test menu items (AddEditTransactionActivity intents)
+
 package io.github.alansanchezp.gnomy.account;
 
 import org.junit.BeforeClass;

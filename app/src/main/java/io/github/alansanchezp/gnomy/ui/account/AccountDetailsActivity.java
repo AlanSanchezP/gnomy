@@ -23,9 +23,11 @@ import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
+import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.databinding.ActivityAccountDetailsBinding;
 import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
 import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
+import io.github.alansanchezp.gnomy.ui.transaction.AddEditTransactionActivity;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
@@ -81,7 +83,7 @@ public class AccountDetailsActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean superResponse = super.onCreateOptionsMenu(menu);
-        toggleMenuItems();
+        toggleMenuItems(true);
         tintMenuItems();
 
         return superResponse;
@@ -89,10 +91,11 @@ public class AccountDetailsActivity
 
     @Override
     public boolean onOptionsItemSelected(@NonNull final MenuItem item) {
-        //noinspection SwitchStatementWithTooFewBranches
+        Intent intent = new Intent(this, AddEditTransactionActivity.class);
         switch (item.getItemId()) {
             case R.id.action_archive_account:
                 disableActions();
+                intent = null;
                 FragmentManager fm = getSupportFragmentManager();
                 if (fm.findFragmentByTag(TAG_ARCHIVE_DIALOG) != null) {
                     enableActions();
@@ -107,10 +110,32 @@ public class AccountDetailsActivity
                 dialog.setArguments(args);
                 dialog.show(getSupportFragmentManager(), TAG_ARCHIVE_DIALOG);
                 break;
+            case R.id.action_new_expense:
+                disableActions();
+                intent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, MoneyTransaction.EXPENSE);
+                intent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_ACCOUNT, mAccount.getId());
+                break;
+            case R.id.action_new_income:
+                disableActions();
+                intent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, MoneyTransaction.INCOME);
+                intent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_ACCOUNT, mAccount.getId());
+                break;
+            case R.id.action_new_incoming_transfer:
+                disableActions();
+                intent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, MoneyTransaction.TRANSFER);
+                intent.putExtra(AddEditTransactionActivity.EXTRA_TRANSFER_DESTINATION_ACCOUNT, mAccount.getId());
+                break;
+            case R.id.action_new_outgoing_transfer:
+                disableActions();
+                intent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, MoneyTransaction.TRANSFER);
+                intent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_ACCOUNT, mAccount.getId());
+                break;
             default:
-                // TODO: Implement other actions when Transactions module is ready
-                return false;
+                intent = null;
         }
+
+        if (intent != null) startActivity(intent);
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -151,12 +176,16 @@ public class AccountDetailsActivity
     protected void disableActions() {
         mSeeMoreBtnVH.blockClicks();
         mFABVH.blockClicks();
+        if (mMenu != null) {
+            toggleMenuItems(false);
+        }
     }
 
     @Override
     protected void enableActions() {
         mSeeMoreBtnVH.allowClicks();
         mFABVH.allowClicks();
+        toggleMenuItems(true);
     }
 
     public void onFABClick(View v) {
@@ -185,12 +214,12 @@ public class AccountDetailsActivity
             finish();
             return;
         }
+
         mAccount = awa.account;
         enableActions();
 
         tintElements(mAccount.getBackgroundColor());
-        toggleMenuItems();
-
+        toggleMenuItems(true);
         updateInfo(awa);
     }
 
@@ -235,14 +264,20 @@ public class AccountDetailsActivity
         }
     }
 
-    private void toggleMenuItems() {
+    private void toggleMenuItems(boolean preferredState) {
         if (mMenu == null) return;
 
-        boolean enableActions = (mAccount != null);
-        mMenu.findItem(R.id.action_account_actions)
-                .setEnabled(enableActions);
-        mMenu.findItem(R.id.action_archive_account)
-                .setEnabled(enableActions);
+        if (mAccount != null) {
+            mMenu.findItem(R.id.action_account_actions)
+                    .setEnabled(preferredState);
+            mMenu.findItem(R.id.action_archive_account)
+                    .setEnabled(preferredState);
+        } else {
+            mMenu.findItem(R.id.action_account_actions)
+                    .setEnabled(false);
+            mMenu.findItem(R.id.action_archive_account)
+                    .setEnabled(false);
+        }
     }
 
     @Override
