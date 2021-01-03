@@ -67,7 +67,7 @@
                         android:layout_height="wrap_content"
                         android:textColorHint="@color/colorTextSecondary"
                         app:startIconTint="#000000"
-                        app:startIconDrawable="@drawable/ic_account_balance_wallet_black_24dp">
+                        app:startIconDrawable="@drawable/ic_account_balance_24">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/addedit_account_initial_value_input"
@@ -112,7 +112,7 @@
                         android:hint="@string/account_type"
                         android:textColorHint="@color/colorTextSecondary"
                         app:boxStrokeWidth="0dp"
-                        app:startIconDrawable="@drawable/ic_account_balance_black_24dp"
+                        app:startIconDrawable="@drawable/ic_account_balance_bank_black_24dp"
                         app:boxBackgroundColor="@color/colorSurface" />
 
                     <Switch

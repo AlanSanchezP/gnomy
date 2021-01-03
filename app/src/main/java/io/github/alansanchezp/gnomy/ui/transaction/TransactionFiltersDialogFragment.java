@@ -262,7 +262,7 @@ public class TransactionFiltersDialogFragment
                 mFiltersInstance.setAccountId((int) id);
                 Drawable drawable = adapter.getItemDrawable(position);
                 if (drawable == null) {
-                    drawable = requireContext().getDrawable(R.drawable.ic_account_balance_black_24dp);
+                    drawable = requireContext().getDrawable(R.drawable.ic_account_balance_bank_black_24dp);
                     Objects.requireNonNull(drawable).setColorFilter(new PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.SRC_ATOP));
                 }
                 parent.setStartIconDrawable(drawable);

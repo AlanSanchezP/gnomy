@@ -16,7 +16,7 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:contentDescription="@string/account_icon"
-        android:src="@drawable/ic_account_balance_black_24dp"
+        android:src="@drawable/ic_account_balance_bank_black_24dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

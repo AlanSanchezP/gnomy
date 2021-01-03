@@ -26,7 +26,7 @@ public class AccountTypeItem implements ISpinnerItem {
     public String getDrawableResourceName() {
         switch (type) {
             case BANK:
-                return "ic_account_balance_black_24dp";
+                return "ic_account_balance_bank_black_24dp";
             case INFORMAL:
                 return "ic_account_balance_piggy_black_24dp";
             case SAVINGS:
