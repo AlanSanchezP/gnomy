@@ -22,8 +22,8 @@ import androidx.navigation.ui.NavigationUI;
 import io.github.alansanchezp.gnomy.databinding.ActivityMainBinding;
 import io.github.alansanchezp.gnomy.ui.GnomyActivity;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
-import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
-import io.github.alansanchezp.gnomy.util.android.ViewTintingUtil;
+import io.github.alansanchezp.gnomy.androidUtil.SingleClickViewHolder;
+import io.github.alansanchezp.gnomy.androidUtil.ViewTintingUtil;
 import io.github.alansanchezp.gnomy.viewmodel.MainActivityViewModel;
 
 // TODO: Add Javadoc comments to project

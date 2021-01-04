@@ -31,7 +31,7 @@ import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
 import io.github.alansanchezp.gnomy.databinding.FragmentAccountsBinding;
 import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
-import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
+import io.github.alansanchezp.gnomy.androidUtil.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
 import io.github.alansanchezp.gnomy.ui.transaction.TransactionsFragment;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;

@@ -13,7 +13,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.databinding.LayoutArchivedAccountCardBinding;
-import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
+import io.github.alansanchezp.gnomy.androidUtil.SingleClickViewHolder;
 
 public class ArchivedAccountsRecyclerViewAdapter
         extends RecyclerView.Adapter<ArchivedAccountsRecyclerViewAdapter.ViewHolder>{

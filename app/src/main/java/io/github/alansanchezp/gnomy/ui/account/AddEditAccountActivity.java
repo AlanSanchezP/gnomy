@@ -8,14 +8,14 @@ import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.databinding.ActivityAddEditAccountBinding;
 import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
-import io.github.alansanchezp.gnomy.ui.GnomySpinnerAdapter;
+import io.github.alansanchezp.gnomy.androidUtil.GnomySpinnerAdapter;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
-import io.github.alansanchezp.gnomy.util.android.InputFilterMinMax;
+import io.github.alansanchezp.gnomy.androidUtil.InputFilterMinMax;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
-import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
-import io.github.alansanchezp.gnomy.util.android.ViewTintingUtil;
+import io.github.alansanchezp.gnomy.androidUtil.SingleClickViewHolder;
+import io.github.alansanchezp.gnomy.androidUtil.ViewTintingUtil;
 import io.github.alansanchezp.gnomy.viewmodel.account.AddEditAccountViewModel;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -44,7 +44,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static io.github.alansanchezp.gnomy.util.android.SimpleTextWatcherWrapper.onlyOnTextChanged;
+import static io.github.alansanchezp.gnomy.androidUtil.SimpleTextWatcherWrapper.onlyOnTextChanged;
 
 public class AddEditAccountActivity
         extends BackButtonActivity<ActivityAddEditAccountBinding> {

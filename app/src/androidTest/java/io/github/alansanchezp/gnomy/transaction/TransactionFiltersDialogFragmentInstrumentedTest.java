@@ -43,7 +43,7 @@ import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.category.Category;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionFilters;
-import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
+import io.github.alansanchezp.gnomy.androidUtil.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.ui.transaction.TransactionFiltersDialogFragment;
 import io.github.alansanchezp.gnomy.ui.transaction.TransactionFiltersDialogFragment.TransactionFiltersDialogInterface;
 import io.github.alansanchezp.gnomy.util.DateUtil;

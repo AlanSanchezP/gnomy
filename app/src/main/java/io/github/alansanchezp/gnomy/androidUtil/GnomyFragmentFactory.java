@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.ui;
+package io.github.alansanchezp.gnomy.androidUtil;
 
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
@@ -11,6 +11,7 @@ import java.util.Map;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentFactory;
+import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
 import io.github.alansanchezp.gnomy.ui.account.ArchivedAccountsDialogFragment;
 import io.github.alansanchezp.gnomy.ui.transaction.TransactionFiltersDialogFragment;
 

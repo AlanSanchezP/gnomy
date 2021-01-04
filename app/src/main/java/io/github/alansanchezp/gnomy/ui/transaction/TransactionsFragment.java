@@ -34,12 +34,12 @@ import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionFilters
 import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
 import io.github.alansanchezp.gnomy.databinding.FragmentTransactionsBinding;
 import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
-import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
+import io.github.alansanchezp.gnomy.androidUtil.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
-import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
+import io.github.alansanchezp.gnomy.androidUtil.SingleClickViewHolder;
 import io.github.alansanchezp.gnomy.viewmodel.transaction.TransactionsListViewModel;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;

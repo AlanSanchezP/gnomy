@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.databinding.DialogConfirmationBinding;
-import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
+import io.github.alansanchezp.gnomy.androidUtil.SingleClickViewHolder;
 
 public class ConfirmationDialogFragment extends DialogFragment {
     public static final String ARG_TITLE = "ConfirmationDialog.Title";

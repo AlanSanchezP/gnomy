@@ -15,6 +15,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import androidx.viewbinding.ViewBinding;
 import io.github.alansanchezp.gnomy.R;
+import io.github.alansanchezp.gnomy.androidUtil.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.reactivex.disposables.CompositeDisposable;
 

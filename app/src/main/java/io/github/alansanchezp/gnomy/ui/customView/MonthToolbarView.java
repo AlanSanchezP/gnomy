@@ -18,7 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import io.github.alansanchezp.gnomy.databinding.LayoutMonthToolbarBinding;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
-import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
+import io.github.alansanchezp.gnomy.androidUtil.SingleClickViewHolder;
 import io.github.alansanchezp.gnomy.viewmodel.customView.MonthToolbarViewModel;
 
 import static com.github.dewinjm.monthyearpicker.MonthYearPickerDialogFragment.NULL_INT;

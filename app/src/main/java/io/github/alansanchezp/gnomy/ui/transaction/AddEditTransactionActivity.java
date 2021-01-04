@@ -38,24 +38,24 @@ import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.databinding.ActivityAddEditTransactionBinding;
 import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
 import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
-import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
-import io.github.alansanchezp.gnomy.ui.GnomySpinnerAdapter;
+import io.github.alansanchezp.gnomy.androidUtil.GnomyFragmentFactory;
+import io.github.alansanchezp.gnomy.androidUtil.GnomySpinnerAdapter;
 import io.github.alansanchezp.gnomy.ui.account.AddEditAccountActivity;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
-import io.github.alansanchezp.gnomy.util.android.InputFilterMinMax;
-import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
-import io.github.alansanchezp.gnomy.util.android.ViewTintingUtil;
+import io.github.alansanchezp.gnomy.androidUtil.InputFilterMinMax;
+import io.github.alansanchezp.gnomy.androidUtil.SingleClickViewHolder;
+import io.github.alansanchezp.gnomy.androidUtil.ViewTintingUtil;
 import io.github.alansanchezp.gnomy.viewmodel.transaction.AddEditTransactionViewModel;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 import static io.github.alansanchezp.gnomy.util.ISpinnerItem.getItemIndexById;
-import static io.github.alansanchezp.gnomy.util.android.SimpleTextWatcherWrapper.onlyOnTextChanged;
+import static io.github.alansanchezp.gnomy.androidUtil.SimpleTextWatcherWrapper.onlyOnTextChanged;
 
 // TODO: Implement recurrent transactions
 public class AddEditTransactionActivity

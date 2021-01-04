@@ -21,7 +21,7 @@ import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
-import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
+import io.github.alansanchezp.gnomy.androidUtil.SingleClickViewHolder;
 import io.github.alansanchezp.gnomy.viewmodel.account.AccountBalanceHistoryViewModel;
 
 public class AccountBalanceHistoryActivity

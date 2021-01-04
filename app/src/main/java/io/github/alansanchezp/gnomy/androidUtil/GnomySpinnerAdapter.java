@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.ui;
+package io.github.alansanchezp.gnomy.androidUtil;
 
 import androidx.annotation.Nullable;
 import android.content.Context;

@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.util.android;
+package io.github.alansanchezp.gnomy.androidUtil;
 
 import android.content.res.ColorStateList;
 import android.graphics.Color;
