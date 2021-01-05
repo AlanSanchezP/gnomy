@@ -231,6 +231,8 @@ public class TransactionsFragment
         boolean isSimpleFilter = mViewModel.getCurrentFilters().isSimpleFilterWithMonth(
                 mSharedViewModel.activeMonth.getValue());
 
+        // TODO: Is it worth keeping Groupie for this single use case? Maybe a simple
+        //  local class to handle items and headers in a recyclerview would be better
         if (!transactions.isEmpty()) {
             // Init data holders
             int daySectionId = DateUtil.getDayId(transactions.get(0).transaction.getDate());
@@ -255,7 +257,7 @@ public class TransactionsFragment
                 }
 
                 // Add the current item to the day's group
-                daySection.add(new TransactionItem(item));
+                daySection.add(new TransactionItem(item, true));
                 if (item.transaction.getType() == MoneyTransaction.INCOME)
                     dayTotal = dayTotal.add(item.transaction.getCalculatedValue());
                 else if (item.transaction.getType() == MoneyTransaction.EXPENSE)

@@ -6,18 +6,25 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import java.time.YearMonth;
 
 import java.math.BigDecimal;
+import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.R;
+import io.github.alansanchezp.gnomy.androidUtil.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
+import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
 import io.github.alansanchezp.gnomy.databinding.ActivityAccountHistoryBinding;
 import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
+import io.github.alansanchezp.gnomy.ui.transaction.AddEditTransactionActivity;
+import io.github.alansanchezp.gnomy.ui.transaction.UnresolvedTransactionsDialogFragment;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
@@ -25,7 +32,8 @@ import io.github.alansanchezp.gnomy.androidUtil.SingleClickViewHolder;
 import io.github.alansanchezp.gnomy.viewmodel.account.AccountBalanceHistoryViewModel;
 
 public class AccountBalanceHistoryActivity
-        extends BackButtonActivity<ActivityAccountHistoryBinding> {
+        extends BackButtonActivity<ActivityAccountHistoryBinding>
+        implements UnresolvedTransactionsDialogFragment.UnresolvedTransactionsDialogInterface {
     public static final String EXTRA_ACCOUNT_ID = "AccountBalanceHistoryActivity.AccountId";
     // Unlike DetailsActivity, account data is passed through Intent
     // in order to avoid an extra query that we have already performed
@@ -34,10 +42,19 @@ public class AccountBalanceHistoryActivity
     public static final String EXTRA_CURRENCY = "AccountBalanceHistoryActivity.AccountCurrency";
     public static final String EXTRA_ACCOUNT_CREATION_MONTH = "AccountBalanceHistoryActivity.AccountCreationMonth";
     public static final String EXTRA_BG_COLOR = "AccountBalanceHistoryActivity.BgColor";
+    public static final String TAG_UNRESOLVED_TRANSACTIONS_DIALOG = "AccountBalanceHistoryActivity.UnresolvedTransactionsDialog";
     private SingleClickViewHolder<Button> mCheckPendingButtonVH;
+    private AccountBalanceHistoryViewModel mViewModel;
+    private int mAccountId;
 
     public AccountBalanceHistoryActivity() {
         super(null, false, ActivityAccountHistoryBinding::inflate);
+    }
+
+    @Override
+    protected GnomyFragmentFactory getFragmentFactory() {
+        return super.getFragmentFactory()
+                .addMapElement(UnresolvedTransactionsDialogFragment.class, this);
     }
 
     @Override
@@ -45,8 +62,8 @@ public class AccountBalanceHistoryActivity
         super.onCreate(savedInstanceState);
 
         Intent intent = getIntent();
-        int accountId = intent.getIntExtra(EXTRA_ACCOUNT_ID, 0);
-        if (accountId < 1) throw new RuntimeException("No account id was provided.");
+        mAccountId = intent.getIntExtra(EXTRA_ACCOUNT_ID, 0);
+        if (mAccountId < 1) throw new RuntimeException("No account id was provided.");
 
         mCheckPendingButtonVH = new SingleClickViewHolder<>($.accountHistoryCheckBtn);
         mCheckPendingButtonVH.setOnClickListener(this::onCheckPendingTransactionsClick);
@@ -58,17 +75,17 @@ public class AccountBalanceHistoryActivity
 
         setTitle(accountName + " " + getString(R.string.account_balance_history_legend));
 
-        AccountBalanceHistoryViewModel accountBalanceHistoryViewModel = new ViewModelProvider(
+        mViewModel = new ViewModelProvider(
                 this,
                 new SavedStateViewModelFactory(
                         getApplication(),
                         this
                 )).get(AccountBalanceHistoryViewModel.class);
 
-        $.monthtoolbar.setViewModel(accountBalanceHistoryViewModel);
+        $.monthtoolbar.setViewModel(mViewModel);
         $.monthtoolbar.tintElements(mThemeColor, mThemeTextColor);
 
-        accountBalanceHistoryViewModel.getAccumulatedAtMonth(accountId)
+        mViewModel.getAccumulatedAtMonth(mAccountId)
                 .observe(this, this::onAccumulatedBalanceChanged);
     }
 
@@ -78,8 +95,11 @@ public class AccountBalanceHistoryActivity
     }
 
     public void onCheckPendingTransactionsClick(View v) {
-        // TODO: Implement pending transactions list when Transactions module is ready
-        Toast.makeText(this, getString(R.string.wip), Toast.LENGTH_LONG).show();
+        UnresolvedTransactionsDialogFragment dialog = new UnresolvedTransactionsDialogFragment(this);
+        Bundle args = new Bundle();
+        args.putInt(UnresolvedTransactionsDialogFragment.ARG_TARGET_ACCOUNT, mAccountId);
+        dialog.setArguments(args);
+        dialog.show(getSupportFragmentManager(), TAG_UNRESOLVED_TRANSACTIONS_DIALOG);
     }
 
     private void onMonthChanged(YearMonth month) {
@@ -174,5 +194,20 @@ public class AccountBalanceHistoryActivity
         } catch(GnomyCurrencyException gce) {
             Log.wtf("AccountHistoryActivity", "updateAccumulated: ", gce);
         }
+    }
+
+    @Override
+    public void onUnresolvedTransactionClick(@NonNull MoneyTransaction transaction) {
+        int transactionId = transaction.getId();
+        int transactionType = transaction.getType();
+        Intent updateTransactionIntent = new Intent(this, AddEditTransactionActivity.class);
+        updateTransactionIntent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_ID, transactionId);
+        updateTransactionIntent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, transactionType);
+        startActivity(updateTransactionIntent);
+    }
+
+    @Override
+    public LiveData<List<TransactionDisplayData>> getUnresolvedTransactionsList(int accountId) {
+        return mViewModel.getPendingTransactionsFromMonth(accountId);
     }
 }

@@ -176,7 +176,7 @@
                 <TextView
                     android:id="@+id/account_history_pending_title"
                     android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:textSize="16sp"
                     android:paddingStart="16dp"
                     android:layout_marginTop="32dp"
@@ -184,6 +184,8 @@
                     android:text="@string/pending_transactions"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/account_history_check_btn"
                     app:layout_constraintTop_toBottomOf="@id/account_history_confirmed_card"
                     tools:ignore="RtlSymmetry" />
 

@@ -14,6 +14,7 @@ import androidx.fragment.app.FragmentFactory;
 import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
 import io.github.alansanchezp.gnomy.ui.account.ArchivedAccountsDialogFragment;
 import io.github.alansanchezp.gnomy.ui.transaction.TransactionFiltersDialogFragment;
+import io.github.alansanchezp.gnomy.ui.transaction.UnresolvedTransactionsDialogFragment;
 
 /**
  * Custom FragmentFactory that allows gnomy to handle {@link Fragment} subclasses
@@ -41,6 +42,7 @@ public class GnomyFragmentFactory extends FragmentFactory {
         supportedClasses.put(ArchivedAccountsDialogFragment.class, new InterfaceTuple<>(ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface.class));
         supportedClasses.put(ConfirmationDialogFragment.class, new InterfaceTuple<>(ConfirmationDialogFragment.OnConfirmationDialogListener.class));
         supportedClasses.put(TransactionFiltersDialogFragment.class, new InterfaceTuple<>(TransactionFiltersDialogFragment.TransactionFiltersDialogInterface.class));
+        supportedClasses.put(UnresolvedTransactionsDialogFragment.class, new InterfaceTuple<>(UnresolvedTransactionsDialogFragment.UnresolvedTransactionsDialogInterface.class));
 
         return supportedClasses;
     }

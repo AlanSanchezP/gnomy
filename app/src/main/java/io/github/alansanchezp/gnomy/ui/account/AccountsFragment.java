@@ -29,10 +29,14 @@ import java.util.Objects;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
+import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
 import io.github.alansanchezp.gnomy.databinding.FragmentAccountsBinding;
 import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
 import io.github.alansanchezp.gnomy.androidUtil.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
+import io.github.alansanchezp.gnomy.ui.transaction.AddEditTransactionActivity;
+import io.github.alansanchezp.gnomy.ui.transaction.UnresolvedTransactionsDialogFragment;
 import io.github.alansanchezp.gnomy.ui.transaction.TransactionsFragment;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
@@ -46,10 +50,12 @@ public class AccountsFragment
         extends MainNavigationFragment<FragmentAccountsBinding>
         implements  AccountRecyclerViewAdapter.OnListItemInteractionListener,
                     ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface,
-                    ConfirmationDialogFragment.OnConfirmationDialogListener {
+                    ConfirmationDialogFragment.OnConfirmationDialogListener,
+                    UnresolvedTransactionsDialogFragment.UnresolvedTransactionsDialogInterface {
 
     public static final String TAG_ARCHIVE_ACCOUNT_DIALOG = "AccountsFragment.ArchiveAccountDialog";
     public static final String TAG_DELETE_ACCOUNT_DIALOG = "AccountsFragment.DeleteAccountDialog";
+    public static final String TAG_UNRESOLVED_TRANSACTIONS_DIALOG = "AccountsFragment.UnresolvedTransactionsDialog";
     private AccountRecyclerViewAdapter mAdapter;
     private AccountsListViewModel mListViewModel;
     private Map<Integer, AccountWithAccumulated> mTodayAccumulatesMap;
@@ -64,7 +70,8 @@ public class AccountsFragment
     private GnomyFragmentFactory getFragmentFactory() {
         return new GnomyFragmentFactory()
                 .addMapElement(ArchivedAccountsDialogFragment.class, this)
-                .addMapElement(ConfirmationDialogFragment.class, this);
+                .addMapElement(ConfirmationDialogFragment.class, this)
+                .addMapElement(UnresolvedTransactionsDialogFragment.class, this);
     }
 
     /* ANDROID LIFECYCLE METHODS */
@@ -230,9 +237,26 @@ public class AccountsFragment
         return true;
     }
 
-    public void onUnresolvedTransactions(Account account, YearMonth month) {
-        // TODO: Implement when Transactions module is ready
+    public void onUnresolvedTransactions(Account account) {
+        UnresolvedTransactionsDialogFragment dialog = new UnresolvedTransactionsDialogFragment(this);
+        Bundle args = new Bundle();
+        args.putInt(UnresolvedTransactionsDialogFragment.ARG_TARGET_ACCOUNT, account.getId());
+        dialog.setArguments(args);
+        dialog.show(getChildFragmentManager(), TAG_UNRESOLVED_TRANSACTIONS_DIALOG);
         mAdapter.enableClicks();
+    }
+
+    public void onUnresolvedTransactionClick(@NonNull MoneyTransaction transaction) {
+        int transactionId = transaction.getId();
+        int transactionType = transaction.getType();
+        Intent updateTransactionIntent = new Intent(getActivity(), AddEditTransactionActivity.class);
+        updateTransactionIntent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_ID, transactionId);
+        updateTransactionIntent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, transactionType);
+        requireActivity().startActivity(updateTransactionIntent);
+    }
+
+    public LiveData<List<TransactionDisplayData>> getUnresolvedTransactionsList(int accountId) {
+        return mListViewModel.getUnresolvedTransactions(accountId);
     }
 
     /* FRAGMENT-SPECIFIC METHODS */

@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.xwray.groupie.GroupAdapter;
+
 import java.util.List;
 
 import androidx.lifecycle.LiveData;
@@ -20,7 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.databinding.FragmentArchivedAccountsDialogBinding;
+import io.github.alansanchezp.gnomy.databinding.DialogArchivedAccountsBinding;
 import io.github.alansanchezp.gnomy.androidUtil.SingleClickViewHolder;
 
 public class ArchivedAccountsDialogFragment extends DialogFragment {
@@ -30,7 +32,7 @@ public class ArchivedAccountsDialogFragment extends DialogFragment {
     private final ArchivedAccountsDialogInterface mListener;
     private SingleClickViewHolder<Button> mRestoreAllButtonVH;
     private int mListSize = -1;
-    private FragmentArchivedAccountsDialogBinding $;
+    private DialogArchivedAccountsBinding $;
 
     public ArchivedAccountsDialogFragment() {
         throw new IllegalArgumentException("This class must be provided with an ArchivedAccountsDialogInterface instance.");
@@ -42,14 +44,8 @@ public class ArchivedAccountsDialogFragment extends DialogFragment {
     }
 
     @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Material_Light_Dialog);
     }
 
@@ -72,7 +68,7 @@ public class ArchivedAccountsDialogFragment extends DialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        $ = FragmentArchivedAccountsDialogBinding.inflate(inflater, container, false);
+        $ = DialogArchivedAccountsBinding.inflate(inflater, container, false);
         View view = $.getRoot();
         Context context = view.getContext();
 

@@ -2,10 +2,12 @@ package io.github.alansanchezp.gnomy.viewmodel.account;
 
 import android.app.Application;
 
+import java.time.OffsetDateTime;
 import java.time.YearMonth;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import androidx.lifecycle.AndroidViewModel;
@@ -16,12 +18,18 @@ import io.github.alansanchezp.gnomy.database.RepositoryBuilder;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
+import io.github.alansanchezp.gnomy.database.category.CategoryRepository;
+import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionFilters;
+import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionRepository;
+import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
+import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.reactivex.Single;
 
 public class AccountsListViewModel extends AndroidViewModel {
     private static final String TAG_TARGET_TO_ARCHIVE = "AccountsListVM.IdToArchive";
     private static final String TAG_TARGET_TO_DELETE = "AccountsListVM.IdToDelete";
-    private final AccountRepository mRepository;
+    private final AccountRepository mAccountRepository;
+    private final MoneyTransactionRepository mTransactionRepository;
     private final SavedStateHandle mState;
     private LiveData<YearMonth> mActiveMonth;
     private LiveData<List<AccountWithAccumulated>> mAccumulatesToday;
@@ -30,7 +38,8 @@ public class AccountsListViewModel extends AndroidViewModel {
 
     public AccountsListViewModel(Application application, SavedStateHandle savedStateHandle) {
         super(application);
-        mRepository = RepositoryBuilder.getRepository(AccountRepository.class, application);
+        mAccountRepository = RepositoryBuilder.getRepository(AccountRepository.class, application);
+        mTransactionRepository = RepositoryBuilder.getRepository(MoneyTransactionRepository.class, application);
         mState = savedStateHandle;
     }
 
@@ -46,23 +55,37 @@ public class AccountsListViewModel extends AndroidViewModel {
 
     public LiveData<List<AccountWithAccumulated>> getTodayAccumulatesList() {
         if (mAccumulatesToday == null) {
-            mAccumulatesToday = mRepository.getTodayAccumulatesList();
+            mAccumulatesToday = mAccountRepository.getTodayAccumulatesList();
         }
         return mAccumulatesToday;
     }
 
     public LiveData<List<AccountWithAccumulated>> getAccumulatesListAtMonth() {
         if (mAccumulates == null) {
-            mAccumulates = Transformations.switchMap(mActiveMonth, mRepository::getAccumulatesListAtMonth);
+            mAccumulates = Transformations.switchMap(mActiveMonth, mAccountRepository::getAccumulatesListAtMonth);
         }
         return mAccumulates;
     }
 
     public  LiveData<List<Account>> getArchivedAccounts() {
         if (mArchivedAccounts == null) {
-            mArchivedAccounts = mRepository.getArchivedAccounts();
+            mArchivedAccounts = mAccountRepository.getArchivedAccounts();
         }
         return mArchivedAccounts;
+    }
+
+    public LiveData<List<TransactionDisplayData>> getUnresolvedTransactions(int accountId) {
+        MoneyTransactionFilters filters = new MoneyTransactionFilters();
+        OffsetDateTime[] monthBoundaries = DateUtil.getMonthBoundaries(
+                Objects.requireNonNull(mActiveMonth.getValue()));
+        if (mActiveMonth.getValue().equals(DateUtil.now()))
+            filters.setEndDate(monthBoundaries[0]);
+        else
+            filters.setEndDate(monthBoundaries[1]);
+
+        filters.setAccountId(accountId);
+        filters.setTransactionStatus(MoneyTransactionFilters.UNCONFIRMED_STATUS);
+        return mTransactionRepository.getByFilters(filters);
     }
 
     public int getTargetIdToArchive() {
@@ -90,18 +113,18 @@ public class AccountsListViewModel extends AndroidViewModel {
     }
 
     public Single<Integer> delete(int accountId) {
-        return mRepository.delete(accountId);
+        return mAccountRepository.delete(accountId);
     }
 
     public Single<Integer> archive(int accountId) {
-        return mRepository.archive(accountId);
+        return mAccountRepository.archive(accountId);
     }
 
     public Single<Integer> restore(int accountId) {
-        return mRepository.restore(accountId);
+        return mAccountRepository.restore(accountId);
     }
 
     public Single<Integer> restoreAll() {
-        return mRepository.restoreAll();
+        return mAccountRepository.restoreAll();
     }
 }

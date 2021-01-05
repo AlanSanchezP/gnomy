@@ -17,7 +17,6 @@ import android.view.ViewGroup;
 import android.widget.PopupMenu;
 
 import java.math.BigDecimal;
-import java.time.YearMonth;
 
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
@@ -178,7 +177,7 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
             $.accountCardAlertIcon.setOnClickListener(v -> {
                 if (clickInterface.clicksEnabled()) {
                     clickInterface.disableClicks();
-                    listener.onUnresolvedTransactions(mItem.account, mItem.targetMonth);
+                    listener.onUnresolvedTransactions(mItem.account);
                 }
             });
 
@@ -207,7 +206,7 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
         AccountWithAccumulated getTodayAccumulatedFromAccount(int accountId);
         void onItemInteraction(Account account);
         boolean onItemMenuItemInteraction(Account account, MenuItem menuItem);
-        void onUnresolvedTransactions(Account account, YearMonth month);
+        void onUnresolvedTransactions(Account account);
     }
 
     private interface ClickDisablerInterface {

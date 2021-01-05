@@ -59,7 +59,7 @@ public class TransactionItemInstrumentedTest {
         when(testItem.transaction.getType()).thenReturn(MoneyTransaction.INCOME);
         when(testItem.transaction.getConcept()).thenReturn("Test concept");
         when(testItem.transaction.isConfirmed()).thenReturn(false);
-        final TransactionItem item = new TransactionItem(testItem);
+        final TransactionItem item = new TransactionItem(testItem, true);
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
                 item.bind(viewBinding, 1));
 
@@ -70,9 +70,22 @@ public class TransactionItemInstrumentedTest {
         onView(withId(R.id.transaction_card_account))
                 .check(matches(withText(testItem.accountName)));
 
+
+        final TransactionItem limitedDataTransaction = new TransactionItem(testItem, false);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                limitedDataTransaction.bind(viewBinding, 1));
+
+        onView(withId(R.id.transaction_card_concept))
+                .check(matches(withText(testItem.transaction.getConcept())));
+        onView(withId(R.id.transaction_card_alert_icon))
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        onView(withId(R.id.transaction_card_account))
+                .check(matches(withText("")));
+
+
         when(testItem.transaction.getType()).thenReturn(MoneyTransaction.TRANSFER);
         when(testItem.transaction.isConfirmed()).thenReturn(true);
-        final TransactionItem transfer = new TransactionItem(testItem);
+        final TransactionItem transfer = new TransactionItem(testItem, true);
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
                 transfer.bind(viewBinding, 1));
 
@@ -82,12 +95,23 @@ public class TransactionItemInstrumentedTest {
                 .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
         onView(withId(R.id.transaction_card_account))
                 .check(matches(withText(testItem.accountName + " \u203A " + testItem.transferDestinationAccountName)));
+
+        final TransactionItem limitedDataTransfer = new TransactionItem(testItem, false);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                limitedDataTransfer.bind(viewBinding, 1));
+
+        onView(withId(R.id.transaction_card_concept))
+                .check(matches(withText(testItem.transaction.getConcept())));
+        onView(withId(R.id.transaction_card_alert_icon))
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        onView(withId(R.id.transaction_card_account))
+                .check(matches(withText(" \u203A " + testItem.transferDestinationAccountName)));
     }
 
     @Test
     public void category_icon_is_correct() {
         LayoutTransactionCardBinding viewBinding = Objects.requireNonNull(viewRule.retrieveViewBinding());
-        final TransactionItem item = new TransactionItem(testItem);
+        final TransactionItem item = new TransactionItem(testItem, true);
         testItem.categoryResourceName = ""; // Faulty resource
         assertThrows(RuntimeException.class, () -> InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
                 item.bind(viewBinding, 1)));
@@ -120,7 +144,7 @@ public class TransactionItemInstrumentedTest {
     @Test
     public void dynamic_color_of_amount_text_view() {
         LayoutTransactionCardBinding viewBinding = Objects.requireNonNull(viewRule.retrieveViewBinding());
-        final TransactionItem item = new TransactionItem(testItem);
+        final TransactionItem item = new TransactionItem(testItem, true);
 
         when(testItem.transaction.getCalculatedValue()).thenReturn(BigDecimalUtil.fromString("10"));
         when(testItem.transaction.getType()).thenReturn(MoneyTransaction.INCOME);

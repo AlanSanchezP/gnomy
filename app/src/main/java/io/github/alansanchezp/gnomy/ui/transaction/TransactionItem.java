@@ -23,9 +23,18 @@ import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 public class TransactionItem
         extends BindableItem<LayoutTransactionCardBinding> {
     private final TransactionDisplayData mItem;
+    private final boolean mFullData;
 
-    public TransactionItem(TransactionDisplayData item) {
+    /**
+     *
+     * @param item              Item to use.
+     * @param displayAllData    If set to false, account name and status
+     *                          won't be displayed. In the case of transfers, only
+     *                          destination account will be displayed.
+     */
+    public TransactionItem(TransactionDisplayData item, boolean displayAllData) {
         mItem = item;
+        mFullData = displayAllData;
     }
 
     @NonNull
@@ -42,11 +51,11 @@ public class TransactionItem
         int iconColor;
 
         $.transactionCardConcept.setText(mItem.transaction.getConcept());
-        $.transactionCardAccount.setText(mItem.accountName);
+        $.transactionCardAccount.setText(mFullData ? mItem.accountName : "");
         if (mItem.transaction.getType() == MoneyTransaction.TRANSFER) {
-            $.transactionCardAccount.append(" \u203A " + mItem.transferDestinationAccountName);
             iconResId = R.drawable.ic_compare_arrows_black_24dp;
             iconBgColor = ContextCompat.getColor(context, R.color.colorTransfers);
+            $.transactionCardAccount.append(" \u203A " + mItem.transferDestinationAccountName);
         } else {
             iconResId = context.getResources().getIdentifier(mItem.categoryResourceName, "drawable", context.getPackageName());
             iconBgColor = mItem.categoryColor;
@@ -63,7 +72,7 @@ public class TransactionItem
         $.transactionCardIcon.setColorFilter(iconColor);
         $.transactionCardIcon.setTag(iconResId);
         // TODO: Is this the best condition to use?
-        if (!mItem.transaction.isConfirmed())
+        if (!mItem.transaction.isConfirmed() && mFullData)
             $.transactionCardAlertIcon.setVisibility(View.VISIBLE);
         else
             $.transactionCardAlertIcon.setVisibility(View.GONE);
