@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import com.xwray.groupie.GroupAdapter;
@@ -168,9 +169,26 @@ public class TransactionsFragment
     @Override
     public void onFABClick(View v) {
         int transactionType = mViewModel.getCurrentFilters().getTransactionType();
+        // TODO: Replace PopupMenu with an expandable FAB
         if (transactionType == MoneyTransactionFilters.ALL_TRANSACTION_TYPES) {
-            // TODO: If no specific transaction type is selected, expand FAB
-            // TODO: Evaluate if should hide if filter.isSimpleFilterWithMonth() is false
+            PopupMenu popup = new PopupMenu(v.getContext(), v);
+            popup.inflate(R.menu.transactions_fab_menu);
+            popup.setOnMenuItemClickListener(item -> {
+                if (mAllowClicks) {
+                    mAllowClicks = false;
+                    Intent newTransactionIntent = new Intent(getActivity(), AddEditTransactionActivity.class);
+                    if (item.getItemId() == R.id.action_new_empty_expense)
+                        newTransactionIntent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, MoneyTransaction.EXPENSE);
+                    else if (item.getItemId() == R.id.action_new_empty_income)
+                        newTransactionIntent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, MoneyTransaction.INCOME);
+                    else if (item.getItemId() == R.id.action_new_empty_transfer)
+                        newTransactionIntent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, MoneyTransaction.TRANSFER);
+                    requireActivity().startActivity(newTransactionIntent);
+                    return true;
+                }
+                return false;
+            });
+            popup.show();
         } else {
             Intent newTransactionIntent = new Intent(getActivity(), AddEditTransactionActivity.class);
             newTransactionIntent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, transactionType);
