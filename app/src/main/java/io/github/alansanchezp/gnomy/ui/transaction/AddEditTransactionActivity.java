@@ -167,7 +167,12 @@ public class AddEditTransactionActivity
         setCurrencySpinner();
         setInputFilters();
         mViewModel.getAccounts().observe(this, this::onAccountsListChanged);
-        mViewModel.getCategories().observe(this, this::onCategoriesListChanged);
+        if (mTransactionType != MoneyTransaction.TRANSFER)
+            mViewModel.getCategories(mTransactionType).observe(this, this::onCategoriesListChanged);
+        else {
+            $.addeditTransactionCategory.setVisibility(View.GONE);
+            $.addeditTransactionNewCategory.setVisibility(View.GONE);
+        }
         mFABVH.setOnClickListener(this::processData);
         $.addeditTransactionAmount.setEndIconOnClickListener(this::openCalculator);
         $.addeditTransactionDate.setEndIconOnClickListener(this::openDatePicker);
@@ -453,9 +458,8 @@ public class AddEditTransactionActivity
 
     // TODO: MediatorLiveData is probably a better approach
     private void attemptMixedDataSourceOperations() {
-        if (mAccountsList == null ||
-                mCategoriesList == null ||
-                mTransaction == null) return;
+        if (mAccountsList == null || mTransaction == null) return;
+        if (mTransactionType != MoneyTransaction.TRANSFER && mCategoriesList == null) return;
 
         if (mViewModel.isExpectingNewAccount() && !mAccountsList.isEmpty()) {
             $.addeditTransactionFromAccount.setSelection(mAccountsList.size() - 1);
@@ -497,9 +501,10 @@ public class AddEditTransactionActivity
             $.addeditTransactionCurrency.setSelection(CurrencyUtil.getCurrencyIndex(mTransaction.getCurrency()));
         }
 
-        if (!mViewModel.isExpectingNewCategory() && !mCategoriesList.isEmpty()) {
-            $.addeditTransactionCategory.setSelection(getItemIndexById(mCategoriesList, mTransaction.getCategory()));
-        }
+        if (mTransactionType != MoneyTransaction.TRANSFER)
+            if (!mViewModel.isExpectingNewCategory() && !mCategoriesList.isEmpty()) {
+                $.addeditTransactionCategory.setSelection(getItemIndexById(mCategoriesList, mTransaction.getCategory()));
+            }
         if (!mIsNewScreen) {
             $.addeditTransactionBox.setVisibility(View.VISIBLE);
             mFABVH.onView(this, v -> v.setVisibility(View.VISIBLE));
@@ -638,7 +643,7 @@ public class AddEditTransactionActivity
     }
 
     private boolean validateCategory() {
-        if (mTransaction.getCategory() == 0) {
+        if (mTransaction.getCategory() == 0 && mTransaction.getType() != MoneyTransaction.TRANSFER)  {
             $.addeditTransactionCategory.setError(getString(R.string.transaction_error_category));
             $.addeditTransactionCategory.getChildAt(1).setVisibility(View.VISIBLE);
             return false;

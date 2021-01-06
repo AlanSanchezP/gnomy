@@ -199,7 +199,7 @@ public abstract class AccountDAO implements MonthlyBalanceDAO {
      */
     @Query("UPDATE OR ABORT transactions SET " +
             "transaction_type = " + MoneyTransaction.EXPENSE + ", " +
-            "transaction_concept = '(ORPHAN) ' || transaction_concept " +
+            "category_id = 2 " + // Hardcoding orphan outgoing transfer
             "WHERE transaction_type = " + MoneyTransaction.TRANSFER + " " +
             "AND transfer_destination_account_id = :accountId;")
     protected abstract int _savePotentiallyOrphanTransfers(int accountId);
@@ -229,7 +229,7 @@ public abstract class AccountDAO implements MonthlyBalanceDAO {
      */
     @Query("UPDATE OR ABORT transactions SET " +
             "transaction_type = " + MoneyTransaction.INCOME + ", " +
-            "transaction_concept = '(ORPHAN) ' || transaction_concept " +
+            "category_id = 3 " + // Hardcoding orphan incoming transfer
             "WHERE transaction_type = 4 " + // Cannot access TRANSFER_MIRROR constant directly
             "AND transfer_destination_account_id = :accountId;")
     protected abstract int _savePotentiallyOrphanMirrorTransfers(int accountId);

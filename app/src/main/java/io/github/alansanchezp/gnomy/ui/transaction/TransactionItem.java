@@ -46,26 +46,20 @@ public class TransactionItem
     @Override
     public void bind(@NonNull LayoutTransactionCardBinding $, int position) {
         Context context = $.getRoot().getContext();
-        int iconResId;
-        int iconBgColor;
-        int iconColor;
+        int iconResId = context.getResources().getIdentifier(mItem.categoryResourceName, "drawable", context.getPackageName());
+        int iconBgColor = mItem.categoryColor;
+        int iconColor = ColorUtil.getTextColor(iconBgColor);
 
         $.transactionCardConcept.setText(mItem.transaction.getConcept());
         $.transactionCardAccount.setText(mFullData ? mItem.accountName : "");
-        if (mItem.transaction.getType() == MoneyTransaction.TRANSFER) {
-            iconResId = R.drawable.ic_compare_arrows_black_24dp;
-            iconBgColor = ContextCompat.getColor(context, R.color.colorTransfers);
+        if (mItem.transaction.getType() == MoneyTransaction.TRANSFER)
             $.transactionCardAccount.append(" \u203A " + mItem.transferDestinationAccountName);
-        } else {
-            iconResId = context.getResources().getIdentifier(mItem.categoryResourceName, "drawable", context.getPackageName());
-            iconBgColor = mItem.categoryColor;
-        }
         try {
             setAmountText($);
         } catch (GnomyCurrencyException e) {
             Log.wtf("TransactionItem", "bind: ", e);
         }
-        iconColor = ColorUtil.getTextColor(iconBgColor);
+
         Drawable icon = ContextCompat.getDrawable(context, iconResId);
         $.transactionCardIcon.setImageDrawable(icon);
         ((GradientDrawable) $.transactionCardIcon.getBackground()).setColor(iconBgColor);

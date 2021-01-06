@@ -10,6 +10,6 @@
         android:title="@string/transaction_new_expense" />
     <item
         android:id="@+id/action_new_empty_transfer"
-        android:icon="@drawable/ic_compare_arrows_black_24dp"
+        android:icon="@drawable/ic_transfer_arrows_black_24"
         android:title="@string/transaction_new_transfer" />
 </menu>

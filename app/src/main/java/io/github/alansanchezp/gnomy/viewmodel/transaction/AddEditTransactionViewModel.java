@@ -7,6 +7,7 @@ import java.util.List;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.SavedStateHandle;
+import io.github.alansanchezp.gnomy.database.GnomyIllegalQueryException;
 import io.github.alansanchezp.gnomy.database.RepositoryBuilder;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
@@ -44,8 +45,17 @@ public class AddEditTransactionViewModel extends AndroidViewModel {
         return mTransactionRepository.find(id);
     }
 
-    public LiveData<List<Category>> getCategories() {
-        return mCategoryRepository.getAll();
+    public LiveData<List<Category>> getCategories(int transactionType) {
+        int categoryType;
+        if (transactionType == MoneyTransaction.TRANSFER)
+            throw new GnomyIllegalQueryException("Cannot retrieve transfer-related categories.");
+        else if (transactionType == MoneyTransaction.INCOME)
+            categoryType = Category.INCOME_CATEGORY;
+        else if (transactionType == MoneyTransaction.EXPENSE)
+            categoryType = Category.EXPENSE_CATEGORY;
+        else
+            throw new GnomyIllegalQueryException("Invalid transaction type.");
+        return mCategoryRepository.getSharedAndCategory(categoryType);
     }
 
     public LiveData<List<Account>> getAccounts() {

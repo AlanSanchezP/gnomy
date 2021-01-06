@@ -392,8 +392,8 @@ public class TransactionsFragment
 
     @NonNull
     @Override
-    public LiveData<List<Category>> getCategoriesLiveData() {
-        return mViewModel.getCategories();
+    public LiveData<List<Category>> getCategoriesLiveData(LiveData<Integer> transactionType) {
+        return mViewModel.getCategories(transactionType);
     }
 
     @NonNull

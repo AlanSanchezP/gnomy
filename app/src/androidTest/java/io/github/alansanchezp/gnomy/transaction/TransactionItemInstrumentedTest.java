@@ -133,12 +133,6 @@ public class TransactionItemInstrumentedTest {
                 item.bind(viewBinding, 1));
         onView(withId(R.id.transaction_card_icon))
                 .check(matches(withTagValue(equalTo(R.drawable.ic_calculate_24))));
-
-        when(testItem.transaction.getType()).thenReturn(MoneyTransaction.TRANSFER);
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
-                item.bind(viewBinding, 1));
-        onView(withId(R.id.transaction_card_icon))
-                .check(matches(withTagValue(equalTo(R.drawable.ic_compare_arrows_black_24dp))));
     }
 
     @Test

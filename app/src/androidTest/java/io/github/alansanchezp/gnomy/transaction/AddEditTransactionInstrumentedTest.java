@@ -79,6 +79,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 /**
@@ -133,7 +134,7 @@ public class AddEditTransactionInstrumentedTest {
                 .thenReturn(Single.just(1L));
         when(mockAccountRepository.getAll())
                 .thenReturn(testAccountListLD);
-        when(mockCategoryRepository.getAll())
+        when(mockCategoryRepository.getSharedAndCategory(anyInt()))
                 .thenReturn(testCategoryListLD);
     }
 
@@ -746,6 +747,12 @@ public class AddEditTransactionInstrumentedTest {
         onView(withId(R.id.addedit_transaction_mark_as_done))
                 .check(matches(
                         withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+        onView(withId(R.id.addedit_transaction_new_category))
+                .check(matches(
+                        withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+        onView(withId(R.id.addedit_transaction_category))
+                .check(matches(
+                        withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
 
         Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
                 AddEditTransactionActivity.class)
@@ -762,6 +769,12 @@ public class AddEditTransactionInstrumentedTest {
                 .check(matches(
                         withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
                 .check(matches(isChecked()));
+        onView(withId(R.id.addedit_transaction_new_category))
+                .check(matches(
+                        withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        onView(withId(R.id.addedit_transaction_category))
+                .check(matches(
+                        withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
 
         tempScenario.close();
     }

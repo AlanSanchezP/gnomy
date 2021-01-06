@@ -11,11 +11,13 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
+import io.github.alansanchezp.gnomy.database.GnomyIllegalQueryException;
 import io.github.alansanchezp.gnomy.database.RepositoryBuilder;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.database.category.Category;
 import io.github.alansanchezp.gnomy.database.category.CategoryRepository;
+import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionFilters;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionRepository;
 import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
@@ -126,9 +128,16 @@ public class TransactionsListViewModel extends AndroidViewModel {
         return mAccounts;
     }
 
-    public LiveData<List<Category>> getCategories() {
+    public LiveData<List<Category>> getCategories(LiveData<Integer> transactionType) {
         if (mCategories == null) {
-            mCategories = mCategoryRepository.getAll();
+            mCategories = Transformations.switchMap(transactionType, type -> {
+                if (type == MoneyTransaction.INCOME)
+                    return mCategoryRepository.getSharedAndCategory(Category.INCOME_CATEGORY);
+                else if (type == MoneyTransaction.EXPENSE)
+                    return mCategoryRepository.getSharedAndCategory(Category.EXPENSE_CATEGORY);
+                else
+                    return mCategoryRepository.getByStrictCategory(Category.BOTH_CATEGORY);
+            });
         }
         return mCategories;
     }

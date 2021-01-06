@@ -35,6 +35,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.category.Category;
@@ -57,7 +58,6 @@ public class TransactionFiltersDialogFragment
         extends DialogFragment
         implements DatePickerDialog.OnDateSetListener,
         TimePickerDialog.OnTimeSetListener {
-    // TODO: Instrumented Test
     private static final String BUNDLE_FILTER_INSTANCE = "TransactionFiltersDialogFragment.FilterInstance";
     private static final String TAG_START_DATE_DIALOG = "TransactionFiltersDialogFragment.StartDateDialog";
     private static final String TAG_END_DATE_DIALOG = "TransactionFiltersDialogFragment.EndDateDialog";
@@ -69,6 +69,7 @@ public class TransactionFiltersDialogFragment
     private MoneyTransactionFilters mFiltersInstance;
     private boolean mInitialTintingFlag = false;
     private int mThemeColor;
+    private MutableLiveData<Integer> mTransactionType = new MutableLiveData<>();
 
     public TransactionFiltersDialogFragment() {
         throw new IllegalArgumentException("This class must be provided with a TransactionFiltersDialogInterface instance.");
@@ -89,7 +90,6 @@ public class TransactionFiltersDialogFragment
     public void onCreate(Bundle savedInstanceState) {
         getChildFragmentManager().setFragmentFactory(getFragmentFactory());
         super.onCreate(savedInstanceState);
-        // TODO: How to keep status bar?
         setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_App_Dialog_FullScreen);
         if (savedInstanceState == null) return;
 
@@ -154,12 +154,15 @@ public class TransactionFiltersDialogFragment
                 mFiltersInstance.setMinAmount(null);
                 mFiltersInstance.setMaxAmount(null);
             }
+            if (mFiltersInstance.getTransactionType() == MoneyTransaction.TRANSFER) {
+                mFiltersInstance.setCategoryId(0);
+            }
             mListener.applyFilters(mFiltersInstance);
             requireDialog().dismiss();
         });
 
         mListener.getAccountsLiveData().observe(getViewLifecycleOwner(), this::onAccountsListChanged);
-        mListener.getCategoriesLiveData().observe(getViewLifecycleOwner(), this::onCategoriesListChanged);
+        mListener.getCategoriesLiveData(mTransactionType).observe(getViewLifecycleOwner(), this::onCategoriesListChanged);
         $.filtersDialogSortingSpinner.setAdapter(
                 ArrayAdapter.createFromResource(requireContext(), R.array.transaction_filters_sorting_strategies, android.R.layout.simple_spinner_dropdown_item));
         $.filtersDialogSortingSpinner.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
@@ -282,6 +285,7 @@ public class TransactionFiltersDialogFragment
     }
 
     private void onCategoriesListChanged(List<Category> _categories) {
+        if (mFiltersInstance.getTransactionType() == MoneyTransaction.TRANSFER) return;
         final List<Category> categories = new ArrayList<>(_categories);
         final Category emptyCategory = new Category();
         emptyCategory.setName(getResources().getString(R.string.all_categories));
@@ -315,8 +319,13 @@ public class TransactionFiltersDialogFragment
             spinnerView.setTextColor(ColorUtil.getTextColor(mThemeColor));
             return;
         }
+        if (spinnerIndex != mFiltersInstance.getTransactionType()) {
+            $.filtersDialogCategorySpinner.setSelection(0); // resets to avoid mixing types
+        }
         mFiltersInstance.setTransactionType(spinnerIndex);
+        mTransactionType.postValue(spinnerIndex);
         int textColor;
+        $.filtersDialogCategorySpinner.setVisibility(View.VISIBLE);
         switch (spinnerIndex) {
             case MoneyTransactionFilters.ALL_TRANSACTION_TYPES:
                 mThemeColor = getResources().getColor(R.color.colorPrimary);
@@ -329,6 +338,7 @@ public class TransactionFiltersDialogFragment
                 break;
             case MoneyTransaction.TRANSFER:
                 mThemeColor = getResources().getColor(R.color.colorTransfers);
+                $.filtersDialogCategorySpinner.setVisibility(View.GONE);
                 break;
             default:
                 return;
@@ -535,7 +545,7 @@ public class TransactionFiltersDialogFragment
         void applyFilters(@NonNull MoneyTransactionFilters filters);
         @NonNull
         MoneyTransactionFilters getInitialFilters();
-        @NonNull LiveData<List<Category>> getCategoriesLiveData();
+        @NonNull LiveData<List<Category>> getCategoriesLiveData(LiveData<Integer> transactionType);
         @NonNull LiveData<List<Account>> getAccountsLiveData();
     }
 }

@@ -16,6 +16,8 @@ public class Category implements ISpinnerItem {
     public static final int INCOME_CATEGORY = 2;
     @Ignore
     public static final int BOTH_CATEGORY = 3;
+    @Ignore
+    protected static final int HIDDEN_CATEGORY = 4;
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name="category_id")
@@ -31,6 +33,9 @@ public class Category implements ISpinnerItem {
 
     @ColumnInfo(name="category_type")
     private int type = EXPENSE_CATEGORY;
+
+    @ColumnInfo(name="can_delete")
+    private boolean deletable = true;
 
     @ColumnInfo(name="bg_color")
     private int backgroundColor;
@@ -75,6 +80,14 @@ public class Category implements ISpinnerItem {
 
     public void setBackgroundColor(int backgroundColor) {
         this.backgroundColor = backgroundColor;
+    }
+
+    public final boolean isDeletable() {
+        return deletable;
+    }
+
+    protected void setDeletable(boolean deletable) {
+        this.deletable = deletable;
     }
 
     @NonNull

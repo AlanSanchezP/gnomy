@@ -61,7 +61,9 @@ public class TransactionsFragmentInstrumentedTest {
                 .thenReturn(new MutableLiveData<>());
         when(mockAccountsRepository.getAll())
                 .thenReturn(new MutableLiveData<>());
-        when(mockCategoryRepository.getAll())
+        when(mockCategoryRepository.getByStrictCategory(anyInt()))
+                .thenReturn(new MutableLiveData<>());
+        when(mockCategoryRepository.getSharedAndCategory(anyInt()))
                 .thenReturn(new MutableLiveData<>());
 
         mockMenuItem = mock(MenuItem.class);

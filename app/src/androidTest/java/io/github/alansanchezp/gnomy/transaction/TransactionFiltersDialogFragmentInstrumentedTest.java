@@ -30,9 +30,11 @@ import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertThrows;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.clickIcon;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.setChecked;
 import static org.hamcrest.Matchers.not;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.NoMatchingViewException;
@@ -68,7 +70,7 @@ public class TransactionFiltersDialogFragmentInstrumentedTest {
         MutableLiveData<List<Category>> testCategoriesList = new MutableLiveData<>();
 
         when(mockInterface.getAccountsLiveData()).thenReturn(testAccountsListLD);
-        when(mockInterface.getCategoriesLiveData()).thenReturn(testCategoriesList);
+        when(mockInterface.getCategoriesLiveData(any(LiveData.class))).thenReturn(testCategoriesList);
 
         List<Account> accountsList = new ArrayList<>();
         Account acc = new Account(2);
@@ -81,11 +83,13 @@ public class TransactionFiltersDialogFragmentInstrumentedTest {
         List<Category> categoriesList = new ArrayList<>();
         Category cat = new Category();
         cat.setId(1);
+        cat.setType(Category.BOTH_CATEGORY);
         cat.setName("CATEGORY A");
         cat.setIconResName("ic_calculate_24");
         categoriesList.add(cat);
         cat = new Category();
         cat.setId(2);
+        cat.setType(Category.BOTH_CATEGORY);
         cat.setName("CATEGORY B");
         cat.setIconResName("ic_baseline_notes_24");
         categoriesList.add(cat);
