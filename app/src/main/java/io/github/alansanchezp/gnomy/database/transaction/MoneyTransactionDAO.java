@@ -1,7 +1,6 @@
 package io.github.alansanchezp.gnomy.database.transaction;
 
 import java.time.OffsetDateTime;
-import java.time.YearMonth;
 import java.util.List;
 
 import androidx.lifecycle.LiveData;
@@ -31,13 +30,8 @@ public abstract class MoneyTransactionDAO implements MonthlyBalanceDAO {
                     "JOIN accounts " +
                     "USING(account_id) " +
                     "LEFT OUTER JOIN accounts AS transfer_accounts " +
-                    "ON transactions.transfer_destination_account_id = transfer_accounts.account_id ";
-
-    @Query(BASE_JOIN_FOR_QUERIES +
-            "WHERE transaction_type != 4 " +
-            "AND CAST(strftime('%Y%m', datetime(transactions.transaction_date/1000, 'unixepoch', 'localtime')) AS int) " +
-                "== :month")
-    protected abstract LiveData<List<TransactionDisplayData>> getAllFromMonth(YearMonth month);
+                    "ON transactions.transfer_destination_account_id = transfer_accounts.account_id " +
+                    "WHERE accounts.is_archived = 0 ";
 
     @RawQuery(observedEntities = {MoneyTransaction.class, Account.class, Category.class})
     protected abstract LiveData<List<TransactionDisplayData>> getWithRawQuery(SupportSQLiteQuery query);

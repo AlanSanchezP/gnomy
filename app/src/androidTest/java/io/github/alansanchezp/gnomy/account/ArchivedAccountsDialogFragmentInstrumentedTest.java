@@ -13,7 +13,7 @@ import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
+import io.github.alansanchezp.gnomy.androidUtil.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.ui.account.ArchivedAccountsDialogFragment;
 
 import static androidx.fragment.app.testing.FragmentScenario.launchInContainer;
@@ -47,9 +47,11 @@ public class ArchivedAccountsDialogFragmentInstrumentedTest {
 
         accounts[0] = new Account();
         accounts[0].setName("Test account 1");
+        accounts[0].setId(1);
 
         accounts[1] = new Account();
         accounts[1].setName("Test account 2");
+        accounts[1].setId(2);
     }
 
     @Test

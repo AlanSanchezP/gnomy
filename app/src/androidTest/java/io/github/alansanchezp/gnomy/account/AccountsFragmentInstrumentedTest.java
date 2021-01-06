@@ -17,8 +17,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
-import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
-import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 
@@ -43,18 +41,12 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(AndroidJUnit4.class)
 public class AccountsFragmentInstrumentedTest {
-    private static GnomyFragmentFactory factory;
     private static MenuItem mockMenuItem;
     // Needed so that ViewModel instance doesn't crash
     @BeforeClass
     public static void init_mocks() {
-        MainNavigationFragment.MainNavigationInteractionInterface _interface
-                = mock(MainNavigationFragment.MainNavigationInteractionInterface.class);
         MutableLiveData<YearMonth> mld = new MutableLiveData<>();
         mld.postValue(DateUtil.now());
-        when(_interface.getActiveMonth()).thenReturn(mld);
-        factory = new GnomyFragmentFactory()
-                .addMapElement(AccountsFragment.class, _interface);
 
         final AccountRepository mockAccountRepository = initMockRepository(AccountRepository.class);
 
@@ -76,7 +68,7 @@ public class AccountsFragmentInstrumentedTest {
     @Test
     public void dynamic_balance_labels_are_correct() {
         FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class,
-                null, R.style.AppTheme, factory);
+                null, R.style.AppTheme);
 
         scenario.onFragment(fragment ->
                 fragment.onMonthChanged(DateUtil.now()));
@@ -106,7 +98,7 @@ public class AccountsFragmentInstrumentedTest {
     @Test
     public void archived_accounts_modal_is_shown() {
         FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class,
-                null, R.style.AppTheme, factory);
+                null, R.style.AppTheme);
         onView(withId(R.id.archived_items_container))
                 .check(
                         doesNotExist()
@@ -122,7 +114,7 @@ public class AccountsFragmentInstrumentedTest {
     @Test
     public void opens_new_account_activity() {
         FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class,
-                null, R.style.AppTheme, factory);
+                null, R.style.AppTheme);
         scenario.onFragment(fragment ->
                 fragment.onFABClick(null));
         onView(withId(R.id.custom_appbar))
@@ -134,7 +126,7 @@ public class AccountsFragmentInstrumentedTest {
     @Test
     public void interface_click_method_opens_account_details() {
         FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class,
-                null, R.style.AppTheme, factory);
+                null, R.style.AppTheme);
         scenario.onFragment(fragment -> {
             Account account = new Account();
             account.setId(1);
@@ -149,7 +141,7 @@ public class AccountsFragmentInstrumentedTest {
     @Test
     public void interface_menu_method_opens_account_details() {
         FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class,
-                null, R.style.AppTheme, factory);
+                null, R.style.AppTheme);
         when(mockMenuItem.getItemId()).thenReturn(R.id.account_card_details);
         scenario.onFragment(fragment -> {
             Account account = new Account();
@@ -165,7 +157,7 @@ public class AccountsFragmentInstrumentedTest {
     @Test
     public void interface_menu_method_opens_account_modify() {
         FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class,
-                null, R.style.AppTheme, factory);
+                null, R.style.AppTheme);
         when(mockMenuItem.getItemId()).thenReturn(R.id.account_card_modify);
         scenario.onFragment(fragment -> {
             Account account = new Account();
@@ -187,7 +179,7 @@ public class AccountsFragmentInstrumentedTest {
     @Test
     public void interface_menu_method_opens_archive_dialog() {
         FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class,
-                null, R.style.AppTheme, factory);
+                null, R.style.AppTheme);
         when(mockMenuItem.getItemId()).thenReturn(R.id.account_card_archive);
         scenario.onFragment(fragment ->
                 fragment.onItemMenuItemInteraction(new Account(), mockMenuItem));
@@ -202,7 +194,7 @@ public class AccountsFragmentInstrumentedTest {
     @Test
     public void interface_menu_method_opens_delete_dialog() {
         FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class,
-                null, R.style.AppTheme, factory);
+                null, R.style.AppTheme);
         when(mockMenuItem.getItemId()).thenReturn(R.id.account_card_delete);
         scenario.onFragment(fragment ->
                 fragment.onItemMenuItemInteraction(new Account(), mockMenuItem));

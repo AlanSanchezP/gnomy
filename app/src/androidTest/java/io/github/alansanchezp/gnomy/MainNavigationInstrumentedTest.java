@@ -12,6 +12,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import static io.github.alansanchezp.gnomy.database.MockRepositoryBuilder.initMockRepository;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
+import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionFilters;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionRepository;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -47,7 +48,7 @@ public class MainNavigationInstrumentedTest {
                 .thenReturn(new MutableLiveData<>());
         when(mockAccountRepository.getAccumulatesListAtMonth(any(YearMonth.class)))
                 .thenReturn(new MutableLiveData<>());
-        when(mockTransactionRepository.getAllFromMonth(any(YearMonth.class)))
+        when(mockTransactionRepository.getByFilters(any(MoneyTransactionFilters.class)))
                 .thenReturn(new MutableLiveData<>());
     }
 

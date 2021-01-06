@@ -36,7 +36,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layoutManager="LinearLayoutManager"
-            tools:listitem="@layout/fragment_archived_account_card" />
+            tools:listitem="@layout/layout_archived_account_card" />
 
         <Button
             android:id="@+id/restore_all_accounts_button"

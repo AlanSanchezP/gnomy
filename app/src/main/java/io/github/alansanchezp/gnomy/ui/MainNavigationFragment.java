@@ -3,28 +3,74 @@ package io.github.alansanchezp.gnomy.ui;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.viewbinding.ViewBinding;
+import static io.github.alansanchezp.gnomy.R.color.colorPrimary;
+import io.github.alansanchezp.gnomy.viewmodel.MainActivityViewModel;
 import io.reactivex.disposables.CompositeDisposable;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.ViewGroup;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.time.YearMonth;
+import java.util.Observable;
+import java.util.Observer;
 
-public abstract class MainNavigationFragment
-        extends Fragment {
+/**
+ * Base class for fragments used in MainActivity navigation.
+ *
+ * @param <B>   ViewBinding class to use.
+ */
+public abstract class MainNavigationFragment<B extends ViewBinding>
+        extends Fragment
+        implements Observer {
 
-    protected MainNavigationInteractionInterface mNavigationInterface;
-
-    protected YearMonth mCurrentMonth;
     protected Menu mMenu;
     protected final CompositeDisposable mCompositeDisposable
             = new CompositeDisposable();
+    protected final Integer mFragmentTitleResourceId;
+    protected final Integer mMenuResourceId;
+    protected final boolean mWithOptionalNavigationElements;
+    protected final FragmentViewBindingInflater<B> mViewBindingInflater;
+    protected MainActivityViewModel mSharedViewModel;
+    // ViewBinding object. Named using javascript's jquery style
+    protected B $;
 
-    public MainNavigationFragment(MainNavigationInteractionInterface _interface) {
-        mNavigationInterface = _interface;
+    /**
+     * Creates a new instance, initializing class fields.
+     *
+     * @param fragmentTitleResourceId           String resource to display in the host
+     *                                          Activity appbar. Set to null if the
+     *                                          title will change dynamically.
+     *                                          Child class will be responsible of
+     *                                          displaying the correct title in that case.
+     * @param menuResourceId                    Menu to use in the host Activity
+     *                                          appbar. Set to null if no menu is required.
+     * @param withOptionalNavigationElements    Specifies if the hosting activity is expected
+     *                                          to display additional elements (other than
+     *                                          appbar and bottom navigation view). Currently,
+     *                                          month toolbar and FAB are expected.
+     * @param viewBindingInflater               Inflater method to retrieve the ViewBinding object.
+     *                                          In order to avoid using Java reflection, this must be
+     *                                          provided by each child class. Lambda method
+     *                                          references can be used as follows:
+     *                                          ViewBindingClass::inflate
+     */
+    protected MainNavigationFragment(@Nullable Integer fragmentTitleResourceId,
+                                     @Nullable Integer menuResourceId,
+                                     boolean withOptionalNavigationElements,
+                                     @NonNull FragmentViewBindingInflater<B> viewBindingInflater) {
+        super();
+        mMenuResourceId = menuResourceId;
+        mFragmentTitleResourceId = fragmentTitleResourceId;
+        mWithOptionalNavigationElements = withOptionalNavigationElements;
+        mViewBindingInflater = viewBindingInflater;
     }
 
     /* ANDROID LIFECYCLE METHODS */
@@ -32,8 +78,7 @@ public abstract class MainNavigationFragment
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(hasAppbarActions());
-        mNavigationInterface.onFragmentChanged(this.getClass());
+        setHasOptionsMenu(mMenuResourceId != null);
     }
 
     @Override
@@ -45,27 +90,32 @@ public abstract class MainNavigationFragment
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(getMenuResourceId(), menu);
+        //noinspection ConstantConditions
+        inflater.inflate(mMenuResourceId, menu);
         mMenu = menu;
         tintMenuIcons();
     }
 
+    @Nullable
     @Override
-    public void onStart() {
-        super.onStart();
-        requireActivity().setTitle(getTitle());
-        mNavigationInterface.toggleOptionalNavigationElements(
-                withOptionalNavigationElements()
-        );
-        mNavigationInterface.tintNavigationElements(
-                getThemeColor()
-        );
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        $ = mViewBindingInflater.inflateViewBinding(inflater, container, false);
+        return $.getRoot();
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        mNavigationInterface = null;
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mSharedViewModel = new ViewModelProvider(requireActivity())
+                .get(MainActivityViewModel.class);
+        mSharedViewModel.toggleOptionalNavigationElements(mWithOptionalNavigationElements);
+        mSharedViewModel.changeThemeColor(getResources().getColor(colorPrimary));
+        mSharedViewModel.activeMonth.observe(getViewLifecycleOwner(), this::onMonthChanged);
+
+        if (mWithOptionalNavigationElements)
+            mSharedViewModel.observeFAB(this);
+        if (mFragmentTitleResourceId != null)
+            mSharedViewModel.changeTitle(getResources().getString(mFragmentTitleResourceId));
     }
 
     @Override
@@ -74,32 +124,61 @@ public abstract class MainNavigationFragment
         mCompositeDisposable.dispose();
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (mWithOptionalNavigationElements)
+            mSharedViewModel.removeFABObserver(this);
+    }
+
+    public final void update(Observable o, @NonNull Object arg) {
+        if (!mWithOptionalNavigationElements) return;
+        onFABClick((FloatingActionButton) arg);
+    }
+
     /* ABSTRACT METHODS */
 
-    protected abstract boolean hasAppbarActions();
-
-    protected abstract int getMenuResourceId();
-
-    protected abstract boolean withOptionalNavigationElements();
-
-    protected abstract int getThemeColor();
-
-    protected abstract String getTitle();
-
+    /**
+     * Called to tint menu icon resources. If the fragment doesn't use
+     * any menu, implement as an empty method.
+     */
     protected abstract void tintMenuIcons();
 
     /* ABSTRACT CUSTOM LISTENERS */
 
-    public abstract void onFABClick(View v);
+    /**
+     * Called when hosting Activity's FAB is pressed. If the fragment doesn't use
+     * optional navigation elements, implement as empty method.
+     *
+     * @param v     FloatingActionButton reference.
+     */
+    protected abstract void onFABClick(View v);
 
-    public abstract void onMonthChanged(YearMonth month);
+    /**
+     * Called when month toolbar values change. If the fragment doesn't use
+     * this values, implement as empty method.
+     *
+     * @param month     Received YearMonth value.
+     */
+    protected abstract void onMonthChanged(YearMonth month);
 
-    public interface MainNavigationInteractionInterface {
-        void tintNavigationElements(int themeColor);
-        void toggleOptionalNavigationElements(boolean showOptionalElements);
-        // TODO: Is this method really necessary? Evaluate (current idea is to use these indexes
-        //  for animations)
-        void onFragmentChanged(Class<? extends MainNavigationFragment> clazz);
-        LiveData<YearMonth> getActiveMonth();
+    /**
+     * Helper interface to dynamically inflate a layout using ViewBinding.
+     * Intended to wrap a ViewBindingSubClass.inflate method.
+     *
+     * @param <B>   Target ViewBinding subclass
+     */
+    protected interface FragmentViewBindingInflater<B extends ViewBinding> {
+        /**
+         * Wrapper for ViewBindingSubClass.inflate method.
+         *
+         * @param inflater          LayoutInflater to use.
+         * @param parent            View's parent.
+         * @param attachToParent    Indicates if the generated view
+         *                          should be attached to its parent's root.
+         * @return                  ViewBinding subclass instance.
+         */
+        @NonNull
+        B inflateViewBinding(@NonNull LayoutInflater inflater, @Nullable ViewGroup parent, boolean attachToParent);
     }
 }

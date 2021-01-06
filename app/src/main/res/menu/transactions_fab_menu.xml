@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_new_empty_income"
+        android:icon="@drawable/ic_trending_up_black_24dp"
+        android:title="@string/transaction_new_income" />
+    <item
+        android:id="@+id/action_new_empty_expense"
+        android:icon="@drawable/ic_trending_down_black_24dp"
+        android:title="@string/transaction_new_expense" />
+    <item
+        android:id="@+id/action_new_empty_transfer"
+        android:icon="@drawable/ic_transfer_arrows_black_24"
+        android:title="@string/transaction_new_transfer" />
+</menu>

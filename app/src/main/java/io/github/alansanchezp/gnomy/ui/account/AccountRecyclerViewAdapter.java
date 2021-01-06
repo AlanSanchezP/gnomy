@@ -6,6 +6,7 @@ import io.github.alansanchezp.gnomy.R;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
@@ -13,16 +14,13 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.PopupMenu;
-import android.widget.TextView;
 
 import java.math.BigDecimal;
-import java.time.YearMonth;
 
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
+import io.github.alansanchezp.gnomy.databinding.LayoutAccountCardBinding;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
@@ -69,10 +67,10 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_account_card, parent, false);
-        return new ViewHolder(view);
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutAccountCardBinding viewBinding = LayoutAccountCardBinding.inflate(
+                LayoutInflater.from(parent.getContext()), parent, false);
+        return new ViewHolder(viewBinding);
     }
 
     @Override
@@ -107,68 +105,56 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        private final View mView;
-        private final TextView mNameView;
-        private final TextView mCurrentView;
-        private final TextView mProjectedView;
-        private final TextView mProjectedLabelView;
-        private final ImageView mIconView;
-        private final ImageView mAlertView;
-        private final ImageButton mButton;
         private AccountWithAccumulated mItem;
         private final PopupMenu popup;
+        private final LayoutAccountCardBinding $;
 
-        public ViewHolder(View view) {
-            super(view);
-            mView = view;
-            mNameView = view.findViewById(R.id.account_card_name);
-            mCurrentView = view.findViewById(R.id.account_card_current);
-            mProjectedView = view.findViewById(R.id.account_card_projected);
-            mProjectedLabelView = view.findViewById(R.id.account_card_projected_label);
-            mButton = view.findViewById(R.id.account_card_button);
-            mIconView = view.findViewById(R.id.account_card_icon);
-            mAlertView = view.findViewById(R.id.account_card_alert_icon);
+        public ViewHolder(LayoutAccountCardBinding viewBinding) {
+            super(viewBinding.getRoot());
+            $ = viewBinding;
 
-            popup = new PopupMenu(mView.getContext(), mButton);
+            popup = new PopupMenu($.getRoot().getContext(), $.accountCardButton);
             popup.inflate(R.menu.account_card);
         }
 
         public void setAccountData(@NonNull AccountWithAccumulated targetAWA,
                                    @NonNull AccountWithAccumulated todayAWA) {
+            Context context = $.getRoot().getContext();
             mItem = targetAWA;
 
             if (mItem.getUnresolvedTransactions() == null ||
                     mItem.getUnresolvedTransactions().compareTo(BigDecimal.ZERO) == 0) {
-                mAlertView.setVisibility(View.GONE);
+                $.accountCardAlertIcon.setVisibility(View.GONE);
             } else {
-                mAlertView.setVisibility(View.VISIBLE);
+                $.accountCardAlertIcon.setVisibility(View.VISIBLE);
             }
 
             int accountColor = mItem.account.getBackgroundColor();
             int iconColor = ColorUtil.getTextColor(accountColor);
-            int iconResId = Account.getDrawableResourceId(mItem.account.getType());
-            Drawable icon = ContextCompat.getDrawable(mView.getContext(), iconResId);
+            int iconResId = context.getResources().getIdentifier(
+                    mItem.account.getDrawableResourceName(), "drawable", context.getPackageName());
+            Drawable icon = ContextCompat.getDrawable(context, iconResId);
 
-            ((GradientDrawable) mIconView.getBackground()).setColor(accountColor);
-            mIconView.setImageDrawable(icon);
-            mIconView.setColorFilter(iconColor);
-            mIconView.setTag(iconResId);
+            ((GradientDrawable) $.accountCardIcon.getBackground()).setColor(accountColor);
+            $.accountCardIcon.setImageDrawable(icon);
+            $.accountCardIcon.setColorFilter(iconColor);
+            $.accountCardIcon.setTag(iconResId);
 
-            mNameView.setText(mItem.account.getName());
+            $.accountCardName.setText(mItem.account.getName());
 
             if (targetAWA.targetMonth.isBefore(DateUtil.now())) {
-                mProjectedLabelView.setText(R.string.account_balance_end_of_month);
+                $.accountCardProjectedLabel.setText(R.string.account_balance_end_of_month);
             } else {
-                mProjectedLabelView.setText(R.string.account_projected_balance);
+                $.accountCardProjectedLabel.setText(R.string.account_projected_balance);
             }
 
             try {
-                mCurrentView.setText(
+                $.accountCardCurrent.setText(
                         CurrencyUtil.format(
                                 todayAWA.getConfirmedAccumulatedBalanceAtMonth(),
                                 mItem.account.getDefaultCurrency()))
                 ;
-                mProjectedView.setText(
+                $.accountCardProjected.setText(
                         CurrencyUtil.format(
                                 mItem.getBalanceAtEndOfMonth(),
                                 mItem.account.getDefaultCurrency())
@@ -181,17 +167,17 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
         private void setEventListeners(OnListItemInteractionListener listener,
                                        ClickDisablerInterface clickInterface) {
             // TODO: Find a way to test if clicks are effectively disabled
-            mView.setOnClickListener(v -> {
+            $.getRoot().setOnClickListener(v -> {
                 if (clickInterface.clicksEnabled()) {
                     clickInterface.disableClicks();
                     listener.onItemInteraction(mItem.account);
                 }
             });
 
-            mAlertView.setOnClickListener(v -> {
+            $.accountCardAlertIcon.setOnClickListener(v -> {
                 if (clickInterface.clicksEnabled()) {
                     clickInterface.disableClicks();
-                    listener.onUnresolvedTransactions(mItem.account, mItem.targetMonth);
+                    listener.onUnresolvedTransactions(mItem.account);
                 }
             });
 
@@ -202,7 +188,7 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
                 }
                 return false;
             });
-            mButton.setOnClickListener(v -> popup.show());
+            $.accountCardButton.setOnClickListener(v -> popup.show());
         }
     }
 
@@ -220,7 +206,7 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
         AccountWithAccumulated getTodayAccumulatedFromAccount(int accountId);
         void onItemInteraction(Account account);
         boolean onItemMenuItemInteraction(Account account, MenuItem menuItem);
-        void onUnresolvedTransactions(Account account, YearMonth month);
+        void onUnresolvedTransactions(Account account);
     }
 
     private interface ClickDisablerInterface {

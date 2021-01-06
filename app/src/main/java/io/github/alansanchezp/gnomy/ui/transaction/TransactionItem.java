@@ -15,64 +15,69 @@ import androidx.core.content.ContextCompat;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
-import io.github.alansanchezp.gnomy.databinding.FragmentTransactionCardBinding;
+import io.github.alansanchezp.gnomy.databinding.LayoutTransactionCardBinding;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 
 public class TransactionItem
-        extends BindableItem<FragmentTransactionCardBinding> {
+        extends BindableItem<LayoutTransactionCardBinding> {
     private final TransactionDisplayData mItem;
+    private final boolean mFullData;
 
-    public TransactionItem(TransactionDisplayData item) {
+    /**
+     *
+     * @param item              Item to use.
+     * @param displayAllData    If set to false, account name and status
+     *                          won't be displayed. In the case of transfers, only
+     *                          destination account will be displayed.
+     */
+    public TransactionItem(TransactionDisplayData item, boolean displayAllData) {
         mItem = item;
+        mFullData = displayAllData;
     }
 
     @NonNull
     @Override
-    protected FragmentTransactionCardBinding initializeViewBinding(@NonNull View view) {
-        return FragmentTransactionCardBinding.bind(view);
+    protected LayoutTransactionCardBinding initializeViewBinding(@NonNull View view) {
+        return LayoutTransactionCardBinding.bind(view);
     }
 
     @Override
-    public void bind(@NonNull FragmentTransactionCardBinding viewBinding, int position) {
-        Context context = viewBinding.getRoot().getContext();
-        int iconResId;
-        int iconBgColor;
-        int iconColor;
+    public void bind(@NonNull LayoutTransactionCardBinding $, int position) {
+        Context context = $.getRoot().getContext();
+        int iconResId = context.getResources().getIdentifier(mItem.categoryResourceName, "drawable", context.getPackageName());
+        int iconBgColor = mItem.categoryColor;
+        int iconColor = ColorUtil.getTextColor(iconBgColor);
 
-        viewBinding.transactionCardConcept.setText(mItem.transaction.getConcept());
-        viewBinding.transactionCardAccount.setText(mItem.accountName);
-        if (mItem.transaction.getType() == MoneyTransaction.TRANSFER) {
-            viewBinding.transactionCardAccount.append(" \u203A " + mItem.transferDestinationAccountName);
-            iconResId = R.drawable.ic_compare_arrows_black_24dp;
-            iconBgColor = ContextCompat.getColor(context, R.color.colorTransfers);
-        } else {
-            iconResId = context.getResources().getIdentifier(mItem.categoryResourceName, "drawable", context.getPackageName());
-            iconBgColor = mItem.categoryColor;
-        }
+        $.transactionCardConcept.setText(mItem.transaction.getConcept());
+        $.transactionCardAccount.setText(mFullData ? mItem.accountName : "");
+        if (mItem.transaction.getType() == MoneyTransaction.TRANSFER)
+            $.transactionCardAccount.append(" \u203A " + mItem.transferDestinationAccountName);
         try {
-            setAmountText(viewBinding);
+            setAmountText($);
         } catch (GnomyCurrencyException e) {
             Log.wtf("TransactionItem", "bind: ", e);
         }
-        iconColor = ColorUtil.getTextColor(iconBgColor);
+
         Drawable icon = ContextCompat.getDrawable(context, iconResId);
-        viewBinding.transactionCardIcon.setImageDrawable(icon);
-        ((GradientDrawable) viewBinding.transactionCardIcon.getBackground()).setColor(iconBgColor);
-        viewBinding.transactionCardIcon.setColorFilter(iconColor);
-        viewBinding.transactionCardIcon.setTag(iconResId);
+        $.transactionCardIcon.setImageDrawable(icon);
+        ((GradientDrawable) $.transactionCardIcon.getBackground()).setColor(iconBgColor);
+        $.transactionCardIcon.setColorFilter(iconColor);
+        $.transactionCardIcon.setTag(iconResId);
         // TODO: Is this the best condition to use?
-        if (!mItem.transaction.isConfirmed())
-            viewBinding.transactionCardAlertIcon.setVisibility(View.VISIBLE);
+        if (!mItem.transaction.isConfirmed() && mFullData)
+            $.transactionCardAlertIcon.setVisibility(View.VISIBLE);
+        else
+            $.transactionCardAlertIcon.setVisibility(View.GONE);
     }
 
     @Override
     public int getLayout() {
-        return R.layout.fragment_transaction_card;
+        return R.layout.layout_transaction_card;
     }
 
-    private void setAmountText(FragmentTransactionCardBinding viewBinding)
+    private void setAmountText(LayoutTransactionCardBinding $)
             throws GnomyCurrencyException {
         // TODO: Best format for incomes and expenses?
         //  Options are:
@@ -81,17 +86,17 @@ public class TransactionItem
         //      c) rising/falling arrows (drawables)
         BigDecimal amount = mItem.transaction.getCalculatedValue();
         if (mItem.transaction.getType() == MoneyTransaction.INCOME) {
-            viewBinding.transactionCardAmount.setTextColor(
-                    viewBinding.getRoot().getResources().getColor(R.color.colorIncomesDark));
+            $.transactionCardAmount.setTextColor(
+                    $.getRoot().getResources().getColor(R.color.colorIncomesDark));
         } else if (mItem.transaction.getType() == MoneyTransaction.EXPENSE) {
             amount = amount.negate();
-            viewBinding.transactionCardAmount.setTextColor(
-                    viewBinding.getRoot().getResources().getColor(R.color.colorExpensesDark));
+            $.transactionCardAmount.setTextColor(
+                    $.getRoot().getResources().getColor(R.color.colorExpensesDark));
         } else {
-            viewBinding.transactionCardAmount.setTextColor(
-                    viewBinding.getRoot().getResources().getColor(R.color.colorTextSecondary));
+            $.transactionCardAmount.setTextColor(
+                    $.getRoot().getResources().getColor(R.color.colorTextSecondary));
         }
-        viewBinding.transactionCardAmount.setText(
+        $.transactionCardAmount.setText(
                 CurrencyUtil.format(amount, mItem.transaction.getCurrency()));
     }
 

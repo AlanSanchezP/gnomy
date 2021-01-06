@@ -39,9 +39,10 @@ import io.github.alansanchezp.gnomy.util.DateUtil;
             )
         },
         indices = {
-            // TODO: Update indices
+            // TODO: Indices
             @Index("account_id"),
-            @Index("category_id")
+            @Index("category_id"),
+            @Index("transfer_destination_account_id")
         }
 )
 public class MoneyTransaction {
@@ -235,13 +236,15 @@ public class MoneyTransaction {
             return new GnomyIllegalQueryException("Direct manipulation of mirror transfers is not allowed.");
         if (this.account == 0)
             return new GnomyIllegalQueryException("Associated account cannot be null");
-        if (this.category == 0)
+        if (this.category == 0 && this.type != TRANSFER) {
             return new GnomyIllegalQueryException("Associated category cannot be null");
+        }
         if (!BigDecimalUtil.isInRange(MIN_VALUE, MAX_VALUE, this.originalValue))
             return new GnomyIllegalQueryException("Transaction amount out of range.");
         if (this.concept.equals(""))
             return new GnomyIllegalQueryException("Empty transaction concept.");
         if (this.type == TRANSFER) {
+            this.category = 1; // Hardcoding transfer category
             if (this.transferDestinationAccount == null)
                 return new GnomyIllegalQueryException("Transfers must have a destination account.");
             if (this.account == this.transferDestinationAccount)

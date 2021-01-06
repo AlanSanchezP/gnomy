@@ -47,7 +47,7 @@ public class EspressoTestUtil {
     // TODO: Evaluate if this method is needed, or using only ActivityScenarioRule is enough
     public static void assertActivityState(State state, ActivityScenario scenario) {
         if (scenario.getState() != state) {
-            fail();
+            fail("Expected Activity state [" + state + "] but got [" + scenario.getState() + "] instead");
         }
     }
 

@@ -9,12 +9,12 @@ import java.math.BigDecimal;
 
 import androidx.annotation.NonNull;
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.databinding.FragmentTransactionGroupHeaderBinding;
+import io.github.alansanchezp.gnomy.databinding.LayoutTransactionGroupHeaderBinding;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 
 public class TransactionGroupHeader
-        extends BindableItem<FragmentTransactionGroupHeaderBinding> {
+        extends BindableItem<LayoutTransactionGroupHeaderBinding> {
     private final String mTitle;
     private final BigDecimal mSum;
 
@@ -25,15 +25,15 @@ public class TransactionGroupHeader
 
     @NonNull
     @Override
-    protected FragmentTransactionGroupHeaderBinding initializeViewBinding(@NonNull View view) {
-        return FragmentTransactionGroupHeaderBinding.bind(view);
+    protected LayoutTransactionGroupHeaderBinding initializeViewBinding(@NonNull View view) {
+        return LayoutTransactionGroupHeaderBinding.bind(view);
     }
 
     @Override
-    public void bind(@NonNull FragmentTransactionGroupHeaderBinding viewBinding, int position) {
-        viewBinding.transactionGroupHeaderText.setText(mTitle);
+    public void bind(@NonNull LayoutTransactionGroupHeaderBinding $, int position) {
+        $.transactionGroupHeaderText.setText(mTitle);
         try {
-            setSumText(viewBinding);
+            setSumText($);
         } catch (GnomyCurrencyException e) {
             Log.wtf("TransactionGroupHeader", "bind: ", e);
         }
@@ -41,26 +41,28 @@ public class TransactionGroupHeader
 
     @Override
     public int getLayout() {
-        return R.layout.fragment_transaction_group_header;
+        return R.layout.layout_transaction_group_header;
     }
 
-    private void setSumText(FragmentTransactionGroupHeaderBinding viewBinding)
+    private void setSumText(LayoutTransactionGroupHeaderBinding $)
             throws GnomyCurrencyException {
         switch (mSum.compareTo(BigDecimal.ZERO)) {
             case -1:
-                viewBinding.transactionGroupHeaderSum.setTextColor(
-                        viewBinding.getRoot().getResources().getColor(R.color.colorExpensesDark));
+                $.transactionGroupHeaderSum.setVisibility(View.VISIBLE);
+                $.transactionGroupHeaderSum.setTextColor(
+                        $.getRoot().getResources().getColor(R.color.colorExpensesDark));
                 break;
             case 0:
-                viewBinding.transactionGroupHeaderSum.setVisibility(View.INVISIBLE);
+                $.transactionGroupHeaderSum.setVisibility(View.INVISIBLE);
                 break;
             case 1:
-                viewBinding.transactionGroupHeaderSum.setTextColor(
-                        viewBinding.getRoot().getResources().getColor(R.color.colorIncomesDark));
+                $.transactionGroupHeaderSum.setVisibility(View.VISIBLE);
+                $.transactionGroupHeaderSum.setTextColor(
+                        $.getRoot().getResources().getColor(R.color.colorIncomesDark));
                 break;
         }
         // TODO: Implement global default currency
-        viewBinding.transactionGroupHeaderSum.setText("\u2211 = ".concat(
+        $.transactionGroupHeaderSum.setText("\u2211 = ".concat(
                 CurrencyUtil.format(mSum, "USD")));
     }
 }

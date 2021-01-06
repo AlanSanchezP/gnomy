@@ -1,3 +1,5 @@
+// TODO: Test menu items (AddEditTransactionActivity intents)
+
 package io.github.alansanchezp.gnomy.account;
 
 import org.junit.BeforeClass;
@@ -66,6 +68,8 @@ public class AccountDetailsActivityInstrumentedTest {
         when(testAWA.account.getBackgroundColor()).thenReturn(ColorUtil.getRandomColor());
         when(testAWA.account.getId()).thenReturn(1);
         when(testAWA.account.getName()).thenReturn("Test name");
+        when(testAWA.account.getDrawableResourceName()).thenReturn("ic_account_balance_bank_black_24dp");
+        when(testAWA.account.getTypeNameResourceName()).thenReturn("account_type_bank");
         when(testAWA.account.getCreatedAt()).thenReturn(DateUtil.OffsetDateTimeNow());
         when(testAWA.account.getDefaultCurrency()).thenReturn("USD");
         when(testAWA.getConfirmedExpensesAtMonth()).thenReturn(BigDecimal.ZERO);

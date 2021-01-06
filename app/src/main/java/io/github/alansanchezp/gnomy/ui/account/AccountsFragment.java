@@ -10,15 +10,13 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.time.YearMonth;
@@ -31,9 +29,15 @@ import java.util.Objects;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
+import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
+import io.github.alansanchezp.gnomy.databinding.FragmentAccountsBinding;
 import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
-import io.github.alansanchezp.gnomy.ui.GnomyFragmentFactory;
+import io.github.alansanchezp.gnomy.androidUtil.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
+import io.github.alansanchezp.gnomy.ui.transaction.AddEditTransactionActivity;
+import io.github.alansanchezp.gnomy.ui.transaction.UnresolvedTransactionsDialogFragment;
+import io.github.alansanchezp.gnomy.ui.transaction.TransactionsFragment;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
@@ -42,26 +46,32 @@ import io.github.alansanchezp.gnomy.viewmodel.account.AccountsListViewModel;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-public class AccountsFragment extends MainNavigationFragment
-        implements AccountRecyclerViewAdapter.OnListItemInteractionListener,
-        ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface,
-        ConfirmationDialogFragment.OnConfirmationDialogListener {
+public class AccountsFragment
+        extends MainNavigationFragment<FragmentAccountsBinding>
+        implements  AccountRecyclerViewAdapter.OnListItemInteractionListener,
+                    ArchivedAccountsDialogFragment.ArchivedAccountsDialogInterface,
+                    ConfirmationDialogFragment.OnConfirmationDialogListener,
+                    UnresolvedTransactionsDialogFragment.UnresolvedTransactionsDialogInterface {
 
     public static final String TAG_ARCHIVE_ACCOUNT_DIALOG = "AccountsFragment.ArchiveAccountDialog";
     public static final String TAG_DELETE_ACCOUNT_DIALOG = "AccountsFragment.DeleteAccountDialog";
+    public static final String TAG_UNRESOLVED_TRANSACTIONS_DIALOG = "AccountsFragment.UnresolvedTransactionsDialog";
     private AccountRecyclerViewAdapter mAdapter;
     private AccountsListViewModel mListViewModel;
     private Map<Integer, AccountWithAccumulated> mTodayAccumulatesMap;
-    private TextView mBalance, mProjected;
 
-    public AccountsFragment(MainNavigationInteractionInterface _interface) {
-        super(_interface);
+    public AccountsFragment() {
+        super(R.string.title_accounts,
+                R.menu.accounts_fragment_toolbar,
+                true,
+                FragmentAccountsBinding::inflate);
     }
 
     private GnomyFragmentFactory getFragmentFactory() {
         return new GnomyFragmentFactory()
                 .addMapElement(ArchivedAccountsDialogFragment.class, this)
-                .addMapElement(ConfirmationDialogFragment.class, this);
+                .addMapElement(ConfirmationDialogFragment.class, this)
+                .addMapElement(UnresolvedTransactionsDialogFragment.class, this);
     }
 
     /* ANDROID LIFECYCLE METHODS */
@@ -85,29 +95,15 @@ public class AccountsFragment extends MainNavigationFragment
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_accounts, container, false);
-        Context context = view.getContext();
-        RecyclerView recyclerView = view.findViewById(R.id.items_list);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        RecyclerView recyclerView = $.itemsList;
+        recyclerView.setLayoutManager(new LinearLayoutManager($.getRoot().getContext()));
         recyclerView.setAdapter(mAdapter);
         recyclerView.setNestedScrollingEnabled(false);
 
-        mListViewModel.bindMonth(mNavigationInterface.getActiveMonth());
-
-        return view;
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        mBalance = view.findViewById(R.id.total_balance);
-        mProjected = view.findViewById(R.id.total_projected);
-
-        mNavigationInterface.getActiveMonth()
-                .observe(getViewLifecycleOwner(), this::onMonthChanged);
+        mListViewModel.bindMonth(mSharedViewModel.activeMonth);
         mListViewModel.getTodayAccumulatesList()
                 .observe(getViewLifecycleOwner(), this::onTodayAccumulatesListChanged);
         mListViewModel.getAccumulatesListAtMonth()
@@ -137,26 +133,6 @@ public class AccountsFragment extends MainNavigationFragment
 
     /* CONCRETE METHODS INHERITED FROM ABSTRACT CLASS */
 
-    protected boolean hasAppbarActions() {
-        return true;
-    }
-
-    protected int getMenuResourceId() {
-        return R.menu.accounts_fragment_toolbar;
-    }
-
-    protected boolean withOptionalNavigationElements() {
-        return true;
-    }
-
-    protected int getThemeColor() {
-        return getResources().getColor(R.color.colorPrimary);
-    }
-
-    protected String getTitle() {
-        return getResources().getString(R.string.title_accounts);
-    }
-
     protected void tintMenuIcons() {
         mMenu.findItem(R.id.action_show_archived)
                 .getIcon()
@@ -173,15 +149,12 @@ public class AccountsFragment extends MainNavigationFragment
 
     public void onMonthChanged(YearMonth month) {
         if (month == null) return;
-        View v = getView();
-        assert v != null;
+        assert $ != null;
         if (month.isBefore(DateUtil.now())) {
-            ((TextView) v.findViewById(R.id.total_projected_label)).setText(R.string.account_balance_end_of_month);
+            $.totalProjectedLabel.setText(R.string.account_balance_end_of_month);
         } else {
-            ((TextView) v.findViewById(R.id.total_projected_label)).setText(R.string.account_projected_balance);
+            $.totalProjectedLabel.setText(R.string.account_projected_balance);
         }
-
-        mCurrentMonth = month;
     }
 
     private void onTodayAccumulatesListChanged(List<AccountWithAccumulated> accumulates) {
@@ -194,7 +167,7 @@ public class AccountsFragment extends MainNavigationFragment
                     true,
                     accumulates,
                     userCurrencyCode);
-            mBalance.setText(CurrencyUtil.format(totalAccumulates, userCurrencyCode));
+            $.totalBalance.setText(CurrencyUtil.format(totalAccumulates, userCurrencyCode));
         } catch (GnomyCurrencyException e) {
             // This shouldn't happen
             Log.wtf("AccountsFragment", "setObserver: ", e);
@@ -204,7 +177,7 @@ public class AccountsFragment extends MainNavigationFragment
     private void onAccumulatesListChanged(List<AccountWithAccumulated> accumulates) {
         // TODO: Display some helpful information if list is empty, current behavior
         //  just doesn't display any data in recyclerview (not a bug, but UX can be improved)
-        if (mCurrentMonth == null) return;
+        if (mSharedViewModel.activeMonth.getValue() == null) return;
         mAdapter.setValues(accumulates);
 
         // TODO: Use global user currency when implemented
@@ -214,7 +187,7 @@ public class AccountsFragment extends MainNavigationFragment
                     false,
                     accumulates,
                     userCurrencyCode);
-            mProjected.setText(CurrencyUtil.format(totalEndOfMonth, userCurrencyCode));
+            $.totalProjected.setText(CurrencyUtil.format(totalEndOfMonth, userCurrencyCode));
         } catch (GnomyCurrencyException e) {
             // This shouldn't happen
             Log.wtf("AccountsFragment", "setObserver: ", e);
@@ -245,6 +218,10 @@ public class AccountsFragment extends MainNavigationFragment
                 requireActivity().startActivity(modifyAccountIntent);
                 break;
             case R.id.account_card_transactions:
+                // TODO: Is it worth including the SafeArgs module?
+                Bundle args = new Bundle();
+                args.putInt(TransactionsFragment.ARG_DEFAULT_FILTER_ACCOUNT, account.getId());
+                NavHostFragment.findNavController(this).navigate(R.id.action_navigation_accounts_to_navigation_transactions, args);
                 break;
             case R.id.account_card_archive:
                 archiveAccount(account);
@@ -260,9 +237,26 @@ public class AccountsFragment extends MainNavigationFragment
         return true;
     }
 
-    public void onUnresolvedTransactions(Account account, YearMonth month) {
-        // TODO: Implement when Transactions module is ready
+    public void onUnresolvedTransactions(Account account) {
+        UnresolvedTransactionsDialogFragment dialog = new UnresolvedTransactionsDialogFragment(this);
+        Bundle args = new Bundle();
+        args.putInt(UnresolvedTransactionsDialogFragment.ARG_TARGET_ACCOUNT, account.getId());
+        dialog.setArguments(args);
+        dialog.show(getChildFragmentManager(), TAG_UNRESOLVED_TRANSACTIONS_DIALOG);
         mAdapter.enableClicks();
+    }
+
+    public void onUnresolvedTransactionClick(@NonNull MoneyTransaction transaction) {
+        int transactionId = transaction.getId();
+        int transactionType = transaction.getType();
+        Intent updateTransactionIntent = new Intent(getActivity(), AddEditTransactionActivity.class);
+        updateTransactionIntent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_ID, transactionId);
+        updateTransactionIntent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, transactionType);
+        requireActivity().startActivity(updateTransactionIntent);
+    }
+
+    public LiveData<List<TransactionDisplayData>> getUnresolvedTransactionsList(int accountId) {
+        return mListViewModel.getUnresolvedTransactions(accountId);
     }
 
     /* FRAGMENT-SPECIFIC METHODS */
@@ -319,7 +313,7 @@ public class AccountsFragment extends MainNavigationFragment
 
     private void effectiveDeleteAccount(Account account) {
         mCompositeDisposable.add(
-                mListViewModel.delete(account)
+                mListViewModel.delete(account.getId())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(

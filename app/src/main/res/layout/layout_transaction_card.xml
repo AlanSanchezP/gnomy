@@ -58,12 +58,13 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
-            android:layout_toEndOf="@+id/transaction_card_icon"
             android:textColor="@color/colorTextHighlight"
             android:textSize="15sp"
             android:scrollHorizontally="true"
             android:ellipsize="end"
             android:singleLine="true"
+            android:layout_marginEnd="12dp"
+            android:textDirection="locale"
             app:layout_constraintStart_toEndOf="@+id/transaction_card_icon"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toStartOf="@id/transaction_card_amount" />
@@ -78,9 +79,10 @@
             android:scrollHorizontally="true"
             android:ellipsize="end"
             android:singleLine="true"
+            android:textDirection="locale"
             app:layout_constraintTop_toBottomOf="@id/transaction_card_concept"
             app:layout_constraintStart_toStartOf="@id/transaction_card_concept"
-            app:layout_constraintEnd_toStartOf="@id/transaction_card_amount" />
+            app:layout_constraintEnd_toEndOf="@id/transaction_card_concept" />
 
         <TextView
             android:id="@+id/transaction_card_amount"

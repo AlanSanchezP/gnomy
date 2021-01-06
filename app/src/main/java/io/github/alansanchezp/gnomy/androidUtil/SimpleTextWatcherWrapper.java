@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.util.android;
+package io.github.alansanchezp.gnomy.androidUtil;
 
 import android.text.Editable;
 import android.text.TextWatcher;

@@ -7,12 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.util.android.SingleClickViewHolder;
+import io.github.alansanchezp.gnomy.databinding.DialogConfirmationBinding;
+import io.github.alansanchezp.gnomy.androidUtil.SingleClickViewHolder;
 
 public class ConfirmationDialogFragment extends DialogFragment {
     public static final String ARG_TITLE = "ConfirmationDialog.Title";
@@ -52,18 +52,17 @@ public class ConfirmationDialogFragment extends DialogFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_confirmation_dialog, container, false);
+        DialogConfirmationBinding $ = DialogConfirmationBinding.inflate(inflater, container, false);
         Dialog dialog = getDialog();
 
-        ((TextView)view.findViewById(R.id.confirmation_dialog_message))
-                .setText(mMessage);
+        $.confirmationDialogMessage.setText(mMessage);
 
         SingleClickViewHolder<Button> yesBtn
-                = new SingleClickViewHolder<>(view.findViewById(R.id.confirmation_dialog_yes));
+                = new SingleClickViewHolder<>($.confirmationDialogYes);
         SingleClickViewHolder<Button> noBtn
-                = new SingleClickViewHolder<>(view.findViewById(R.id.confirmation_dialog_no));
+                = new SingleClickViewHolder<>($.confirmationDialogNo);
         yesBtn.onView(requireActivity(), v -> v.setText(mYesString));
         noBtn.onView(requireActivity(), v -> v.setText(mNoString));
 
@@ -80,7 +79,7 @@ public class ConfirmationDialogFragment extends DialogFragment {
                 dialog.cancel();
             });
         }
-        return view;
+        return $.getRoot();
     }
 
     @Override

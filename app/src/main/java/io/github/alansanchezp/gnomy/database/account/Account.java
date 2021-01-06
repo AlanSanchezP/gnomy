@@ -6,16 +6,17 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
-import io.github.alansanchezp.gnomy.R;
+import io.github.alansanchezp.gnomy.util.ISpinnerItem;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 
 @Entity(tableName = "accounts")
-public class Account {
+public class Account implements ISpinnerItem {
     @Ignore
     public static final int BANK = 1;
     @Ignore
@@ -69,40 +70,21 @@ public class Account {
     }
 
     @Ignore
-    public static int getDrawableResourceId(int type) {
-        switch (type) {
+    public String getTypeNameResourceName() {
+        switch (this.type) {
             case BANK:
-                return R.drawable.ic_account_balance_black_24dp;
+                return "account_type_bank";
             case INFORMAL:
-                return R.drawable.ic_account_balance_piggy_black_24dp;
+                return "account_type_informal";
             case SAVINGS:
-                return R.drawable.ic_account_balance_savings_black_24dp;
+                return "account_type_savings";
             case INVERSIONS:
-                return R.drawable.ic_account_balance_inversion_black_24dp;
+                return "account_type_inversions";
             case CREDIT_CARD:
-                return R.drawable.ic_account_balance_credit_card_black_24dp;
+                return "account_type_credit_card";
             case OTHER:
             default:
-                return R.drawable.ic_account_balance_wallet_black_24dp;
-        }
-    }
-
-    @Ignore
-    public static int getTypeNameResourceId(int type) {
-        switch (type) {
-            case BANK:
-                return R.string.account_type_bank;
-            case INFORMAL:
-                return R.string.account_type_informal;
-            case SAVINGS:
-                return R.string.account_type_savings;
-            case INVERSIONS:
-                return R.string.account_type_inversions;
-            case CREDIT_CARD:
-                return R.string.account_type_credit_card;
-            case OTHER:
-            default:
-                return R.string.account_type_other;
+                return "account_type_other";
         }
     }
 
@@ -245,5 +227,33 @@ public class Account {
     @NonNull
     public String toString() {
         return name;
+    }
+
+    @Nullable
+    @Override
+    @Ignore
+    public String getDrawableResourceName() {
+        if (id == 0) return null;
+        switch (type) {
+            case BANK:
+                return "ic_account_balance_bank_black_24dp";
+            case INFORMAL:
+                return "ic_account_balance_piggy_black_24dp";
+            case SAVINGS:
+                return "ic_account_balance_savings_black_24dp";
+            case INVERSIONS:
+                return "ic_account_balance_inversion_black_24dp";
+            case CREDIT_CARD:
+                return "ic_account_balance_credit_card_black_24dp";
+            case OTHER:
+            default:
+                return "ic_account_balance_wallet_black_24dp";
+        }
+    }
+
+    @Override
+    @Ignore
+    public int getDrawableColor() {
+        return backgroundColor;
     }
 }

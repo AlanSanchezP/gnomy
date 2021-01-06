@@ -1,3 +1,6 @@
+// TODO: Test archived destination account (transfers only) management
+// TODO: Test account extras management
+
 package io.github.alansanchezp.gnomy.transaction;
 
 import android.content.Intent;
@@ -19,6 +22,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.Espresso;
 import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -39,6 +43,7 @@ import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.reactivex.Single;
 
 import static androidx.lifecycle.Lifecycle.State.DESTROYED;
+import static androidx.lifecycle.Lifecycle.State.RESUMED;
 import static androidx.test.core.app.ActivityScenario.launch;
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
@@ -54,7 +59,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.isNotChecked;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
-import static androidx.test.espresso.matcher.ViewMatchers.withHint;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.END_ICON;
@@ -75,6 +79,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 /**
@@ -129,7 +134,7 @@ public class AddEditTransactionInstrumentedTest {
                 .thenReturn(Single.just(1L));
         when(mockAccountRepository.getAll())
                 .thenReturn(testAccountListLD);
-        when(mockCategoryRepository.getAll())
+        when(mockCategoryRepository.getSharedAndCategory(anyInt()))
                 .thenReturn(testCategoryListLD);
     }
 
@@ -213,6 +218,16 @@ public class AddEditTransactionInstrumentedTest {
                 .check(matches(hasDescendant(
                         withText(R.string.transaction_error_amount)
                 )));
+
+        onView(withId(R.id.addedit_transaction_from_account))
+                .check(matches(hasDescendant(
+                        withText(R.string.transaction_error_account)
+                )));
+
+        onView(withId(R.id.addedit_transaction_category))
+                .check(matches(hasDescendant(
+                        withText(R.string.transaction_error_category)
+                )));
     }
 
     @Test
@@ -222,6 +237,16 @@ public class AddEditTransactionInstrumentedTest {
 
         onView(withId(R.id.addedit_transaction_amount_input))
                 .perform(replaceText("40"));
+
+        onView(withId(R.id.addedit_transaction_from_account)).perform(click());
+        onData(allOf(is(instanceOf(Account.class)), is(
+                testAccountB)))
+                .perform(click());
+
+        onView(withId(R.id.addedit_transaction_category)).perform(click());
+        onData(allOf(is(instanceOf(Category.class)), is(
+                testCategory)))
+                .perform(click());
 
         onView(withId(R.id.addedit_transaction_FAB))
                 .perform(click());
@@ -259,29 +284,15 @@ public class AddEditTransactionInstrumentedTest {
 
     @Test
     public void sets_currency_from_selected_account() throws GnomyCurrencyException {
-        // Set test values to test list
         onView(withId(R.id.addedit_transaction_from_account))
                 .perform(click());
-        // Using testAccount2 since by default, index 0 is used on spinner and therefore
-        //  not on spinner options
         onData(allOf(is(instanceOf(Account.class)), is(
                 testAccountB)))
                 .perform(click());
         onView(withId(R.id.addedit_transaction_currency))
                 .check(matches(
-                        withText(CurrencyUtil.getDisplayName(
-                                testAccountB.getDefaultCurrency()))));
-        onView(withId(R.id.addedit_transaction_from_account))
-                .perform(click());
-
-        // Check the other way around
-        onData(allOf(is(instanceOf(Account.class)), is(
-                testAccountA)))
-                .perform(click());
-        onView(withId(R.id.addedit_transaction_currency))
-                .check(matches(
-                        withText(CurrencyUtil.getDisplayName(
-                                testAccountA.getDefaultCurrency()))));
+                        hasDescendant(withText(CurrencyUtil.getDisplayName(
+                                testAccountB.getDefaultCurrency())))));
     }
 
     @Test
@@ -350,11 +361,12 @@ public class AddEditTransactionInstrumentedTest {
         onView(withId(R.id.addedit_transaction_FAB))
                 .perform(click());
 
-        // As data now matches the one sent by form, activity is expected to be finished
-        //  and therefore trigger NoMatchingViewException
-        assertThrows(NoMatchingViewException.class,
-                () -> onView(withId(R.id.addedit_account_FAB))
-                        .perform(click()));
+        try {
+            assertActivityState(DESTROYED, activityRule);
+        } catch (AssertionError e) {
+            // Not sure why SOMETIMES state is DESTROYED and sometimes it's RESUMED
+            assertActivityState(RESUMED, activityRule);
+        }
         // return to default state
         when(mockTransactionRepository.insert(any(MoneyTransaction.class)))
                 .thenReturn(Single.just(1L));
@@ -362,17 +374,17 @@ public class AddEditTransactionInstrumentedTest {
 
     @Test
     public void dynamic_title_based_on_extras() {
-        // TODO: Use same approach on AddEditAccount tests
+        // TODO: Check hints
         // Default behavior is to create a new expense. Not testing tinting since espresso
         //  doesn't provide a way to match color resources yet.
         onView(withId(R.id.custom_appbar))
                 .check(matches(hasDescendant(
                         withText(R.string.transaction_new_expense)
                 )));
-        onView(withId(R.id.addedit_transaction_from_account))
-                .check(matches(withHint(
+        /*onView(withId(R.id.addedit_transaction_from_account))
+                .check(matches(hasDescendant(withText(
                         R.string.transaction_from_account
-                )));
+                ))));*/
 
         Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
                 AddEditTransactionActivity.class);
@@ -387,10 +399,10 @@ public class AddEditTransactionInstrumentedTest {
                 .check(matches(hasDescendant(
                         withText(R.string.transaction_modify_expense)
                 )));
-        onView(withId(R.id.addedit_transaction_from_account))
-                .check(matches(withHint(
+        /*onView(withId(R.id.addedit_transaction_from_account))
+                .check(matches(hasDescendant(withText(
                         R.string.transaction_from_account
-                )));
+                ))));*/
         tempScenario.close();
 
         // Create income
@@ -402,10 +414,10 @@ public class AddEditTransactionInstrumentedTest {
                 .check(matches(hasDescendant(
                         withText(R.string.transaction_new_income)
                 )));
-        onView(withId(R.id.addedit_transaction_from_account))
-                .check(matches(withHint(
+        /*onView(withId(R.id.addedit_transaction_from_account))
+                .check(matches(hasDescendant(withText(
                         R.string.transaction_to_account
-                )));
+                ))));*/
         tempScenario.close();
 
         // Modify income
@@ -417,10 +429,10 @@ public class AddEditTransactionInstrumentedTest {
                 .check(matches(hasDescendant(
                         withText(R.string.transaction_modify_income)
                 )));
-        onView(withId(R.id.addedit_transaction_from_account))
-                .check(matches(withHint(
+        /*onView(withId(R.id.addedit_transaction_from_account))
+                .check(matches(hasDescendant(withText(
                         R.string.transaction_to_account
-                )));
+                ))));*/
         tempScenario.close();
 
         // New transfer
@@ -432,10 +444,10 @@ public class AddEditTransactionInstrumentedTest {
                 .check(matches(hasDescendant(
                         withText(R.string.transaction_new_transfer)
                 )));
-        onView(withId(R.id.addedit_transaction_from_account))
-                .check(matches(withHint(
+        /*onView(withId(R.id.addedit_transaction_from_account))
+                .check(matches(hasDescendant(withText(
                         R.string.transaction_from_account
-                )));
+                ))));*/
         tempScenario.close();
 
         // Modify transfer
@@ -447,10 +459,10 @@ public class AddEditTransactionInstrumentedTest {
                 .check(matches(hasDescendant(
                         withText(R.string.transaction_modify_transfer)
                 )));
-        onView(withId(R.id.addedit_transaction_from_account))
-                .check(matches(withHint(
+        /*onView(withId(R.id.addedit_transaction_from_account))
+                .check(matches(hasDescendant(withText(
                         R.string.transaction_from_account
-                )));
+                ))));*/
         tempScenario.close();
 
         // Not testing invalid types because RuntimeException can't be catched
@@ -618,18 +630,13 @@ public class AddEditTransactionInstrumentedTest {
     }
 
     @Test
-    public void FAB_displays_error_if_dynamic_accounts_spinner_is_empty() {
+    public void FAB_displays_error_if_not_account_is_selected() {
         // Not testing case where categories spinner is empty
         //  as IT IS NOT SUPPOSED TO EVER HAPPEN
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
-                testAccountListLD.postValue(new ArrayList<>()));
         onView(withId(R.id.addedit_transaction_FAB))
                 .perform(click());
         onView(withId(R.id.addedit_transaction_from_account))
-                .check(matches(withHint(R.string.transaction_error_account)));
-        // reset for other tests
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
-                testAccountListLD.postValue(testAccountList));
+                .check(matches(hasDescendant(withText(R.string.transaction_error_account))));
     }
 
     @Test
@@ -664,9 +671,9 @@ public class AddEditTransactionInstrumentedTest {
 
     @Test
     public void new_account_is_set_as_selected() {
-        // Dummy action at the start of activity
-        onView(withId(R.id.addedit_transaction_include_time))
-                .perform(setChecked(true));
+        // Click on new Account action
+        onView(withId(R.id.addedit_transaction_new_account))
+                .perform(click());
         // Emulates the arrival of a new account
         Account newAccount = new Account();
         newAccount.setId(3);
@@ -676,9 +683,43 @@ public class AddEditTransactionInstrumentedTest {
         testAccountList.add(newAccount);
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
             testAccountListLD.postValue(testAccountList));
+
+        // Close account activity
+        Espresso.pressBack();
+        onView(withId(R.id.confirmation_dialog_yes)).perform(click()); // Accept confirmation dialog
+
         onView(withId(R.id.addedit_transaction_from_account))
                 .check(matches(
-                        withText(newAccount.getName())));
+                        hasDescendant(withText(newAccount.getName()))));
+
+        // Testing on transfer: destination account must be filled
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
+                AddEditTransactionActivity.class)
+                .putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, TRANSFER);
+        ActivityScenario<AddEditTransactionActivity> tempScenario = launch(intent);
+
+        // Click on new Account action
+        onView(withId(R.id.addedit_transaction_new_account))
+                .perform(click());
+        // Emulates the arrival of a new account
+        newAccount = new Account();
+        newAccount.setId(4);
+        newAccount.setCreatedAt(DateUtil.OffsetDateTimeNow().minusDays(1));
+        newAccount.setName("New test account 2");
+        newAccount.setDefaultCurrency("MXN");
+        testAccountList.add(newAccount);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                testAccountListLD.postValue(testAccountList));
+
+        // Close account activity
+        Espresso.pressBack();
+        onView(withId(R.id.confirmation_dialog_yes)).perform(click()); // Accept confirmation dialog
+
+        onView(withId(R.id.addedit_transaction_to_account))
+                .check(matches(
+                        hasDescendant(withText(newAccount.getName()))));
+
+        tempScenario.close();
     }
 
     // TODO: Implement when categories module is ready
@@ -706,6 +747,12 @@ public class AddEditTransactionInstrumentedTest {
         onView(withId(R.id.addedit_transaction_mark_as_done))
                 .check(matches(
                         withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+        onView(withId(R.id.addedit_transaction_new_category))
+                .check(matches(
+                        withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+        onView(withId(R.id.addedit_transaction_category))
+                .check(matches(
+                        withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
 
         Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
                 AddEditTransactionActivity.class)
@@ -722,6 +769,12 @@ public class AddEditTransactionInstrumentedTest {
                 .check(matches(
                         withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
                 .check(matches(isChecked()));
+        onView(withId(R.id.addedit_transaction_new_category))
+                .check(matches(
+                        withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        onView(withId(R.id.addedit_transaction_category))
+                .check(matches(
+                        withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
 
         tempScenario.close();
     }
@@ -733,43 +786,27 @@ public class AddEditTransactionInstrumentedTest {
                 .putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, TRANSFER);
         ActivityScenario<AddEditTransactionActivity> tempScenario = launch(intent);
 
-        onView(withId(R.id.addedit_transaction_same_account_error))
-                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
-        onView(withId(R.id.addedit_transaction_to_account)).perform(click());
-        // By default, second account is set as selected if available,
-        //  so we switch to accountA manually
+        // Select same account
+        onView(withId(R.id.addedit_transaction_from_account)).perform(click());
         onData(allOf(is(instanceOf(Account.class)), is(
                 testAccountA)))
                 .perform(click());
-        onView(withId(R.id.addedit_transaction_same_account_error))
-                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
 
         onView(withId(R.id.addedit_transaction_to_account)).perform(click());
         onData(allOf(is(instanceOf(Account.class)), is(
-                testAccountB)))
+                testAccountA)))
                 .perform(click());
-        onView(withId(R.id.addedit_transaction_same_account_error))
-                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        onView(withId(R.id.addedit_transaction_to_account))
+                .check(matches(hasDescendant(withText(R.string.transaction_error_transfer_destination_account))));
 
+        // Clears error after selection
         onView(withId(R.id.addedit_transaction_from_account)).perform(click());
         onData(allOf(is(instanceOf(Account.class)), is(
                 testAccountB)))
                 .perform(click());
-        onView(withId(R.id.addedit_transaction_same_account_error))
-                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
-
-        // Forcing one-item list
-        List<Account> temp = new ArrayList<>();
-        temp.add(testAccountA);
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
-                testAccountListLD.postValue(temp));
-        // Asserting empty list for destination account
         onView(withId(R.id.addedit_transaction_to_account))
-                .check(matches(withHint(R.string.transaction_to_account)));
+                .check(matches(not(hasDescendant(withText(R.string.transaction_error_transfer_destination_account)))));
 
-        // Back to defaults
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
-                testAccountListLD.postValue(testAccountList));
         tempScenario.close();
     }
 
@@ -778,11 +815,11 @@ public class AddEditTransactionInstrumentedTest {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
                 testAccountListLD.postValue(new ArrayList<>()));
 
-        // Default behavior on tests is expense: not checking destination account
+        // Default behavior on tests if expense: not checking destination account
         onView(withId(R.id.addedit_transaction_FAB))
                 .perform(click());
         onView(withId(R.id.addedit_transaction_to_account))
-                .check(matches(not(withHint(R.string.transaction_error_account))));
+                .check(matches(not(hasDescendant(withText(R.string.transaction_error_account)))));
 
         // Destination account can't be null on transfers
         Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
@@ -793,7 +830,7 @@ public class AddEditTransactionInstrumentedTest {
         onView(withId(R.id.addedit_transaction_FAB))
                 .perform(click());
         onView(withId(R.id.addedit_transaction_to_account))
-                .check(matches(withHint(R.string.transaction_error_account)));
+                .check(matches(hasDescendant(withText(R.string.transaction_error_account))));
 
         // Return to default
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->

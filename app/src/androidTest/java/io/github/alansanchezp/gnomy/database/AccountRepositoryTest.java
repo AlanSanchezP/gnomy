@@ -153,7 +153,7 @@ public class AccountRepositoryTest {
         testTransaction.setTransferDestinationAccount(B);
         transactionRepository.insert(testTransaction).blockingGet(); // id 8 (mirror id 7)
 
-        repository.delete(new Account(C)).blockingGet();
+        repository.delete(C).blockingGet();
 
         MoneyTransaction modifiedTransfer1 = getOrAwaitValue(transactionRepository.find(2));
         MoneyTransaction modifiedTransfer2 = getOrAwaitValue(transactionRepository.find(4));
@@ -165,7 +165,7 @@ public class AccountRepositoryTest {
         assertEquals(MoneyTransaction.INCOME, modifiedTransfer3.getType());
         assertNull(modifiedTransfer3.getTransferDestinationAccount());
 
-        repository.delete(new Account(B)).blockingGet();
+        repository.delete(B).blockingGet();
         MoneyTransaction modifiedTransfer4 = getOrAwaitValue(transactionRepository.find(5));
         assertEquals(MoneyTransaction.INCOME, modifiedTransfer4.getType());
         assertNull(modifiedTransfer4.getTransferDestinationAccount());

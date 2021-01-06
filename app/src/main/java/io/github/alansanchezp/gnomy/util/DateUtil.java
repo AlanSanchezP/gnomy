@@ -86,7 +86,7 @@ public class DateUtil {
         } else {
             pattern = "YYYY/MM/dd";
         }
-        return dateTime.format(DateTimeFormatter.ofPattern(pattern));
+        return dateTime.toLocalDateTime().format(DateTimeFormatter.ofPattern(pattern));
     }
 
     /**
@@ -133,7 +133,7 @@ public class DateUtil {
      * @param dateTime  OffsetDateTime object to parse.
      * @return          Integer representation of the given object.
      */
-    public static Integer getDayId(@NonNull OffsetDateTime dateTime) {
+    public static int getDayId(@NonNull OffsetDateTime dateTime) {
         return Integer.parseInt(dateTime.format(DateTimeFormatter.ofPattern("uuuuMMdd")));
     }
 }

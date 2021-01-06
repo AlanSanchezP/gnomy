@@ -150,13 +150,23 @@
     <string name="transaction_error_amount">Specified amount is not a valid number.</string>
     <string name="transaction_error_date">Transaction must happen after account creation date.</string>
     <string name="transaction_error_account">Account can\'t be null</string>
+    <string name="transaction_error_category">Category can\'t be null</string>
     <string name="transaction_error_transfer_destination_account">Origin and destination accounts can\'t be the same.</string>
     <string name="transaction_message_saved">Your transaction was saved correctly.</string>
     <string name="transaction_message_updated">Your transaction was updated correctly.</string>
 
+    <!-- Transactions list  -->
     <string name="transaction_card_delete">Delete transaction</string>
     <string name="transaction_filters_dialog_static">Filter</string>
+    <string name="transaction_filters_message">You are currently using a custom set of filters.</string>
+    <string name="transaction_filters_edit_btn">Edit them</string>
+    <string name="transaction_filters_clear_btn">Clear filters</string>
+    <string name="transaction_transfer_destination_archived">Oops!</string>
+    <string name="transaction_transfer_destination_archived_message">The destination account of this transfer seems to be archived. You can restore it or ignore this warning (you won\'t be able to edit the destination account).</string>
+    <string name="transaction_transfer_destination_archived_action">Restore it</string>
+    <string name="transaction_transfer_destination_archived_ignore">Ignore</string>
 
+    <!-- Transaction Filters Dialog -->
     <string-array name="transaction_types">
         <item>@string/title_transactions</item>
         <item>@string/action_filter_incomes</item>

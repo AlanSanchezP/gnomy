@@ -25,7 +25,6 @@ import android.util.Log;
 import net.sqlcipher.database.SupportFactory;
 import net.sqlcipher.database.SQLiteDatabase;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 
@@ -88,12 +87,45 @@ public abstract class GnomyDatabase extends RoomDatabase {
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
             super.onCreate(db);
-            // TODO: Prepopulate categories
-            db.execSQL("INSERT INTO categories (category_name, category_icon, category_type, bg_color) " +
-                    "VALUES ('Dummy category', " +
-                    "'ic_calculate_24', "+
-                    Category.BOTH_CATEGORY + ", " +
-                    ColorUtil.getRandomColor() +")");
+            db.execSQL("INSERT INTO categories (category_name, category_icon, category_type, can_delete, bg_color) " +
+                    "VALUES " +
+                        "(" +
+                            "'Transfer', " +
+                            "'ic_transfer_arrows_black_24', "+
+                            "4, " + // Cannot access HIDDEN_CATEGORY value here
+                            "0, " +
+                            "-4278890), " + // Hardcoding transfers color
+                        "(" +
+                            "'Orphan outgoing transfer', " +
+                            "'ic_orphan_outgoing_transfer_arrow_black_24', "+
+                            "4, " +
+                            "0, " +
+                            "-1293008), " + // Hardcoding error color
+                        "(" +
+                            "'Orphan incoming transfer', " +
+                            "'ic_orphan_incoming_transfer_arrow_black_24', "+
+                            "4, " +
+                            "0, " +
+                            "-1293008), " + // Hardcoding error color
+                    // TODO: Determine final categories
+                        "(" +
+                            "'Dummy incomes category', " +
+                            "'ic_color_lens_black_24dp', "+
+                            Category.INCOME_CATEGORY + ", " +
+                            "0, " +
+                            ColorUtil.getRandomColor() + "), " +
+                        "(" +
+                            "'Dummy expenses category', " +
+                            "'ic_calculate_24', "+
+                            Category.EXPENSE_CATEGORY + ", " +
+                            "0, " +
+                            ColorUtil.getRandomColor() +"), " +
+                        "(" +
+                            "'Dummy both category', " +
+                            "'ic_fitness_center_black_24dp', "+
+                            Category.BOTH_CATEGORY + ", " +
+                            "0, " +
+                            ColorUtil.getRandomColor() +")");
         }
     };
 

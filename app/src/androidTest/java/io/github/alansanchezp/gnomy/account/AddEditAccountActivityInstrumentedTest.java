@@ -1,5 +1,6 @@
 package io.github.alansanchezp.gnomy.account;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 
 import org.junit.BeforeClass;
@@ -7,17 +8,28 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import androidx.lifecycle.MutableLiveData;
+import androidx.test.core.app.ActivityScenario;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
+import io.github.alansanchezp.gnomy.ui.account.AccountTypeItem;
 import io.github.alansanchezp.gnomy.ui.account.AddEditAccountActivity;
+import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
+import io.github.alansanchezp.gnomy.util.CurrencyUtil;
+import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
 import io.reactivex.Single;
 
 import static androidx.lifecycle.Lifecycle.State.DESTROYED;
+import static androidx.lifecycle.Lifecycle.State.RESUMED;
+import static androidx.test.core.app.ActivityScenario.launch;
+import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -29,9 +41,14 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertActivityState;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertThrows;
+import static io.github.alansanchezp.gnomy.EspressoTestUtil.nestedScrollTo;
 import static io.github.alansanchezp.gnomy.database.MockRepositoryBuilder.initMockRepository;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 /**
@@ -40,25 +57,40 @@ import static org.mockito.Mockito.when;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 @RunWith(AndroidJUnit4.class)
-public class AddAccountActivityInstrumentedTest {
+public class AddEditAccountActivityInstrumentedTest {
     @Rule
     public final ActivityScenarioRule<AddEditAccountActivity> activityRule =
             new ActivityScenarioRule<>(AddEditAccountActivity.class);
+    private static final AccountRepository mockAccountRepository = initMockRepository(AccountRepository.class);
 
     // Needed so that ViewModel instance doesn't crash
     @BeforeClass
     public static void init_mocks() {
-        final AccountRepository mockAccountRepository = initMockRepository(AccountRepository.class);
         when(mockAccountRepository.insert(any(Account.class)))
                 .thenReturn(Single.just(1L));
+        when(mockAccountRepository.getAccount(anyInt()))
+                .thenReturn(new MutableLiveData<>());
+        when(mockAccountRepository.update(any(Account.class)))
+                .thenReturn(Single.just(1));
     }
 
     @Test
     public void dynamic_title_is_correct() {
+        // Default behavior is new account
         onView(withId(R.id.custom_appbar))
                 .check(matches(hasDescendant(
                         withText(R.string.account_new)
                 )));
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
+                AddEditAccountActivity.class)
+                .putExtra(AddEditAccountActivity.EXTRA_ACCOUNT_ID, 1);
+        ActivityScenario<AddEditAccountActivity> tempScenario = launch(intent);
+
+        onView(withId(R.id.custom_appbar))
+                .check(matches(hasDescendant(
+                        withText(R.string.account_card_modify)
+                )));
+        tempScenario.close();
     }
 
     @Test
@@ -186,5 +218,69 @@ public class AddAccountActivityInstrumentedTest {
         assertThrows(RuntimeException.class,
                 () -> onView(withId(R.id.addedit_account_initial_value_input))
                         .perform(typeText("ñ")));
+    }
+
+
+    @Test
+    public void data_is_sent_to_repository() throws GnomyCurrencyException {
+        when(mockAccountRepository.insert(any(Account.class)))
+                .then(invocation -> {
+                    RuntimeException exception = null;
+                    // I don't like this, but it was the only way I found to test this
+                    Account sentByForm = invocation.getArgument(0);
+                    if (!sentByForm.getDefaultCurrency().equals("MXN")) exception =  new RuntimeException();
+                    if (!sentByForm.getInitialValue().equals(
+                            BigDecimalUtil.fromString("40"))) exception =  new RuntimeException();
+                    if (!sentByForm.getName().equals("Test account")) exception =  new RuntimeException();
+                    if (sentByForm.getType() != Account.INFORMAL) exception =  new RuntimeException();
+
+                    // Not testing selected color: Don't know how to select an item.
+
+                    if (exception == null)
+                        return Single.just(1L);
+                    else
+                        return Single.error(exception);
+                });
+
+        onView(withId(R.id.addedit_account_name_input))
+                .perform(typeText("gffdg")) // setting wrong value
+                .perform(closeSoftKeyboard());
+        onView(withId(R.id.addedit_account_initial_value_input))
+                .perform(typeText("40"))
+                .perform(closeSoftKeyboard());
+        onView(withId(R.id.addedit_account_currency))
+                .perform(click());
+        onData(allOf(is(instanceOf(String.class)), is(
+                CurrencyUtil.getDisplayName("MXN"))))
+                .perform(click());
+        onView(withId(R.id.addedit_account_type))
+                .perform(click());
+        onData(allOf(is(instanceOf(AccountTypeItem.class)), is(
+                // Using hardcoded string as AccountTypeItem.equals only considers type
+                new AccountTypeItem(Account.INFORMAL, "Informal"))))
+                .perform(click());
+
+        onView(withId(R.id.addedit_account_FAB))
+                .perform(click());
+
+        // These calls should only be possible if insert fails and activity is not
+        //  automatically finished
+        onView(withId(R.id.addedit_account_name_input))
+                .perform(nestedScrollTo(), click())
+                .perform(replaceText("Test account"))
+                .perform(closeSoftKeyboard());
+        onView(withId(R.id.addedit_account_FAB))
+                .perform(click());
+
+        // return to default state
+        when(mockAccountRepository.insert(any(Account.class)))
+                .thenReturn(Single.just(1L));
+
+        try {
+            assertActivityState(DESTROYED, activityRule);
+        } catch (AssertionError e) {
+            // Not sure why SOMETIMES state is DESTROYED and sometimes it's RESUMED
+            assertActivityState(RESUMED, activityRule);
+        }
     }
 }

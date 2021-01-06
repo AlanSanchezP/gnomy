@@ -1,18 +1,20 @@
 package io.github.alansanchezp.gnomy.account;
 
-import android.view.View;
+import android.content.Context;
 
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import androidx.test.core.app.ActivityScenario;
+import java.util.Objects;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.ViewScenarioRule;
 import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.dummy.DummyActivity;
+import io.github.alansanchezp.gnomy.databinding.LayoutArchivedAccountCardBinding;
 import io.github.alansanchezp.gnomy.ui.account.ArchivedAccountsRecyclerViewAdapter;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -24,11 +26,11 @@ import static org.hamcrest.CoreMatchers.equalTo;
 
 @RunWith(AndroidJUnit4.class)
 public class ArchivedAccountRecyclerViewHolderInstrumentedTest {
-    static final Account testAccount = new Account();
+    static final Account testAccount = new Account(1);
 
     @Rule
-    public final ViewScenarioRule viewRule =
-            new ViewScenarioRule(R.layout.fragment_archived_account_card);
+    public final ViewScenarioRule viewRule = new ViewScenarioRule(
+            LayoutArchivedAccountCardBinding.class);
 
     @BeforeClass
     public static void init_test_account() {
@@ -40,15 +42,10 @@ public class ArchivedAccountRecyclerViewHolderInstrumentedTest {
 
     @Test
     public void account_name_is_displayed_in_card() {
-        ActivityScenario<DummyActivity> scenario = viewRule.getScenario();
-        View[] view = new View[1];
-        ArchivedAccountsRecyclerViewAdapter.ViewHolder[] holder
-                = new ArchivedAccountsRecyclerViewAdapter.ViewHolder[1];
-        scenario.onActivity(activity -> {
-            view[0] = activity.findViewById(R.id.archived_account_card);
-            holder[0] = new ArchivedAccountsRecyclerViewAdapter.ViewHolder(view[0]);
-            holder[0].setAccountData(testAccount);
-        });
+        ArchivedAccountsRecyclerViewAdapter.ViewHolder holder
+                = new ArchivedAccountsRecyclerViewAdapter.ViewHolder(Objects.requireNonNull(viewRule.retrieveViewBinding()));
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                holder.setAccountData(testAccount));
 
         onView(withId(R.id.archived_account_card_name))
                 .check(matches(withText(testAccount.getName())));
@@ -56,23 +53,19 @@ public class ArchivedAccountRecyclerViewHolderInstrumentedTest {
 
     @Test
     public void account_icon_in_card_is_correct() {
-        ActivityScenario<DummyActivity> scenario = viewRule.getScenario();
-        View[] view = new View[1];
-        ArchivedAccountsRecyclerViewAdapter.ViewHolder[] holder
-                = new ArchivedAccountsRecyclerViewAdapter.ViewHolder[1];
-        scenario.onActivity(activity -> {
-            view[0] = activity.findViewById(R.id.archived_account_card);
-            holder[0] = new ArchivedAccountsRecyclerViewAdapter.ViewHolder(view[0]);
-        });
 
+        ArchivedAccountsRecyclerViewAdapter.ViewHolder holder
+                = new ArchivedAccountsRecyclerViewAdapter.ViewHolder(Objects.requireNonNull(viewRule.retrieveViewBinding()));
+
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         for (int type=Account.BANK; type <= Account.OTHER; type++) {
             testAccount.setType(type);
-            scenario.onActivity(activity ->
-                    holder[0].setAccountData(testAccount));
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                    holder.setAccountData(testAccount));
             onView(withId(R.id.archived_account_card_icon))
                     .check(matches(
                         withTagValue(
-                            equalTo(Account.getDrawableResourceId(type))
+                            equalTo(context.getResources().getIdentifier(testAccount.getDrawableResourceName(), "drawable", context.getPackageName()))
                     )));
             // Couldn't find a way to test drawable tint
         }

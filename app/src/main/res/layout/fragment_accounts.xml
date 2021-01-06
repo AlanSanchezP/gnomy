@@ -9,7 +9,7 @@
 
     <LinearLayout
         android:orientation="vertical"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:paddingTop="25dp"
         android:paddingStart="12dp"
@@ -68,7 +68,7 @@
             android:layout_marginTop="25dp"
             android:layout_marginBottom="50dp"
             app:layoutManager="LinearLayoutManager"
-            tools:listitem="@layout/fragment_account_card" />
+            tools:listitem="@layout/layout_account_card" />
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

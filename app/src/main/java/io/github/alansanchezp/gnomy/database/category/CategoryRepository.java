@@ -2,90 +2,54 @@ package io.github.alansanchezp.gnomy.database.category;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.util.List;
 
 import androidx.lifecycle.LiveData;
 import io.github.alansanchezp.gnomy.database.GnomyDatabase;
+import io.github.alansanchezp.gnomy.database.GnomyIllegalQueryException;
 
 public class CategoryRepository {
     private CategoryDAO categoryDAO;
-    LiveData<List<Category>> allCategories;
 
     public CategoryRepository(Context context) {
         GnomyDatabase db;
         db = GnomyDatabase.getInstance(context, "");
         categoryDAO = db.categoryDAO();
-        allCategories = categoryDAO.getAll();
     }
 
-    public LiveData<List<Category>> getAll() {
-        return allCategories;
+    /**
+     * Retrieves categories of type BOTH_CATEGORY and either INCOME_CATEGORY or EXPENSE_CATEGORY
+     *
+     * @param categoryType  Type to get in addition to BOTH_CATEGORY.
+     * @return              LiveData containing a list of categories.
+     */
+    public LiveData<List<Category>> getSharedAndCategory(int categoryType) {
+        if (categoryType != Category.INCOME_CATEGORY && categoryType != Category.EXPENSE_CATEGORY)
+            throw new GnomyIllegalQueryException("Invalid category type to retrieve.");
+        return categoryDAO.getSharedAndCategory(categoryType);
     }
 
+    /**
+     * Retrieves categories that match the specific given category.
+     *
+     * @param categoryType  Category type to match.
+     * @return              LiveData containing a list of categories.
+     */
+    public LiveData<List<Category>> getByStrictCategory(int categoryType) {
+        if (categoryType == Category.HIDDEN_CATEGORY)
+            Log.w("CategoryRepository", "Hidden categories are not meant to be queried.");
+        return categoryDAO.getByStrictCategory(categoryType);
+    }
+
+    /**
+     * Finds a given category based on its id.
+     *
+     * @param categoryId    Category id.
+     * @return              LiveData containing the category.
+     */
     public LiveData<Category> find(int categoryId) {
         return categoryDAO.find(categoryId);
-    }
-
-    public void insert(Category category) {
-        InsertAsyncTask accountTask = new InsertAsyncTask(categoryDAO);
-        accountTask.execute(category);
-    }
-
-    public void delete(Category category) {
-        DeleteAsyncTask task = new DeleteAsyncTask(categoryDAO);
-        task.execute(category);
-    }
-
-    public void update(Category category) {
-        UpdateAsyncTask task = new UpdateAsyncTask(categoryDAO);
-        task.execute(category);
-    }
-
-    // AsyncTask classes
-
-    private static class InsertAsyncTask extends AsyncTask<Category, Void, Void> {
-
-        private CategoryDAO asyncTaskDao;
-
-        InsertAsyncTask(CategoryDAO dao) {
-            asyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final Category... params) {
-            asyncTaskDao.insert(params[0]);
-            return null;
-        }
-    }
-
-    private static class DeleteAsyncTask extends AsyncTask<Category, Void, Void> {
-
-        private CategoryDAO asyncTaskDao;
-
-        DeleteAsyncTask(CategoryDAO dao) {
-            asyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final Category... params) {
-            asyncTaskDao.delete(params);
-            return null;
-        }
-    }
-
-    private static class UpdateAsyncTask extends AsyncTask<Category, Void, Void> {
-
-        private CategoryDAO asyncTaskDao;
-
-        UpdateAsyncTask(CategoryDAO dao) {
-            asyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final Category... accounts) {
-            asyncTaskDao.update(accounts[0]);
-            return null;
-        }
     }
 }

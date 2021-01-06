@@ -54,7 +54,7 @@ public class MoneyTransactionRepository {
         }
 
         // Initialize SimpleSQLiteQuery arguments
-        String queryString = BASE_JOIN_FOR_QUERIES + "WHERE ";
+        String queryString = BASE_JOIN_FOR_QUERIES + "AND ";
         List<Object> queryArgs = new ArrayList<>();
 
         // Scan filter settings
