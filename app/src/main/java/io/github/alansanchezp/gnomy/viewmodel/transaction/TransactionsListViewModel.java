@@ -11,7 +11,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
-import io.github.alansanchezp.gnomy.database.GnomyIllegalQueryException;
+
 import io.github.alansanchezp.gnomy.database.RepositoryBuilder;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
@@ -33,7 +33,6 @@ public class TransactionsListViewModel extends AndroidViewModel {
     private LiveData<YearMonth> mActiveMonth;
     private LiveData<List<TransactionDisplayData>> mTransactions;
     private LiveData<List<Account>> mAccounts;
-    private LiveData<List<Category>> mCategories;
     private MutableLiveData<MoneyTransactionFilters> mFilters;
 
     public TransactionsListViewModel(Application application, SavedStateHandle savedStateHandle) {
@@ -129,16 +128,13 @@ public class TransactionsListViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<Category>> getCategories(LiveData<Integer> transactionType) {
-        if (mCategories == null) {
-            mCategories = Transformations.switchMap(transactionType, type -> {
-                if (type == MoneyTransaction.INCOME)
-                    return mCategoryRepository.getSharedAndCategory(Category.INCOME_CATEGORY);
-                else if (type == MoneyTransaction.EXPENSE)
-                    return mCategoryRepository.getSharedAndCategory(Category.EXPENSE_CATEGORY);
-                else
-                    return mCategoryRepository.getByStrictCategory(Category.BOTH_CATEGORY);
-            });
-        }
-        return mCategories;
+        return Transformations.switchMap(transactionType, type -> {
+            if (type == MoneyTransaction.INCOME)
+                return mCategoryRepository.getSharedAndCategory(Category.INCOME_CATEGORY);
+            else if (type == MoneyTransaction.EXPENSE)
+                return mCategoryRepository.getSharedAndCategory(Category.EXPENSE_CATEGORY);
+            else
+                return mCategoryRepository.getByStrictCategory(Category.BOTH_CATEGORY);
+        });
     }
 }
