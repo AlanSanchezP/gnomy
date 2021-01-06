@@ -22,8 +22,6 @@ import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.Timepoint;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -36,6 +34,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.category.Category;
@@ -167,12 +166,12 @@ public class TransactionFiltersDialogFragment
                 ArrayAdapter.createFromResource(requireContext(), R.array.transaction_filters_sorting_strategies, android.R.layout.simple_spinner_dropdown_item));
         $.filtersDialogSortingSpinner.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(@NotNull MaterialSpinner parent, @Nullable View view, int position, long id) {
+            public void onItemSelected(@NonNull MaterialSpinner parent, @Nullable View view, int position, long id) {
                 mFiltersInstance.setSortingMethod(position);
             }
 
             @Override
-            public void onNothingSelected(@NotNull MaterialSpinner materialSpinner) {
+            public void onNothingSelected(@NonNull MaterialSpinner materialSpinner) {
             }
         });
         $.filtersDialogSortingSpinner.setSelection(mFiltersInstance.getSortingMethod());
@@ -266,7 +265,7 @@ public class TransactionFiltersDialogFragment
         $.filtersDialogAccountSpinner.setAdapter(adapter);
         $.filtersDialogAccountSpinner.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(@NotNull MaterialSpinner parent, @Nullable View view, int position, long id) {
+            public void onItemSelected(@NonNull MaterialSpinner parent, @Nullable View view, int position, long id) {
                 mFiltersInstance.setAccountId((int) id);
                 Drawable drawable = adapter.getItemDrawable(position);
                 if (drawable == null) {
@@ -277,7 +276,7 @@ public class TransactionFiltersDialogFragment
             }
 
             @Override
-            public void onNothingSelected(@NotNull MaterialSpinner parent) {
+            public void onNothingSelected(@NonNull MaterialSpinner parent) {
             }
         });
         $.filtersDialogAccountSpinner.setSelection(
@@ -294,7 +293,7 @@ public class TransactionFiltersDialogFragment
         $.filtersDialogCategorySpinner.setAdapter(adapter);
         $.filtersDialogCategorySpinner.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(@NotNull MaterialSpinner parent, @Nullable View view, int position, long id) {
+            public void onItemSelected(@NonNull MaterialSpinner parent, @Nullable View view, int position, long id) {
                 mFiltersInstance.setCategoryId((int) id);
                 Drawable drawable = adapter.getItemDrawable(position);
                 if (drawable == null) {
@@ -305,7 +304,7 @@ public class TransactionFiltersDialogFragment
             }
 
             @Override
-            public void onNothingSelected(@NotNull MaterialSpinner parent) {
+            public void onNothingSelected(@NonNull MaterialSpinner parent) {
             }
         });
         $.filtersDialogCategorySpinner.setSelection(
