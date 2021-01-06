@@ -1,9 +1,12 @@
 package io.github.alansanchezp.gnomy.ui.account;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
+
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.databinding.ActivityAddEditAccountBinding;
@@ -35,9 +38,6 @@ import android.widget.Toast;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.thebluealliance.spectrum.SpectrumDialog;
 import com.tiper.MaterialSpinner;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -208,12 +208,12 @@ public class AddEditAccountActivity
             $.addeditAccountType.setAdapter(typesAdapter);
             $.addeditAccountType.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
                 @Override
-                public void onItemSelected(@NotNull MaterialSpinner parent, @Nullable View view, int position, long id) {
+                public void onItemSelected(@NonNull MaterialSpinner parent, @Nullable View view, int position, long id) {
                     $.addeditAccountType.setStartIconDrawable(typesAdapter.getItemDrawable(position));
                 }
 
                 @Override
-                public void onNothingSelected(@NotNull MaterialSpinner parent) {
+                public void onNothingSelected(@NonNull MaterialSpinner parent) {
                 }
             });
             if ($.addeditAccountCurrency.getSelectedItem() == null)

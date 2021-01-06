@@ -17,8 +17,6 @@ import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.Timepoint;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.OffsetDateTime;
@@ -31,6 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
+
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.category.Category;
@@ -271,13 +270,13 @@ public class AddEditTransactionActivity
             $.addeditTransactionCurrency.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, currencies));
             $.addeditTransactionCurrency.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
                 @Override
-                public void onItemSelected(@NotNull MaterialSpinner parent, @Nullable View view, int position, long id) {
+                public void onItemSelected(@NonNull MaterialSpinner parent, @Nullable View view, int position, long id) {
                     if (mTransaction == null) return; // Should only happen when spinner is restored
                     mTransaction.setCurrency(CurrencyUtil.getCurrencyCode(position));
                 }
 
                 @Override
-                public void onNothingSelected(@NotNull MaterialSpinner parent) {
+                public void onNothingSelected(@NonNull MaterialSpinner parent) {
                 }
             });
             // TODO: Use global default currency (WHEN IMPLEMENTED)
@@ -359,7 +358,7 @@ public class AddEditTransactionActivity
         $.addeditTransactionCategory.setAdapter(adapter);
         $.addeditTransactionCategory.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(@NotNull MaterialSpinner parent, @Nullable View view, int position, long id) {
+            public void onItemSelected(@NonNull MaterialSpinner parent, @Nullable View view, int position, long id) {
                 if (mTransaction == null) return;
                 parent.setErrorEnabled(false);
                 mTransaction.setCategory((int) id);
@@ -369,7 +368,7 @@ public class AddEditTransactionActivity
             }
 
             @Override
-            public void onNothingSelected(@NotNull MaterialSpinner parent) {
+            public void onNothingSelected(@NonNull MaterialSpinner parent) {
             }
         });
         attemptMixedDataSourceOperations();
@@ -387,7 +386,7 @@ public class AddEditTransactionActivity
         $.addeditTransactionFromAccount.setAdapter(adapter);
         $.addeditTransactionFromAccount.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(@NotNull MaterialSpinner parent, @Nullable View view, int position, long id) {
+            public void onItemSelected(@NonNull MaterialSpinner parent, @Nullable View view, int position, long id) {
                 if (mTransaction == null) return;
                 parent.setErrorEnabled(false);
                 Account item = accounts.get(position);
@@ -410,7 +409,7 @@ public class AddEditTransactionActivity
             }
 
             @Override
-            public void onNothingSelected(@NotNull MaterialSpinner parent) {
+            public void onNothingSelected(@NonNull MaterialSpinner parent) {
             }
         });
 
@@ -419,7 +418,7 @@ public class AddEditTransactionActivity
             $.addeditTransactionToAccount.setAdapter(transferAdapter);
             $.addeditTransactionToAccount.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener() {
                 @Override
-                public void onItemSelected(@NotNull MaterialSpinner parent, @Nullable View view, int position, long id) {
+                public void onItemSelected(@NonNull MaterialSpinner parent, @Nullable View view, int position, long id) {
                     if (mTransaction == null) return;
                     parent.setErrorEnabled(false);
                     Account item = accounts.get(position);
@@ -432,7 +431,7 @@ public class AddEditTransactionActivity
                 }
 
                 @Override
-                public void onNothingSelected(@NotNull MaterialSpinner parent) {
+                public void onNothingSelected(@NonNull MaterialSpinner parent) {
                 }
             });
             if (mViewModel.isExpectingNewAccount()) {

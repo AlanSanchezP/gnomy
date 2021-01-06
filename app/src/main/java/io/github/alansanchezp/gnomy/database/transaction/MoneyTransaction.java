@@ -39,9 +39,10 @@ import io.github.alansanchezp.gnomy.util.DateUtil;
             )
         },
         indices = {
-            // TODO: Update indices
+            // TODO: Indices
             @Index("account_id"),
-            @Index("category_id")
+            @Index("category_id"),
+            @Index("transfer_destination_account_id")
         }
 )
 public class MoneyTransaction {

@@ -75,11 +75,17 @@ public abstract class AccountDAO implements MonthlyBalanceDAO {
     protected abstract LiveData<List<AccountWithAccumulated>>
     getAccumulatesListAtMonth(YearMonth targetMonth);
 
+    // TODO: Evaluate which fields are worth removing
     @Query("SELECT " +
             "accounts.*, " +
             "CAST(strftime('%Y%m', DATETIME('now', 'localtime')) AS INT) AS target_month, " +
             "accumulated_balances.confirmed_incomes_at_month, " +
-            "accumulated_balances.confirmed_expenses_at_month " +
+            "accumulated_balances.confirmed_expenses_at_month, " +
+            "null AS confirmed_before_month, " +
+            "null AS pending_incomes_before_month, " +
+            "null AS pending_expenses_before_month, " +
+            "null AS pending_incomes_at_month, " +
+            "null AS pending_expenses_at_month " +
             "FROM accounts " +
             "LEFT OUTER JOIN " +
             "(  SELECT " +
@@ -97,7 +103,6 @@ public abstract class AccountDAO implements MonthlyBalanceDAO {
     protected abstract LiveData<List<AccountWithAccumulated>>
     getTodayAccumulatesList();
 
-    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query("SELECT " +
             "accounts.*, " +
             ":targetMonth as target_month, " +
@@ -105,7 +110,9 @@ public abstract class AccountDAO implements MonthlyBalanceDAO {
             "target_month_balance.confirmed_incomes_at_month, " +
             "target_month_balance.confirmed_expenses_at_month, " +
             "target_month_balance.pending_expenses_at_month, " +
-            "target_month_balance.pending_incomes_at_month " +
+            "target_month_balance.pending_incomes_at_month, " +
+            "null AS pending_incomes_before_month, " +
+            "null AS pending_expenses_before_month " +
             "FROM accounts " +
             "LEFT OUTER JOIN " +
             "(  SELECT " +
