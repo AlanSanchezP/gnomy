@@ -65,7 +65,6 @@ public class TransactionItem
         ((GradientDrawable) $.transactionCardIcon.getBackground()).setColor(iconBgColor);
         $.transactionCardIcon.setColorFilter(iconColor);
         $.transactionCardIcon.setTag(iconResId);
-        // TODO: Is this the best condition to use?
         if (!mItem.transaction.isConfirmed() && mFullData)
             $.transactionCardAlertIcon.setVisibility(View.VISIBLE);
         else

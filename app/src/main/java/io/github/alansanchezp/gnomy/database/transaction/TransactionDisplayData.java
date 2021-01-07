@@ -3,6 +3,9 @@ package io.github.alansanchezp.gnomy.database.transaction;
 import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
 
+/**
+ * Helper class to easily display a transaction data to the user.
+ */
 public class TransactionDisplayData {
     @Embedded
     public MoneyTransaction transaction;

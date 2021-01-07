@@ -14,6 +14,11 @@ import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.databinding.DialogConfirmationBinding;
 import io.github.alansanchezp.gnomy.androidUtil.SingleClickViewHolder;
 
+/**
+ * Custom alert dialog for simple yes/no operations.
+ * It uses a custom layout instead of wrapping an AlertDialog
+ * so that it can show on top of other dialogs.
+ */
 public class ConfirmationDialogFragment extends DialogFragment {
     public static final String ARG_TITLE = "ConfirmationDialog.Title";
     public static final String ARG_MESSAGE = "ConfirmationDialog.Message";
@@ -100,6 +105,9 @@ public class ConfirmationDialogFragment extends DialogFragment {
         return tag;
     }
 
+    /**
+     * Helper interface to allow communication between dialog and its caller.
+     */
     public interface OnConfirmationDialogListener {
         void onConfirmationDialogYes(DialogInterface dialog, String dialogTag, int which);
         void onConfirmationDialogNo(DialogInterface dialog, String dialogTag, int which);

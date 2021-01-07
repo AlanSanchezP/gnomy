@@ -35,6 +35,14 @@ public class AccountBalanceHistoryViewModel
         return mAccumulated;
     }
 
+    /**
+     * Returns a {@link LiveData} that will emit the
+     * list of pending transactions for the given account,
+     * LIMITED ONLY TO THE ACTIVE MONTH (from {@link #activeMonth}).
+     *
+     * @param accountId     Account id.
+     * @return              LiveData object.
+     */
     public LiveData<List<TransactionDisplayData>> getPendingTransactionsFromMonth(int accountId) {
         MoneyTransactionFilters filters = new MoneyTransactionFilters();
         filters.setMonth(activeMonth.getValue());

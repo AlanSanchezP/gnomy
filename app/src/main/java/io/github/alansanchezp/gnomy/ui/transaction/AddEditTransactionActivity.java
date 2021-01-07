@@ -102,7 +102,7 @@ public class AddEditTransactionActivity
         mViewModel = new ViewModelProvider(this)
                 .get(AddEditTransactionViewModel.class);
         mFABVH = new SingleClickViewHolder<>($.addeditTransactionFAB, true);
-        // TODO: Find a better way to present these as actions
+        // TODO: Find a better way to present these as actions to the user
         $.addeditTransactionNewAccount.setPaintFlags(
                 $.addeditTransactionNewAccount.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         $.addeditTransactionNewCategory.setPaintFlags(
@@ -455,7 +455,7 @@ public class AddEditTransactionActivity
 
     /* DATA MANAGEMENT */
 
-    // TODO: MediatorLiveData is probably a better approach
+    // TODO: MediatorLiveData MIGHT be a better approach
     private void attemptMixedDataSourceOperations() {
         if (mAccountsList == null || mTransaction == null) return;
         if (mTransactionType != MoneyTransaction.TRANSFER && mCategoriesList == null) return;
@@ -519,7 +519,7 @@ public class AddEditTransactionActivity
     }
 
     private void tryToForceConfirmedStatus() {
-        // TODO: How can we test this behavior?
+        // TODO: How to test this behavior?
         if (mTransaction == null) return;
         if (mTransactionType == MoneyTransaction.TRANSFER) return;
         if (mTransaction.getDate().isAfter(OffsetDateTime.now())) {

@@ -322,8 +322,10 @@ public class TransactionFiltersDialogFragmentInstrumentedTest {
 
         onView(withId(R.id.filters_dialog_amount_switch))
                 .perform(setChecked(false));
-        // Espresso is activating account spinner for some very weird reason X.X
         // TODO: WHAT IS GOING ON HERE?
+        //  Espresso is activating account spinner for some very weird reason X.X.
+        //  Some manual click outside the spinner is needed for the test to complete
+        //  and not loop forever.
         boolean keepTying = true;
         while(keepTying) {
             try {

@@ -26,15 +26,16 @@ import io.github.alansanchezp.gnomy.androidUtil.SingleClickViewHolder;
 import io.github.alansanchezp.gnomy.androidUtil.ViewTintingUtil;
 import io.github.alansanchezp.gnomy.viewmodel.MainActivityViewModel;
 
-// TODO: Add Javadoc comments to project
 // TODO: Write README.md contents
 // TODO: Handle dark mode
 // TODO: (Wishlist) implement tooltips for non-menu buttons
 // TODO: Animations
-// TODO: Replace findById with viewbinding
-// TODO: Improve Layout naming
 // These TODOs are placed here just because MainActivity acts as a "root" file
 // even if they are not related to the class
+
+/**
+ * Activity for main screen.
+ */
 public class MainActivity
         extends GnomyActivity<ActivityMainBinding> {
 
@@ -91,6 +92,12 @@ public class MainActivity
         mViewModel.notifyFABClick((FloatingActionButton) v);
     }
 
+    /**
+     * Applies some base color to the Activity's layout, ignoring optional
+     * elements (month toolbar and FAB) if they are not displayed.
+     *
+     * @param themeColor Color to apply.
+     */
     private void tintNavigationElements(int themeColor) {
         setThemeColor(themeColor);
         int darkVariant =  ColorUtil.getDarkVariant(themeColor);
@@ -103,6 +110,11 @@ public class MainActivity
         });
     }
 
+    /**
+     * Toggles month toolbar and FAB visibility.
+     *
+     * @param showOptionalElements Indicates if these elements should be visible or not.
+     */
     private void toggleOptionalNavigationElements(boolean showOptionalElements) {
         $.monthtoolbar.toggleVisibility(showOptionalElements);
         if (showOptionalElements) {

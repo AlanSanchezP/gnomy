@@ -1,7 +1,6 @@
 package io.github.alansanchezp.gnomy.database.category;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import java.util.List;
@@ -20,7 +19,8 @@ public class CategoryRepository {
     }
 
     /**
-     * Retrieves categories of type BOTH_CATEGORY and either INCOME_CATEGORY or EXPENSE_CATEGORY
+     * Retrieves categories of type {@link Category#BOTH_CATEGORY}
+     * and either {@link Category#INCOME_CATEGORY} or {@link Category#EXPENSE_CATEGORY}.
      *
      * @param categoryType  Type to get in addition to BOTH_CATEGORY.
      * @return              LiveData containing a list of categories.

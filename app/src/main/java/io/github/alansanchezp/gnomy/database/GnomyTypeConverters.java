@@ -11,6 +11,11 @@ import java.math.BigDecimal;
 import androidx.room.TypeConverter;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 
+/**
+ * Utility class to support complex objects into the database, by converting them
+ * into primitive types supported by SQLite, and reverse methods to retrieve that
+ * same data for application use.
+ */
 public class GnomyTypeConverters {
     @TypeConverter
     public static OffsetDateTime timestampToDate(Long timestamp) {

@@ -43,6 +43,15 @@ public class AccountsListViewModel extends AndroidViewModel {
         mState = savedStateHandle;
     }
 
+    /**
+     * Binds a {@link LiveData} object that emits {@link YearMonth}
+     * values, and that will be used for database queries.
+     *
+     * !!! IMPORTANT: Use this method BEFORE trying to retreive
+     * any LiveData from this class !!!
+     *
+     * @param month LiveData object.
+     */
     public void bindMonth(LiveData<YearMonth> month) {
         if (mActiveMonth == null) mActiveMonth = month;
     }
@@ -74,6 +83,19 @@ public class AccountsListViewModel extends AndroidViewModel {
         return mArchivedAccounts;
     }
 
+    /**
+     * Returns a {@link LiveData} that will emit the
+     * list of pending transactions for the given account.
+     * This list will include any pending transaction that has happened
+     * before and during the active month (from {@link #mActiveMonth}).
+     * An exception for this occurs if the active month matches
+     * the current one (as returned by {@link DateUtil#now()}), in which case
+     * only pending transactions BEFORE it will be returned.
+     *
+     *
+     * @param accountId     Account id.
+     * @return              LiveData object.
+     */
     public LiveData<List<TransactionDisplayData>> getUnresolvedTransactions(int accountId) {
         MoneyTransactionFilters filters = new MoneyTransactionFilters();
         OffsetDateTime[] monthBoundaries = DateUtil.getMonthBoundaries(
@@ -87,6 +109,25 @@ public class AccountsListViewModel extends AndroidViewModel {
         filters.setTransactionStatus(MoneyTransactionFilters.UNCONFIRMED_STATUS);
         return mTransactionRepository.getByFilters(filters);
     }
+
+    public Single<Integer> delete(int accountId) {
+        return mAccountRepository.delete(accountId);
+    }
+
+    public Single<Integer> archive(int accountId) {
+        return mAccountRepository.archive(accountId);
+    }
+
+    public Single<Integer> restore(int accountId) {
+        return mAccountRepository.restore(accountId);
+    }
+
+    public Single<Integer> restoreAll() {
+        return mAccountRepository.restoreAll();
+    }
+
+
+    /**** Helper methods for dialogs to confirm operations over some account. ****/
 
     public int getTargetIdToArchive() {
         if (mState.get(TAG_TARGET_TO_ARCHIVE) == null) {
@@ -110,21 +151,5 @@ public class AccountsListViewModel extends AndroidViewModel {
 
     public void setTargetIdToDelete(int targetId) {
         mState.set(TAG_TARGET_TO_DELETE, targetId);
-    }
-
-    public Single<Integer> delete(int accountId) {
-        return mAccountRepository.delete(accountId);
-    }
-
-    public Single<Integer> archive(int accountId) {
-        return mAccountRepository.archive(accountId);
-    }
-
-    public Single<Integer> restore(int accountId) {
-        return mAccountRepository.restore(accountId);
-    }
-
-    public Single<Integer> restoreAll() {
-        return mAccountRepository.restoreAll();
     }
 }

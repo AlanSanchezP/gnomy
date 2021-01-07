@@ -7,10 +7,11 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 
-// Copied gist from
-//  https://gist.github.com/JoseAlcerreca/1e9ee05dcdd6a6a6fa1cbfc125559bba
-/* Copyright 2019 Google LLC.
-   SPDX-License-Identifier: Apache-2.0 */
+/**
+ * Copied gist from
+ * https://gist.github.com/JoseAlcerreca/1e9ee05dcdd6a6a6fa1cbfc125559bba
+ * Copyright 2019 Google LLC.
+ *  SPDX-License-Identifier: Apache-2.0 */
 public class LiveDataTestUtil {
     public static <T> T getOrAwaitValue(final LiveData<T> liveData) throws InterruptedException {
         final Object[] data = new Object[1];

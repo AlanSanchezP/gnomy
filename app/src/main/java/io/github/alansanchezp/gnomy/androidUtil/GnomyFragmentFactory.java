@@ -51,7 +51,7 @@ public class GnomyFragmentFactory extends FragmentFactory {
      * Specifies the object to pass to new instances of the given {@link Fragment} subclass
      * as an interface.
      *
-     * @param fragmentClass     Class to match when instantiate() is called.
+     * @param fragmentClass     Class to match when {@link #instantiate(ClassLoader, String)} is called.
      * @param _interface        Interface to pass to the fragment's constructor.
      * @return                  Current instance. Useful to add multiple map elements
      *                          one after another.
@@ -67,7 +67,7 @@ public class GnomyFragmentFactory extends FragmentFactory {
      * Method that will get called to instantiate fragments from an
      * {@link android.app.Activity} or parent {@link Fragment}.
      *
-     * If the className matches any element in FRAGMENT_INTERFACES_MAPPING,
+     * If the className matches any element in {@link #FRAGMENT_INTERFACES_MAPPING},
      * a custom constructor will be used that matches the interface class specified
      * by the programmer on this class.
      *
@@ -79,7 +79,7 @@ public class GnomyFragmentFactory extends FragmentFactory {
      * @throws InvalidParameterException    If no interface instance was provided to
      * instantiate the requested fragment class.
      * @throws RuntimeException             If an error occurs while trying to instantiate
-     * the requested fragment class (only if it matches one of those from FRAGMENT_INTERFACES_MAPPING)
+     * the requested fragment class (only if it matches one of those from {@link #FRAGMENT_INTERFACES_MAPPING})
      */
     @NonNull
     @Override
@@ -113,7 +113,7 @@ public class GnomyFragmentFactory extends FragmentFactory {
      * Helper class to store both the interface class and the instance of
      * such interface on the same {@link Map} object.
      *
-     * While it is possible to set interfaceClass and interfaceInstance attributes
+     * While it is possible to set {@link #interfaceClass} and {@link #interfaceInstance} attributes
      * directly (due to it being an inner class), the usage of setters and getters is preferred.
      *
      * @param <B>   Interface class.
@@ -127,7 +127,7 @@ public class GnomyFragmentFactory extends FragmentFactory {
         }
 
         /**
-         * Custom setter for interfaceInstance.
+         * Custom setter for {@link #interfaceInstance}.
          *
          * @param interfaceInstance         Instance of the stored interface class.
          * @throws IllegalStateException    If an instance is already associated to this tuple.

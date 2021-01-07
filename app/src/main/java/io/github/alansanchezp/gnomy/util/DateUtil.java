@@ -14,6 +14,11 @@ import java.util.logging.Logger;
 
 import androidx.annotation.NonNull;
 
+/**
+ * Helper class to use in date-related operations.
+ * Avoid direct calls to now() methods of date classes
+ * just so that they can benefit from fixed clock during tests.
+ */
 public class DateUtil {
     private static final Logger LOGGER = Logger.getLogger("tests");
     private static Clock CLOCK;
@@ -32,6 +37,14 @@ public class DateUtil {
         }
     }
 
+    /**
+     * ONLY FOR TESTING PURPOSES. WILL DO NOTHING IN NORMAL BUILDS.
+     *
+     * Sets a fixed clock to use for all "now()" methods in this class.
+     *
+     * @param timeString
+     * @param offset
+     */
     public static void setFixedClockAtTime(String timeString, ZoneOffset offset) {
         try {
             Instant instant = Instant.parse(timeString);
@@ -51,7 +64,15 @@ public class DateUtil {
         return OffsetDateTime.now(getClock());
     }
 
-    public static String getYearMonthString(YearMonth yearMonth) {
+    /**
+     * Returns a readable and friendly representation of a {@link YearMonth} object.
+     *
+     * @param yearMonth     Object to format.
+     * @return              Month name if the given {@link YearMonth} object is
+     *                      in the same year as the current instant. Both month name
+     *                      and 4-digits year otherwise.
+     */
+    public static String getYearMonthString(@NonNull YearMonth yearMonth) {
         String formatterPattern;
         String monthString;
 
@@ -114,7 +135,7 @@ public class DateUtil {
      * @return          An array of two elements. The first element (index 0)
      *                  corresponds to the first instant of the month. The
      *                  second element (index 1) corresponds to the last
-     *                  second of the momth.
+     *                  second of the month.
      */
     public static OffsetDateTime[] getMonthBoundaries(YearMonth month) {
         ZoneOffset localOffset = OffsetDateTimeNow().getOffset();
@@ -127,7 +148,7 @@ public class DateUtil {
 
     /**
      * Returns an Integer representation of a given {@link OffsetDateTime} object,
-     * using the format uuuuMMdd    (4 digits year, 2 digits monthOfYear and 2 digits dayOfMonth)
+     * using the format {@code uuuuMMdd}    (4 digits year, 2 digits monthOfYear and 2 digits dayOfMonth)
      * example: 20200101 for January 1st of 2020.
      *
      * @param dateTime  OffsetDateTime object to parse.

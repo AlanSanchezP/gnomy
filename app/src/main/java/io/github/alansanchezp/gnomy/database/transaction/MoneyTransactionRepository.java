@@ -111,7 +111,6 @@ public class MoneyTransactionRepository {
         return dao.find(id);
     }
 
-    // TODO: Update AccountRepositoryTest with actual transactions
     /**
      * Inserts a given  {@link MoneyTransaction} row from some input.
      *

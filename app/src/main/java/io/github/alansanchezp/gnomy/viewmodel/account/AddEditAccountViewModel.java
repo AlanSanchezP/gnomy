@@ -43,6 +43,9 @@ public class AddEditAccountViewModel extends AndroidViewModel {
         return mRepository.update(account);
     }
 
+
+    /**** Helper methods for UI and error management. ****/
+
     public void setAccountColor(@ColorInt int color) {
         mutableAccountColor.setValue(color);
     }

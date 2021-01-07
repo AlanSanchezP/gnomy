@@ -44,6 +44,14 @@ public class AccountRepository {
         return accountDAO.getAccumulatedAtMonth(accountId, targetMonth);
     }
 
+    /**
+     * Custom insert method that creates an initial {@link MonthlyBalance} row
+     * associated with the given {@link Account}, using its id and creation date.
+     *
+     * @param account   Account to insert.
+     * @return          Single object to observe. If no errors occur, it will
+     *                  return the generated id of the inserted account.
+     */
     public Single<Long> insert(Account account) {
         return db.toSingleInTransaction(() -> {
             Long inserted_id = accountDAO._insert(account);
@@ -55,6 +63,14 @@ public class AccountRepository {
         });
     }
 
+    /**
+     * Custom delete method that prevents orphan transfers from triggering
+     * exceptions in during the application use.
+     *
+     * @param accountId Id of the account to delete.
+     * @return          Single object to observe. If no errors occur, it will
+     *                  return the total number of affected rows (including orphan transfers)
+     */
     public Single<Integer> delete(int accountId) {
         return db.toSingleInTransaction(() -> {
            int savedOrphans = accountDAO._savePotentiallyOrphanMirrorTransfers(accountId);
@@ -63,11 +79,17 @@ public class AccountRepository {
         });
     }
 
-    // TODO: Test the (hopefully) few manually implemented db operations
+    /**
+     * Custom update method that prevents an account currency to be altered.
+     *
+     * @param account   New account value.
+     * @return          Single object to observe. If no errors occur, it will
+     *                  return the amount of affected rows.
+     */
     public Single<Integer> update(Account account) {
         return db.toSingleInTransaction(() -> {
             Account original = accountDAO._find(account.getId());
-            // TODO: Analyze what we should do here
+            // TODO: Analyze what should be done here
             //  Current behavior: Reject update if it contains altered currency
             try {
                 if (original.equals(account)) return 0;
@@ -107,9 +129,7 @@ public class AccountRepository {
 
     // Monthly balance methods
 
-    // TODO: Remove this method when transactions module is ready
-    //  so that we can test using actual insertion of individual
-    //  transactions, right now we are just dummy updating balances
+    // TODO: Should make method protected to avoid manual insertion of balances?
     public Single<Integer> insert(MonthlyBalance balance) {
         return db.toSingleInTransaction(()-> {
             accountDAO._insertOrIgnoreBalance(balance);

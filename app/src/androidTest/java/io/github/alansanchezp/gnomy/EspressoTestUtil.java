@@ -28,7 +28,21 @@ import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibilit
 import static org.hamcrest.Matchers.isA;
 import static org.junit.Assert.fail;
 
+/**
+ * Helper class with custom espresso assertions.
+ */
 public class EspressoTestUtil {
+    // TODO: Add methods to test error and hint texts on TextInputLayout objects
+    /**
+     * Asserts that some operation will throw a specific throwable class.
+     *
+     * @param throwable     Expected throwable subclass.
+     * @param operation     Instructions that will be run and are expected
+     *                      to produce a throwable at some point.
+     * @throws AssertionError   If the operation finishes without throwing
+     * any other exception in the process. Also rethrows any throwable class that is produced by the
+     * operations but does not match the specified class.
+     */
     public static void assertThrows(Class<? extends Throwable> throwable,
                                     Runnable operation) {
         try {
@@ -40,17 +54,27 @@ public class EspressoTestUtil {
         }
     }
 
-    public static void assertActivityState(State state, ActivityScenarioRule rule) {
+    public static void assertActivityState(State state, ActivityScenarioRule<?> rule) {
         assertActivityState(state, rule.getScenario());
     }
 
     // TODO: Evaluate if this method is needed, or using only ActivityScenarioRule is enough
-    public static void assertActivityState(State state, ActivityScenario scenario) {
+    public static void assertActivityState(State state, ActivityScenario<?> scenario) {
         if (scenario.getState() != state) {
             fail("Expected Activity state [" + state + "] but got [" + scenario.getState() + "] instead");
         }
     }
 
+    /**
+     * Sets the checked status of a {@link Checkable} regardless of
+     * what its current status is.
+     *
+     * Based on snippet from
+     * https://stackoverflow.com/questions/37819278/android-espresso-click-checkbox-if-not-checked/39650813#39650813
+     *
+     * @param checked   Desired checked status.
+     * @return          ViewAction instance to use in tests.
+     */
     public static ViewAction setChecked(final boolean checked) {
         return new ViewAction() {
             @Override
@@ -84,6 +108,18 @@ public class EspressoTestUtil {
     public static final int END_ICON = 2;
     public static final int ERROR_ICON = 3;
 
+    /**
+     * Clicks an icon from an {@link TextInputLayout} object.
+     * This can be either the start, end or error icon.
+     *
+     * Based on the code from google's material components internal tests.
+     * https://github.com/material-components/material-components-android/blob/34df6d91f1164ec981616346e7b675c1e69d4134/tests/javatests/com/google/android/material/testutils/TextInputLayoutActions.java#L716-L739
+     *
+     *
+     * @param which     Tells the ViewAction which icon to click.
+     *                  Use {@link #START_ICON}, {@link #END_ICON} or {@link #ERROR_ICON}.
+     * @return          ViewAction instance to use in tests.
+     */
     public static ViewAction clickIcon(final int which) {
         return new ViewAction() {
 
@@ -120,6 +156,15 @@ public class EspressoTestUtil {
         };
     }
 
+    /**
+     * Scrolls to de desired object during tests, if it is
+     * inside a {@link NestedScrollView}.
+     *
+     * Copied from snippet at
+     * https://stackoverflow.com/questions/39642631/espresso-testing-nestedscrollview-error-performing-scroll-to-on-view-with/46037284#46037284
+     *
+     * @return  ViewAction instance to use in tests.
+     */
     public static ViewAction nestedScrollTo() {
         return new ViewAction() {
 

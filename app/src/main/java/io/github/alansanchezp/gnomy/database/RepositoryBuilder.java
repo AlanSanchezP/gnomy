@@ -9,10 +9,24 @@ import io.github.alansanchezp.gnomy.database.account.AccountRepository;
 import io.github.alansanchezp.gnomy.database.category.CategoryRepository;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionRepository;
 
+/**
+ * Helper class to create repository objects. Use instead
+ * of direct calls to repository constructors so that instrumented tests
+ * can be performed by mocking repositories.
+ */
 public class RepositoryBuilder {
     private static Class<?> MockRepositoryBuilder = null;
     private static boolean alreadyChecked = false;
 
+    /**
+     * Retrieves the desired repository. If mocks are available (should only happen
+     * during instrumented tests), pre-established mock instances are returned.
+     *
+     * @param repositoryClass   Repository class.
+     * @param context           Application context.
+     * @param <C>               Repository class type to return.
+     * @return                  Repository instance.
+     */
     public static <C> C getRepository(Class<C> repositoryClass,
                                                Context context) {
         if (!repositoryClass.equals(AccountRepository.class) &&
@@ -38,6 +52,12 @@ public class RepositoryBuilder {
         }
     }
 
+    /**
+     * Checks if the MockRepositoryBuilder class exists. It should only exist
+     * in instrumented test builds. If it exists,
+     * retrieves it to use its methods with reflection.
+     * If the check has already been done, the method does nothing.
+     */
     private static void initOrIgnoreMockBuilder() {
         if (alreadyChecked) return;
         try {

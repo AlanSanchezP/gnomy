@@ -11,6 +11,10 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
 
+/**
+ * Entity meant to help with recurring transactions. Needs to be polished.
+ * Not currently used.
+ */
 @Entity(tableName = "recurrent_transactions",
         foreignKeys = @ForeignKey(
             entity = MoneyTransaction.class,

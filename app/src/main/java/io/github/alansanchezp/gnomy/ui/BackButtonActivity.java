@@ -58,7 +58,7 @@ public abstract class BackButtonActivity<B extends ViewBinding>
      * @param menuResourceId                Menu to use in the host appbar.
      *                                      Set to null if no menu is required.
      * @param displayDialogOnBackPress      Specifies if a confirmation dialog
-     *                                      should be displayed when user attemps
+     *                                      should be displayed when user attempts
      *                                      to go back.
      * @param layoutResourceId              Layout resource id that will be used to
      *                                      inflate the Fragment View hierarchy.
@@ -71,6 +71,11 @@ public abstract class BackButtonActivity<B extends ViewBinding>
         mDisplayDialogOnBackPress = displayDialogOnBackPress;
     }
 
+    /**
+     * Sets the arrow icon to appbar.
+     *
+     * @param savedInstanceState    Saved instance.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,12 +97,21 @@ public abstract class BackButtonActivity<B extends ViewBinding>
         return true;
     }
 
+    /**
+     * Makes sure that any pending asynchronous operations
+     * are finished so that they no use take phone
+     * resources before finishing the activity.
+     */
     @Override
     public void finish() {
         if (mOperationsPending) finishPendingOperations();
         super.finish();
     }
 
+    /**
+     * Custom method that displays an alert dialog in case the
+     * Activity is handling data that the user might preserve.
+     */
     @Override
     public void onBackPressed() {
         disableActions();
@@ -138,6 +152,11 @@ public abstract class BackButtonActivity<B extends ViewBinding>
         }
     }
 
+    /**
+     * Finishes any ongoing asynchronous operation.
+     * Not declared as abstract just in case some activity
+     * doesn't use it.
+     */
     @SuppressWarnings("EmptyMethod")
     protected void finishPendingOperations() {
         // @Override to implement custom actions

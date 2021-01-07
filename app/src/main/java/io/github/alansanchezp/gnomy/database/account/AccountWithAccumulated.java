@@ -15,7 +15,7 @@ import io.github.alansanchezp.gnomy.util.DateUtil;
  *
  * This is just a helper class for Room DAO operations, avoid
  * instantiating it directly as it can potentially throw
- * RuntimeException or its subclasses.
+ * {@link RuntimeException} or its subclasses.
  *
  * Any DAO query that returns objects of this class MUST guarantee
  * that account (and its attributes) and targetMonth are non-null.
@@ -70,7 +70,7 @@ public class AccountWithAccumulated {
      * Calculates the total balance that should be displayed on
      * screen for the target month. "End of month balance" means
      * 2 different things depending on the context. If the target
-     * month is a past one, this method returns getConfirmedAccumulatedBalanceAtMonth().
+     * month is a past one, this method returns {@link #getConfirmedAccumulatedBalanceAtMonth()}.
      * Otherwise, it represents the PROJECTED state of the account
      * by the end of the target month (present or future).
      *
@@ -154,7 +154,7 @@ public class AccountWithAccumulated {
     }
 
     /**
-     * Prevents NullPointerException on BigDecimal operations
+     * Prevents {@link NullPointerException} on {@link BigDecimal} operations
      * by turning null objects into 0 numbers, while leaving
      * non-null objects intact.
      *

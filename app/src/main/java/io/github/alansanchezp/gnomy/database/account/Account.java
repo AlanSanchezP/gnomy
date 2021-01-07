@@ -47,7 +47,7 @@ public class Account implements ISpinnerItem {
     private OffsetDateTime createdAt = DateUtil.OffsetDateTimeNow();
 
     @ColumnInfo(name="initial_value")
-    private BigDecimal initialValue;
+    private BigDecimal initialValue = BigDecimalUtil.ZERO;
 
     @ColumnInfo(name="account_type")
     private int type = BANK;
@@ -66,31 +66,11 @@ public class Account implements ISpinnerItem {
     private int backgroundColor;
 
     public Account() {
-        setInitialValue("0");
-    }
-
-    @Ignore
-    public String getTypeNameResourceName() {
-        switch (this.type) {
-            case BANK:
-                return "account_type_bank";
-            case INFORMAL:
-                return "account_type_informal";
-            case SAVINGS:
-                return "account_type_savings";
-            case INVERSIONS:
-                return "account_type_inversions";
-            case CREDIT_CARD:
-                return "account_type_credit_card";
-            case OTHER:
-            default:
-                return "account_type_other";
-        }
+        /* Empty constructor */
     }
 
     @Ignore
     public Account(int accountId) {
-        this();
         this.id = accountId;
     }
 
@@ -138,6 +118,12 @@ public class Account implements ISpinnerItem {
         return initialValue;
     }
 
+    /**
+     *
+     * @deprecated Use {@link #setInitialValue(String)} instead. Only meant for direct
+     * usage by Room.
+     * @param initialValue  Initial value of the account.
+     */
     @Deprecated
     public void setInitialValue(@NonNull BigDecimal initialValue) {
         this.initialValue = initialValue;
@@ -195,7 +181,12 @@ public class Account implements ISpinnerItem {
         }
     }
 
-    // Custom Getters and setters
+    /**
+     * Sets the account initial balance value.
+     *
+     * @param stringValue   String representation of the value.
+     * @throws NumberFormatException    If the string value is not a valid number.
+     */
     public void setInitialValue(@NonNull String stringValue)
             throws NumberFormatException {
         this.initialValue = BigDecimalUtil.fromString(stringValue);
@@ -255,5 +246,24 @@ public class Account implements ISpinnerItem {
     @Ignore
     public int getDrawableColor() {
         return backgroundColor;
+    }
+
+    @Ignore
+    public String getTypeNameResourceName() {
+        switch (this.type) {
+            case BANK:
+                return "account_type_bank";
+            case INFORMAL:
+                return "account_type_informal";
+            case SAVINGS:
+                return "account_type_savings";
+            case INVERSIONS:
+                return "account_type_inversions";
+            case CREDIT_CARD:
+                return "account_type_credit_card";
+            case OTHER:
+            default:
+                return "account_type_other";
+        }
     }
 }

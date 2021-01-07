@@ -31,8 +31,7 @@ public class UnresolvedTransactionsDialogFragment
     public static final String ARG_TARGET_ACCOUNT = "UnresolvedTransactionsDialogFragment.TargetAccount";
     private final UnresolvedTransactionsDialogInterface mListener;
     private int mAccountId;
-    @SuppressWarnings("rawtypes")
-    private GroupAdapter mAdapter;
+    private GroupAdapter<?> mAdapter;
 
     public UnresolvedTransactionsDialogFragment() {
         throw new IllegalArgumentException("This class must be provided with an UnresolvedTransactionsDialogInterface instance.");

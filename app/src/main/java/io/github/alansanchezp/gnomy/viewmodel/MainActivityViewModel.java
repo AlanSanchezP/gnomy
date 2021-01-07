@@ -50,11 +50,11 @@ public class MainActivityViewModel extends MonthToolbarViewModel {
         mState.set(TAG_ACTIVITY_TITLE, title);
     }
 
-    public void observeFAB(MainNavigationFragment observer) {
+    public void observeFAB(MainNavigationFragment<?> observer) {
         mFABClick.addObserver(observer);
     }
 
-    public void removeFABObserver(MainNavigationFragment observer) {
+    public void removeFABObserver(MainNavigationFragment<?> observer) {
         mFABClick.deleteObserver(observer);
     }
 
@@ -62,6 +62,10 @@ public class MainActivityViewModel extends MonthToolbarViewModel {
         mFABClick.click(fab);
     }
 
+    /**
+     * Helper class to allow FAB from MainActivity to be observed from hosted
+     * fragments.
+     */
     private static class ClickObservable extends Observable {
         public void click(@NonNull FloatingActionButton button) {
             setChanged();

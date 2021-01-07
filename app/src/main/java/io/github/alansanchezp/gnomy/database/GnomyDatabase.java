@@ -28,6 +28,9 @@ import net.sqlcipher.database.SQLiteDatabase;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 
+/**
+ * Application's database class.
+ */
 @Database(entities = {
     Category.class,
     Account.class,
@@ -41,6 +44,13 @@ import java.util.concurrent.Executors;
 public abstract class GnomyDatabase extends RoomDatabase {
     private static GnomyDatabase INSTANCE;
 
+    /**
+     * Retrieves a singleton database instance.
+     *
+     * @param context   Context of the application.
+     * @param userEnteredPassphrase Passphrase to decrypt the database.
+     * @return      Database singleton.
+     */
     public static GnomyDatabase getInstance(Context context, String userEnteredPassphrase) {
         if (INSTANCE == null) {
             synchronized (GnomyDatabase.class) {
@@ -52,6 +62,14 @@ public abstract class GnomyDatabase extends RoomDatabase {
         return INSTANCE;
     }
 
+    /**
+     * Builds a database instance.
+     *
+     * @param context   Context of the application.
+     * @param userEnteredPassphrase     Passphrase to encrypt the database. If null or empty,
+     *                                  the database will not be encrypted.
+     * @return          Database instance.
+     */
     private static GnomyDatabase buildDatabaseInstance(Context context, String userEnteredPassphrase) {
         byte[] passphrase = SQLiteDatabase.getBytes(userEnteredPassphrase.toCharArray());
         SupportFactory factory = new SupportFactory(passphrase);
@@ -75,14 +93,16 @@ public abstract class GnomyDatabase extends RoomDatabase {
 
         builder = builder
                 .openHelperFactory(factory)
-                // TODO: Create migrations
-                // TODO: Remove once migrations are implemented
+                // TODO: Create migrations and then remove this method call
                 .fallbackToDestructiveMigration()
                 .addCallback(PREPOPULATE_CATEGORIES_CALLBACK);
 
         return builder.build();
     }
 
+    /**
+     * Pre-populates app-defined categories.
+     */
     private static final RoomDatabase.Callback PREPOPULATE_CATEGORIES_CALLBACK = new RoomDatabase.Callback(){
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
@@ -107,7 +127,7 @@ public abstract class GnomyDatabase extends RoomDatabase {
                             "4, " +
                             "0, " +
                             "-1293008), " + // Hardcoding error color
-                    // TODO: Determine final categories
+                    // TODO: Determine final pre-populated categories
                         "(" +
                             "'Dummy incomes category', " +
                             "'ic_color_lens_black_24dp', "+
@@ -129,6 +149,14 @@ public abstract class GnomyDatabase extends RoomDatabase {
         }
     };
 
+    /**
+     * Helper method to wrap synchronous queries into {@link Single} observable
+     * objects without losing transaction safety.
+     *
+     * @param callable  Series of operations to wrap.
+     * @param <T>       Type of data that the Single object will emit.
+     * @return          Single object.
+     */
     public <T> Single<T> toSingleInTransaction(@NonNull Callable<T> callable) {
         return Single.create(emitter -> {
             try {

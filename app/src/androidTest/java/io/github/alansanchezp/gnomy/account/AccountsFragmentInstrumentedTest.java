@@ -172,7 +172,7 @@ public class AccountsFragmentInstrumentedTest {
 
     @Test
     public void interface_menu_method_opens_account_transactions() {
-        // TODO: Implement when Transactions module is done
+        // TODO: Not sure if this can be tested here. Try to do it anyways.
         assert(true);
     }
 

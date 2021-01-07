@@ -19,8 +19,16 @@ import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.databinding.LayoutGnomySpinnerItemBinding;
 import io.github.alansanchezp.gnomy.util.ISpinnerItem;
 
+/**
+ * Custom adapter that displays an element's associated icon.
+ * @param <I>   Class of the spinner items.
+ */
 public class GnomySpinnerAdapter<I extends ISpinnerItem> extends ArrayAdapter<I> {
 
+    /**
+     * @param context   Context.
+     * @param objects   List to use in the spinner.
+     */
     public GnomySpinnerAdapter(@NonNull Context context, @NonNull List<I> objects) {
         super(context, R.layout.layout_gnomy_spinner_item, objects);
     }
@@ -49,12 +57,26 @@ public class GnomySpinnerAdapter<I extends ISpinnerItem> extends ArrayAdapter<I>
         return getView(position, convertView, parent);
     }
 
+    /**
+     * Gets the {@link Drawable} object of the item at the given position.
+     *
+     * @param position  Position in the adapter's list of objects.
+     * @return          Drawable object.
+     */
     public Drawable getItemDrawable(int position) {
         I item = getItem(position);
         if (item == null) return null;
         return getDrawable(getContext(), item);
     }
 
+    /**
+     * Gets the {@link Drawable} object of a given element.
+     *
+     * @param context   Context that contains application resources.
+     * @param item      Target element.
+     * @param <I>       {@link ISpinnerItem} subclass
+     * @return          Drawable object.
+     */
     private static <I extends ISpinnerItem> Drawable getDrawable(@NonNull Context context, @NonNull I item) {
         if (item.getDrawableResourceName() != null) {
             int iconResId = context.getResources().getIdentifier(item.getDrawableResourceName(), "drawable", context.getPackageName());
@@ -65,6 +87,10 @@ public class GnomySpinnerAdapter<I extends ISpinnerItem> extends ArrayAdapter<I>
         return null;
     }
 
+    /**
+     * Helper class to hold every item's layout.
+     * @param <I>   Item's class.
+     */
     public static class SpinnerItemHolder<I extends ISpinnerItem> {
         protected final LayoutGnomySpinnerItemBinding $;
         protected final I item;

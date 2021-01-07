@@ -169,6 +169,11 @@ public class MoneyTransaction {
         return originalValue;
     }
 
+    /**
+     * Only meant for direct use from Room.
+     * @deprecated Use {@link #setOriginalValue(String)} instead.
+     * @param originalValue Original value
+     */
     @Deprecated
     public void setOriginalValue(@NonNull BigDecimal originalValue) {
         this.originalValue = originalValue;
@@ -179,6 +184,11 @@ public class MoneyTransaction {
         return calculatedValue;
     }
 
+    /**
+     * Only meant for direct use from Room.
+     * @deprecated Use {@link #setCalculatedValue(String)} instead.
+     * @param calculatedValue Calculated value.
+     */
     @Deprecated
     protected void setCalculatedValue(@NonNull BigDecimal calculatedValue) {
         this.calculatedValue = calculatedValue;
@@ -218,18 +228,37 @@ public class MoneyTransaction {
         this.notes = notes;
     }
 
-    // Custom setters
+    /**
+     * Sets the original value of the transaction. Original means
+     * that it is the value in the currency specified in {@link #currency}
+     *
+     * @param stringValue           String representation of the number.
+     * @throws NumberFormatException    If String is not a valid number.
+     */
     public void setOriginalValue(@NonNull String stringValue)
             throws NumberFormatException {
         this.originalValue = BigDecimalUtil.fromString(stringValue);
     }
 
+    /**
+     * Sets the calculated value of the transaction. Calculated means
+     * that it is the value in the currency specified in {@link Account#getDefaultCurrency()},
+     * so it has to be previously processed with an exchange rate.
+     *
+     * @param stringValue           String representation of the number.
+     * @throws NumberFormatException    If String is not a valid number.
+     */
     protected void setCalculatedValue(@NonNull String stringValue)
             throws NumberFormatException {
         this.originalValue = BigDecimalUtil.fromString(stringValue);
     }
 
-    // Custom methods
+    /**
+     * Checks for errors in the data of the transaction that can be identified
+     * without accessing other entities or the database itself.
+     *
+     * @return  Null if no error is found. GnomyIllegalQueryException instance otherwise.
+     */
     @Ignore
     protected GnomyIllegalQueryException getIsolatedValidationError() {
         if (this.type == TRANSFER_MIRROR)
@@ -259,6 +288,11 @@ public class MoneyTransaction {
         return null;
     }
 
+    /**
+     * Returns a new instance with the opposite {@link #calculatedValue}.
+     *
+     * @return  Inverse transaction.
+     */
     @Ignore
     protected MoneyTransaction getInverse() {
         MoneyTransaction inverted = new MoneyTransaction();
@@ -271,6 +305,15 @@ public class MoneyTransaction {
         return inverted;
     }
 
+    /**
+     * Returns the mirror of the given transfer, switching {@link #account},
+     * {@link #transferDestinationAccount} and {@link #type}
+     *
+     * @return  Null if transaction is not a transfer-related type.
+     *          Mirror transfer otherwise.
+     * @throws RuntimeException If, for any reason, the transaction type is not
+     * a valid one.
+     */
     @Ignore
     protected MoneyTransaction getMirrorTransfer() {
         if (this.type == INCOME || this.type == EXPENSE)

@@ -200,11 +200,6 @@ public class AccountDetailsActivity
 
         Intent accountHistoryIntent = new Intent(this, AccountBalanceHistoryActivity.class);
         accountHistoryIntent.putExtra(AccountBalanceHistoryActivity.EXTRA_ACCOUNT_ID, mAccount.getId());
-        accountHistoryIntent.putExtra(AccountBalanceHistoryActivity.EXTRA_BG_COLOR, mAccount.getBackgroundColor());
-        accountHistoryIntent.putExtra(AccountBalanceHistoryActivity.EXTRA_NAME, mAccount.getName());
-        accountHistoryIntent.putExtra(AccountBalanceHistoryActivity.EXTRA_CURRENCY, mAccount.getDefaultCurrency());
-        accountHistoryIntent.putExtra(AccountBalanceHistoryActivity.EXTRA_ACCOUNT_CREATION_MONTH, YearMonth.from(mAccount.getCreatedAt()).toString());
-
         startActivity(accountHistoryIntent);
     }
 

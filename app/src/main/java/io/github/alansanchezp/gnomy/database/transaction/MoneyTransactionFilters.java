@@ -11,6 +11,9 @@ import androidx.annotation.Nullable;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 
+/**
+ * Helper class to store filter parameters for {@link MoneyTransaction} queries.
+ */
 public class MoneyTransactionFilters implements Parcelable {
     private int accountId = 0;
     private int transferDestinationAccountId = 0;
@@ -153,6 +156,12 @@ public class MoneyTransactionFilters implements Parcelable {
         this.startDate = startDate;
     }
 
+    /**
+     * Sets {@link #startDate} and {@link #endDate} based on the month
+     * boundaries.
+     *
+     * @param month Month to use.
+     */
     public void setMonth(YearMonth month) {
         OffsetDateTime[] monthBoundaries = DateUtil.getMonthBoundaries(month);
         this.startDate = OffsetDateTime.from(monthBoundaries[0]);

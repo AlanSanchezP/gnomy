@@ -18,6 +18,12 @@ public class TransactionGroupHeader
     private final String mTitle;
     private final BigDecimal mSum;
 
+    /**
+     *
+     * @param title Text to show at the start of View.
+     * @param sum   Total sum to display at the end of View. Nothing will be shown
+     *              if sum has value of 0.
+     */
     public TransactionGroupHeader(String title, BigDecimal sum) {
         mTitle = title;
         mSum = sum;

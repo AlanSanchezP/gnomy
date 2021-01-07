@@ -1,5 +1,3 @@
-// TODO: Test menu items (AddEditTransactionActivity intents)
-
 package io.github.alansanchezp.gnomy.account;
 
 import org.junit.BeforeClass;
@@ -105,7 +103,7 @@ public class AccountDetailsActivityInstrumentedTest {
                 .check(matches(isEnabled()));
     }
 
-    // TODO: Implement other actions when Transactions module is ready
+    // TODO: Test other menu items (AddEditTransactionActivity intents)
     @Test
     public void archived_menu_item_opens_dialog() {
         mutableAWA.postValue(testAWA);

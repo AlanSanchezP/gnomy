@@ -84,7 +84,6 @@ public class ArchivedAccountsRecyclerViewAdapter
         }
     }
 
-
     public interface OnArchivedItemInteractionListener {
         void restoreAccount(Account account);
         void deleteAccount(Account account);

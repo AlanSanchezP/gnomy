@@ -75,7 +75,6 @@ public abstract class AccountDAO implements MonthlyBalanceDAO {
     protected abstract LiveData<List<AccountWithAccumulated>>
     getAccumulatesListAtMonth(YearMonth targetMonth);
 
-    // TODO: Evaluate which fields are worth removing
     @Query("SELECT " +
             "accounts.*, " +
             "CAST(strftime('%Y%m', DATETIME('now', 'localtime')) AS INT) AS target_month, " +
@@ -160,21 +159,36 @@ public abstract class AccountDAO implements MonthlyBalanceDAO {
     @Query("UPDATE OR ABORT accounts SET is_archived = 0 WHERE is_archived = 1")
     protected abstract Single<Integer> restoreAll();
 
-    // SYNCHRONOUS OPERATIONS, NEVER USE DIRECTLY FROM REPOSITORY
-    // WITHOUT WRAPPING THEM IN Single<> METHODS
-
+    /**
+     * !!!  NEVER USE DIRECTLY FROM REPOSITORY
+     *      WITHOUT WRAPPING IN Single<> METHOD  !!!
+     * @param id    Account id to find.
+     * @return      Account object with the matching id
+     */
     @Query("SELECT * FROM accounts WHERE account_id = :id")
     protected abstract Account _find(int id);
 
+    /**
+     * !!!  NEVER USE DIRECTLY FROM REPOSITORY
+     *      WITHOUT WRAPPING IN Single<> METHOD  !!!
+     * @param account   Account to insert.
+     * @return          Generated id.
+     */
     @Insert
     protected abstract Long _insert(Account account);
 
+    /**
+     * !!!  NEVER USE DIRECTLY FROM REPOSITORY
+     *      WITHOUT WRAPPING IN Single<> METHOD  !!!
+     * @param account   Account to update.
+     * @return          Number of affected rows.
+     */
     @Update
     protected abstract int _update(Account account);
 
     /**
-     * !!! ONLY USE IN TANDEM AFTER _savePotentiallyOrphanTransfers()
-     * and _savePotentiallyOrphanMirrorTransfers() !!!
+     * !!! ONLY USE IN TANDEM AFTER {@link #_savePotentiallyOrphanTransfers(int)} ()}
+     * and {@link #_savePotentiallyOrphanMirrorTransfers(int)} !!!
      *
      * @param account   Account to be deleted
      * @return          Number of affected rows
@@ -182,14 +196,8 @@ public abstract class AccountDAO implements MonthlyBalanceDAO {
     @Delete
     protected abstract int _delete(Account account);
 
-    // TODO: Is it a good idea to create special Category rows for transfers ?
-    //  One for regular transfers, another one for orphan transfers (converted into EXPENSES),
-    //  and another one for orphan mirror transfers (converted into INCOMES)
-    //  This would probably help readability without adding the (ORPHAN) legend.
-    //  It would be necessary to add a categories.special_category column or something similar
-
     /**
-     * !!! ONLY USE IN TANDEM BEFORE _delete() !!!
+     * !!! ONLY USE IN TANDEM BEFORE {@link #_delete(Account)} !!!
      *
      * The problem: When an {@link Account} is deleted all {@link MoneyTransaction} transfer objects
      * that pointed to it as a destination will cause the app to crash
@@ -212,7 +220,7 @@ public abstract class AccountDAO implements MonthlyBalanceDAO {
     protected abstract int _savePotentiallyOrphanTransfers(int accountId);
 
     /**
-     * !!! ONLY USE IN TANDEM BEFORE _delete() !!!
+     * !!! ONLY USE IN TANDEM BEFORE {@link #_delete(Account)} !!!
      *
      * The problem: When an {@link Account} is deleted all {@link MoneyTransaction} transfer objects
      * that pointed to it as their origin account will be deleted too
@@ -224,8 +232,8 @@ public abstract class AccountDAO implements MonthlyBalanceDAO {
      * can still access them, without altering existing {@link MonthlyBalance} rows.
      * Additionally, it modifies the transaction's concept to indicate its orphan nature.
      *
-     * Note that mirror transfers use MoneyTransaction.account_id to refer to the
-     * recipient account id, and MoneyTransaction.transfer_destination_account_id to refer
+     * Note that mirror transfers use {@link MoneyTransaction#getAccount()} to refer to the
+     * recipient account id, and {@link MoneyTransaction#getTransferDestinationAccount()} to refer
      * to the ORIGIN account where the transfer comes from. Due to ForeignKey constraints,
      * MoneyTransaction.transfer_destination_account_id will be set to NULL after the account
      * is deleted. This guarantees that orphan mirror transfers will be effectively

@@ -71,7 +71,16 @@ public class Category implements ISpinnerItem {
     }
 
     public void setType(int type) {
-        this.type = type;
+        switch(type) {
+            case EXPENSE_CATEGORY:
+            case INCOME_CATEGORY:
+            case BOTH_CATEGORY:
+            case HIDDEN_CATEGORY:
+                this.type = type;
+                break;
+            default:
+                throw new RuntimeException("Invalid category type.");
+        }
     }
 
     public int getBackgroundColor() {

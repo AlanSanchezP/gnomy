@@ -69,7 +69,8 @@ public class AddEditAccountActivity
 
         // Prevent potential noticeable blink in color
         mAppbar.setBackgroundColor(getResources().getColor(android.R.color.transparent));
-        // TODO: Either dynamically show/hide FAB on landscape or find a better UI behavior for it
+        // TODO: Either dynamically show/hide FAB on landscape, block landscape altogether
+        //  or find a better UI behavior for it.
         //  It makes UX unpleasant on landscape because it overlays with other elements
         mFABVH = new SingleClickViewHolder<>($.addeditAccountFAB, true);
         mFABVH.setOnClickListener(this::processData);
@@ -92,11 +93,11 @@ public class AddEditAccountActivity
             $.addeditAccountBox.setVisibility(View.INVISIBLE);
 
             // TODO: (When currency support is implemented) (only edit mode)
-            //  update: Do we even want this behavior? Analyze it, maybe we are fine just disabling the spinner on edit mode
-            /*
-             Monitor currency change and display an alert to either preserve ALL transactions values or convert them to their equivalents
-             on the new selected currency (and perform this operation until submitting the new data)
-            */
+            //  Monitor currency change and display an alert to either preserve ALL transactions values or convert them to their equivalents
+            //  on the new selected currency (and perform this operation until submitting the new data)
+            //  ...
+            //  update: Do we even want this behavior? Analyze it, maybe we are fine just disabling the spinner on edit mode (as it is right now)
+
             $.addeditAccountCurrency.setEnabled(false);
             $.addeditAccountCurrencyCannotChange.setVisibility(View.VISIBLE);
             accountLD.observe(this, this::onAccountChanged);

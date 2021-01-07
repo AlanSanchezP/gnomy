@@ -171,7 +171,7 @@ public class AccountRepositoryTest {
         assertNull(modifiedTransfer4.getTransferDestinationAccount());
     }
 
-    // TESTS FOR MonthlyBalanceDAO
+    /** TESTS FOR MonthlyBalanceDAO **/
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
