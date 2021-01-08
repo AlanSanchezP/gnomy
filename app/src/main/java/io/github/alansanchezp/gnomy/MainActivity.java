@@ -26,7 +26,6 @@ import io.github.alansanchezp.gnomy.androidUtil.SingleClickViewHolder;
 import io.github.alansanchezp.gnomy.androidUtil.ViewTintingUtil;
 import io.github.alansanchezp.gnomy.viewmodel.MainActivityViewModel;
 
-// TODO: Write README.md contents
 // TODO: Handle dark mode
 // TODO: (Wishlist) implement tooltips for non-menu buttons
 // TODO: Animations
