@@ -22,7 +22,6 @@
 
     <style name="Theme.App.Dialog.FullScreen"
         parent="Theme.MaterialComponents.Dialog">
-        <item name="colorSurface">@color/colorSurface</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="android:textColor">@color/colorText</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>

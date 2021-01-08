@@ -50,8 +50,7 @@ public class AccountBalanceHistoryActivityInstrumentedTest {
 
     private final Intent intent = new Intent(
             ApplicationProvider.getApplicationContext(), AccountBalanceHistoryActivity.class)
-            .putExtra(AccountBalanceHistoryActivity.EXTRA_ACCOUNT_ID, 1)
-            .putExtra(AccountBalanceHistoryActivity.EXTRA_NAME, accountTitle);
+            .putExtra(AccountBalanceHistoryActivity.EXTRA_ACCOUNT_ID, 1);
 
     @Rule
     public final ActivityScenarioRule<AccountBalanceHistoryActivity> activityRule =
@@ -64,7 +63,9 @@ public class AccountBalanceHistoryActivityInstrumentedTest {
 
         testAWA = mock(AccountWithAccumulated.class);
         testAWA.account = mock(Account.class);
+        testAWA.targetMonth = DateUtil.now();
         when(testAWA.account.getDefaultCurrency()).thenReturn("USD");
+        when(testAWA.account.getName()).thenReturn(accountTitle);
         when(testAWA.getConfirmedExpensesAtMonth()).thenReturn(BigDecimal.ZERO);
         when(testAWA.getConfirmedIncomesAtMonth()).thenReturn(BigDecimal.ZERO);
         when(testAWA.getPendingExpensesAtMonth()).thenReturn(BigDecimal.ZERO);
@@ -72,6 +73,7 @@ public class AccountBalanceHistoryActivityInstrumentedTest {
 
         when(mockAccountRepository.getAccumulatedAtMonth(anyInt(), any(YearMonth.class)))
                 .thenReturn(mutableAWA);
+        mutableAWA.postValue(testAWA);
     }
 
     @Test
