@@ -2,8 +2,11 @@
   <img alt="Gnomy's logo" src="assets/logo.png" width="64" />
   gnomy
 </h1>
-
-[![Build Status](https://travis-ci.org/AlanSanchezP/gnomy.svg?branch=development)](https://travis-ci.org/AlanSanchezP/gnomy)
+<div align="center">
+    <a href="https://travis-ci.org/AlanSanchezP/gnomy">
+        <img alt="Build Status" src="https://travis-ci.org/AlanSanchezP/gnomy.svg?branch=development" />
+    </a>
+</div>
 
 Gnomy aims to provide an easy to use android app for personal finance tracking. Because open source apps don't need to be complicated :)
 
@@ -23,6 +26,20 @@ Currently under development. This section will tell you when alpha, beta and sta
 - Filtering of transactions list (supports custom end and start dates)
 - Visualization of unresolved transactions (that haven't been confirmed by the user)
 - Adaptive icons. The project's logo might change if someone has a better design. 
+
+### Screenshots
+<img alt="Screenshot of transactions list" src="assets/Screenshot_20210108-170811_gnomy.png" width="280" />
+<img alt="Screenshot of month toolbar dialog" src="assets/Screenshot_20210108-170818_gnomy.png" width="280" />
+<img alt="Screenshot of accounts list" src="assets/Screenshot_20210108-170823_gnomy.png" width="280" />
+<img alt="Screenshot of account details" src="assets/Screenshot_20210108-170833_gnomy.png" width="280" />
+<img alt="Screenshot of balance history" src="assets/Screenshot_20210108-171155_gnomy.png" width="280" />
+<img alt="Screenshot of modify account" src="assets/Screenshot_20210108-170846_gnomy.png" width="280" />
+<img alt="Screenshot of color picker dialog" src="assets/Screenshot_20210108-171140_gnomy.png" width="280" />
+<img alt="Screenshot of archived accounts dialog" src="assets/Screenshot_20210108-170909_gnomy.png" width="280" />
+<img alt="Screenshot of filters dialog" src="assets/Screenshot_20210108-170919_gnomy.png" width="280" />
+<img alt="Screenshot of new transfer" src="assets/Screenshot_20210108-170929_gnomy.png" width="280" />
+<img alt="Screenshot of modify expense" src="assets/Screenshot_20210108-170934_gnomy.png" width="280" />
+<img alt="Screenshot of modify income" src="assets/Screenshot_20210108-170942_gnomy.png" width="280" />
 
 ## The roadmap to v1
 - User-defined categories for transactions
