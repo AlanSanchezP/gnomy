@@ -2,6 +2,7 @@
   <img alt="Gnomy's logo" src="assets/logo.png" width="64" />
   gnomy
 </h1>
+
 [![Build Status](https://travis-ci.org/AlanSanchezP/gnomy.svg?branch=development)](https://travis-ci.org/AlanSanchezP/gnomy)
 
 Gnomy aims to provide an easy to use android app for personal finance tracking. Because open source apps don't need to be complicated :)
