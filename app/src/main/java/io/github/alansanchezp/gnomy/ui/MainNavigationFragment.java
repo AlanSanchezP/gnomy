@@ -64,7 +64,7 @@ public abstract class MainNavigationFragment<B extends ViewBinding>
      */
     protected MainNavigationFragment(@Nullable Integer fragmentTitleResourceId,
                                      @Nullable Integer menuResourceId,
-                                     boolean withOptionalNavigationElements,
+                                     @SuppressWarnings("SameParameterValue") boolean withOptionalNavigationElements,
                                      @NonNull FragmentViewBindingInflater<B> viewBindingInflater) {
         super();
         mMenuResourceId = menuResourceId;

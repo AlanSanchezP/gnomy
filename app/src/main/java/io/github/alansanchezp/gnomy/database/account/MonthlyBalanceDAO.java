@@ -50,6 +50,7 @@ public interface MonthlyBalanceDAO {
      * @param additionalProjectedExpenses   Projected expenses to add to existing value. Can be negative.
      * @return          Amount of affected rows.
      */
+    @SuppressWarnings("UnusedReturnValue")
     @Query("UPDATE monthly_balances SET " +
             "total_incomes = total_incomes + :additionalIncomes, " +
             "total_expenses = total_expenses + :additionalExpenses, " +

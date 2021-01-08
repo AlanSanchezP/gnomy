@@ -10,7 +10,7 @@ import io.github.alansanchezp.gnomy.database.GnomyDatabase;
 import io.github.alansanchezp.gnomy.database.GnomyIllegalQueryException;
 
 public class CategoryRepository {
-    private CategoryDAO categoryDAO;
+    private final CategoryDAO categoryDAO;
 
     public CategoryRepository(Context context) {
         GnomyDatabase db;

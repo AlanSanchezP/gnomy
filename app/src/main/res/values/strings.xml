@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">gnomy</string>
     <string name="title_home">Summary</string>
     <string name="title_transactions">Transactions</string>
@@ -10,7 +10,6 @@
 
     <string name="action_search">Search</string>
     <string name="action_filter">Filter results</string>
-    <string name="action_clear_filters">Clear filters</string>
     <string name="action_apply">Apply</string>
     <string name="action_apply_description">Apply filters</string>
     <string name="action_show_archived">Show archived accounts</string>
@@ -144,7 +143,7 @@
     <string name="transaction_category">Category</string>
     <string name="transaction_notes">Additional notes</string>
     <string name="transaction_mark_as_done">Mark as done</string>
-    <string name="transaction_mark_as_recurrent">Mark as recurrent</string>
+    <string name="transaction_mark_as_recurrent" tools:keep="@string/transaction_mark_as_recurrent">Mark as recurrent</string>
 
     <string name="transaction_error_concept">Transaction concept can\'t be empty.</string>
     <string name="transaction_error_amount">Specified amount is not a valid number.</string>

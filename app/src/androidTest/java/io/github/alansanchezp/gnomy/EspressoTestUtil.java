@@ -31,6 +31,7 @@ import static org.junit.Assert.fail;
 /**
  * Helper class with custom espresso assertions.
  */
+@SuppressWarnings("SameParameterValue")
 public class EspressoTestUtil {
     // TODO: Add methods to test error and hint texts on TextInputLayout objects
     /**
@@ -203,7 +204,7 @@ public class EspressoTestUtil {
         };
     }
 
-    private static View findFirstParentLayoutOfClass(View view, Class<? extends View> parentClass) {
+    private static View findFirstParentLayoutOfClass(View view, @SuppressWarnings("SameParameterValue") Class<? extends View> parentClass) {
         ViewParent parent = new FrameLayout(view.getContext());
         ViewParent incrementView = null;
         int i = 0;

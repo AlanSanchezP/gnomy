@@ -64,7 +64,7 @@ public class MainActivity
         mViewModel.getThemeToUse().observe(this, this::tintNavigationElements);
         mViewModel.getShowOptionalNavigationElements().observe(this, this::toggleOptionalNavigationElements);
         mViewModel.getTitle().observe(this, this::setTitle);
-        $.monthtoolbar.setViewModel(mViewModel);
+        $.monthToolbar.setViewModel(mViewModel);
     }
 
     @Override
@@ -102,7 +102,7 @@ public class MainActivity
         setThemeColor(themeColor);
         int darkVariant =  ColorUtil.getDarkVariant(themeColor);
 
-        if ($.monthtoolbar.isVisible()) $.monthtoolbar.tintElements(themeColor);
+        if ($.monthToolbar.isVisible()) $.monthToolbar.tintElements(themeColor);
         mFABVH.onView(this, v -> {
             if (v.getVisibility() == View.VISIBLE) {
                 ViewTintingUtil.tintFAB(v, darkVariant, mThemeTextColor);
@@ -116,7 +116,7 @@ public class MainActivity
      * @param showOptionalElements Indicates if these elements should be visible or not.
      */
     private void toggleOptionalNavigationElements(boolean showOptionalElements) {
-        $.monthtoolbar.toggleVisibility(showOptionalElements);
+        $.monthToolbar.toggleVisibility(showOptionalElements);
         if (showOptionalElements) {
             mFABVH.onView(this, v -> v.setVisibility(View.VISIBLE));
         } else {

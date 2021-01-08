@@ -150,7 +150,7 @@ public class ViewTintingUtil {
     }
 
     /**
-     * Retrieves a {@link ColorStateList} that is appripiate for a
+     * Retrieves a {@link ColorStateList} that is appropriated for a
      * {@link Switch} object.
      *
      * @param themeColor    Color to use.

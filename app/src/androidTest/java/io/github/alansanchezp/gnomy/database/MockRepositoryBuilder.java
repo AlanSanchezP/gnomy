@@ -9,7 +9,7 @@ import static org.mockito.Mockito.mock;
  * Helper class to mock repositories during instrumented tests.
  */
 public class MockRepositoryBuilder {
-    private static Map<Class<?>, Object> mockRepositoriesMap = new HashMap<>();
+    private static final Map<Class<?>, Object> mockRepositoriesMap = new HashMap<>();
 
     /**
      * Creates a new mock object for the desired repository class.

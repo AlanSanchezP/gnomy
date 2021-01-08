@@ -215,8 +215,7 @@ public class MoneyTransactionFilters implements Parcelable {
         } else {
             OffsetDateTime[] monthBoundaries = DateUtil.getMonthBoundaries(month);
             if (!monthBoundaries[0].equals(this.startDate)) return false;
-            if (!monthBoundaries[1].equals(this.endDate)) return false;
+            return monthBoundaries[1].equals(this.endDate);
         }
-        return true;
     }
 }

@@ -188,7 +188,7 @@ public class AddEditAccountActivity
         ViewTintingUtil
                 .tintSpinner($.addeditAccountCurrency, mThemeColor);
 
-        // TODO: (Wishlist, not a big deal) How can we unify the ripple color with the one from FAB?
+        // TODO: (Wish-list, not a big deal) How can we unify the ripple color with the one from FAB?
         mColorPickerBtnVH.onView(this, v -> {
             $.addeditAccountColorButton.setBackgroundTintList(ColorStateList.valueOf(mThemeColor));
             $.addeditAccountColorButton.getDrawable().mutate().setTint(mThemeTextColor);

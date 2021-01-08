@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <color name="colorPrimary">#2196F3</color>
-    <color name="colorPrimaryLight">#29beff</color>
+    <color name="colorPrimaryLight" tools:keep="@color/colorPrimaryLight">#29beff</color>
     <color name="colorPrimaryDark">#186db1</color>
     <color name="colorAccent">@color/colorPrimaryDark</color>
 
@@ -13,7 +13,7 @@
     <color name="colorExpenses">@color/colorError</color>
     <color name="colorIncomesDark">#007100</color>
     <color name="colorExpensesDark">#ac3223</color>
-    <color name="colorTransfersDark">#8a846d</color>
+    <color name="colorTransfersDark" tools:keep="@color/colorTransfersDark">#8a846d</color>
 
     <color name="colorSurface">#FFFFFF</color>
     <color name="colorText">#555555</color>
@@ -23,12 +23,12 @@
 
     <color name="colorCardBackground">#F5F5F5</color>
 
-    <color name="colorCouchA">@color/colorSuccess</color>
-    <color name="colorCouchB">#CCC018</color>
-    <color name="colorCouchC">#F2AF33</color>
-    <color name="colorCouchD">#FF8133</color>
-    <color name="colorCouchE">@color/colorError</color>
-    <color name="colorCouchF">@color/colorExpensesDark</color>
+    <color name="colorCouchA" tools:keep="@color/colorCouchA">@color/colorSuccess</color>
+    <color name="colorCouchB" tools:keep="@color/colorCouchB">#CCC018</color>
+    <color name="colorCouchC" tools:keep="@color/colorCouchC">#F2AF33</color>
+    <color name="colorCouchD" tools:keep="@color/colorCouchD">#FF8133</color>
+    <color name="colorCouchE" tools:keep="@color/colorCouchE">@color/colorError</color>
+    <color name="colorCouchF" tools:keep="@color/colorCouchF">@color/colorExpensesDark</color>
 
     <color name="mtrl_fab_bg_color_selector" tools:ignore="PrivateResource">@color/colorPrimaryDark</color>
     <color name="mtrl_bottom_nav_item_tint" tools:ignore="PrivateResource">@color/colorPrimary</color>

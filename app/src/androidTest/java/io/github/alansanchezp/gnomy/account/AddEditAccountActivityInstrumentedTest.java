@@ -242,6 +242,7 @@ public class AddEditAccountActivityInstrumentedTest {
                         return Single.error(exception);
                 });
 
+        //noinspection SpellCheckingInspection
         onView(withId(R.id.addedit_account_name_input))
                 .perform(typeText("gffdg")) // setting wrong value
                 .perform(closeSoftKeyboard());

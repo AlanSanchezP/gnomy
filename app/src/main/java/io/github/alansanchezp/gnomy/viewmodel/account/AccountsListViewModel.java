@@ -47,7 +47,7 @@ public class AccountsListViewModel extends AndroidViewModel {
      * Binds a {@link LiveData} object that emits {@link YearMonth}
      * values, and that will be used for database queries.
      *
-     * !!! IMPORTANT: Use this method BEFORE trying to retreive
+     * !!! IMPORTANT: Use this method BEFORE trying to retrieve
      * any LiveData from this class !!!
      *
      * @param month LiveData object.

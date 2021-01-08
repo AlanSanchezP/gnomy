@@ -70,8 +70,8 @@ public class AccountBalanceHistoryActivity
                         this
                 )).get(AccountBalanceHistoryViewModel.class);
 
-        $.monthtoolbar.setViewModel(mViewModel);
-        $.monthtoolbar.tintElements(mThemeColor, mThemeTextColor);
+        $.monthToolbar.setViewModel(mViewModel);
+        $.monthToolbar.tintElements(mThemeColor, mThemeTextColor);
 
         mViewModel.getAccumulatedAtMonth(mAccountId)
                 .observe(this, this::onAccumulatedBalanceChanged);

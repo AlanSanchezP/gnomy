@@ -185,6 +185,7 @@ public class MoneyTransactionRepository {
                     newMirror.setId(originalMirror.getId());
                 }
 
+                //noinspection IfStatementWithIdenticalBranches
                 if (!original.getOriginalValue().equals(
                         transaction.getOriginalValue())) {
                     // TODO: Currency conversion (this will prevent use of deprecated method)

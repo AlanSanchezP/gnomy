@@ -96,7 +96,7 @@ public class AddEditTransactionInstrumentedTest {
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
     private static final MoneyTransactionRepository mockTransactionRepository = initMockRepository(MoneyTransactionRepository.class);
     private static MutableLiveData<List<Account>> testAccountListLD;
-    private static List<Account> testAccountList = new ArrayList<>();
+    private static final List<Account> testAccountList = new ArrayList<>();
     private static Account testAccountA, testAccountB;
     private static Category testCategory;
 

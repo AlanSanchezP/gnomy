@@ -293,7 +293,7 @@ public class AddEditTransactionActivity
         $.addeditTransactionAmountInput.setFilters(new InputFilter[]{new InputFilterMinMax(MoneyTransaction.MIN_VALUE, MoneyTransaction.MAX_VALUE, BigDecimalUtil.DECIMAL_SCALE)});
     }
 
-    /* EDITTEXT WATCHERS */
+    /* EditText WATCHERS */
 
     private void onTransactionAmountChanges(String value) {
         if (value.length() == 0) {
@@ -321,7 +321,7 @@ public class AddEditTransactionActivity
     }
 
 
-    /* LIVEDATA OBSERVERS */
+    /* LiveData OBSERVERS */
 
     private void onTransactionChanged(MoneyTransaction transaction) {
         // TODO: Evaluate if this approach is better than finish() the Activity
