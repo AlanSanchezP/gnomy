@@ -28,18 +28,28 @@ Currently under development. This section will tell you when alpha, beta and sta
 - Adaptive icons. The project's logo might change if someone has a better design. 
 
 ### Screenshots
-<img alt="Screenshot of transactions list" src="assets/Screenshot_20210108-170811_gnomy.png" width="280" />
-<img alt="Screenshot of month toolbar dialog" src="assets/Screenshot_20210108-170818_gnomy.png" width="280" />
-<img alt="Screenshot of accounts list" src="assets/Screenshot_20210108-170823_gnomy.png" width="280" />
-<img alt="Screenshot of account details" src="assets/Screenshot_20210108-170833_gnomy.png" width="280" />
-<img alt="Screenshot of balance history" src="assets/Screenshot_20210108-171155_gnomy.png" width="280" />
-<img alt="Screenshot of modify account" src="assets/Screenshot_20210108-170846_gnomy.png" width="280" />
-<img alt="Screenshot of color picker dialog" src="assets/Screenshot_20210108-171140_gnomy.png" width="280" />
-<img alt="Screenshot of archived accounts dialog" src="assets/Screenshot_20210108-170909_gnomy.png" width="280" />
-<img alt="Screenshot of filters dialog" src="assets/Screenshot_20210108-170919_gnomy.png" width="280" />
-<img alt="Screenshot of new transfer" src="assets/Screenshot_20210108-170929_gnomy.png" width="280" />
-<img alt="Screenshot of modify expense" src="assets/Screenshot_20210108-170934_gnomy.png" width="280" />
-<img alt="Screenshot of modify income" src="assets/Screenshot_20210108-170942_gnomy.png" width="280" />
+<table>
+    <tr>
+        <td><img alt="Screenshot of transactions list" src="assets/Screenshot_20210108-170811_gnomy.png" width="280" /></td>
+        <td><img alt="Screenshot of month toolbar dialog" src="assets/Screenshot_20210108-170818_gnomy.png" width="280" /></td>
+        <td><img alt="Screenshot of accounts list" src="assets/Screenshot_20210108-170823_gnomy.png" width="280" /></td>
+    </tr>
+    <tr>
+        <td><img alt="Screenshot of account details" src="assets/Screenshot_20210108-170833_gnomy.png" width="280" /></td>
+        <td><img alt="Screenshot of balance history" src="assets/Screenshot_20210108-171155_gnomy.png" width="280" /></td>
+        <td><img alt="Screenshot of modify account" src="assets/Screenshot_20210108-170846_gnomy.png" width="280" /></td>
+    </tr>
+    <tr>
+        <td><img alt="Screenshot of color picker dialog" src="assets/Screenshot_20210108-171140_gnomy.png" width="280" /></td>
+        <td><img alt="Screenshot of archived accounts dialog" src="assets/Screenshot_20210108-170909_gnomy.png" width="280" /></td>
+        <td><img alt="Screenshot of filters dialog" src="assets/Screenshot_20210108-170919_gnomy.png" width="280" /></td>
+    </tr>
+    <tr>
+        <td><img alt="Screenshot of new transfer" src="assets/Screenshot_20210108-170929_gnomy.png" width="280" /></td>
+        <td><img alt="Screenshot of modify expense" src="assets/Screenshot_20210108-170934_gnomy.png" width="280" /></td>
+        <td><img alt="Screenshot of modify income" src="assets/Screenshot_20210108-170942_gnomy.png" width="280" /></td>
+</tr>
+</table>
 
 ## The roadmap to v1
 - User-defined categories for transactions
