@@ -159,15 +159,19 @@ public class AccountRepositoryTest {
         MoneyTransaction modifiedTransfer2 = getOrAwaitValue(transactionRepository.find(4));
         MoneyTransaction modifiedTransfer3 = getOrAwaitValue(transactionRepository.find(7));
         assertEquals(MoneyTransaction.EXPENSE, modifiedTransfer1.getType());
+        assertEquals(2, modifiedTransfer1.getCategory()); // Special category for orphan outgoing transfers
         assertNull(modifiedTransfer1.getTransferDestinationAccount());
         assertEquals(MoneyTransaction.EXPENSE, modifiedTransfer2.getType());
+        assertEquals(2, modifiedTransfer2.getCategory());
         assertNull(modifiedTransfer2.getTransferDestinationAccount());
         assertEquals(MoneyTransaction.INCOME, modifiedTransfer3.getType());
+        assertEquals(3, modifiedTransfer3.getCategory()); // Special category for orphan incoming transfers
         assertNull(modifiedTransfer3.getTransferDestinationAccount());
 
         repository.delete(B).blockingGet();
         MoneyTransaction modifiedTransfer4 = getOrAwaitValue(transactionRepository.find(5));
         assertEquals(MoneyTransaction.INCOME, modifiedTransfer4.getType());
+        assertEquals(3, modifiedTransfer4.getCategory());
         assertNull(modifiedTransfer4.getTransferDestinationAccount());
     }
 

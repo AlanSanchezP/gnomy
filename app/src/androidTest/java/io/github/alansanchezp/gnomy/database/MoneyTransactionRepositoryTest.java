@@ -178,7 +178,7 @@ public class MoneyTransactionRepositoryTest {
         testTransaction.setDate(DateUtil.OffsetDateTimeNow().minusMonths(1));
         testTransaction.setConfirmed(true);
         testTransaction.setOriginalValue("30");
-        repository.insert(testTransaction).blockingGet();
+        int generatedId =  (int)(long) repository.insert(testTransaction).blockingGet();
         resultBalance = getOrAwaitValue(
                 repository.getBalanceFromMonth(1, DateUtil.now().minusMonths(1)));
         MonthlyBalance destinationBalance = getOrAwaitValue(
@@ -193,6 +193,10 @@ public class MoneyTransactionRepositoryTest {
                 "0", // (stays the same)
                 "0", // (stays the same)
                 "0"); // (stays the same)
+
+        MoneyTransaction insertedTransfer = getOrAwaitValue(repository.find(generatedId));
+        assertEquals(1, insertedTransfer.getCategory()); // Special category for transfers
+
         // Try to insert into faulty balance (invalid account id)
         testTransaction.setAccount(10);
         assertThrows(SQLiteConstraintException.class,
@@ -451,7 +455,12 @@ public class MoneyTransactionRepositoryTest {
                 "0", // (stays the same)
                 "0", // (stays the same)
                 "0"); // (stays the same)
-        assert true;
+
+        // Update method overrides any category set to transfers, setting them to special category
+        testTransaction.setCategory(10);
+        repository.update(testTransaction).blockingGet();
+        MoneyTransaction updatedTransfer = getOrAwaitValue(repository.find(testTransaction.getId()));
+        assertEquals(1, updatedTransfer.getCategory());
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")

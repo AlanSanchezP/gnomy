@@ -7,6 +7,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.fragment.app.testing.FragmentScenario;
 import static androidx.fragment.app.testing.FragmentScenario.launchInContainer;
@@ -17,6 +19,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.database.account.Account;
 import io.github.alansanchezp.gnomy.database.account.AccountRepository;
+import io.github.alansanchezp.gnomy.database.category.CategoryRepository;
+import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionFilters;
+import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionRepository;
+import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
 import io.github.alansanchezp.gnomy.ui.account.AccountsFragment;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 
@@ -29,6 +36,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static io.github.alansanchezp.gnomy.database.MockRepositoryBuilder.initMockRepository;
+import static io.github.alansanchezp.gnomy.util.DateUtil.OffsetDateTimeNow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -49,8 +57,14 @@ public class AccountsFragmentInstrumentedTest {
         mld.postValue(DateUtil.now());
 
         final AccountRepository mockAccountRepository = initMockRepository(AccountRepository.class);
+        final MoneyTransactionRepository mockTransactionRepository = initMockRepository(MoneyTransactionRepository.class);
+        final CategoryRepository mockCategoryRepository = initMockRepository(CategoryRepository.class);
 
+        when(mockCategoryRepository.getSharedAndCategory(anyInt()))
+                .thenReturn(new MutableLiveData<>());
         when(mockAccountRepository.getArchivedAccounts())
+                .thenReturn(new MutableLiveData<>());
+        when(mockAccountRepository.getAll())
                 .thenReturn(new MutableLiveData<>());
         when(mockAccountRepository.getAccount(anyInt()))
                 .thenReturn(new MutableLiveData<>());
@@ -61,6 +75,17 @@ public class AccountsFragmentInstrumentedTest {
                 .thenReturn(new MutableLiveData<>());
         when(mockAccountRepository.getAccumulatedAtMonth(anyInt(), any(YearMonth.class)))
                 .thenReturn(new MutableLiveData<>());
+        List<TransactionDisplayData> testTransactionsList = new ArrayList<>();
+        TransactionDisplayData testItem = new TransactionDisplayData();
+        testItem.transaction = new MoneyTransaction();
+        testItem.transaction.setDate(OffsetDateTimeNow());
+        testItem.categoryResourceName = "ic_add_black_24dp";
+        testItem.accountName = "test";
+        testTransactionsList.add(testItem);
+        when(mockTransactionRepository.getByFilters(any(MoneyTransactionFilters.class)))
+                .thenReturn(new MutableLiveData<>(testTransactionsList));
+        when(mockTransactionRepository.find(anyInt()))
+                .thenReturn(new MutableLiveData<>(testItem.transaction));
 
         mockMenuItem = mock(MenuItem.class);
     }
@@ -204,5 +229,32 @@ public class AccountsFragmentInstrumentedTest {
         onView(withText(R.string.account_card_delete_warning))
                 .inRoot(isDialog())
                 .check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void interface_method_opens_unresolved_transactions() {
+        FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class,
+                null, R.style.AppTheme);
+        scenario.onFragment(fragment ->
+                fragment.onUnresolvedTransactions(new Account(1)));
+        onView(withText(R.string.unresolved_transactions))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void interface_method_opens_unresolved_transaction_item() {
+        MoneyTransaction testItem = new MoneyTransaction();
+        testItem.setId(1);
+        testItem.setType(MoneyTransaction.EXPENSE);
+        FragmentScenario<AccountsFragment> scenario = launchInContainer(AccountsFragment.class,
+                null, R.style.AppTheme);
+        scenario.onFragment(fragment ->
+                fragment.onUnresolvedTransactionClick(testItem));
+
+        onView(withId(R.id.custom_appbar))
+                .check(matches(hasDescendant(
+                        withText(R.string.transaction_modify_expense))
+                ));
     }
 }

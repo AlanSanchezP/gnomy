@@ -1,6 +1,3 @@
-// TODO: Test archived destination account (transfers only) management
-// TODO: Test account extras management
-
 package io.github.alansanchezp.gnomy.transaction;
 
 import android.content.Intent;
@@ -61,6 +58,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isNotChecked;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.END_ICON;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.ERROR_ICON;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertActivityState;
@@ -374,6 +372,10 @@ public class AddEditTransactionInstrumentedTest {
 
     @Test
     public void dynamic_title_based_on_extras() {
+        MoneyTransaction testT = new MoneyTransaction();
+        testT.setType(EXPENSE);
+        when(mockTransactionRepository.find(anyInt()))
+                .thenReturn(new MutableLiveData<>(testT));
         // TODO: Check hints
         // Default behavior is to create a new expense. Not testing tinting since espresso
         //  doesn't provide a way to match color resources yet.
@@ -420,6 +422,7 @@ public class AddEditTransactionInstrumentedTest {
                 ))));*/
         tempScenario.close();
 
+        testT.setType(INCOME);
         // Modify income
         intent= intent
                 .putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, INCOME)
@@ -450,6 +453,7 @@ public class AddEditTransactionInstrumentedTest {
                 ))));*/
         tempScenario.close();
 
+        testT.setType(TRANSFER);
         // Modify transfer
         intent= intent
                 .putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, TRANSFER)
@@ -467,6 +471,45 @@ public class AddEditTransactionInstrumentedTest {
 
         // Not testing invalid types because RuntimeException can't be catched
         //  (for some weird reason)
+    }
+
+    @Test
+    public void sets_account_from_extra() {
+        MoneyTransaction testT = new MoneyTransaction();
+        testT.setAccount(1);
+        testT.setType(INCOME);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                testAccountListLD.postValue(testAccountList));
+        when(mockTransactionRepository.find(anyInt()))
+                .thenReturn(new MutableLiveData<>(testT));
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
+                AddEditTransactionActivity.class)
+                .putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, INCOME)
+                .putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_ID, 1);
+        ActivityScenario<AddEditTransactionActivity> tempScenario = launch(intent);
+        onView(withId(R.id.addedit_transaction_from_account))
+                .check(matches(hasDescendant(
+                        withText(testAccountA.getName())
+                )));
+        tempScenario.close();
+        testT.setType(EXPENSE);
+        intent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, EXPENSE);
+        tempScenario = launch(intent);
+        onView(withId(R.id.addedit_transaction_from_account))
+                .check(matches(hasDescendant(
+                        withText(testAccountA.getName())
+                )));
+        tempScenario.close();
+
+        testT.setType(TRANSFER);
+        testT.setTransferDestinationAccount(2);
+        intent.putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, TRANSFER);
+        tempScenario = launch(intent);
+        onView(withId(R.id.addedit_transaction_from_account))
+                .check(matches(hasDescendant(
+                        withText(testAccountA.getName())
+                )));
+        tempScenario.close();
     }
 
     @Test
@@ -543,7 +586,6 @@ public class AddEditTransactionInstrumentedTest {
         // Displayed date should NOT be the same as tesAccountB.getDate()
         assertNotEquals(testAccountDateString, afterEditTextContent[0]);
     }
-
 
     @Test
     public void opens_picker_dialogs() {
@@ -837,4 +879,29 @@ public class AddEditTransactionInstrumentedTest {
                 testAccountListLD.postValue(testAccountList));
         tempScenario.close();
     }
+
+    @Test
+    public void shows_dialog_if_destination_account_is_archived() {
+        MoneyTransaction testT = new MoneyTransaction();
+        testT.setTransferDestinationAccount(5);
+        testT.setAccount(1);
+        testT.setType(TRANSFER);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                testAccountListLD.postValue(testAccountList));
+        when(mockTransactionRepository.find(anyInt()))
+                .thenReturn(new MutableLiveData<>(testT));
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
+                AddEditTransactionActivity.class)
+                .putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_TYPE, TRANSFER)
+                .putExtra(AddEditTransactionActivity.EXTRA_TRANSACTION_ID, 1);
+        ActivityScenario<AddEditTransactionActivity> tempScenario = launch(intent);
+        onView(withText(R.string.transaction_transfer_destination_archived_message))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()));
+        tempScenario.close();
+        // Not testing that activity throws ArrayIndexOutOfBoundsException if origin account is not in the returned list
+        // because don't know how catch the exception here (thrown in a different thread)
+    }
+
+    // TODO: Test orphan transfers category (app should not crash)
 }

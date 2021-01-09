@@ -94,6 +94,8 @@ public class UnresolvedTransactionsDialogFragment
 
     private void onTransactionsListChanged(List<TransactionDisplayData> transactions) {
         mAdapter.clear();
+        // TODO: How to test this (proper grouping)?
+        //  Not testing automatic dismiss until there is another thing to test of this fragment
         if (!transactions.isEmpty()) {
             // Init data holders
             YearMonth sectionYearMonth = YearMonth.from(transactions.get(0).transaction.getDate());

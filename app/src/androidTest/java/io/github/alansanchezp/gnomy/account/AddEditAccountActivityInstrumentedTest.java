@@ -62,6 +62,7 @@ public class AddEditAccountActivityInstrumentedTest {
     public final ActivityScenarioRule<AddEditAccountActivity> activityRule =
             new ActivityScenarioRule<>(AddEditAccountActivity.class);
     private static final AccountRepository mockAccountRepository = initMockRepository(AccountRepository.class);
+    private static final MutableLiveData<Account> mutableAccount = new MutableLiveData<>();
 
     // Needed so that ViewModel instance doesn't crash
     @BeforeClass
@@ -69,7 +70,7 @@ public class AddEditAccountActivityInstrumentedTest {
         when(mockAccountRepository.insert(any(Account.class)))
                 .thenReturn(Single.just(1L));
         when(mockAccountRepository.getAccount(anyInt()))
-                .thenReturn(new MutableLiveData<>());
+                .thenReturn(mutableAccount);
         when(mockAccountRepository.update(any(Account.class)))
                 .thenReturn(Single.just(1));
     }
@@ -81,6 +82,7 @@ public class AddEditAccountActivityInstrumentedTest {
                 .check(matches(hasDescendant(
                         withText(R.string.account_new)
                 )));
+        mutableAccount.postValue(new Account(1));
         Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
                 AddEditAccountActivity.class)
                 .putExtra(AddEditAccountActivity.EXTRA_ACCOUNT_ID, 1);
@@ -90,6 +92,18 @@ public class AddEditAccountActivityInstrumentedTest {
                 .check(matches(hasDescendant(
                         withText(R.string.account_card_modify)
                 )));
+        tempScenario.close();
+    }
+
+    @Test
+    public void non_existent_account_from_extra() {
+        // Create a new intent passing invalid account id
+        mutableAccount.postValue(null);
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
+                AddEditAccountActivity.class)
+                .putExtra(AddEditAccountActivity.EXTRA_ACCOUNT_ID, 2);
+        ActivityScenario<AddEditAccountActivity> tempScenario = launch(intent);
+        assertActivityState(DESTROYED, tempScenario);
         tempScenario.close();
     }
 
