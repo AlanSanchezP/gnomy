@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.database.account;
+package io.github.alansanchezp.gnomy.data.account;
 
 import java.time.OffsetDateTime;
 

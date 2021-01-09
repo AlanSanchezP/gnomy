@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.database.transaction;
+package io.github.alansanchezp.gnomy.data.transaction;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -11,9 +11,9 @@ import androidx.room.Query;
 import androidx.room.RawQuery;
 import androidx.room.Update;
 import androidx.sqlite.db.SupportSQLiteQuery;
-import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.account.MonthlyBalanceDAO;
-import io.github.alansanchezp.gnomy.database.category.Category;
+import io.github.alansanchezp.gnomy.data.account.Account;
+import io.github.alansanchezp.gnomy.data.account.MonthlyBalanceDAO;
+import io.github.alansanchezp.gnomy.data.category.Category;
 
 @Dao
 public abstract class MoneyTransactionDAO implements MonthlyBalanceDAO {

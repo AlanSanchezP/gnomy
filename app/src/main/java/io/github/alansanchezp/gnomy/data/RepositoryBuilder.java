@@ -1,13 +1,13 @@
-package io.github.alansanchezp.gnomy.database;
+package io.github.alansanchezp.gnomy.data;
 
 import android.content.Context;
 import android.util.Log;
 
 import java.lang.reflect.InvocationTargetException;
 
-import io.github.alansanchezp.gnomy.database.account.AccountRepository;
-import io.github.alansanchezp.gnomy.database.category.CategoryRepository;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionRepository;
+import io.github.alansanchezp.gnomy.data.account.AccountRepository;
+import io.github.alansanchezp.gnomy.data.category.CategoryRepository;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransactionRepository;
 
 /**
  * Helper class to create repository objects. Use instead
@@ -63,7 +63,7 @@ public class RepositoryBuilder {
         try {
             // DO NOT IMPLEMENT THIS CLASS IN MAIN SOURCE SET
             // IT EXISTS ONLY FOR TESTING PURPOSES
-            MockRepositoryBuilder = Class.forName("io.github.alansanchezp.gnomy.database.MockRepositoryBuilder");
+            MockRepositoryBuilder = Class.forName("io.github.alansanchezp.gnomy.data.MockRepositoryBuilder");
         } catch (ClassNotFoundException e) {
             Log.d("GnomyDatabase", "getMockRepositoryBuilder: MockBuilder not found.");
             MockRepositoryBuilder = null;

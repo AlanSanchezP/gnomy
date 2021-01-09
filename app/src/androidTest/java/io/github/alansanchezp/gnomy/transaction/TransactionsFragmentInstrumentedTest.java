@@ -16,7 +16,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
-import static io.github.alansanchezp.gnomy.database.MockRepositoryBuilder.initMockRepository;
+import static io.github.alansanchezp.gnomy.data.MockRepositoryBuilder.initMockRepository;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -26,10 +26,10 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.database.account.AccountRepository;
-import io.github.alansanchezp.gnomy.database.category.CategoryRepository;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionFilters;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionRepository;
+import io.github.alansanchezp.gnomy.data.account.AccountRepository;
+import io.github.alansanchezp.gnomy.data.category.CategoryRepository;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransactionFilters;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransactionRepository;
 import io.github.alansanchezp.gnomy.ui.transaction.TransactionsFragment;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 

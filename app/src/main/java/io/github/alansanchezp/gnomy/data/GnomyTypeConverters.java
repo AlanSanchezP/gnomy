@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.database;
+package io.github.alansanchezp.gnomy.data;
 
 import java.time.DateTimeException;
 import java.time.Instant;

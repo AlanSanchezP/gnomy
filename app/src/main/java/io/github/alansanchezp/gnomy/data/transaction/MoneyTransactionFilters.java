@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.database.transaction;
+package io.github.alansanchezp.gnomy.data.transaction;
 
 import android.os.Parcel;
 import android.os.Parcelable;

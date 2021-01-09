@@ -8,7 +8,7 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
 
-import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
+import io.github.alansanchezp.gnomy.data.account.AccountWithAccumulated;
 
 /**
  * Helper class to use in operations that require to

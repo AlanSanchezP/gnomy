@@ -5,7 +5,6 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 
-import io.github.alansanchezp.gnomy.database.GnomyTypeConverters;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -58,25 +57,25 @@ public class BigDecimalUtilTest {
     @Test
     public void returns_correct_object_from_long() {
         assertEquals(expectedDecimal_100_50,
-                GnomyTypeConverters.longToDecimal(expectedLong_100_50));
+                BigDecimalUtil.fromLong(expectedLong_100_50));
         assertEquals(expectedDecimal_187_35,
-                GnomyTypeConverters.longToDecimal(expectedLong_187_35));
+                BigDecimalUtil.fromLong(expectedLong_187_35));
         assertEquals(expectedDecimal_34_685,
-                GnomyTypeConverters.longToDecimal(expectedLong_34_685));
+                BigDecimalUtil.fromLong(expectedLong_34_685));
         assertEquals(expectedDecimal_1980_9,
-                GnomyTypeConverters.longToDecimal(expectedLong_1980_9));
+                BigDecimalUtil.fromLong(expectedLong_1980_9));
     }
 
     @Test
     public void returns_correct_long_object() {
         assertEquals(expectedLong_100_50,
-                GnomyTypeConverters.decimalToLong(expectedDecimal_100_50));
+                BigDecimalUtil.toLong(expectedDecimal_100_50));
         assertEquals(expectedLong_187_35,
-                GnomyTypeConverters.decimalToLong(expectedDecimal_187_35));
+                BigDecimalUtil.toLong(expectedDecimal_187_35));
         assertEquals(expectedLong_34_685,
-                GnomyTypeConverters.decimalToLong(expectedDecimal_34_685));
+                BigDecimalUtil.toLong(expectedDecimal_34_685));
         assertEquals(expectedLong_1980_9,
-                GnomyTypeConverters.decimalToLong(expectedDecimal_1980_9));
+                BigDecimalUtil.toLong(expectedDecimal_1980_9));
     }
 
     @Test

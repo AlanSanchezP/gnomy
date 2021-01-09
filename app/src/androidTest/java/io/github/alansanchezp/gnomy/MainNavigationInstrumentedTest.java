@@ -10,10 +10,10 @@ import java.time.YearMonth;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import static io.github.alansanchezp.gnomy.database.MockRepositoryBuilder.initMockRepository;
-import io.github.alansanchezp.gnomy.database.account.AccountRepository;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionFilters;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionRepository;
+import static io.github.alansanchezp.gnomy.data.MockRepositoryBuilder.initMockRepository;
+import io.github.alansanchezp.gnomy.data.account.AccountRepository;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransactionFilters;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransactionRepository;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;

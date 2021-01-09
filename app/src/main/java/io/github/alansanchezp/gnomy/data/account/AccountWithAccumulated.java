@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.database.account;
+package io.github.alansanchezp.gnomy.data.account;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
@@ -98,7 +98,7 @@ public class AccountWithAccumulated {
 
     /**
      * Returns the numerical money value of
-     * {@link io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction} elements
+     * {@link io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction} elements
      * that were left unconfirmed before the target month (and in the
      * target month itself, if it is a past one).
      *

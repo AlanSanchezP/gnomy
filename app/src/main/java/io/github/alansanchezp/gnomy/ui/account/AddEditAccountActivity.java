@@ -8,7 +8,7 @@ import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.data.account.Account;
 import io.github.alansanchezp.gnomy.databinding.ActivityAddEditAccountBinding;
 import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
 import io.github.alansanchezp.gnomy.androidUtil.GnomySpinnerAdapter;

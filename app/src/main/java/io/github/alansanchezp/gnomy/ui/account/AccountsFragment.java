@@ -27,10 +27,10 @@ import java.util.Map;
 import java.util.Objects;
 
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
-import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
+import io.github.alansanchezp.gnomy.data.account.Account;
+import io.github.alansanchezp.gnomy.data.account.AccountWithAccumulated;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.data.transaction.TransactionDisplayData;
 import io.github.alansanchezp.gnomy.databinding.FragmentAccountsBinding;
 import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
 import io.github.alansanchezp.gnomy.androidUtil.GnomyFragmentFactory;

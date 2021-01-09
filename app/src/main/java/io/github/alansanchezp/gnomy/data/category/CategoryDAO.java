@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.database.category;
+package io.github.alansanchezp.gnomy.data.category;
 
 import java.util.List;
 
@@ -9,8 +9,8 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
-import static io.github.alansanchezp.gnomy.database.category.Category.BOTH_CATEGORY;
-import static io.github.alansanchezp.gnomy.database.category.Category.HIDDEN_CATEGORY;
+import static io.github.alansanchezp.gnomy.data.category.Category.BOTH_CATEGORY;
+import static io.github.alansanchezp.gnomy.data.category.Category.HIDDEN_CATEGORY;
 
 @Dao
 public abstract class CategoryDAO {

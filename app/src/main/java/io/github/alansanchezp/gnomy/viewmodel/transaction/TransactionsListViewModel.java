@@ -12,15 +12,15 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
 
-import io.github.alansanchezp.gnomy.database.RepositoryBuilder;
-import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.account.AccountRepository;
-import io.github.alansanchezp.gnomy.database.category.Category;
-import io.github.alansanchezp.gnomy.database.category.CategoryRepository;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionFilters;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionRepository;
-import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
+import io.github.alansanchezp.gnomy.data.RepositoryBuilder;
+import io.github.alansanchezp.gnomy.data.account.Account;
+import io.github.alansanchezp.gnomy.data.account.AccountRepository;
+import io.github.alansanchezp.gnomy.data.category.Category;
+import io.github.alansanchezp.gnomy.data.category.CategoryRepository;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransactionFilters;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransactionRepository;
+import io.github.alansanchezp.gnomy.data.transaction.TransactionDisplayData;
 import io.reactivex.Single;
 
 public class TransactionsListViewModel extends AndroidViewModel {

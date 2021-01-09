@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.database;
+package io.github.alansanchezp.gnomy.data;
 
 public class GnomyIllegalQueryException extends RuntimeException {
     public GnomyIllegalQueryException(String message) {

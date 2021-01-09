@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.database;
+package io.github.alansanchezp.gnomy.data;
 
 import net.sqlcipher.database.SQLiteConstraintException;
 
@@ -14,13 +14,13 @@ import java.util.List;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
-import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.account.AccountRepository;
-import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionFilters;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionRepository;
-import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
+import io.github.alansanchezp.gnomy.data.account.Account;
+import io.github.alansanchezp.gnomy.data.account.AccountRepository;
+import io.github.alansanchezp.gnomy.data.account.MonthlyBalance;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransactionFilters;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransactionRepository;
+import io.github.alansanchezp.gnomy.data.transaction.TransactionDisplayData;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 

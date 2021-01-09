@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.database.recurrentTransaction;
+package io.github.alansanchezp.gnomy.data.recurrentTransaction;
 
 import java.util.List;
 

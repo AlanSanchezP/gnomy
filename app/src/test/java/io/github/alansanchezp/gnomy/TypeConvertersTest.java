@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.math.BigDecimal;
 import java.util.TimeZone;
 
-import io.github.alansanchezp.gnomy.database.GnomyTypeConverters;
+import io.github.alansanchezp.gnomy.data.GnomyTypeConverters;
 
 @SuppressWarnings("ConstantConditions")
 public class TypeConvertersTest {

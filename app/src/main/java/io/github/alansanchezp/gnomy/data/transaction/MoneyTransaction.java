@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.database.transaction;
+package io.github.alansanchezp.gnomy.data.transaction;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -11,9 +11,9 @@ import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import io.github.alansanchezp.gnomy.database.GnomyIllegalQueryException;
-import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.category.Category;
+import io.github.alansanchezp.gnomy.data.GnomyIllegalQueryException;
+import io.github.alansanchezp.gnomy.data.account.Account;
+import io.github.alansanchezp.gnomy.data.category.Category;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 

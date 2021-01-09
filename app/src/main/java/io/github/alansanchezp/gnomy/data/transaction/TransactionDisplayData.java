@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.database.transaction;
+package io.github.alansanchezp.gnomy.data.transaction;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Embedded;

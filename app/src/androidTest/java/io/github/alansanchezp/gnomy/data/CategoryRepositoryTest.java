@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.database;
+package io.github.alansanchezp.gnomy.data;
 
 import org.junit.After;
 import org.junit.Before;
@@ -7,8 +7,8 @@ import org.junit.Test;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.test.platform.app.InstrumentationRegistry;
-import io.github.alansanchezp.gnomy.database.category.Category;
-import io.github.alansanchezp.gnomy.database.category.CategoryRepository;
+import io.github.alansanchezp.gnomy.data.category.Category;
+import io.github.alansanchezp.gnomy.data.category.CategoryRepository;
 
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertThrows;
 

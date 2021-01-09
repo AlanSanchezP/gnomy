@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.database;
+package io.github.alansanchezp.gnomy.data;
 
 import androidx.annotation.NonNull;
 import androidx.room.Database;
@@ -7,15 +7,15 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 import androidx.sqlite.db.SupportSQLiteDatabase;
-import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.account.AccountDAO;
-import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
-import io.github.alansanchezp.gnomy.database.category.Category;
-import io.github.alansanchezp.gnomy.database.category.CategoryDAO;
-import io.github.alansanchezp.gnomy.database.recurrentTransaction.RecurrentTransaction;
-import io.github.alansanchezp.gnomy.database.recurrentTransaction.RecurrentTransactionDAO;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionDAO;
+import io.github.alansanchezp.gnomy.data.account.Account;
+import io.github.alansanchezp.gnomy.data.account.AccountDAO;
+import io.github.alansanchezp.gnomy.data.account.MonthlyBalance;
+import io.github.alansanchezp.gnomy.data.category.Category;
+import io.github.alansanchezp.gnomy.data.category.CategoryDAO;
+import io.github.alansanchezp.gnomy.data.recurrentTransaction.RecurrentTransaction;
+import io.github.alansanchezp.gnomy.data.recurrentTransaction.RecurrentTransactionDAO;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransactionDAO;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.reactivex.Single;
 
@@ -78,7 +78,7 @@ public abstract class GnomyDatabase extends RoomDatabase {
         try {
             // DO NOT IMPLEMENT THIS CLASS IN MAIN SOURCE SET
             // IT EXISTS ONLY FOR TESTING PURPOSES
-            Class.forName("io.github.alansanchezp.gnomy.database.MockRepositoryBuilder");
+            Class.forName("io.github.alansanchezp.gnomy.data.MockRepositoryBuilder");
             Log.d("GnomyDatabase", "buildDatabaseInstance: Getting test database.");
             builder = Room.inMemoryDatabaseBuilder(context,
                     GnomyDatabase.class)

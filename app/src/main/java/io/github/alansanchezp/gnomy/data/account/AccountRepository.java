@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.database.account;
+package io.github.alansanchezp.gnomy.data.account;
 
 import android.content.Context;
 
@@ -7,8 +7,8 @@ import java.time.YearMonth;
 import java.util.List;
 
 import androidx.lifecycle.LiveData;
-import io.github.alansanchezp.gnomy.database.GnomyDatabase;
-import io.github.alansanchezp.gnomy.database.GnomyIllegalQueryException;
+import io.github.alansanchezp.gnomy.data.GnomyDatabase;
+import io.github.alansanchezp.gnomy.data.GnomyIllegalQueryException;
 import io.reactivex.Single;
 
 public class AccountRepository {

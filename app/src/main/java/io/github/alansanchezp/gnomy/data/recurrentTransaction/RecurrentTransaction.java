@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.database.recurrentTransaction;
+package io.github.alansanchezp.gnomy.data.recurrentTransaction;
 
 import java.time.OffsetDateTime;
 
@@ -9,7 +9,7 @@ import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction;
 
 /**
  * Entity meant to help with recurring transactions. Needs to be polished.

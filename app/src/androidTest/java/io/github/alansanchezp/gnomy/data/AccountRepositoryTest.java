@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.database;
+package io.github.alansanchezp.gnomy.data;
 
 import org.junit.After;
 import org.junit.Before;
@@ -14,12 +14,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import io.github.alansanchezp.gnomy.LiveDataTestUtil;
-import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.account.AccountRepository;
-import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
-import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionRepository;
+import io.github.alansanchezp.gnomy.data.account.Account;
+import io.github.alansanchezp.gnomy.data.account.AccountRepository;
+import io.github.alansanchezp.gnomy.data.account.AccountWithAccumulated;
+import io.github.alansanchezp.gnomy.data.account.MonthlyBalance;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransactionRepository;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;

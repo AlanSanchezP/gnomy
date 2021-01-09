@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.database.category;
+package io.github.alansanchezp.gnomy.data.category;
 
 import android.content.Context;
 import android.util.Log;
@@ -6,8 +6,8 @@ import android.util.Log;
 import java.util.List;
 
 import androidx.lifecycle.LiveData;
-import io.github.alansanchezp.gnomy.database.GnomyDatabase;
-import io.github.alansanchezp.gnomy.database.GnomyIllegalQueryException;
+import io.github.alansanchezp.gnomy.data.GnomyDatabase;
+import io.github.alansanchezp.gnomy.data.GnomyIllegalQueryException;
 
 public class CategoryRepository {
     private final CategoryDAO categoryDAO;

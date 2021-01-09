@@ -11,7 +11,7 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
-import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.data.account.Account;
 import io.github.alansanchezp.gnomy.databinding.LayoutArchivedAccountCardBinding;
 import io.github.alansanchezp.gnomy.androidUtil.SingleClickViewHolder;
 

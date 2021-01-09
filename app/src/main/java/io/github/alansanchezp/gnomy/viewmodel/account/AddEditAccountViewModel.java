@@ -7,9 +7,9 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
-import io.github.alansanchezp.gnomy.database.RepositoryBuilder;
-import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.account.AccountRepository;
+import io.github.alansanchezp.gnomy.data.RepositoryBuilder;
+import io.github.alansanchezp.gnomy.data.account.Account;
+import io.github.alansanchezp.gnomy.data.account.AccountRepository;
 import io.reactivex.Single;
 
 public class AddEditAccountViewModel extends AndroidViewModel {

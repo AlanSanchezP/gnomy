@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.database.category;
+package io.github.alansanchezp.gnomy.data.category;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

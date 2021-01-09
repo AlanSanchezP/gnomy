@@ -31,9 +31,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.category.Category;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.data.account.Account;
+import io.github.alansanchezp.gnomy.data.category.Category;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.databinding.ActivityAddEditTransactionBinding;
 import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
 import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;

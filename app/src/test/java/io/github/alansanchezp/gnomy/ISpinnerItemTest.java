@@ -5,7 +5,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.data.account.Account;
 
 import static io.github.alansanchezp.gnomy.util.ISpinnerItem.getItemIndexById;
 import static org.junit.Assert.assertEquals;

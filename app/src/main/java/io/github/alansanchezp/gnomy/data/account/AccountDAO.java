@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.database.account;
+package io.github.alansanchezp.gnomy.data.account;
 
 import java.time.YearMonth;
 import java.util.List;
@@ -8,10 +8,9 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
-import androidx.room.RoomWarnings;
 import androidx.room.Update;
 
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction;
 import io.reactivex.Single;
 
 @Dao

@@ -7,14 +7,14 @@ import java.util.List;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.SavedStateHandle;
-import io.github.alansanchezp.gnomy.database.GnomyIllegalQueryException;
-import io.github.alansanchezp.gnomy.database.RepositoryBuilder;
-import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.account.AccountRepository;
-import io.github.alansanchezp.gnomy.database.category.Category;
-import io.github.alansanchezp.gnomy.database.category.CategoryRepository;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionRepository;
+import io.github.alansanchezp.gnomy.data.GnomyIllegalQueryException;
+import io.github.alansanchezp.gnomy.data.RepositoryBuilder;
+import io.github.alansanchezp.gnomy.data.account.Account;
+import io.github.alansanchezp.gnomy.data.account.AccountRepository;
+import io.github.alansanchezp.gnomy.data.category.Category;
+import io.github.alansanchezp.gnomy.data.category.CategoryRepository;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransactionRepository;
 import io.reactivex.Single;
 
 public class AddEditTransactionViewModel extends AndroidViewModel {
@@ -148,7 +148,7 @@ public class AddEditTransactionViewModel extends AndroidViewModel {
     }
 
     public void setSelectedTransferAccount(Integer accountId) {
-        mState.set(TAG_USER_SELECTED_TRANSFER_ACCOUNT, accountId == 0 ? null : accountId);
+        mState.set(TAG_USER_SELECTED_TRANSFER_ACCOUNT, (accountId == null || accountId == 0) ? null : accountId);
     }
 
     public int getSelectedCategory() {

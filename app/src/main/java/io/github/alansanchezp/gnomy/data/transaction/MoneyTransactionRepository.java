@@ -1,4 +1,4 @@
-package io.github.alansanchezp.gnomy.database.transaction;
+package io.github.alansanchezp.gnomy.data.transaction;
 
 import android.content.Context;
 import android.util.Log;
@@ -12,15 +12,15 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteQuery;
-import io.github.alansanchezp.gnomy.database.GnomyDatabase;
-import io.github.alansanchezp.gnomy.database.GnomyIllegalQueryException;
-import io.github.alansanchezp.gnomy.database.account.MonthlyBalance;
+import io.github.alansanchezp.gnomy.data.GnomyDatabase;
+import io.github.alansanchezp.gnomy.data.GnomyIllegalQueryException;
+import io.github.alansanchezp.gnomy.data.account.MonthlyBalance;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.reactivex.Single;
 
-import static io.github.alansanchezp.gnomy.database.GnomyTypeConverters.dateToTimestamp;
-import static io.github.alansanchezp.gnomy.database.GnomyTypeConverters.decimalToLong;
-import static io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionDAO.BASE_JOIN_FOR_QUERIES;
+import static io.github.alansanchezp.gnomy.data.GnomyTypeConverters.dateToTimestamp;
+import static io.github.alansanchezp.gnomy.data.GnomyTypeConverters.decimalToLong;
+import static io.github.alansanchezp.gnomy.data.transaction.MoneyTransactionDAO.BASE_JOIN_FOR_QUERIES;
 
 public class MoneyTransactionRepository {
     private final GnomyDatabase db;
