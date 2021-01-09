@@ -10,6 +10,7 @@ public class BackButtonDummyActivity
     // since navigation component causes it to crash.
         extends BackButtonActivity<ActivityAccountHistoryBinding> {
 
+    @SuppressWarnings("CanBeFinal")
     public boolean actionsEnabled = true;
 
     public BackButtonDummyActivity() {

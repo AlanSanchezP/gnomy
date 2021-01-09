@@ -41,10 +41,10 @@ import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.category.Category;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionFilters;
+import io.github.alansanchezp.gnomy.data.account.Account;
+import io.github.alansanchezp.gnomy.data.category.Category;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransactionFilters;
 import io.github.alansanchezp.gnomy.androidUtil.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.ui.transaction.TransactionFiltersDialogFragment;
 import io.github.alansanchezp.gnomy.ui.transaction.TransactionFiltersDialogFragment.TransactionFiltersDialogInterface;
@@ -322,8 +322,10 @@ public class TransactionFiltersDialogFragmentInstrumentedTest {
 
         onView(withId(R.id.filters_dialog_amount_switch))
                 .perform(setChecked(false));
-        // Espresso is activating account spinner for some very weird reason X.X
         // TODO: WHAT IS GOING ON HERE?
+        //  Espresso is activating account spinner for some very weird reason X.X.
+        //  Some manual click outside the spinner is needed for the test to complete
+        //  and not loop forever.
         boolean keepTying = true;
         while(keepTying) {
             try {

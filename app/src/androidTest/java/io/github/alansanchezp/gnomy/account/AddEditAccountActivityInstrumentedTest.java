@@ -14,8 +14,8 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.account.AccountRepository;
+import io.github.alansanchezp.gnomy.data.account.Account;
+import io.github.alansanchezp.gnomy.data.account.AccountRepository;
 import io.github.alansanchezp.gnomy.ui.account.AccountTypeItem;
 import io.github.alansanchezp.gnomy.ui.account.AddEditAccountActivity;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
@@ -42,7 +42,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertActivityState;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertThrows;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.nestedScrollTo;
-import static io.github.alansanchezp.gnomy.database.MockRepositoryBuilder.initMockRepository;
+import static io.github.alansanchezp.gnomy.data.MockRepositoryBuilder.initMockRepository;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -62,6 +62,7 @@ public class AddEditAccountActivityInstrumentedTest {
     public final ActivityScenarioRule<AddEditAccountActivity> activityRule =
             new ActivityScenarioRule<>(AddEditAccountActivity.class);
     private static final AccountRepository mockAccountRepository = initMockRepository(AccountRepository.class);
+    private static final MutableLiveData<Account> mutableAccount = new MutableLiveData<>();
 
     // Needed so that ViewModel instance doesn't crash
     @BeforeClass
@@ -69,7 +70,7 @@ public class AddEditAccountActivityInstrumentedTest {
         when(mockAccountRepository.insert(any(Account.class)))
                 .thenReturn(Single.just(1L));
         when(mockAccountRepository.getAccount(anyInt()))
-                .thenReturn(new MutableLiveData<>());
+                .thenReturn(mutableAccount);
         when(mockAccountRepository.update(any(Account.class)))
                 .thenReturn(Single.just(1));
     }
@@ -81,6 +82,7 @@ public class AddEditAccountActivityInstrumentedTest {
                 .check(matches(hasDescendant(
                         withText(R.string.account_new)
                 )));
+        mutableAccount.postValue(new Account(1));
         Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
                 AddEditAccountActivity.class)
                 .putExtra(AddEditAccountActivity.EXTRA_ACCOUNT_ID, 1);
@@ -90,6 +92,18 @@ public class AddEditAccountActivityInstrumentedTest {
                 .check(matches(hasDescendant(
                         withText(R.string.account_card_modify)
                 )));
+        tempScenario.close();
+    }
+
+    @Test
+    public void non_existent_account_from_extra() {
+        // Create a new intent passing invalid account id
+        mutableAccount.postValue(null);
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
+                AddEditAccountActivity.class)
+                .putExtra(AddEditAccountActivity.EXTRA_ACCOUNT_ID, 2);
+        ActivityScenario<AddEditAccountActivity> tempScenario = launch(intent);
+        assertActivityState(DESTROYED, tempScenario);
         tempScenario.close();
     }
 
@@ -242,6 +256,7 @@ public class AddEditAccountActivityInstrumentedTest {
                         return Single.error(exception);
                 });
 
+        //noinspection SpellCheckingInspection
         onView(withId(R.id.addedit_account_name_input))
                 .perform(typeText("gffdg")) // setting wrong value
                 .perform(closeSoftKeyboard());

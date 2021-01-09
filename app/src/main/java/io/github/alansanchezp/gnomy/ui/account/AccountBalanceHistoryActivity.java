@@ -18,9 +18,10 @@ import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.androidUtil.GnomyFragmentFactory;
-import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
-import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
+import io.github.alansanchezp.gnomy.data.account.Account;
+import io.github.alansanchezp.gnomy.data.account.AccountWithAccumulated;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.data.transaction.TransactionDisplayData;
 import io.github.alansanchezp.gnomy.databinding.ActivityAccountHistoryBinding;
 import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
 import io.github.alansanchezp.gnomy.ui.transaction.AddEditTransactionActivity;
@@ -35,17 +36,11 @@ public class AccountBalanceHistoryActivity
         extends BackButtonActivity<ActivityAccountHistoryBinding>
         implements UnresolvedTransactionsDialogFragment.UnresolvedTransactionsDialogInterface {
     public static final String EXTRA_ACCOUNT_ID = "AccountBalanceHistoryActivity.AccountId";
-    // Unlike DetailsActivity, account data is passed through Intent
-    // in order to avoid an extra query that we have already performed
-    // in what is likely to be the only reasonable path to get to this Activity
-    public static final String EXTRA_NAME = "AccountBalanceHistoryActivity.AccountName";
-    public static final String EXTRA_CURRENCY = "AccountBalanceHistoryActivity.AccountCurrency";
-    public static final String EXTRA_ACCOUNT_CREATION_MONTH = "AccountBalanceHistoryActivity.AccountCreationMonth";
-    public static final String EXTRA_BG_COLOR = "AccountBalanceHistoryActivity.BgColor";
     public static final String TAG_UNRESOLVED_TRANSACTIONS_DIALOG = "AccountBalanceHistoryActivity.UnresolvedTransactionsDialog";
     private SingleClickViewHolder<Button> mCheckPendingButtonVH;
     private AccountBalanceHistoryViewModel mViewModel;
     private int mAccountId;
+    private Account mAccount = null;
 
     public AccountBalanceHistoryActivity() {
         super(null, false, ActivityAccountHistoryBinding::inflate);
@@ -68,13 +63,6 @@ public class AccountBalanceHistoryActivity
         mCheckPendingButtonVH = new SingleClickViewHolder<>($.accountHistoryCheckBtn);
         mCheckPendingButtonVH.setOnClickListener(this::onCheckPendingTransactionsClick);
 
-        String accountName = intent.getStringExtra(EXTRA_NAME);
-        // App will crash if you don't provide this as YearMonth.parse() will
-        //  throw a RuntimeException
-        setThemeColor(intent.getIntExtra(EXTRA_BG_COLOR, 0XFF));
-
-        setTitle(accountName + " " + getString(R.string.account_balance_history_legend));
-
         mViewModel = new ViewModelProvider(
                 this,
                 new SavedStateViewModelFactory(
@@ -82,8 +70,7 @@ public class AccountBalanceHistoryActivity
                         this
                 )).get(AccountBalanceHistoryViewModel.class);
 
-        $.monthtoolbar.setViewModel(mViewModel);
-        $.monthtoolbar.tintElements(mThemeColor, mThemeTextColor);
+        $.monthToolbar.setViewModel(mViewModel);
 
         mViewModel.getAccumulatedAtMonth(mAccountId)
                 .observe(this, this::onAccumulatedBalanceChanged);
@@ -137,6 +124,7 @@ public class AccountBalanceHistoryActivity
 
     private void onAccumulatedBalanceChanged(AccountWithAccumulated awa) {
         // TODO: Display some helpful information if month predates account creation
+        setOrIgnoreAccount(awa.account);
         onMonthChanged(awa.targetMonth);
         String accountCurrency = awa.account.getDefaultCurrency();
         BigDecimal confirmedIncomes = awa.getConfirmedIncomesAtMonth();
@@ -194,6 +182,14 @@ public class AccountBalanceHistoryActivity
         } catch(GnomyCurrencyException gce) {
             Log.wtf("AccountHistoryActivity", "updateAccumulated: ", gce);
         }
+    }
+
+    private void setOrIgnoreAccount(Account account) {
+        if (mAccount != null) return;
+        mAccount = account;
+        setThemeColor(account.getBackgroundColor());
+        setTitle(account.getName() + " " + getString(R.string.account_balance_history_legend));
+        $.monthToolbar.tintElements(mThemeColor, mThemeTextColor);
     }
 
     @Override

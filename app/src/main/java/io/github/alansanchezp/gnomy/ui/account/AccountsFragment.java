@@ -27,10 +27,10 @@ import java.util.Map;
 import java.util.Objects;
 
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
-import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
+import io.github.alansanchezp.gnomy.data.account.Account;
+import io.github.alansanchezp.gnomy.data.account.AccountWithAccumulated;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.data.transaction.TransactionDisplayData;
 import io.github.alansanchezp.gnomy.databinding.FragmentAccountsBinding;
 import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
 import io.github.alansanchezp.gnomy.androidUtil.GnomyFragmentFactory;
@@ -87,9 +87,6 @@ public class AccountsFragment
     public void onCreate(Bundle savedInstanceState) {
         getChildFragmentManager().setFragmentFactory(getFragmentFactory());
         super.onCreate(savedInstanceState);
-        // TODO: Refactor other usages of SavedStateViewModelFactory
-        //  as they will probably crash too at some point
-        //  (Fragment threw error: SavedStateProvider with the given key is already registered
         mListViewModel = new ViewModelProvider(this)
                 .get(AccountsListViewModel.class);
     }
@@ -218,7 +215,7 @@ public class AccountsFragment
                 requireActivity().startActivity(modifyAccountIntent);
                 break;
             case R.id.account_card_transactions:
-                // TODO: Is it worth including the SafeArgs module?
+                // TODO: Is it worth it replacing this with the SafeArgs module?
                 Bundle args = new Bundle();
                 args.putInt(TransactionsFragment.ARG_DEFAULT_FILTER_ACCOUNT, account.getId());
                 NavHostFragment.findNavController(this).navigate(R.id.action_navigation_accounts_to_navigation_transactions, args);

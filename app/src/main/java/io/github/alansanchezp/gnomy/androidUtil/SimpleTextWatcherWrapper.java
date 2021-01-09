@@ -6,12 +6,12 @@ import android.text.TextWatcher;
 /**
  * Simple wrapper class for {@link TextWatcher} interface
  * that allows to declare empty methods when assigning
- * addTextChangedListener() listeners, and allowing the
- * use of lambda statements and expressions.
+ * {@link com.google.android.material.textfield.TextInputEditText#addTextChangedListener(TextWatcher)}
+ * listeners, and allowing the use of lambda statements and expressions.
  */
 public class SimpleTextWatcherWrapper {
     /**
-     * Adds a listener that only specifies onTextChanged method.
+     * Adds a listener that only specifies {@link TextWatcher#onTextChanged(CharSequence, int, int, int)} method.
      *
      * @param listener  Listener to be called
      * @return          TextWatcher instance containing the listener
@@ -35,7 +35,7 @@ public class SimpleTextWatcherWrapper {
 
     /**
      * Bridge interface that allows the use of lambda statements and expressions.
-     * Equivalent to {@link TextWatcher} onTextChanged()
+     * Equivalent to {@link TextWatcher#onTextChanged(CharSequence, int, int, int)}
      */
     public interface OnTextChangedListener {
         void onTextChanged(CharSequence s, int start, int before, int count);

@@ -13,8 +13,8 @@ import java.math.BigDecimal;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
-import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.data.transaction.TransactionDisplayData;
 import io.github.alansanchezp.gnomy.databinding.LayoutTransactionCardBinding;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
@@ -65,7 +65,6 @@ public class TransactionItem
         ((GradientDrawable) $.transactionCardIcon.getBackground()).setColor(iconBgColor);
         $.transactionCardIcon.setColorFilter(iconColor);
         $.transactionCardIcon.setTag(iconResId);
-        // TODO: Is this the best condition to use?
         if (!mItem.transaction.isConfirmed() && mFullData)
             $.transactionCardAlertIcon.setVisibility(View.VISIBLE);
         else

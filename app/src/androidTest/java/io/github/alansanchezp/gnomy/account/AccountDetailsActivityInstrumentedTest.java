@@ -1,5 +1,3 @@
-// TODO: Test menu items (AddEditTransactionActivity intents)
-
 package io.github.alansanchezp.gnomy.account;
 
 import org.junit.BeforeClass;
@@ -11,14 +9,15 @@ import java.math.BigDecimal;
 import java.time.YearMonth;
 
 import androidx.lifecycle.MutableLiveData;
-import androidx.test.espresso.NoMatchingViewException;
+import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.account.AccountRepository;
-import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
+import io.github.alansanchezp.gnomy.data.account.Account;
+import io.github.alansanchezp.gnomy.data.account.AccountRepository;
+import io.github.alansanchezp.gnomy.data.account.AccountWithAccumulated;
+import io.github.alansanchezp.gnomy.data.category.CategoryRepository;
 import io.github.alansanchezp.gnomy.ui.account.AccountDetailsActivity;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
@@ -34,8 +33,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withSubstring;
 import static androidx.test.espresso.matcher.ViewMatchers.withTagValue;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertThrows;
-import static io.github.alansanchezp.gnomy.database.MockRepositoryBuilder.initMockRepository;
+
+import static io.github.alansanchezp.gnomy.data.MockRepositoryBuilder.initMockRepository;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
@@ -56,6 +55,7 @@ public class AccountDetailsActivityInstrumentedTest {
     @BeforeClass
     public static void init_mocks() {
         final AccountRepository mockAccountRepository = initMockRepository(AccountRepository.class);
+        final CategoryRepository mockCategoryRepository = initMockRepository(CategoryRepository.class);
         testAWA = mock(AccountWithAccumulated.class);
         testAWA.account = mock(Account.class);
 
@@ -77,6 +77,10 @@ public class AccountDetailsActivityInstrumentedTest {
         when(testAWA.getPendingExpensesAtMonth()).thenReturn(BigDecimal.ZERO);
         when(testAWA.getPendingIncomesAtMonth()).thenReturn(BigDecimal.ZERO);
         when(mockAccountRepository.getAccount(anyInt())).thenReturn(new MutableLiveData<>());
+        when(mockAccountRepository.getAll())
+                .thenReturn(new MutableLiveData<>());
+        when(mockCategoryRepository.getSharedAndCategory(anyInt()))
+                .thenReturn(new MutableLiveData<>());
     }
 
     @Rule
@@ -105,29 +109,63 @@ public class AccountDetailsActivityInstrumentedTest {
                 .check(matches(isEnabled()));
     }
 
-    // TODO: Implement other actions when Transactions module is ready
     @Test
-    public void archived_menu_item_opens_dialog() {
+    public void menu_items_work() {
         mutableAWA.postValue(testAWA);
 
         onView(withId(R.id.action_archive_account))
                 .perform(click());
 
-        assertThrows(NoMatchingViewException.class,
-                () -> {
-                    onView(withId(R.id.action_archive_account))
-                            .check(matches(not(isEnabled())));
-
-                    onView(withId(R.id.account_floating_action_button))
-                            .check(matches(not(isEnabled())));
-
-                    onView(withId(R.id.account_see_more_button))
-                            .check(matches(not(isEnabled())));
-                });
-
         onView(withText(R.string.account_card_archive))
                 .inRoot(isDialog())
                 .check(matches(isDisplayed()));
+
+        Espresso.pressBack();
+        onView(withId(R.id.action_account_actions))
+                .perform(click());
+
+        onView(withText(R.string.action_new_expense))
+                .perform(click());
+        onView(withId(R.id.custom_appbar))
+                .check(matches(hasDescendant(
+                        withText(R.string.transaction_new_expense)
+                )));
+        Espresso.pressBack();
+        onView(withId(R.id.confirmation_dialog_yes))
+                .perform(click());
+        onView(withId(R.id.action_account_actions))
+                .perform(click());
+
+        onView(withText(R.string.action_new_income))
+                .perform(click());
+        onView(withId(R.id.custom_appbar))
+                .check(matches(hasDescendant(
+                        withText(R.string.transaction_new_income)
+                )));
+        Espresso.pressBack();
+        onView(withId(R.id.confirmation_dialog_yes))
+                .perform(click());
+        onView(withId(R.id.action_account_actions))
+                .perform(click());
+
+        onView(withText(R.string.action_new_incoming_transfer))
+                .perform(click());
+        onView(withId(R.id.custom_appbar))
+                .check(matches(hasDescendant(
+                        withText(R.string.transaction_new_transfer)
+                )));
+        Espresso.pressBack();
+        onView(withId(R.id.confirmation_dialog_yes))
+                .perform(click());
+        onView(withId(R.id.action_account_actions))
+                .perform(click());
+
+        onView(withText(R.string.action_new_outgoing_transfer))
+                .perform(click());
+        onView(withId(R.id.custom_appbar))
+                .check(matches(hasDescendant(
+                        withText(R.string.transaction_new_transfer)
+                )));
     }
 
     @Test

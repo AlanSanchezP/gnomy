@@ -9,6 +9,8 @@ import org.junit.runner.RunWith;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.core.app.ApplicationProvider;
@@ -18,20 +20,29 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.account.AccountRepository;
-import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
+import io.github.alansanchezp.gnomy.data.account.Account;
+import io.github.alansanchezp.gnomy.data.account.AccountRepository;
+import io.github.alansanchezp.gnomy.data.account.AccountWithAccumulated;
+import io.github.alansanchezp.gnomy.data.category.CategoryRepository;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransactionFilters;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransactionRepository;
+import io.github.alansanchezp.gnomy.data.transaction.TransactionDisplayData;
 import io.github.alansanchezp.gnomy.ui.account.AccountBalanceHistoryActivity;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.hasTextColor;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static io.github.alansanchezp.gnomy.database.MockRepositoryBuilder.initMockRepository;
+import static io.github.alansanchezp.gnomy.data.MockRepositoryBuilder.initMockRepository;
+import static io.github.alansanchezp.gnomy.util.DateUtil.OffsetDateTimeNow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -50,8 +61,7 @@ public class AccountBalanceHistoryActivityInstrumentedTest {
 
     private final Intent intent = new Intent(
             ApplicationProvider.getApplicationContext(), AccountBalanceHistoryActivity.class)
-            .putExtra(AccountBalanceHistoryActivity.EXTRA_ACCOUNT_ID, 1)
-            .putExtra(AccountBalanceHistoryActivity.EXTRA_NAME, accountTitle);
+            .putExtra(AccountBalanceHistoryActivity.EXTRA_ACCOUNT_ID, 1);
 
     @Rule
     public final ActivityScenarioRule<AccountBalanceHistoryActivity> activityRule =
@@ -61,10 +71,14 @@ public class AccountBalanceHistoryActivityInstrumentedTest {
     public static void init_mocks() {
         // Needed so that ViewModel instance doesn't crash
         final AccountRepository mockAccountRepository = initMockRepository(AccountRepository.class);
+        final MoneyTransactionRepository mockTransactionRepository = initMockRepository(MoneyTransactionRepository.class);
+        final CategoryRepository mockCategoryRepository = initMockRepository(CategoryRepository.class);
 
         testAWA = mock(AccountWithAccumulated.class);
         testAWA.account = mock(Account.class);
+        testAWA.targetMonth = DateUtil.now();
         when(testAWA.account.getDefaultCurrency()).thenReturn("USD");
+        when(testAWA.account.getName()).thenReturn(accountTitle);
         when(testAWA.getConfirmedExpensesAtMonth()).thenReturn(BigDecimal.ZERO);
         when(testAWA.getConfirmedIncomesAtMonth()).thenReturn(BigDecimal.ZERO);
         when(testAWA.getPendingExpensesAtMonth()).thenReturn(BigDecimal.ZERO);
@@ -72,6 +86,22 @@ public class AccountBalanceHistoryActivityInstrumentedTest {
 
         when(mockAccountRepository.getAccumulatedAtMonth(anyInt(), any(YearMonth.class)))
                 .thenReturn(mutableAWA);
+        mutableAWA.postValue(testAWA);
+        List<TransactionDisplayData> testTransactionsList = new ArrayList<>();
+        TransactionDisplayData testItem = new TransactionDisplayData();
+        testItem.transaction = new MoneyTransaction();
+        testItem.transaction.setDate(OffsetDateTimeNow());
+        testItem.categoryResourceName = "ic_add_black_24dp";
+        testItem.accountName = "test";
+        testTransactionsList.add(testItem);
+        when(mockTransactionRepository.getByFilters(any(MoneyTransactionFilters.class)))
+                .thenReturn(new MutableLiveData<>(testTransactionsList));
+        when(mockTransactionRepository.find(anyInt()))
+                .thenReturn(new MutableLiveData<>(testItem.transaction));
+        when(mockCategoryRepository.getSharedAndCategory(anyInt()))
+                .thenReturn(new MutableLiveData<>());
+        when(mockAccountRepository.getAll())
+                .thenReturn(new MutableLiveData<>());
     }
 
     @Test
@@ -249,5 +279,37 @@ public class AccountBalanceHistoryActivityInstrumentedTest {
         mutableAWA.postValue(testAWA);
         onView(withId(R.id.account_history_check_btn))
                 .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+        when(testAWA.getPendingExpensesAtMonth()).thenReturn(BigDecimal.ZERO);
+        when(testAWA.getPendingIncomesAtMonth()).thenReturn(BigDecimal.ZERO);
+    }
+
+    @Test
+    public void opens_unresolved_transactions() {
+        when(testAWA.getPendingExpensesAtMonth()).thenReturn(BigDecimal.TEN);
+        when(testAWA.getPendingIncomesAtMonth()).thenReturn(BigDecimal.TEN);
+        mutableAWA.postValue(testAWA);
+        onView(withId(R.id.account_history_check_btn))
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
+                .perform(click());
+        onView(withText(R.string.unresolved_transactions))
+                .inRoot(isDialog())
+                .check(matches(isDisplayed()));
+        when(testAWA.getPendingExpensesAtMonth()).thenReturn(BigDecimal.ZERO);
+        when(testAWA.getPendingIncomesAtMonth()).thenReturn(BigDecimal.ZERO);
+    }
+
+    @Test
+    public void opens_unresolved_transaction_item_activity() {
+        activityRule.getScenario().onActivity(a -> {
+            MoneyTransaction testItem = new MoneyTransaction();
+            testItem.setId(1);
+            testItem.setType(MoneyTransaction.EXPENSE);
+            a.onUnresolvedTransactionClick(testItem);
+        });
+
+        onView(withId(R.id.custom_appbar))
+                .check(matches(hasDescendant(
+                        withText(R.string.transaction_modify_expense))
+                ));
     }
 }

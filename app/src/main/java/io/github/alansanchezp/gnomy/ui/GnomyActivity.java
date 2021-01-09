@@ -33,6 +33,7 @@ public abstract class GnomyActivity<B extends ViewBinding>
     protected Menu mMenu;
     protected int mThemeColor;
     protected int mThemeTextColor;
+    // In case the activity requires Rx operations
     protected final CompositeDisposable mCompositeDisposable
             = new CompositeDisposable();
     protected final Integer mMenuResourceId;
@@ -79,6 +80,12 @@ public abstract class GnomyActivity<B extends ViewBinding>
         mViewBindingInflater = null;
     }
 
+    /**
+     * Initializes view hierarchy (using either a root layout id,
+     * or a View Binding class) and appbar.
+     *
+     * @param savedInstanceState    Saved instance.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getSupportFragmentManager().setFragmentFactory(getFragmentFactory());
@@ -111,6 +118,12 @@ public abstract class GnomyActivity<B extends ViewBinding>
         mCompositeDisposable.dispose();
     }
 
+    /**
+     * Returns the custom fragment factory this activity will use to
+     * create fragments that require an interface.
+     *
+     * @return  Fragment factory instance.
+     */
     protected GnomyFragmentFactory getFragmentFactory() {
         return new GnomyFragmentFactory()
                 .addMapElement(ConfirmationDialogFragment.class, this);
@@ -146,14 +159,25 @@ public abstract class GnomyActivity<B extends ViewBinding>
         tintNavigationBar();
     }
 
-    protected void disableActions() {
-        // @Override to implement custom actions
-    }
+    /**
+     * Method called to prevent accidental clicks
+     * when some operation is already scheduled (for example,
+     * launching a new Activity). Not declared as abstract
+     * just in case some activity doesn't require it.
+     * Override with desired logic.
+     */
+    protected void disableActions() {}
 
-    protected void enableActions() {
-        // @Override to implement custom actions
-    }
+    /**
+     * Method called after the scheduled operation mentioned in
+     * {@link #disableActions()} has finished.
+     * Not declared as abstract just in case some activity doesn't require it.
+     * Override with desired logic.
+     */
+    protected void enableActions() {}
 
+    // Methods inherited from ConfirmationDialogFragment interface. Not declared
+    //  as abstract in case some activity doesn't require them.
     @Override
     public void onConfirmationDialogYes(DialogInterface dialog, String dialogTag, int which){
         // @Override to implement custom actions

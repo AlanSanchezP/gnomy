@@ -13,7 +13,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import io.github.alansanchezp.gnomy.R;
 import io.github.alansanchezp.gnomy.ViewScenarioRule;
-import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.data.account.Account;
 import io.github.alansanchezp.gnomy.databinding.LayoutArchivedAccountCardBinding;
 import io.github.alansanchezp.gnomy.ui.account.ArchivedAccountsRecyclerViewAdapter;
 

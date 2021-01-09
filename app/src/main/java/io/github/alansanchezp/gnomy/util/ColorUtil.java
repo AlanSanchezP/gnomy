@@ -1,7 +1,13 @@
 package io.github.alansanchezp.gnomy.util;
 
+/**
+ * Helper class to retrieve color codes for UI purposes.
+ */
 public class ColorUtil {
-    // DO NOT INCLUDE # SYMBOL HERE
+    /**
+     * Array of colors to show in color pickers. Not using
+     * android resources so that this class can be unit tested.
+     */
     private static final int[] COLORS = {
         0XFFC0F291,0XFF63EB6E,0XFF33CC00,0XFF009900,0XFF006300,
         0XFF7DE8E4,0XFF3ACFC2,0XFF37A6A6,0XFF457E8A,0XFF2E545C,
@@ -13,15 +19,32 @@ public class ColorUtil {
         0XFFFFCC00,0XFFE0CA1F,0XFFCCB639,0XFFCC9933,0XFF916F24
     };
 
+    /**
+     * Simple getter for {@link #COLORS}.
+     *
+     * @return  Array of colors.
+     */
     public static int[] getColors() {
         return COLORS;
     }
 
+    /**
+     * Gets a random color from {@link #COLORS}.
+     *
+     * @return  Random color.
+     */
     public static int getRandomColor() {
         int randomIndex = (int) (Math.random() * (COLORS.length-1));
         return COLORS[randomIndex];
     }
 
+    /**
+     * Gets an appropriate color to use in text and drawables
+     * on top of a surface that has the given background color.
+     *
+     * @param bgColor   Color of the underlying surface.
+     * @return          Appropriate color to use (either black or white).
+     */
     public static int getTextColor(int bgColor) {
         int[] rgb = getRGB(bgColor);
 
@@ -30,14 +53,40 @@ public class ColorUtil {
         return luminance > 0.5 ? 0xff000000 : 0xffffffff;
     }
 
+    /**
+     * Takes any color and returns a dark variant of it.
+     * This factor seems to get decently close enough to
+     * the material design guidelines for color shades.
+     *
+     * @param color     Base color.
+     * @return          Dark variant.
+     */
     public static int getDarkVariant(int color) {
         return getVariantByFactor(color, 0.73f);
     }
 
+    /**
+     * Takes any color and returns a light variant of it.
+     * This factor seems to get decently close enough to
+     * the material design guidelines for color shades.
+     *
+     * @param color     Base color.
+     * @return          Light variant.
+     */
     public static int getLightVariant(int color) {
         return getVariantByFactor(color, 1.27f);
     }
 
+    /**
+     * Takes any color and returns a variant of it that
+     * makes ripple animations look more or less similar
+     * to the material design specs.
+     *
+     * Feel free to improve this method.
+     *
+     * @param color     Base color.
+     * @return          Ripple variant.
+     */
     public static int getRippleVariant(int color) {
         int[] rgb = getRGB(color);
 
@@ -48,6 +97,14 @@ public class ColorUtil {
         return getVariantByFactor(color, 2.1f);
     }
 
+    /**
+     * Takes any color and returns a variant of by multiplying
+     * each RGB component individually by the given factor.
+     *
+     * @param color     Base color
+     * @param ratio     Factor to use.
+     * @return          New color.
+     */
     public static int getVariantByFactor(int color, float ratio) {
         int[] rgb = getRGB(color);
 
@@ -63,6 +120,15 @@ public class ColorUtil {
         return a << 24 | newRed << 16 | newGreen << 8 | newBlue;
     }
 
+    /**
+     * Returns the RGB components of a given color.
+     *
+     * @param color Color
+     * @return      RGB components in array form.
+     *                  Index 0 = Red
+     *                  Index 1 = Green
+     *                  Index 2 = Blue
+     */
     public static int[] getRGB(int color) {
         return new int[]{(color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF};
     }

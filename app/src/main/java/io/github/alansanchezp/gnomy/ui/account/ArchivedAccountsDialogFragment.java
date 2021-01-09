@@ -13,15 +13,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.xwray.groupie.GroupAdapter;
-
 import java.util.List;
 
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.database.account.Account;
+import io.github.alansanchezp.gnomy.data.account.Account;
 import io.github.alansanchezp.gnomy.databinding.DialogArchivedAccountsBinding;
 import io.github.alansanchezp.gnomy.androidUtil.SingleClickViewHolder;
 

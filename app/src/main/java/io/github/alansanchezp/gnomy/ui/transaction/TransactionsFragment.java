@@ -28,11 +28,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.category.Category;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransactionFilters;
-import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
+import io.github.alansanchezp.gnomy.data.account.Account;
+import io.github.alansanchezp.gnomy.data.category.Category;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransactionFilters;
+import io.github.alansanchezp.gnomy.data.transaction.TransactionDisplayData;
 import io.github.alansanchezp.gnomy.databinding.FragmentTransactionsBinding;
 import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
 import io.github.alansanchezp.gnomy.androidUtil.GnomyFragmentFactory;
@@ -53,9 +53,7 @@ public class TransactionsFragment
     public static final String ARG_DEFAULT_FILTER_ACCOUNT = "TransactionsFragment.DefaultFilterAccount";
     private static final String TAG_DELETE_TRANSACTION_DIALOG = "TransactionsFragment.DeleteTransactionDialog";
     private static final String TAG_FILTERS_DIALOG = "TransactionsFragment.FiltersDialog";
-    // Not sure as to what else to do to avoid this warning
-    @SuppressWarnings("rawtypes")
-    private GroupAdapter mAdapter;
+    private GroupAdapter<?> mAdapter;
     private TransactionsListViewModel mViewModel;
     private boolean mAllowClicks = true;
     private int mMainColor;
@@ -82,8 +80,8 @@ public class TransactionsFragment
         mAdapter.setOnItemClickListener(this::onItemClickListener);
         // TODO: Is this the best way to present a delete option to the user?
         mAdapter.setOnItemLongClickListener(this::onItemLongClickListener);
-        // TODO: Is alert icon gonna do any action? It doesn't seem like we can
-        //  set a listener to it, so that might be a problem
+        // TODO: Is alert icon gonna do any action? It doesn't seem like it is possible
+        //  to set a listener to it, so that might be a problem
     }
 
     @Override
@@ -249,8 +247,9 @@ public class TransactionsFragment
         boolean isSimpleFilter = mViewModel.getCurrentFilters().isSimpleFilterWithMonth(
                 mSharedViewModel.activeMonth.getValue());
 
-        // TODO: Is it worth keeping Groupie for this single use case? Maybe a simple
-        //  local class to handle items and headers in a recyclerview would be better
+        // TODO: Is it worth keeping Groupie for the few uses it has in the app?
+        //  Maybe a simple local class to handle items and
+        //  headers in a recyclerview would be better
         if (!transactions.isEmpty()) {
             // Init data holders
             int daySectionId = DateUtil.getDayId(transactions.get(0).transaction.getDate());

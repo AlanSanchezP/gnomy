@@ -20,8 +20,8 @@ import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
-import io.github.alansanchezp.gnomy.database.transaction.TransactionDisplayData;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.data.transaction.TransactionDisplayData;
 import io.github.alansanchezp.gnomy.databinding.DialogUnresolvedTransactionsBinding;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
@@ -31,8 +31,7 @@ public class UnresolvedTransactionsDialogFragment
     public static final String ARG_TARGET_ACCOUNT = "UnresolvedTransactionsDialogFragment.TargetAccount";
     private final UnresolvedTransactionsDialogInterface mListener;
     private int mAccountId;
-    @SuppressWarnings("rawtypes")
-    private GroupAdapter mAdapter;
+    private GroupAdapter<?> mAdapter;
 
     public UnresolvedTransactionsDialogFragment() {
         throw new IllegalArgumentException("This class must be provided with an UnresolvedTransactionsDialogInterface instance.");
@@ -95,6 +94,8 @@ public class UnresolvedTransactionsDialogFragment
 
     private void onTransactionsListChanged(List<TransactionDisplayData> transactions) {
         mAdapter.clear();
+        // TODO: How to test this (proper grouping)?
+        //  Not testing automatic dismiss until there is another thing to test of this fragment
         if (!transactions.isEmpty()) {
             // Init data holders
             YearMonth sectionYearMonth = YearMonth.from(transactions.get(0).transaction.getDate());

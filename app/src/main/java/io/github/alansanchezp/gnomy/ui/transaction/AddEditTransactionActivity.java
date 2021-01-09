@@ -31,9 +31,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.category.Category;
-import io.github.alansanchezp.gnomy.database.transaction.MoneyTransaction;
+import io.github.alansanchezp.gnomy.data.account.Account;
+import io.github.alansanchezp.gnomy.data.category.Category;
+import io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.databinding.ActivityAddEditTransactionBinding;
 import io.github.alansanchezp.gnomy.ui.BackButtonActivity;
 import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
@@ -102,7 +102,7 @@ public class AddEditTransactionActivity
         mViewModel = new ViewModelProvider(this)
                 .get(AddEditTransactionViewModel.class);
         mFABVH = new SingleClickViewHolder<>($.addeditTransactionFAB, true);
-        // TODO: Find a better way to present these as actions
+        // TODO: Find a better way to present these as actions to the user
         $.addeditTransactionNewAccount.setPaintFlags(
                 $.addeditTransactionNewAccount.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         $.addeditTransactionNewCategory.setPaintFlags(
@@ -293,7 +293,7 @@ public class AddEditTransactionActivity
         $.addeditTransactionAmountInput.setFilters(new InputFilter[]{new InputFilterMinMax(MoneyTransaction.MIN_VALUE, MoneyTransaction.MAX_VALUE, BigDecimalUtil.DECIMAL_SCALE)});
     }
 
-    /* EDITTEXT WATCHERS */
+    /* EditText WATCHERS */
 
     private void onTransactionAmountChanges(String value) {
         if (value.length() == 0) {
@@ -321,7 +321,7 @@ public class AddEditTransactionActivity
     }
 
 
-    /* LIVEDATA OBSERVERS */
+    /* LiveData OBSERVERS */
 
     private void onTransactionChanged(MoneyTransaction transaction) {
         // TODO: Evaluate if this approach is better than finish() the Activity
@@ -455,7 +455,7 @@ public class AddEditTransactionActivity
 
     /* DATA MANAGEMENT */
 
-    // TODO: MediatorLiveData is probably a better approach
+    // TODO: MediatorLiveData MIGHT be a better approach
     private void attemptMixedDataSourceOperations() {
         if (mAccountsList == null || mTransaction == null) return;
         if (mTransactionType != MoneyTransaction.TRANSFER && mCategoriesList == null) return;
@@ -519,7 +519,7 @@ public class AddEditTransactionActivity
     }
 
     private void tryToForceConfirmedStatus() {
-        // TODO: How can we test this behavior?
+        // TODO: How to test this behavior?
         if (mTransaction == null) return;
         if (mTransactionType == MoneyTransaction.TRANSFER) return;
         if (mTransaction.getDate().isAfter(OffsetDateTime.now())) {

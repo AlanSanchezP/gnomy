@@ -64,7 +64,7 @@ public abstract class MainNavigationFragment<B extends ViewBinding>
      */
     protected MainNavigationFragment(@Nullable Integer fragmentTitleResourceId,
                                      @Nullable Integer menuResourceId,
-                                     boolean withOptionalNavigationElements,
+                                     @SuppressWarnings("SameParameterValue") boolean withOptionalNavigationElements,
                                      @NonNull FragmentViewBindingInflater<B> viewBindingInflater) {
         super();
         mMenuResourceId = menuResourceId;
@@ -103,6 +103,13 @@ public abstract class MainNavigationFragment<B extends ViewBinding>
         return $.getRoot();
     }
 
+    /**
+     * Initializes shared view model instance to communicate with parent
+     * Activity and sends fragment's data.
+     *
+     * @param view                  Root view
+     * @param savedInstanceState    Saved instance
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -131,6 +138,15 @@ public abstract class MainNavigationFragment<B extends ViewBinding>
             mSharedViewModel.removeFABObserver(this);
     }
 
+    /**
+     * {@link Observer} method to handle parent Activity's FAB click.
+     *
+     * @param o     Observable instance. Not used
+     *              (assuming it will always correspond to the shared view model)
+     * @param arg   Expected to be a reference to MainActivity's FAB.
+     *
+     * @throws ClassCastException If arg is not an instance of FloatingActionButton
+     */
     public final void update(Observable o, @NonNull Object arg) {
         if (!mWithOptionalNavigationElements) return;
         onFABClick((FloatingActionButton) arg);

@@ -5,9 +5,9 @@ import android.app.Application;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
-import io.github.alansanchezp.gnomy.database.RepositoryBuilder;
-import io.github.alansanchezp.gnomy.database.account.AccountRepository;
-import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
+import io.github.alansanchezp.gnomy.data.RepositoryBuilder;
+import io.github.alansanchezp.gnomy.data.account.AccountRepository;
+import io.github.alansanchezp.gnomy.data.account.AccountWithAccumulated;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.reactivex.Single;
 

@@ -24,7 +24,7 @@
             <io.github.alansanchezp.gnomy.ui.customView.MonthToolbarView
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
-                android:id="@+id/monthtoolbar" />
+                android:id="@+id/month_toolbar" />
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/main_container"

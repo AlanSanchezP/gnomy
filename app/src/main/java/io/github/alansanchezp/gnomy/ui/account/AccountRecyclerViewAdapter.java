@@ -18,8 +18,8 @@ import android.widget.PopupMenu;
 
 import java.math.BigDecimal;
 
-import io.github.alansanchezp.gnomy.database.account.Account;
-import io.github.alansanchezp.gnomy.database.account.AccountWithAccumulated;
+import io.github.alansanchezp.gnomy.data.account.Account;
+import io.github.alansanchezp.gnomy.data.account.AccountWithAccumulated;
 import io.github.alansanchezp.gnomy.databinding.LayoutAccountCardBinding;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
