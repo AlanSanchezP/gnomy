@@ -10,6 +10,7 @@
 
     <string name="action_search">Search</string>
     <string name="action_filter">Filter results</string>
+    <string name="action_categories">Manage categories</string>
     <string name="action_apply">Apply</string>
     <string name="action_apply_description">Apply filters</string>
     <string name="action_show_archived">Show archived accounts</string>
@@ -114,17 +115,9 @@
     <string name="account_balance_not_included_legend">are not included on the accumulated balance.</string>
     <string name="wip">Work in progress</string>
 
-    <string-array name="account_types">
-        <item>@string/account_type_bank</item>
-        <item>@string/account_type_informal</item>
-        <item>@string/account_type_savings</item>
-        <item>@string/account_type_inversions</item>
-        <item>@string/account_type_credit_card</item>
-        <item>@string/account_type_other</item>
-    </string-array>
+    <string name="transaction_new_expense">New expense</string>
 
     <!-- Transaction AddEdit -->
-    <string name="transaction_new_expense">New expense</string>
     <string name="transaction_modify_expense">Modify expense</string>
     <string name="transaction_new_income">New income</string>
     <string name="transaction_modify_income">Modify income</string>
@@ -144,8 +137,8 @@
     <string name="transaction_notes">Additional notes</string>
     <string name="transaction_mark_as_done">Mark as done</string>
     <string name="transaction_mark_as_recurrent" tools:keep="@string/transaction_mark_as_recurrent">Mark as recurrent</string>
-
     <string name="transaction_error_concept">Transaction concept can\'t be empty.</string>
+
     <string name="transaction_error_amount">Specified amount is not a valid number.</string>
     <string name="transaction_error_date">Transaction must happen after account creation date.</string>
     <string name="transaction_error_account">Account can\'t be null</string>
@@ -153,9 +146,9 @@
     <string name="transaction_error_transfer_destination_account">Origin and destination accounts can\'t be the same.</string>
     <string name="transaction_message_saved">Your transaction was saved correctly.</string>
     <string name="transaction_message_updated">Your transaction was updated correctly.</string>
+    <string name="transaction_card_delete">Delete transaction</string>
 
     <!-- Transactions list  -->
-    <string name="transaction_card_delete">Delete transaction</string>
     <string name="transaction_filters_dialog_static">Filter</string>
     <string name="transaction_filters_message">You are currently using a custom set of filters.</string>
     <string name="transaction_filters_edit_btn">Edit them</string>
@@ -164,27 +157,17 @@
     <string name="transaction_transfer_destination_archived_message">The destination account of this transfer seems to be archived. You can restore it or ignore this warning (you won\'t be able to edit the destination account).</string>
     <string name="transaction_transfer_destination_archived_action">Restore it</string>
     <string name="transaction_transfer_destination_archived_ignore">Ignore</string>
+    <string name="transaction_filters_status">Status</string>
 
     <!-- Transaction Filters Dialog -->
-    <string-array name="transaction_types">
-        <item>@string/title_transactions</item>
-        <item>@string/action_filter_incomes</item>
-        <item>@string/action_filter_expenses</item>
-        <item>@string/action_filter_transfers</item>
-    </string-array>
-
-    <string name="transaction_filters_status">Status</string>
     <string name="transaction_filters_any_status">Any</string>
+
     <string name="transaction_filters_confirmed_status">Confirmed</string>
     <string name="transaction_filters_unconfirmed_status">Unconfirmed</string>
-
     <string name="transaction_filters_sort_by">Sort by</string>
     <string name="transaction_filters_sort_most_recent">Most recent</string>
+
     <string name="transaction_filters_sort_least_recent">Least recent</string>
-    <string-array name="transaction_filters_sorting_strategies">
-        <item>@string/transaction_filters_sort_most_recent</item>
-        <item>@string/transaction_filters_sort_least_recent</item>
-    </string-array>
     <string name="transaction_filters_period">Filter by period</string>
     <string name="transaction_filters_from_date">From</string>
     <string name="transaction_filters_to_date">To</string>
@@ -195,4 +178,53 @@
     <string name="transaction_filters_max_amount">Max. amount</string>
     <string name="transaction_filters_min_amount_error">Min. amount must be lower than max. amount</string>
     <string name="transaction_filters_max_amount_error">Max. amount must be greater than min. amount</string>
+
+    <!-- Category card -->
+    <string name="category_card_options">Category options</string>
+    <string name="category_card_delete">Delete</string>
+    <string name="category_card_delete_modal">Delete category</string>
+    <string name="category_card_delete_warning">Are you sure you want to do this? This action cannot be undone.</string>
+    <string name="category_card_modify">Modify</string>
+    <string name="category_icon">Category icon</string>
+
+    <!-- Categories -->
+    <string name="categories_title">Categories</string>
+    <string name="category_type_incomes">@string/action_filter_incomes</string>
+    <string name="category_type_expenses">@string/action_filter_expenses</string>
+    <string name="category_type_both">Shared</string>
+
+
+    <!-- Categories AddEdit -->
+    <string name="category_new">New category</string>
+    <string name="category_modify">Modify category</string>
+    <string name="category_type">Category type</string>
+    <string name="category_pick_color">Pick a color to identify this category</string>
+
+    <string name="category_error_name">Category name can\'t be empty.</string>
+    <string name="category_message_saved">The category was saved correctly.</string>
+    <string name="category_message_updated">The account was updated correctly.</string>
+
+    <string-array name="account_types">
+        <item>@string/account_type_bank</item>
+        <item>@string/account_type_informal</item>
+        <item>@string/account_type_savings</item>
+        <item>@string/account_type_inversions</item>
+        <item>@string/account_type_credit_card</item>
+        <item>@string/account_type_other</item>
+    </string-array>
+    <string-array name="transaction_types">
+        <item>@string/title_transactions</item>
+        <item>@string/action_filter_incomes</item>
+        <item>@string/action_filter_expenses</item>
+        <item>@string/action_filter_transfers</item>
+    </string-array>
+    <string-array name="category_types">
+        <item>Expense category</item>
+        <item>Income category</item>
+        <item>Shared category</item>
+    </string-array>
+    <string-array name="transaction_filters_sorting_strategies">
+        <item>@string/transaction_filters_sort_most_recent</item>
+        <item>@string/transaction_filters_sort_least_recent</item>
+    </string-array>
 </resources>

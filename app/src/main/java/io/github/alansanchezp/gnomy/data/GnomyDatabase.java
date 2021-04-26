@@ -20,6 +20,7 @@ import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.reactivex.Single;
 
 import android.content.Context;
+import android.database.SQLException;
 import android.util.Log;
 
 import net.sqlcipher.database.SupportFactory;
@@ -164,7 +165,9 @@ public abstract class GnomyDatabase extends RoomDatabase {
                 if (result != null) emitter.onSuccess(result);
                 else throw new EmptyResultSetException("Composite transaction returned null object.");
             } catch (EmptyResultSetException |
-                    GnomyIllegalQueryException e) {
+                    GnomyIllegalQueryException |
+                    SQLException |
+                    net.sqlcipher.database.SQLiteException e) {
                 emitter.onError(e);
             }
         });

@@ -37,6 +37,7 @@ import io.github.alansanchezp.gnomy.databinding.FragmentTransactionsBinding;
 import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
 import io.github.alansanchezp.gnomy.androidUtil.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.ui.MainNavigationFragment;
+import io.github.alansanchezp.gnomy.ui.category.CategoriesActivity;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
@@ -141,6 +142,10 @@ public class TransactionsFragment
                 break;
             case R.id.action_filter_more:
                 openFiltersDialog(null);
+                break;
+            case R.id.action_categories:
+                Intent categoriesIntent = new Intent(getActivity(), CategoriesActivity.class);
+                requireActivity().startActivity(categoriesIntent);
                 break;
             default:
                 return false;

@@ -40,6 +40,15 @@ public class Category implements ISpinnerItem {
     @ColumnInfo(name="bg_color")
     private int backgroundColor;
 
+    public Category() {
+        /* Empty constructor */
+    }
+
+    @Ignore
+    public Category(int categoryId) {
+        this.id = categoryId;
+    }
+
     public int getId() {
         return id;
     }
@@ -91,7 +100,7 @@ public class Category implements ISpinnerItem {
         this.backgroundColor = backgroundColor;
     }
 
-    public final boolean isDeletable() {
+    public boolean isDeletable() {
         return deletable;
     }
 
