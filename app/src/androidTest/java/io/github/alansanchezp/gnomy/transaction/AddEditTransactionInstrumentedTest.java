@@ -34,6 +34,7 @@ import io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction;
 import io.github.alansanchezp.gnomy.data.transaction.MoneyTransactionRepository;
 import io.github.alansanchezp.gnomy.ui.transaction.AddEditTransactionActivity;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
+import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
 import io.github.alansanchezp.gnomy.util.DateUtil;
 import io.github.alansanchezp.gnomy.util.GnomyCurrencyException;
@@ -70,6 +71,7 @@ import static io.github.alansanchezp.gnomy.data.MockRepositoryBuilder.initMockRe
 import static io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction.EXPENSE;
 import static io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction.INCOME;
 import static io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction.TRANSFER;
+import static io.github.alansanchezp.gnomy.ui.category.CategoryIconsRecyclerViewAdapter.DEFAULT_RES_NAME;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -94,7 +96,9 @@ public class AddEditTransactionInstrumentedTest {
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
     private static final MoneyTransactionRepository mockTransactionRepository = initMockRepository(MoneyTransactionRepository.class);
     private static MutableLiveData<List<Account>> testAccountListLD;
+    private static MutableLiveData<List<Category>> testCategoryListLD;
     private static final List<Account> testAccountList = new ArrayList<>();
+    private static final List<Category> testCategoryList = new ArrayList<>();
     private static Account testAccountA, testAccountB;
     private static Category testCategory;
 
@@ -123,10 +127,10 @@ public class AddEditTransactionInstrumentedTest {
         anotherCategory.setName("Another category");
         anotherCategory.setId(1);
 
-        List<Category> testCategoryList = new ArrayList<>();
         testCategoryList.add(anotherCategory);
         testCategoryList.add(testCategory);
-        MutableLiveData<List<Category>> testCategoryListLD = new MutableLiveData<>(testCategoryList);
+
+        testCategoryListLD = new MutableLiveData<>(testCategoryList);
 
         when(mockTransactionRepository.insert(any(MoneyTransaction.class)))
                 .thenReturn(Single.just(1L));
@@ -764,15 +768,43 @@ public class AddEditTransactionInstrumentedTest {
         tempScenario.close();
     }
 
-    // TODO: Implement when categories module is ready
     @Test
     public void opens_new_category_activity() {
-        assert true;
+        onView(withId(R.id.addedit_transaction_new_category))
+                .perform(click());
+        onView(withId(R.id.custom_appbar))
+                .check(matches(
+                        hasDescendant(withText(R.string.category_new))));
     }
 
     @Test
     public void new_category_is_set_as_selected() {
-        assert true;
+        // Click on new Category action
+        onView(withId(R.id.addedit_transaction_new_category))
+                .perform(click());
+        // Default behavior on tests is expense
+        // Emulates the arrival of a new category
+        Category newCategory = new Category();
+        newCategory.setId(3);
+        newCategory.setName("New test category");
+        newCategory.setType(EXPENSE);
+        newCategory.setBackgroundColor(ColorUtil.getRandomColor());
+        newCategory.setIconResName(DEFAULT_RES_NAME);
+        testCategoryList.add(newCategory);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                testCategoryListLD.postValue(testCategoryList));
+
+        // Close category activity
+        Espresso.pressBack();
+        onView(withId(R.id.confirmation_dialog_yes)).perform(click()); // Accept confirmation dialog
+
+        onView(withId(R.id.addedit_transaction_category))
+                .check(matches(
+                        hasDescendant(withText(newCategory.getName()))));
+
+        testCategoryList.remove(newCategory);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                testCategoryListLD.postValue(testCategoryList));
     }
 
     // TRANSFER-RELATED TESTS

@@ -40,6 +40,7 @@ import io.github.alansanchezp.gnomy.ui.ConfirmationDialogFragment;
 import io.github.alansanchezp.gnomy.androidUtil.GnomyFragmentFactory;
 import io.github.alansanchezp.gnomy.androidUtil.GnomySpinnerAdapter;
 import io.github.alansanchezp.gnomy.ui.account.AddEditAccountActivity;
+import io.github.alansanchezp.gnomy.ui.category.AddEditCategoryActivity;
 import io.github.alansanchezp.gnomy.util.BigDecimalUtil;
 import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.github.alansanchezp.gnomy.util.CurrencyUtil;
@@ -371,6 +372,11 @@ public class AddEditTransactionActivity
             public void onNothingSelected(@NonNull MaterialSpinner parent) {
             }
         });
+        if (mViewModel.isExpectingNewCategory()) {
+            // Selects last inserted account
+            $.addeditTransactionCategory.setSelection(mCategoriesList.size() - 1);
+            mViewModel.notifyExpectingNewCategory(false);
+        }
         attemptMixedDataSourceOperations();
     }
 
@@ -765,7 +771,8 @@ public class AddEditTransactionActivity
 
     private void openNewCategoryActivity(View view) {
         mViewModel.notifyExpectingNewCategory(true);
-        Toast.makeText(this, getString(R.string.wip), Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(this, AddEditCategoryActivity.class);
+        startActivity(intent);
     }
 
     private void openCalculator(View v) {
