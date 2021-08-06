@@ -44,7 +44,7 @@ public class CategoriesListViewModel extends AndroidViewModel {
 
     public LiveData<List<Category>> getBothCategories(){
         if (mBothCategories == null) {
-            mBothCategories = mRepository.getByStrictCategory(Category.BOTH_CATEGORY);
+            mBothCategories = mRepository.getByStrictCategory(Category.SHARED_CATEGORY);
         }
         return mBothCategories;
     }

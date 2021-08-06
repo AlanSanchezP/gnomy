@@ -123,7 +123,7 @@ public class CategoriesActivity
                     args.putInt(CategoriesFragment.ARG_CATEGORY_TYPE, Category.INCOME_CATEGORY);
                     break;
                 case 2:
-                    args.putInt(CategoriesFragment.ARG_CATEGORY_TYPE, Category.BOTH_CATEGORY);
+                    args.putInt(CategoriesFragment.ARG_CATEGORY_TYPE, Category.SHARED_CATEGORY);
                     break;
             }
             fragment.setArguments(args);

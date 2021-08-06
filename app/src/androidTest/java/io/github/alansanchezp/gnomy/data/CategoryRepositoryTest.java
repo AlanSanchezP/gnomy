@@ -37,7 +37,7 @@ public class CategoryRepositoryTest {
     @Test
     public void getSharedAndCategory_rejects_invalid_categories()  {
         assertThrows(GnomyIllegalQueryException.class, () ->
-            categoryRepository.getSharedAndCategory(Category.BOTH_CATEGORY));
+            categoryRepository.getSharedAndCategory(Category.SHARED_CATEGORY));
         assertThrows(GnomyIllegalQueryException.class, () ->
                 categoryRepository.getSharedAndCategory(4));
         assertThrows(GnomyIllegalQueryException.class, () ->
@@ -88,7 +88,7 @@ public class CategoryRepositoryTest {
         // App MUST always have at least one predefined category, which are undeletable
         Category systemCategory = getOrAwaitValue(categoryRepository.find(1));
         int newType;
-        if (systemCategory.getType() == Category.INCOME_CATEGORY) newType = Category.BOTH_CATEGORY;
+        if (systemCategory.getType() == Category.INCOME_CATEGORY) newType = Category.SHARED_CATEGORY;
         else newType = Category.INCOME_CATEGORY;
         systemCategory.setType(newType);
 

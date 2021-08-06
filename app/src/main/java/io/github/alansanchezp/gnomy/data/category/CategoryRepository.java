@@ -8,7 +8,6 @@ import java.util.List;
 import androidx.lifecycle.LiveData;
 import io.github.alansanchezp.gnomy.data.GnomyDatabase;
 import io.github.alansanchezp.gnomy.data.GnomyIllegalQueryException;
-import io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction;
 import io.reactivex.Single;
 
 public class CategoryRepository {
@@ -21,7 +20,7 @@ public class CategoryRepository {
     }
 
     /**
-     * Retrieves categories of type {@link Category#BOTH_CATEGORY}
+     * Retrieves categories of type {@link Category#SHARED_CATEGORY}
      * and either {@link Category#INCOME_CATEGORY} or {@link Category#EXPENSE_CATEGORY}.
      *
      * @param categoryType  Type to get in addition to BOTH_CATEGORY.

@@ -8,9 +8,8 @@ import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
-import io.github.alansanchezp.gnomy.data.transaction.MoneyTransaction;
 
-import static io.github.alansanchezp.gnomy.data.category.Category.BOTH_CATEGORY;
+import static io.github.alansanchezp.gnomy.data.category.Category.SHARED_CATEGORY;
 import static io.github.alansanchezp.gnomy.data.category.Category.HIDDEN_CATEGORY;
 
 @Dao
@@ -18,7 +17,7 @@ public abstract class CategoryDAO {
     @Query("SELECT * FROM categories WHERE category_type != " + HIDDEN_CATEGORY)
     protected abstract LiveData<List<Category>> getAll();
 
-    @Query("SELECT * FROM categories WHERE category_type == :categoryType OR category_type ==" + BOTH_CATEGORY)
+    @Query("SELECT * FROM categories WHERE category_type == :categoryType OR category_type ==" + SHARED_CATEGORY)
     protected abstract LiveData<List<Category>> getSharedAndCategory(int categoryType);
 
     @Query("SELECT * FROM categories WHERE category_type == :categoryType")

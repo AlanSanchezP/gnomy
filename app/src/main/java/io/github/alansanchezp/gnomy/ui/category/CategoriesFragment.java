@@ -41,7 +41,7 @@ public class CategoriesFragment
             = new CompositeDisposable();
     private CategoryRecyclerViewAdapter mAdapter;
     private CategoriesListViewModel mListViewModel;
-    private int categoriesType = Category.BOTH_CATEGORY;
+    private int categoriesType = Category.SHARED_CATEGORY;
     private FragmentCategoriesBinding $;
 
     private GnomyFragmentFactory getFragmentFactory() {
@@ -64,7 +64,7 @@ public class CategoriesFragment
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
         if (args != null) {
-            categoriesType = args.getInt(ARG_CATEGORY_TYPE, Category.BOTH_CATEGORY);
+            categoriesType = args.getInt(ARG_CATEGORY_TYPE, Category.SHARED_CATEGORY);
         }
         mListViewModel = new ViewModelProvider(this)
                 .get(CategoriesListViewModel.class);
@@ -90,7 +90,7 @@ public class CategoriesFragment
             mListViewModel.getExpenseCategories().observe(getViewLifecycleOwner(), this::onCategoriesListChanged);
         else if (categoriesType == Category.INCOME_CATEGORY)
             mListViewModel.getIncomeCategories().observe(getViewLifecycleOwner(), this::onCategoriesListChanged);
-        else if (categoriesType == Category.BOTH_CATEGORY)
+        else if (categoriesType == Category.SHARED_CATEGORY)
             mListViewModel.getBothCategories().observe(getViewLifecycleOwner(), this::onCategoriesListChanged);
     }
 

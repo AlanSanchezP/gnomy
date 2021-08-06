@@ -15,7 +15,7 @@ public class Category implements ISpinnerItem {
     @Ignore
     public static final int INCOME_CATEGORY = 2;
     @Ignore
-    public static final int BOTH_CATEGORY = 3;
+    public static final int SHARED_CATEGORY = 3;
     @Ignore
     protected static final int HIDDEN_CATEGORY = 4;
 
@@ -83,7 +83,7 @@ public class Category implements ISpinnerItem {
         switch(type) {
             case EXPENSE_CATEGORY:
             case INCOME_CATEGORY:
-            case BOTH_CATEGORY:
+            case SHARED_CATEGORY:
             case HIDDEN_CATEGORY:
                 this.type = type;
                 break;

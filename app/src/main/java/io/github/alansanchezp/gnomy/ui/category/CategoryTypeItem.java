@@ -8,7 +8,7 @@ import io.github.alansanchezp.gnomy.util.ISpinnerItem;
 
 import static io.github.alansanchezp.gnomy.data.category.Category.EXPENSE_CATEGORY;
 import static io.github.alansanchezp.gnomy.data.category.Category.INCOME_CATEGORY;
-import static io.github.alansanchezp.gnomy.data.category.Category.BOTH_CATEGORY;
+import static io.github.alansanchezp.gnomy.data.category.Category.SHARED_CATEGORY;
 
 public class CategoryTypeItem implements ISpinnerItem {
     private final int type;
@@ -26,7 +26,7 @@ public class CategoryTypeItem implements ISpinnerItem {
                 return "ic_minus_24";
             case INCOME_CATEGORY:
                 return "ic_add_black_24dp";
-            case BOTH_CATEGORY:
+            case SHARED_CATEGORY:
             default:
                 return "ic_plus_and_minus";
         }
