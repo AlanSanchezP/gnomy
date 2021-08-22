@@ -45,6 +45,7 @@ public class AddEditCategoryActivity
         implements CategoryIconsRecyclerViewAdapter.OnIconSelectedListener {
 
     public static final String EXTRA_CATEGORY_ID = "AddEditCategoryActivity.CategoryId";
+    public static final String EXTRA_CATEGORY_TYPE = "AddEditCategoryActivity.CategoryType";
     private static final String TAG_PICKER_DIALOG = "AddEditCategoryActivity.ColorPickerDialog";
     private AddEditCategoryViewModel mAddEditCategoryViewModel;
     private CategoryIconsRecyclerViewAdapter mAdapter;
@@ -92,6 +93,11 @@ public class AddEditCategoryActivity
             $.addeditCategoryType.setVisibility(View.VISIBLE);
             activityTitle = getString(R.string.category_new);
             mCategory = new Category();
+            int type = intent.getIntExtra(EXTRA_CATEGORY_TYPE, 0);
+            if (type > 0) {
+                mCategory.setType(type);
+                $.addeditCategoryType.setSelection(type - 1);
+            }
             // Only generate new color if viewModel doesn't have one stored already
             if (Objects.requireNonNull(mAddEditCategoryViewModel.categoryColor.getValue()) == 1) {
                 mAddEditCategoryViewModel.setCategoryColor(ColorUtil.getRandomColor());

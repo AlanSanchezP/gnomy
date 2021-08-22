@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import androidx.lifecycle.MutableLiveData;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import io.github.alansanchezp.gnomy.R;
@@ -34,6 +35,7 @@ import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.hasBackground;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static io.github.alansanchezp.gnomy.EspressoTestUtil.assertActivityState;
@@ -234,5 +236,56 @@ public class AddEditCategoryActivityInstrumentedTest {
             // Not sure why SOMETIMES state is DESTROYED and sometimes it's RESUMED
             assertActivityState(RESUMED, activityRule);
         }
+    }
+
+    @Test
+    public void default_type_based_on_extra() {
+        // Default behavior is to create a new expense category.
+        onView(withId(R.id.addedit_category_type))
+                .check(matches(hasDescendant(
+                        withText(R.string.category_type_expenses_item)
+                )));
+
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
+                AddEditCategoryActivity.class);
+        ActivityScenario<AddEditCategoryActivity> tempScenario;
+
+        // Income category
+        intent = intent
+                .putExtra(AddEditCategoryActivity.EXTRA_CATEGORY_TYPE, Category.INCOME_CATEGORY);
+        tempScenario = launch(intent);
+        onView(withId(R.id.addedit_category_type))
+                .check(matches(hasDescendant(
+                        withText(R.string.category_type_incomes_item)
+                )));
+        tempScenario.close();
+
+        // Shared category
+        intent = intent
+                .putExtra(AddEditCategoryActivity.EXTRA_CATEGORY_TYPE, Category.SHARED_CATEGORY);
+        tempScenario = launch(intent);
+        onView(withId(R.id.addedit_category_type))
+                .check(matches(hasDescendant(
+                        withText(R.string.category_type_shared_item)
+                )));
+        tempScenario.close();
+    }
+
+    @Test
+    public void category_type_cannot_be_modified() {
+        Category testC = new Category(2);
+        testC.setType(Category.EXPENSE_CATEGORY);
+        when(mockCategoryRepository.find(anyInt()))
+                .thenReturn(new MutableLiveData<>(testC));
+
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
+                AddEditCategoryActivity.class);
+        ActivityScenario<AddEditCategoryActivity> tempScenario;
+        intent = intent
+                .putExtra(AddEditCategoryActivity.EXTRA_CATEGORY_ID, 2);
+        tempScenario = launch(intent);
+        onView(withId(R.id.addedit_category_type))
+                .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)));
+        tempScenario.close();
     }
 }

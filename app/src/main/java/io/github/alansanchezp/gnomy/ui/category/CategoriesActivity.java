@@ -102,6 +102,7 @@ public class CategoriesActivity
 
     private void onFABClick(View v) {
         Intent newCategoryIntent = new Intent(this, AddEditCategoryActivity.class);
+        newCategoryIntent.putExtra(AddEditCategoryActivity.EXTRA_CATEGORY_TYPE, mTabLayout.getSelectedTabPosition() + 1);
         startActivity(newCategoryIntent);
     }
 

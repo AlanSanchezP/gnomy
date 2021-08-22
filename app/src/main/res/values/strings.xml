@@ -203,6 +203,9 @@
     <string name="category_error_name">Category name can\'t be empty.</string>
     <string name="category_message_saved">The category was saved correctly.</string>
     <string name="category_message_updated">The account was updated correctly.</string>
+    <string name="category_type_expenses_item">Expense category</string>
+    <string name="category_type_incomes_item">Income category</string>
+    <string name="category_type_shared_item">Shared category</string>
 
     <string-array name="account_types">
         <item>@string/account_type_bank</item>
@@ -219,9 +222,9 @@
         <item>@string/action_filter_transfers</item>
     </string-array>
     <string-array name="category_types">
-        <item>Expense category</item>
-        <item>Income category</item>
-        <item>Shared category</item>
+        <item>@string/category_type_expenses_item</item>
+        <item>@string/category_type_incomes_item</item>
+        <item>@string/category_type_shared_item</item>
     </string-array>
     <string-array name="transaction_filters_sorting_strategies">
         <item>@string/transaction_filters_sort_most_recent</item>
