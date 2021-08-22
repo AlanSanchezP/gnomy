@@ -528,9 +528,8 @@ public class MoneyTransactionRepositoryTest {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     public void getByFilters_works() throws InterruptedException {
-        // TODO: Complement with more categories once CategoryRepository is ready
         /*
-         * This test will insert several (15) money transaction rows and
+         * This test will insert several (19) money transaction rows and
          * test MoneyTransactionRepository.getByFilters() with different
          * values for each of the 10 fields that compose MoneyTransactionFilters.
          * The distribution of these money transaction instances will be:
@@ -546,10 +545,10 @@ public class MoneyTransactionRepositoryTest {
          * 9:   Transfer, 2 months before now, from account 2 to account 1, original value 90
          * 10:  Transfer, 1 months before now, from account 3 to account 2, original value 100
          * 11:  Transfer, 1 months before now, from account 2 to account 3, original value 110
-         * 12:  Confirmed income, this day, account 2, original value 120
-         * 13:  Confirmed expense, this day, account 2, original value 130
-         * 14:  Unconfirmed income, 2 months after now, account 2, original value 140
-         * 15:  Unconfirmed expense, 2 months after now, account 2, original value 150
+         * 12:  Confirmed income, this day, account 2, original value 120, with specific category
+         * 13:  Confirmed expense, this day, account 2, original value 130 with specific category
+         * 14:  Unconfirmed income, 2 months after now, account 2, original value 140 with specific category
+         * 15:  Unconfirmed expense, 2 months after now, account 2, original value 150 with specific category
          *
          * */
 
@@ -616,20 +615,24 @@ public class MoneyTransactionRepositoryTest {
         testTransaction.setType(MoneyTransaction.INCOME);
         testTransaction.setDate(DateUtil.OffsetDateTimeNow());
         testTransaction.setOriginalValue("120");
+        testTransaction.setCategory(4);
         repository.insert(testTransaction).blockingGet(); // 12
 
         testTransaction.setType(MoneyTransaction.EXPENSE);
         testTransaction.setOriginalValue("130");
+        testTransaction.setCategory(12);
         repository.insert(testTransaction).blockingGet(); // 13
 
         testTransaction.setConfirmed(false);
         testTransaction.setType(MoneyTransaction.INCOME);
         testTransaction.setDate(DateUtil.OffsetDateTimeNow().plusMonths(2));
         testTransaction.setOriginalValue("140");
+        testTransaction.setCategory(4);
         repository.insert(testTransaction).blockingGet(); // 14
 
         testTransaction.setType(MoneyTransaction.EXPENSE);
         testTransaction.setOriginalValue("150");
+        testTransaction.setCategory(12);
         repository.insert(testTransaction).blockingGet(); // 15
 
         MoneyTransactionFilters filters = new MoneyTransactionFilters();
@@ -841,6 +844,49 @@ public class MoneyTransactionRepositoryTest {
         filters.setMaxAmount("70");
         results = getOrAwaitValue(repository.getByFilters(filters));
         assertTrue(results.isEmpty());
+
+        /*
+        * Now we test with categories. Note that the default behavior
+        * it's to retrieve transactions from all available categories,
+        * and that the app SHOULD have some pre-defined categories to
+        * test with. We will use 2 of them:
+        *   - id 4 : Salary (incomes)
+        *   - id 12: Housing (expenses)
+        *
+        * */
+        filters.setTransactionStatus(MoneyTransactionFilters.ANY_STATUS);
+        filters.setAccountId(0);
+        filters.setEndDate(null);
+        filters.setStartDate(null);
+        filters.setMinAmount(null);
+        filters.setMaxAmount(null);
+
+        filters.setTransactionType(MoneyTransaction.EXPENSE);
+        filters.setCategoryId(12);
+        results = getOrAwaitValue(repository.getByFilters(filters));
+        assertEquals(2, results.size());
+
+        filters.setTransactionStatus(MoneyTransactionFilters.UNCONFIRMED_STATUS);
+        results = getOrAwaitValue(repository.getByFilters(filters));
+        assertEquals(1, results.size());
+
+        filters.setTransactionStatus(MoneyTransactionFilters.CONFIRMED_STATUS);
+        results = getOrAwaitValue(repository.getByFilters(filters));
+        assertEquals(1, results.size());
+
+        filters.setTransactionType(MoneyTransaction.INCOME);
+        filters.setTransactionStatus(MoneyTransactionFilters.ANY_STATUS);
+        filters.setCategoryId(4);
+        results = getOrAwaitValue(repository.getByFilters(filters));
+        assertEquals(2, results.size());
+
+        filters.setTransactionStatus(MoneyTransactionFilters.UNCONFIRMED_STATUS);
+        results = getOrAwaitValue(repository.getByFilters(filters));
+        assertEquals(1, results.size());
+
+        filters.setTransactionStatus(MoneyTransactionFilters.CONFIRMED_STATUS);
+        results = getOrAwaitValue(repository.getByFilters(filters));
+        assertEquals(1, results.size());
     }
 
     private void testResultBalance(MonthlyBalance resultBalance,
