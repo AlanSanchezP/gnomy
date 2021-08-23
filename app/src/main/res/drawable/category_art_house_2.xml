@@ -1,0 +1,7 @@
+<!-- Original svg asset from https://www.flaticon.com/free-icon/home_3079242?term=household&page=1&position=3&page=1&position=3&related_id=3079242&origin=search -->
+<vector android:height="24dp" android:viewportHeight="64"
+    android:viewportWidth="64" android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="#FF000000" android:pathData="m23,51h2v2h-2z"/>
+    <path android:fillColor="#FF000000" android:pathData="m56,61v-36.29l-24,-16.293 -24,16.293v10.673c1.434,0 2.706,0.859 3.244,2.189 2.492,6.162 3.756,10.344 3.756,12.428 0,4.17 -2.519,7.393 -6,7.917v-2.027c2.282,-0.507 4,-2.746 4,-5.89 0,-2.344 -2.131,-8.02 -3.611,-11.679 -0.506,-1.251 -2.273,-1.251 -2.779,0 -1.479,3.659 -3.61,9.335 -3.61,11.679 0,3.145 1.718,5.383 4,5.89v5.11h-5v2h60v-2zM42,48 L44,45 46,48v3h4v-3l2,-3 2,3v13h-4v-6h-4v6h-4v-6h-4v6h-4v-13l2,-3 2,3v3h4zM33,28h5v2c0,1.657 -1.343,3 -3,3h-2zM35,21c1.657,0 3,1.343 3,3v2h-5v-5zM26,24c0,-1.657 1.343,-3 3,-3h2v5h-5zM26,28h5v5h-2c-1.657,0 -3,-1.343 -3,-3zM28,42v19h-11v-19z"/>
+    <path android:fillColor="#FF000000" android:pathData="m32,6.417 l26.877,18.238 2.246,-3.311 -29.123,-19.761 -29.123,19.761 2.246,3.311z"/>
+</vector>

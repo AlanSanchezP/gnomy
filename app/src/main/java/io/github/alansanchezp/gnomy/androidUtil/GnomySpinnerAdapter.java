@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.util.List;
 import java.util.Objects;
@@ -16,7 +18,6 @@ import java.util.Objects;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import io.github.alansanchezp.gnomy.R;
-import io.github.alansanchezp.gnomy.databinding.LayoutGnomySpinnerItemBinding;
 import io.github.alansanchezp.gnomy.util.ISpinnerItem;
 
 /**
@@ -30,7 +31,7 @@ public class GnomySpinnerAdapter<I extends ISpinnerItem> extends ArrayAdapter<I>
      * @param objects   List to use in the spinner.
      */
     public GnomySpinnerAdapter(@NonNull Context context, @NonNull List<I> objects) {
-        super(context, R.layout.layout_gnomy_spinner_item, objects);
+        super(context, 0, objects);
     }
 
     @Override
@@ -41,14 +42,35 @@ public class GnomySpinnerAdapter<I extends ISpinnerItem> extends ArrayAdapter<I>
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        // TODO: Why did ViewBinding not work? Should attempt to bring it back?
+        final I item = Objects.requireNonNull(getItem(position));
+        final View view;
+        final TextView text;
+        Drawable icon;
+        ImageView imageView;
+
         if (convertView == null) {
-            LayoutGnomySpinnerItemBinding binding = LayoutGnomySpinnerItemBinding
-                    .inflate(LayoutInflater.from(getContext()), parent, false);
-            SpinnerItemHolder<I> holder = new SpinnerItemHolder<>(binding, Objects.requireNonNull(getItem(position)));
-            return holder.getView();
+            view = LayoutInflater.from(getContext())
+                    .inflate(R.layout.layout_gnomy_spinner_item, parent, false);
         } else {
-            return convertView;
+            view = convertView;
         }
+
+        text = view.findViewById(R.id.spinner_item_text);
+        text.setText(item.toString());
+        imageView = view.findViewById(R.id.spinner_item_drawable);
+
+        icon = getDrawable(getContext(), item);
+        if (icon != null) {
+            imageView.setImageDrawable(icon);
+            imageView.setVisibility(View.VISIBLE);
+        } else {
+            imageView.setVisibility(View.GONE);
+        }
+
+        view.setTag(this);
+
+        return view;
     }
 
     @Override
@@ -85,35 +107,6 @@ public class GnomySpinnerAdapter<I extends ISpinnerItem> extends ArrayAdapter<I>
             return drawable;
         }
         return null;
-    }
-
-    /**
-     * Helper class to hold every item's layout.
-     * @param <I>   Item's class.
-     */
-    public static class SpinnerItemHolder<I extends ISpinnerItem> {
-        protected final LayoutGnomySpinnerItemBinding $;
-        protected final I item;
-
-        public SpinnerItemHolder(@NonNull LayoutGnomySpinnerItemBinding viewBinding, @NonNull I item) {
-            $ = viewBinding;
-            Context context = $.getRoot().getContext();
-            this.item = item;
-            Drawable icon = getDrawable(context, item);
-            if (icon != null) {
-                $.spinnerItemDrawable.setImageDrawable(icon);
-                $.spinnerItemDrawable.setVisibility(View.VISIBLE);
-            } else {
-                $.spinnerItemDrawable.setVisibility(View.GONE);
-            }
-            $.spinnerItemText.setText(item.toString());
-
-            $.getRoot().setTag(this);
-        }
-
-        public View getView() {
-            return $.getRoot();
-        }
     }
 
 }

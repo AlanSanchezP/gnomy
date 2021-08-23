@@ -15,7 +15,7 @@ public class Category implements ISpinnerItem {
     @Ignore
     public static final int INCOME_CATEGORY = 2;
     @Ignore
-    public static final int BOTH_CATEGORY = 3;
+    public static final int SHARED_CATEGORY = 3;
     @Ignore
     protected static final int HIDDEN_CATEGORY = 4;
 
@@ -39,6 +39,15 @@ public class Category implements ISpinnerItem {
 
     @ColumnInfo(name="bg_color")
     private int backgroundColor;
+
+    public Category() {
+        /* Empty constructor */
+    }
+
+    @Ignore
+    public Category(int categoryId) {
+        this.id = categoryId;
+    }
 
     public int getId() {
         return id;
@@ -74,7 +83,7 @@ public class Category implements ISpinnerItem {
         switch(type) {
             case EXPENSE_CATEGORY:
             case INCOME_CATEGORY:
-            case BOTH_CATEGORY:
+            case SHARED_CATEGORY:
             case HIDDEN_CATEGORY:
                 this.type = type;
                 break;
@@ -91,7 +100,7 @@ public class Category implements ISpinnerItem {
         this.backgroundColor = backgroundColor;
     }
 
-    public final boolean isDeletable() {
+    public boolean isDeletable() {
         return deletable;
     }
 

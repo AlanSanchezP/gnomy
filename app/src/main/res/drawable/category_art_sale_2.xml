@@ -1,0 +1,11 @@
+<!-- Original svg asset https://www.flaticon.com/free-icon/cooperative_2602932?term=funding&page=1&position=56&page=1&position=56&related_id=2602932&origin=search -->
+<vector android:height="24dp" android:viewportHeight="64"
+    android:viewportWidth="64" android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="#FF000000" android:pathData="m52,37h2v14h-2z"/>
+    <path android:fillColor="#FF000000" android:pathData="m45.904,38.995 l-9.999,-0.963 -6.228,4.629c-0.399,0.268 -0.628,0.648 -0.67,1.075 -0.042,0.428 0.107,0.846 0.411,1.149 0.478,0.479 1.236,0.555 1.8,0.179l3.798,-2.863 1.203,1.598 -1.618,1.219 9.627,7.877 5.772,-1.65v-13.025l-3.804,0.761c-0.096,0.018 -0.194,0.023 -0.292,0.014z"/>
+    <path android:fillColor="#FF000000" android:pathData="m32.375,46.695c-0.604,0.403 -1.287,0.6 -1.959,0.6 -0.887,0 -1.757,-0.341 -2.412,-0.995 -0.729,-0.728 -1.088,-1.734 -0.987,-2.76 0.102,-1.026 0.652,-1.942 1.51,-2.514l2.699,-2.007 -1.487,-0.991 -10.649,0.968c-0.084,0.008 -0.17,0.004 -0.255,-0.01l-4.835,-0.806v11.82h4c0.127,0 0.253,0.024 0.372,0.071l14.688,5.876 8.805,-2.401 -8.909,-7.289z"/>
+    <path android:fillColor="#FF000000" android:pathData="m10,37h2v14h-2z"/>
+    <path android:fillColor="#FF000000" android:pathData="m3,35h6v18h-6z"/>
+    <path android:fillColor="#FF000000" android:pathData="m55,35h6v18h-6z"/>
+    <path android:fillColor="#FF000000" android:pathData="m20,21c0,6.627 5.373,12 12,12s12,-5.373 12,-12 -5.373,-12 -12,-12 -12,5.373 -12,12zM37,17.5v0.5h-2v-0.5c0,-1.379 -1.122,-2.5 -2.5,-2.5h-1c-1.378,0 -2.5,1.121 -2.5,2.5s1.122,2.5 2.5,2.5h1c2.481,0 4.5,2.019 4.5,4.5 0,2.31 -1.756,4.197 -4,4.449v3.051h-2v-3.051c-2.244,-0.252 -4,-2.139 -4,-4.449v-0.5h2v0.5c0,1.379 1.122,2.5 2.5,2.5h1c1.378,0 2.5,-1.121 2.5,-2.5s-1.122,-2.5 -2.5,-2.5h-1c-2.481,0 -4.5,-2.019 -4.5,-4.5 0,-2.31 1.756,-4.197 4,-4.449v-3.051h2v3.051c2.244,0.252 4,2.139 4,4.449z"/>
+</vector>

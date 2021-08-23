@@ -134,7 +134,7 @@ public class TransactionsListViewModel extends AndroidViewModel {
             else if (type == MoneyTransaction.EXPENSE)
                 return mCategoryRepository.getSharedAndCategory(Category.EXPENSE_CATEGORY);
             else
-                return mCategoryRepository.getByStrictCategory(Category.BOTH_CATEGORY);
+                return mCategoryRepository.getByStrictCategory(Category.SHARED_CATEGORY);
         });
     }
 }

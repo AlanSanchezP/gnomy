@@ -20,6 +20,7 @@ import io.github.alansanchezp.gnomy.util.ColorUtil;
 import io.reactivex.Single;
 
 import android.content.Context;
+import android.database.SQLException;
 import android.util.Log;
 
 import net.sqlcipher.database.SupportFactory;
@@ -127,23 +128,142 @@ public abstract class GnomyDatabase extends RoomDatabase {
                             "4, " +
                             "0, " +
                             "-1293008), " + // Hardcoding error color
-                    // TODO: Determine final pre-populated categories
                         "(" +
-                            "'Dummy incomes category', " +
-                            "'ic_color_lens_black_24dp', "+
+                            "'Salary', " +
+                            "'category_art_salary_1', "+
                             Category.INCOME_CATEGORY + ", " +
                             "0, " +
                             ColorUtil.getRandomColor() + "), " +
                         "(" +
-                            "'Dummy expenses category', " +
-                            "'ic_calculate_24', "+
+                            "'Sale', " +
+                            "'category_art_sale_1', "+
+                            Category.INCOME_CATEGORY + ", " +
+                            "0, " +
+                            ColorUtil.getRandomColor() +"), " +
+                        "(" +
+                            "'Funding', " +
+                            "'category_art_funding_1', "+
+                            Category.INCOME_CATEGORY + ", " +
+                            "0, " +
+                            ColorUtil.getRandomColor() +"), " +
+                        "(" +
+                            "'Government support', " +
+                            "'category_art_govsupport_1', "+
+                            Category.INCOME_CATEGORY + ", " +
+                            "0, " +
+                            ColorUtil.getRandomColor() +"), " +
+                        "(" +
+                            "'Award', " +
+                            "'category_art_award_1', "+
+                            Category.INCOME_CATEGORY + ", " +
+                            "0, " +
+                            ColorUtil.getRandomColor() +"), " +
+                        "(" +
+                            "'Gift', " +
+                            "'category_art_gift_1', "+
+                            Category.INCOME_CATEGORY + ", " +
+                            "0, " +
+                            ColorUtil.getRandomColor() +"), " +
+                        "(" +
+                            "'Refund', " +
+                            "'category_art_refund_1', "+
+                            Category.INCOME_CATEGORY + ", " +
+                            "0, " +
+                            ColorUtil.getRandomColor() +"), " +
+                        "(" +
+                            "'Others', " +
+                            "'category_art_misc_1', "+
+                            Category.INCOME_CATEGORY + ", " +
+                            "0, " +
+                            ColorUtil.getRandomColor() +"), " +
+                        "(" +
+                            "'Housing', " +
+                            "'category_art_house_2', "+
                             Category.EXPENSE_CATEGORY + ", " +
                             "0, " +
                             ColorUtil.getRandomColor() +"), " +
                         "(" +
-                            "'Dummy both category', " +
-                            "'ic_fitness_center_black_24dp', "+
-                            Category.BOTH_CATEGORY + ", " +
+                            "'Transportation', " +
+                            "'category_art_transport_1', "+
+                            Category.EXPENSE_CATEGORY + ", " +
+                            "0, " +
+                            ColorUtil.getRandomColor() +"), " +
+                        "(" +
+                            "'Food', " +
+                            "'category_art_food_1', "+
+                            Category.EXPENSE_CATEGORY + ", " +
+                            "0, " +
+                            ColorUtil.getRandomColor() +"), " +
+                        "(" +
+                            "'Utilities', " +
+                            "'category_art_services_1', "+
+                            Category.EXPENSE_CATEGORY + ", " +
+                            "0, " +
+                            ColorUtil.getRandomColor() +"), " +
+                        "(" +
+                            "'Clothing', " +
+                            "'category_art_clothes_1', "+
+                            Category.EXPENSE_CATEGORY + ", " +
+                            "0, " +
+                            ColorUtil.getRandomColor() +"), " +
+                        "(" +
+                            "'Healthcare', " +
+                            "'category_art_health_1', "+
+                            Category.EXPENSE_CATEGORY + ", " +
+                            "0, " +
+                            ColorUtil.getRandomColor() +"), " +
+                        "(" +
+                            "'Gifts/Donations', " +
+                            "'category_art_gift_1', "+
+                            Category.EXPENSE_CATEGORY + ", " +
+                            "0, " +
+                            ColorUtil.getRandomColor() +"), " +
+                        "(" +
+                            "'Household items', " +
+                            "'category_art_household_1', "+
+                            Category.EXPENSE_CATEGORY + ", " +
+                            "0, " +
+                            ColorUtil.getRandomColor() +"), " +
+                        "(" +
+                            "'Recreation', " +
+                            "'category_art_activities_1', "+
+                            Category.EXPENSE_CATEGORY + ", " +
+                            "0, " +
+                            ColorUtil.getRandomColor() +"), " +
+                        "(" +
+                            "'Travelling', " +
+                            "'category_art_travels_1', "+
+                            Category.EXPENSE_CATEGORY + ", " +
+                            "0, " +
+                            ColorUtil.getRandomColor() +"), " +
+                        "(" +
+                            "'Gadgets', " +
+                            "'category_art_tech_1', "+
+                            Category.EXPENSE_CATEGORY + ", " +
+                            "0, " +
+                            ColorUtil.getRandomColor() +"), " +
+                        "(" +
+                            "'Others', " +
+                            "'category_art_misc_1', "+
+                            Category.EXPENSE_CATEGORY + ", " +
+                            "0, " +
+                            ColorUtil.getRandomColor() +"), " +
+                        "(" +
+                            "'Loan', " +
+                            "'category_art_getloan_1', "+
+                            Category.SHARED_CATEGORY + ", " +
+                            "0, " +
+                            ColorUtil.getRandomColor() +"), " +
+                        "(" +
+                            "'Loan payment', " +
+                            "'category_art_payloan_1', "+
+                            Category.SHARED_CATEGORY + ", " +
+                            "0, " +
+                            ColorUtil.getRandomColor() +"), " +
+                        "(" +
+                            "'Others', " +
+                            "'category_art_misc_1', "+
+                            Category.SHARED_CATEGORY + ", " +
                             "0, " +
                             ColorUtil.getRandomColor() +")");
         }
@@ -164,7 +284,9 @@ public abstract class GnomyDatabase extends RoomDatabase {
                 if (result != null) emitter.onSuccess(result);
                 else throw new EmptyResultSetException("Composite transaction returned null object.");
             } catch (EmptyResultSetException |
-                    GnomyIllegalQueryException e) {
+                    GnomyIllegalQueryException |
+                    SQLException |
+                    net.sqlcipher.database.SQLiteException e) {
                 emitter.onError(e);
             }
         });

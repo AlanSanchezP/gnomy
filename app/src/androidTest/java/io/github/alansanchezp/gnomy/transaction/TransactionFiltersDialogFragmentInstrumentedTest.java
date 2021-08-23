@@ -83,13 +83,13 @@ public class TransactionFiltersDialogFragmentInstrumentedTest {
         List<Category> categoriesList = new ArrayList<>();
         Category cat = new Category();
         cat.setId(1);
-        cat.setType(Category.BOTH_CATEGORY);
+        cat.setType(Category.SHARED_CATEGORY);
         cat.setName("CATEGORY A");
         cat.setIconResName("ic_calculate_24");
         categoriesList.add(cat);
         cat = new Category();
         cat.setId(2);
-        cat.setType(Category.BOTH_CATEGORY);
+        cat.setType(Category.SHARED_CATEGORY);
         cat.setName("CATEGORY B");
         cat.setIconResName("ic_baseline_notes_24");
         categoriesList.add(cat);

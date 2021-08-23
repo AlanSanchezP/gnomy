@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item
+        android:id="@+id/category_card_modify"
+        android:title="@string/category_card_modify" />
+    <item
+        android:id="@+id/category_card_delete"
+        android:title="@string/category_card_delete" />
+</menu>

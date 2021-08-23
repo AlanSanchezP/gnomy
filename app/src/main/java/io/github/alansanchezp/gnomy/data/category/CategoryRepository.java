@@ -8,18 +8,19 @@ import java.util.List;
 import androidx.lifecycle.LiveData;
 import io.github.alansanchezp.gnomy.data.GnomyDatabase;
 import io.github.alansanchezp.gnomy.data.GnomyIllegalQueryException;
+import io.reactivex.Single;
 
 public class CategoryRepository {
     private final CategoryDAO categoryDAO;
+    private final GnomyDatabase db;
 
     public CategoryRepository(Context context) {
-        GnomyDatabase db;
         db = GnomyDatabase.getInstance(context, "");
         categoryDAO = db.categoryDAO();
     }
 
     /**
-     * Retrieves categories of type {@link Category#BOTH_CATEGORY}
+     * Retrieves categories of type {@link Category#SHARED_CATEGORY}
      * and either {@link Category#INCOME_CATEGORY} or {@link Category#EXPENSE_CATEGORY}.
      *
      * @param categoryType  Type to get in addition to BOTH_CATEGORY.
@@ -51,5 +52,64 @@ public class CategoryRepository {
      */
     public LiveData<Category> find(int categoryId) {
         return categoryDAO.find(categoryId);
+    }
+
+    /**
+     * Inserts a given {@link Category} row from some input, ensuring
+     * that inserted categories through repository (user-defined ones)
+     * are never non-deletable.
+     *
+     * @param category      Category to be inserted
+     * @return              Single object that can be observed on main thread, wrapping
+     *                      the inserted transaction's generated id.
+     */
+    public Single<Long> insert(Category category) {
+        return db.toSingleInTransaction(() -> {
+            if (!category.isDeletable()) throw new GnomyIllegalQueryException("Attempting to insert a non-deletable category");
+            return categoryDAO._insert(category);
+        });
+    }
+
+    /**
+     * Updates a given {@link Category} row from some input, ensuring
+     * that deletable status is not changed.
+     *
+     * @param category      New category value to be used.
+     * @return              Single object that can be observed on main thread.
+     */
+    public Single<Integer> update(Category category) {
+        return db.toSingleInTransaction(() -> {
+            try {
+                Category originalCategory = categoryDAO._find(category.getId());
+                if (originalCategory.isDeletable() != category.isDeletable())
+                    throw new GnomyIllegalQueryException("Attempting to alter deletable status of category.");
+                if (originalCategory.getType() != category.getType())
+                    throw new GnomyIllegalQueryException("Cannot alter the type of a category.");
+                return categoryDAO._update(category);
+            } catch(NullPointerException e) {
+                throw new GnomyIllegalQueryException(e);
+            }
+        });
+    }
+
+    /**
+     * Deletes a {@link Category}, except if its database status
+     * marks it as non-deletable.
+     *
+     * @param categoryId    Id of the category to delete.
+     * @return              Single object that can be observed on main thread.
+     */
+    public Single<Integer> delete(int categoryId) {
+        return db.toSingleInTransaction(() -> {
+            try {
+                Category targetCategory = categoryDAO._find(categoryId);
+                if (!targetCategory.isDeletable())
+                    throw new GnomyIllegalQueryException("Attempting to delete non-deletable category.");
+
+                return categoryDAO._delete(targetCategory);
+            } catch(NullPointerException e) {
+                throw new GnomyIllegalQueryException(e);
+            }
+        });
     }
 }
