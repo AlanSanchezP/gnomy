@@ -39,7 +39,6 @@ import io.github.alansanchezp.gnomy.util.DateUtil;
             )
         },
         indices = {
-            // TODO: Indices
             @Index("account_id"),
             @Index("category_id"),
             @Index("transfer_destination_account_id")

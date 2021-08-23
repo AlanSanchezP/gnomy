@@ -67,7 +67,7 @@ public class TransactionGroupHeader
                         $.getRoot().getResources().getColor(R.color.colorIncomesDark));
                 break;
         }
-        // TODO: Implement global default currency
+        // TODO: [#10] Implement global default currency
         $.transactionGroupHeaderSum.setText("\u2211 = ".concat(
                 CurrencyUtil.format(mSum, "USD")));
     }

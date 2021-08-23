@@ -19,7 +19,7 @@ public class AddEditCategoryViewModel extends AndroidViewModel {
     private final CategoryRepository mRepository;
     private final SavedStateHandle mState;
     private final MutableLiveData<Integer> mutableCategoryColor;
-    // TODO: Find a better way to achieve this
+    // TODO: [#54] Find a better way to achieve this
     public final LiveData<Integer> categoryColor;
 
     public AddEditCategoryViewModel(@NonNull Application application,

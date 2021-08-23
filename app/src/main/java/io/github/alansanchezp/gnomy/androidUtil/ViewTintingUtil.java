@@ -40,7 +40,7 @@ public class ViewTintingUtil {
         }
     }
 
-    // TODO: Evaluate if a batch tinting method is necessary.
+    // XXX: [#45] Evaluate if a batch tinting method is necessary.
 
     public static void tintFAB(@NonNull FloatingActionButton fab,
                                @ColorInt int bgColor,

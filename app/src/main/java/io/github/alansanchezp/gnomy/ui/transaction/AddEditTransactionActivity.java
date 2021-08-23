@@ -57,7 +57,7 @@ import io.reactivex.schedulers.Schedulers;
 import static io.github.alansanchezp.gnomy.util.ISpinnerItem.getItemIndexById;
 import static io.github.alansanchezp.gnomy.androidUtil.SimpleTextWatcherWrapper.onlyOnTextChanged;
 
-// TODO: Implement recurrent transactions
+// TODO: [#51] Implement recurrent transactions
 public class AddEditTransactionActivity
         extends BackButtonActivity<ActivityAddEditTransactionBinding>
         implements DatePickerDialog.OnDateSetListener,
@@ -103,7 +103,7 @@ public class AddEditTransactionActivity
         mViewModel = new ViewModelProvider(this)
                 .get(AddEditTransactionViewModel.class);
         mFABVH = new SingleClickViewHolder<>($.addeditTransactionFAB, true);
-        // TODO: Find a better way to present these as actions to the user
+        // TODO: [#57] Find a better way to present these as actions to the user
         $.addeditTransactionNewAccount.setPaintFlags(
                 $.addeditTransactionNewAccount.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         $.addeditTransactionNewCategory.setPaintFlags(
@@ -280,7 +280,7 @@ public class AddEditTransactionActivity
                 public void onNothingSelected(@NonNull MaterialSpinner parent) {
                 }
             });
-            // TODO: Use global default currency (WHEN IMPLEMENTED)
+            // TODO: [#10] Use global default currency (WHEN IMPLEMENTED)
             if (mIsNewScreen) {
                 mTransaction.setCurrency("USD");
             }
@@ -325,12 +325,12 @@ public class AddEditTransactionActivity
     /* LiveData OBSERVERS */
 
     private void onTransactionChanged(MoneyTransaction transaction) {
-        // TODO: Evaluate if this approach is better than finish() the Activity
+        // XXX: [#58] Evaluate if this approach is better than finish() the Activity
         if (transaction == null)
             throw new RuntimeException("Attempting to update non-existent Transaction.");
         if (transaction.getType() != mTransactionType)
             throw new RuntimeException("Attempting an invalid operation: Changing a transaction's type.");
-        // TODO: Should we keep edited data on rotation?
+        // XXX: [#54] Should we keep edited data on rotation?
         //  An option could be to force portrait mode on form activities
         mTransactionMinDate = transaction.getDate();
         mTransaction = transaction;
@@ -461,7 +461,7 @@ public class AddEditTransactionActivity
 
     /* DATA MANAGEMENT */
 
-    // TODO: MediatorLiveData MIGHT be a better approach
+    // XXX: [#54] MediatorLiveData MIGHT be a better approach
     private void attemptMixedDataSourceOperations() {
         if (mAccountsList == null || mTransaction == null) return;
         if (mTransactionType != MoneyTransaction.TRANSFER && mCategoriesList == null) return;
@@ -525,7 +525,7 @@ public class AddEditTransactionActivity
     }
 
     private void tryToForceConfirmedStatus() {
-        // TODO: How to test this behavior?
+        // XXX: [#41] How to test this behavior?
         if (mTransaction == null) return;
         if (mTransactionType == MoneyTransaction.TRANSFER) return;
         if (mTransaction.getDate().isAfter(OffsetDateTime.now())) {

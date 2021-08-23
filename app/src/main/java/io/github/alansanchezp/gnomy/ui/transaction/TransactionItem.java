@@ -78,7 +78,7 @@ public class TransactionItem
 
     private void setAmountText(LayoutTransactionCardBinding $)
             throws GnomyCurrencyException {
-        // TODO: Best format for incomes and expenses?
+        // XXX: [#53] Best format for incomes and expenses?
         //  Options are:
         //      a) + for incomes, - for expenses (current implementation)
         //      b) nothing for incomes, () for expenses

@@ -361,7 +361,7 @@ public class MoneyTransactionRepositoryTest {
                 "30", // (stays the same)
                 "0"); // (stays the same)
 
-        // TODO: Test currency changes
+        // TODO: Test currency changes [Required for #10 to be considered complete]
         // Test what happens with invalid accounts or categories (some error)
         // Update transfer
         testTransaction.setAccount(2);

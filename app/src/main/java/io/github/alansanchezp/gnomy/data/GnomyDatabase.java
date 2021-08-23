@@ -39,7 +39,7 @@ import java.util.concurrent.Executors;
     MonthlyBalance.class,
     RecurrentTransaction.class
 }, version = 1, exportSchema = false)
-// TODO: Implement schemaLocation when app (and therefore db model) is
+// TODO: [#3] Implement schemaLocation when app (and therefore db model) is
 //  (at least) beta-release ready
 @TypeConverters({GnomyTypeConverters.class})
 public abstract class GnomyDatabase extends RoomDatabase {
@@ -94,7 +94,7 @@ public abstract class GnomyDatabase extends RoomDatabase {
 
         builder = builder
                 .openHelperFactory(factory)
-                // TODO: Create migrations and then remove this method call
+                // TODO: [#3] Create migrations and then remove this method call
                 .fallbackToDestructiveMigration()
                 .addCallback(PREPOPULATE_CATEGORIES_CALLBACK);
 

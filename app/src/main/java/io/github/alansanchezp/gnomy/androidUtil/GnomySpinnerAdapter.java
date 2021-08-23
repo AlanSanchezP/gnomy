@@ -42,7 +42,7 @@ public class GnomySpinnerAdapter<I extends ISpinnerItem> extends ArrayAdapter<I>
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        // TODO: Why did ViewBinding not work? Should attempt to bring it back?
+        // XXX: [#43] Why did ViewBinding not work? Should attempt to bring it back?
         final I item = Objects.requireNonNull(getItem(position));
         final View view;
         final TextView text;

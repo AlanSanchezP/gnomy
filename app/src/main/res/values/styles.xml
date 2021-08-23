@@ -15,7 +15,7 @@
         <item name="android:textColorHighlight">@color/colorTextHighlight</item>
         <item name="android:textColorSecondary">@color/colorTextSecondary</item>
         <item name="android:textColorHint">@color/colorTextSecondary</item>
-        <!-- TODO: Add custom items: Probably needed for future trainer feature
+        <!-- TODO: [#59 #44] Add custom items: Probably needed for future trainer feature
                (and will probably help when implementing dark theme)
                https://stackoverflow.com/questions/6860886/custom-attributes-in-styles-xml#6868308 -->
     </style>

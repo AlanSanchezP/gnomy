@@ -24,7 +24,7 @@
         android:textDirection="locale"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-    <!-- TODO: Is there a better way to achieve this separator? -->
+    <!-- XXX: Is there a better way to achieve this separator? -->
     <View
         android:layout_height="1dp"
         android:layout_width="match_parent"

@@ -94,7 +94,7 @@ public class CategoriesActivity
     protected void tintNavigationBar() {
         super.tintNavigationBar();
         mTabLayout.setBackgroundColor(mThemeColor);
-        // TODO: Make not-selected options have a different color, similar to WhatsApp implementation
+        // TODO: [#49] Make not-selected options have a different color, similar to WhatsApp implementation
         mTabLayout.setTabTextColors(mThemeTextColor, mThemeTextColor);
         mTabLayout.setSelectedTabIndicatorColor(mThemeTextColor);
         ViewTintingUtil.tintFAB($.categoriesFab, mThemeColor, mThemeTextColor);

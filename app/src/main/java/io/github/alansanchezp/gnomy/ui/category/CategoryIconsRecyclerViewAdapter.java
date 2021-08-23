@@ -21,7 +21,6 @@ import static android.graphics.Color.TRANSPARENT;
 public class CategoryIconsRecyclerViewAdapter extends RecyclerView.Adapter<CategoryIconsRecyclerViewAdapter.ViewHolder> {
 
     private final OnIconSelectedListener mListener;
-    // TODO: Update with final set of icons
     private final static String[] ICON_RES_NAMES = {
         "category_art_salary_1",
         "category_art_salary_2",
@@ -225,7 +224,7 @@ public class CategoryIconsRecyclerViewAdapter extends RecyclerView.Adapter<Categ
         }
 
         private void setEventListeners(OnIconSelectedListener listener) {
-            // TODO: Find a way to test if clicks are effectively disabled
+            // TODO: [#41] Find a way to test if clicks are effectively disabled
             $.getRoot().setOnClickListener(v -> {
                 if (mInterface.clicksEnabled()) {
                     tintBorder(mInterface.getColor());

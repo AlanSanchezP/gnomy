@@ -69,7 +69,7 @@ public class MoneyTransactionRepository {
             boolean status = (filters.getTransactionStatus() == MoneyTransactionFilters.CONFIRMED_STATUS);
             queryArgs.add(status);
         }
-        // TODO: Support multiple accounts and categories when filtering
+        // TODO: [#46] Support multiple accounts and categories when filtering
         if (filters.getAccountId() != 0) {
             queryString += "AND transactions.account_id = ? ";
             queryArgs.add(filters.getAccountId());
@@ -126,7 +126,7 @@ public class MoneyTransactionRepository {
             GnomyIllegalQueryException validationError = transaction.getIsolatedValidationError();
             if (validationError != null)
                 throw validationError;
-            // TODO: Currency conversion (this will prevent use of deprecated method)
+            // TODO: Currency conversion (this will prevent use of deprecated method) [Required for #10 to be considered complete]
             //noinspection deprecation
             transaction.setCalculatedValue(transaction.getOriginalValue());
             addTransactionAmountToBalance(transaction);
@@ -188,7 +188,7 @@ public class MoneyTransactionRepository {
                 //noinspection IfStatementWithIdenticalBranches
                 if (!original.getOriginalValue().equals(
                         transaction.getOriginalValue())) {
-                    // TODO: Currency conversion (this will prevent use of deprecated method)
+                    // TODO: Currency conversion (this will prevent use of deprecated method) [Required for #10 to be considered complete]
                     //  add if() clause in case currency OR date change too
                     //noinspection deprecation
                     transaction.setCalculatedValue(transaction.getOriginalValue());
@@ -323,7 +323,7 @@ public class MoneyTransactionRepository {
         dao._adjustBalance(accountId, month, newIncomes, newExpenses, newProjectedIncomes, newProjectedExpenses);
     }
 
-    // TODO: This method is used only in tests so far, evaluate deleting it later
+    // Only used in tests
     public LiveData<MonthlyBalance> getBalanceFromMonth(int accountId, YearMonth month) {
         return dao.findBalance(accountId, month);
     }

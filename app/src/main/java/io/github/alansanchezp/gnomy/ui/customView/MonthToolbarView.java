@@ -65,7 +65,7 @@ public class MonthToolbarView extends LinearLayout {
     }
 
     private void onMonthPickerClick() {
-        // TODO: Implement (when possible) a better looking calendar
+        // TODO: [#50] Implement (when possible) a better looking calendar
         // Current limitation is that open source libraries
         //  implementing material design do not support
         //  a range limit, and it might still be desirable to limit

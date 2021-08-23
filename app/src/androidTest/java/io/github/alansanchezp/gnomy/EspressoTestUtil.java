@@ -33,7 +33,7 @@ import static org.junit.Assert.fail;
  */
 @SuppressWarnings("SameParameterValue")
 public class EspressoTestUtil {
-    // TODO: Add methods to test error and hint texts on TextInputLayout objects
+    // TODO: Add methods to test error and hint texts on TextInputLayout objects [#41]
     /**
      * Asserts that some operation will throw a specific throwable class.
      *
@@ -59,7 +59,7 @@ public class EspressoTestUtil {
         assertActivityState(state, rule.getScenario());
     }
 
-    // TODO: Evaluate if this method is needed, or using only ActivityScenarioRule is enough
+    // XXX: [#41] Evaluate if this method is needed, or using only ActivityScenarioRule is enough
     public static void assertActivityState(State state, ActivityScenario<?> scenario) {
         if (scenario.getState() != state) {
             fail("Expected Activity state [" + state + "] but got [" + scenario.getState() + "] instead");
