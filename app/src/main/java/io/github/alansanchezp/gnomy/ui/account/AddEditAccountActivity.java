@@ -69,7 +69,7 @@ public class AddEditAccountActivity
 
         // Prevent potential noticeable blink in color
         mAppbar.setBackgroundColor(getResources().getColor(android.R.color.transparent));
-        // TODO: Either dynamically show/hide FAB on landscape, block landscape altogether
+        // TODO: [#18] Either dynamically show/hide FAB on landscape, block landscape altogether
         //  or find a better UI behavior for it.
         //  It makes UX unpleasant on landscape because it overlays with other elements
         mFABVH = new SingleClickViewHolder<>($.addeditAccountFAB, true);
@@ -92,7 +92,7 @@ public class AddEditAccountActivity
             // Prevent potential noticeable blink in spinners
             $.addeditAccountBox.setVisibility(View.INVISIBLE);
 
-            // TODO: (When currency support is implemented) (only edit mode)
+            // TODO: [#10] (When currency support is implemented) (only edit mode)
             //  Monitor currency change and display an alert to either preserve ALL transactions values or convert them to their equivalents
             //  on the new selected currency (and perform this operation until submitting the new data)
             //  ...
@@ -146,7 +146,7 @@ public class AddEditAccountActivity
         $.addeditAccountType.setSelection(mAccount.getType() - 1);
         $.addeditAccountShowInHome.setChecked(account.isShowInDashboard());
         // Restore container visibility once all data has been initialized
-        // TODO: How can we prevent Switch animation from triggering?
+        // TODO: [#19] How can we prevent Switch animation from triggering?
         //  When on edit mode, the animation is triggered if account.isShowInDashboard() is true
         $.addeditAccountBox.setVisibility(View.VISIBLE);
 
@@ -174,7 +174,7 @@ public class AddEditAccountActivity
         mFABVH.onView(this, v -> ViewTintingUtil.tintFAB(v, fabBgColor, fabTextColor));
         ViewTintingUtil
                 .monotintTextInputLayout($.addeditAccountName, mThemeTextColor);
-        // TODO: Lighter colors make the hint barely readable
+        // FIXME: [#20] Lighter colors make the hint barely readable
         //  Possible solutions:
         //      A) Use a darker variant of the selected color
         //      B) Change UI of this element (any ideas?)
@@ -188,7 +188,7 @@ public class AddEditAccountActivity
         ViewTintingUtil
                 .tintSpinner($.addeditAccountCurrency, mThemeColor);
 
-        // TODO: (Wish-list, not a big deal) How can we unify the ripple color with the one from FAB?
+        // TODO: [#21] (Wish-list, not a big deal) How can we unify the ripple color with the one from FAB?
         mColorPickerBtnVH.onView(this, v -> {
             $.addeditAccountColorButton.setBackgroundTintList(ColorStateList.valueOf(mThemeColor));
             $.addeditAccountColorButton.getDrawable().mutate().setTint(mThemeTextColor);
@@ -218,7 +218,7 @@ public class AddEditAccountActivity
                 }
             });
             if ($.addeditAccountCurrency.getSelectedItem() == null)
-                // TODO: Use global default currency
+                // TODO: [#10] Use global default currency
                 $.addeditAccountCurrency.setSelection(CurrencyUtil.getCurrencyIndex("USD"));
             if ($.addeditAccountType.getSelectedItem() == null)
                 $.addeditAccountType.setSelection(0);

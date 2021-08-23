@@ -25,7 +25,8 @@ Currently under development. This section will tell you when alpha, beta and sta
 - Monthly list of transactions
 - Filtering of transactions list (supports custom end and start dates)
 - Visualization of unresolved transactions (that haven't been confirmed by the user)
-- Adaptive icons. The project's logo might change if someone has a better design. 
+- Adaptive icons. The project's logo might change if someone has a better design.
+- User-defined categories for transactions
 
 ### Screenshots
 <table>
@@ -52,20 +53,19 @@ Currently under development. This section will tell you when alpha, beta and sta
 </table>
 
 ## The roadmap to v1
-- User-defined categories for transactions
 - Support for multiple currencies accross the app
 - Support for recurring transactions
-- Dashboard screen
+- Dashboard screen -> (1ST ALPHA RELEASE BREAKPOINT)
 - Charts!!
-- Notifications (for transactions that are expected to happen today)
+- Notifications (for transactions that are expected to happen today) -> (2ND ALPHA RELEASE BREAKPOINT)
 - UI/UX enhancements
 - Accessibility features
 - Translations (I initially plan to support spanish and english, perhaps esperanto if it is even possible because I'm a nerd). Wanna help with that? :D
 - Dark theme support
-- Database encryption
-- Database import/export so that you can keep your data safe in the cloud (see previous bullet)
-- Trainer feature to help you achieve your financial goals
-- Search transactions by concept or notes
+- Database encryption -> (1ST BETA RELEASE BREAKPOINT)
+- Database import/export so that you can keep your data safe in the cloud (see previous bullet) -> (2ND BETA RELEASE BREAKPOINT)
+- Trainer feature to help you achieve your financial goals -> (3RD BETA RELEASE BREAKPOINT)
+- Search transactions by concept or notes -> (PRE-RELEASE BREAKPOINT)
 - F-droid releases
 
 ## Nice-to-have features that might or might not get implemented some day

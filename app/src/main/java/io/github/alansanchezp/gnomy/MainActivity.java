@@ -26,9 +26,9 @@ import io.github.alansanchezp.gnomy.androidUtil.SingleClickViewHolder;
 import io.github.alansanchezp.gnomy.androidUtil.ViewTintingUtil;
 import io.github.alansanchezp.gnomy.viewmodel.MainActivityViewModel;
 
-// TODO: Handle dark mode
-// TODO: (Wishlist) implement tooltips for non-menu buttons
-// TODO: Animations
+// TODO: [#44] Handle dark mode
+// TODO: [#23] (Wishlist) implement tooltips for non-menu buttons
+// TODO: [#47] Animations
 // These TODOs are placed here just because MainActivity acts as a "root" file
 // even if they are not related to the class
 

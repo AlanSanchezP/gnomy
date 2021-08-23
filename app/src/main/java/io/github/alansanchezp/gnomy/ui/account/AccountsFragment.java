@@ -157,7 +157,7 @@ public class AccountsFragment
     private void onTodayAccumulatesListChanged(List<AccountWithAccumulated> accumulates) {
         mTodayAccumulatesMap = mListViewModel.getAccumulatesMapFromList(accumulates);
         mAdapter.notifyTodayAccumulatesAreAvailable(mTodayAccumulatesMap.size());
-        // TODO: Use global user currency when implemented
+        // TODO: [#10] Use global user currency when implemented
         String userCurrencyCode = "USD";
         try {
             BigDecimal totalAccumulates = CurrencyUtil.sumAccountAccumulates(
@@ -172,12 +172,12 @@ public class AccountsFragment
     }
 
     private void onAccumulatesListChanged(List<AccountWithAccumulated> accumulates) {
-        // TODO: Display some helpful information if list is empty, current behavior
+        // TODO: [#29] Display some helpful information if list is empty, current behavior
         //  just doesn't display any data in recyclerview (not a bug, but UX can be improved)
         if (mSharedViewModel.activeMonth.getValue() == null) return;
         mAdapter.setValues(accumulates);
 
-        // TODO: Use global user currency when implemented
+        // TODO: [#10] Use global user currency when implemented
         String userCurrencyCode = "USD";
         try {
             BigDecimal totalEndOfMonth = CurrencyUtil.sumAccountAccumulates(
@@ -215,7 +215,7 @@ public class AccountsFragment
                 requireActivity().startActivity(modifyAccountIntent);
                 break;
             case R.id.account_card_transactions:
-                // TODO: Is it worth it replacing this with the SafeArgs module?
+                // XXX: [#55 ?] Is it worth it replacing this with the SafeArgs module?
                 Bundle args = new Bundle();
                 args.putInt(TransactionsFragment.ARG_DEFAULT_FILTER_ACCOUNT, account.getId());
                 NavHostFragment.findNavController(this).navigate(R.id.action_navigation_accounts_to_navigation_transactions, args);

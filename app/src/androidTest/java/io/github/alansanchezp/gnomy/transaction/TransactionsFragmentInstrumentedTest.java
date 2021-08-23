@@ -41,10 +41,10 @@ import io.github.alansanchezp.gnomy.util.DateUtil;
 @RunWith(AndroidJUnit4.class)
 public class TransactionsFragmentInstrumentedTest {
     private static MenuItem mockMenuItem;
-    // TODO: Not sure about how to test group total sum or that all items are being shown
+    // XXX: [#41] Not sure about how to test group total sum or that all items are being shown
     //  (pretty sure it is working right now, but already encountered that bug before)
 
-    // TODO: How to test recyclerview click events? Is it even necessary?
+    // XXX: [#41] How to test recyclerview click events? Is it even necessary?
 
     @BeforeClass
     public static void init_mocks() {

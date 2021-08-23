@@ -77,7 +77,7 @@ public class CurrencyUtilTest {
 
     @Test
     public void sum_mixed_currencies() {
-        // TODO: Adjust test when currency support is fully implemented
+        // TODO: [#10] Adjust test when currency support is fully implemented
         String baseCurrency = "USD";
         List<AccountWithAccumulated> awaList = new ArrayList<>();
         AccountWithAccumulated[] awaArray = new AccountWithAccumulated[3];

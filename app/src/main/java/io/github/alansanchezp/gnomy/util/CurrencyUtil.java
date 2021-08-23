@@ -16,7 +16,7 @@ import io.github.alansanchezp.gnomy.data.account.AccountWithAccumulated;
  * perform arithmetical operations with them.
  */
 public class CurrencyUtil {
-    // TODO generate complete set of currencies
+    // TODO: [#41] generate complete set of currencies
     //  consider limitations of free services for conversion rates
     private static final String[] CURRENCIES = {
         "USD",
@@ -24,7 +24,7 @@ public class CurrencyUtil {
         "EUR"
     };
 
-    // TODO: Evaluate if '---' should be replaced by something else
+    // XXX: [#10] Evaluate if '---' should be replaced by something else
     public static final String NULL_NUMBER_STRING = "---";
 
     public static String[] getCurrencies() {
@@ -166,7 +166,7 @@ public class CurrencyUtil {
             boolean forceConfirmedOnly,
             List<AccountWithAccumulated> awaList,
             String baseCurrencyCode) {
-        // TODO: Adjust logic when currency support is implemented
+        // TODO: [#10] Adjust logic when currency support is implemented
         //  This loop is here just so we can display something
         //  It's possible that the whole method (including signature) will change
         BigDecimal total = null;

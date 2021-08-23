@@ -166,7 +166,7 @@ public class AccountRecyclerViewAdapter extends RecyclerView.Adapter<AccountRecy
 
         private void setEventListeners(OnListItemInteractionListener listener,
                                        ClickDisablerInterface clickInterface) {
-            // TODO: Find a way to test if clicks are effectively disabled
+            // TODO: [#41] Find a way to test if clicks are effectively disabled
             $.getRoot().setOnClickListener(v -> {
                 if (clickInterface.clicksEnabled()) {
                     clickInterface.disableClicks();

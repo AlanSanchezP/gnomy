@@ -106,7 +106,7 @@ public class TransactionsListViewModel extends AndroidViewModel {
     public void clearFilters() {
         mFilters.postValue(bindMonthToFilters(mActiveMonth.getValue()));
     }
-    // TODO: IS IT EVEN NECESSARY TO USE BOTH SAVEDSTATE AND CUSTOM MUTABLELIVEDATA?
+    // TODO: [#54] IS IT EVEN NECESSARY TO USE BOTH SAVEDSTATE AND CUSTOM MUTABLELIVEDATA?
     public void applyFilters (MoneyTransactionFilters filters) {
         mSavedState.set(TAG_FILTERS, filters);
         mFilters.postValue(filters);

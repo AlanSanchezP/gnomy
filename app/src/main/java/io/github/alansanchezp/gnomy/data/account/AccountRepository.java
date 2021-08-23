@@ -89,7 +89,7 @@ public class AccountRepository {
     public Single<Integer> update(Account account) {
         return db.toSingleInTransaction(() -> {
             Account original = accountDAO._find(account.getId());
-            // TODO: Analyze what should be done here
+            // XXX: [#10] Analyze what should be done here
             //  Current behavior: Reject update if it contains altered currency
             try {
                 if (original.equals(account)) return 0;
@@ -114,7 +114,7 @@ public class AccountRepository {
     }
 
     // WRAPPER METHODS
-    // TODO: Delete if never used (when project matures more)
+    // XXX: Delete if never used (when project matures more)
     public Single<Integer> archive(Account account) {
         return archive(account.getId());
     }
@@ -129,7 +129,7 @@ public class AccountRepository {
 
     // Monthly balance methods
 
-    // TODO: Should make method protected to avoid manual insertion of balances?
+    // XXX: Should make method protected to avoid manual insertion of balances?
     public Single<Integer> insert(MonthlyBalance balance) {
         return db.toSingleInTransaction(()-> {
             accountDAO._insertOrIgnoreBalance(balance);
@@ -137,12 +137,12 @@ public class AccountRepository {
         });
     }
 
-    // TODO: When transactions module is ready, evaluate if this is still needed
+    // This method is used only in tests
     public Single<Integer> update(MonthlyBalance balance) {
         return db.toSingleInTransaction(()-> accountDAO._updateBalance(balance));
     }
 
-    // TODO: This method is used only in tests so far, evaluate deleting it later
+    // This method is used only in tests
     public LiveData<MonthlyBalance> getBalanceFromMonth(int accountId, YearMonth month) {
         return accountDAO.findBalance(accountId, month);
     }

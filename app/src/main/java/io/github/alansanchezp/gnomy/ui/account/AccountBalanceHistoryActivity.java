@@ -123,7 +123,7 @@ public class AccountBalanceHistoryActivity
     }
 
     private void onAccumulatedBalanceChanged(AccountWithAccumulated awa) {
-        // TODO: Display some helpful information if month predates account creation
+        // TODO: [#29] Display some helpful information if month predates account creation
         setOrIgnoreAccount(awa.account);
         onMonthChanged(awa.targetMonth);
         String accountCurrency = awa.account.getDefaultCurrency();

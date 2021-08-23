@@ -67,7 +67,7 @@ public class AddEditCategoryActivity
 
         // Prevent potential noticeable blink in color
         mAppbar.setBackgroundColor(getResources().getColor(android.R.color.transparent));
-        // TODO: Either dynamically show/hide FAB on landscape, block landscape altogether
+        // TODO: [#18] Either dynamically show/hide FAB on landscape, block landscape altogether
         //  or find a better UI behavior for it.
         //  It makes UX unpleasant on landscape because it overlays with other elements
         mFABVH = new SingleClickViewHolder<>($.addeditCategoryFAB, true);
@@ -88,7 +88,7 @@ public class AddEditCategoryActivity
             activityTitle = getString(R.string.category_modify);
             categoryLD.observe(this, this::onCategoryChanged);
         } else {
-            // TODO: Should allow to modify categories' type?
+            // TODO: [#48] Should allow to modify categories' type?
             initSpinners();
             $.addeditCategoryType.setVisibility(View.VISIBLE);
             activityTitle = getString(R.string.category_new);
@@ -109,7 +109,7 @@ public class AddEditCategoryActivity
         $.addeditCategoryNameInput.addTextChangedListener(onlyOnTextChanged((s, start, count, after) ->
                 onCategoryNameEditTextChanges(s.toString())));
 
-        // TODO: How to test the icon picker?
+        // TODO: [#41] How to test the icon picker?
         mAdapter = new CategoryIconsRecyclerViewAdapter(this);
         RecyclerView recyclerView = $.iconsGrid;
         recyclerView.setLayoutManager(new GridLayoutManager($.getRoot().getContext(), 6));
@@ -171,7 +171,7 @@ public class AddEditCategoryActivity
         mFABVH.onView(this, v -> ViewTintingUtil.tintFAB(v, fabBgColor, fabTextColor));
         ViewTintingUtil
                 .monotintTextInputLayout($.addeditCategoryName, mThemeTextColor);
-        // TODO: Lighter colors make the hint barely readable
+        // FIXME: [#20] Lighter colors make the hint barely readable
         //  Possible solutions:
         //      A) Use a darker variant of the selected color
         //      B) Change UI of this element (any ideas?)
@@ -179,7 +179,7 @@ public class AddEditCategoryActivity
         ViewTintingUtil
                 .tintSpinner($.addeditCategoryType, mThemeColor);
 
-        // TODO: (Wish-list, not a big deal) How can we unify the ripple color with the one from FAB?
+        // TODO: [#21] (Wish-list, not a big deal) How can we unify the ripple color with the one from FAB?
         mColorPickerBtnVH.onView(this, v -> {
             $.addeditCategoryColorButton.setBackgroundTintList(ColorStateList.valueOf(mThemeColor));
             $.addeditCategoryColorButton.getDrawable().mutate().setTint(mThemeTextColor);

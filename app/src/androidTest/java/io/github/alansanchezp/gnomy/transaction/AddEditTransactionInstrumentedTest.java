@@ -380,7 +380,7 @@ public class AddEditTransactionInstrumentedTest {
         testT.setType(EXPENSE);
         when(mockTransactionRepository.find(anyInt()))
                 .thenReturn(new MutableLiveData<>(testT));
-        // TODO: Check hints
+        // TODO: Check hints [#41]
         // Default behavior is to create a new expense. Not testing tinting since espresso
         //  doesn't provide a way to match color resources yet.
         onView(withId(R.id.custom_appbar))
@@ -671,8 +671,8 @@ public class AddEditTransactionInstrumentedTest {
         onView(withId(R.id.addedit_transaction_mark_as_done))
                 .perform(nestedScrollTo())
                 .check(matches(allOf(not(isEnabled()), isNotChecked())));
-        // TODO: How to check the inverse? Switch is expected to be enabled
-        //  again if date is not a future one
+        // XXX: How to check the inverse? Switch is expected to be enabled
+        //  again if date is not a future one [#41]
     }
 
     @Test
@@ -935,5 +935,5 @@ public class AddEditTransactionInstrumentedTest {
         // because don't know how catch the exception here (thrown in a different thread)
     }
 
-    // TODO: Test orphan transfers category (app should not crash)
+    // TODO: Test orphan transfers category (app should not crash) [#41]
 }

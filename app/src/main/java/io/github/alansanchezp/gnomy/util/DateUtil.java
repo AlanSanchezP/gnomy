@@ -100,7 +100,7 @@ public class DateUtil {
      * @return              String representation.
      */
     public static String getOffsetDateTimeString(OffsetDateTime dateTime, boolean includeTime) {
-        // TODO: Are these patters the best choice?
+        // XXX: [#56] Are these patterns the best choice?
         String pattern;
         if (includeTime) {
             pattern = "YYYY/MM/dd hh:mm a";

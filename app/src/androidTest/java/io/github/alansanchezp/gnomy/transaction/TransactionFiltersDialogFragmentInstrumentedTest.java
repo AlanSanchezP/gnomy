@@ -57,7 +57,7 @@ import io.github.alansanchezp.gnomy.util.DateUtil;
  */
 @RunWith(AndroidJUnit4.class)
 public class TransactionFiltersDialogFragmentInstrumentedTest {
-    // TODO: Include destination account filter when transfers are selected
+    // TODO: Include destination account filter when transfers are selected [#41]
     private static final GnomyFragmentFactory factory = new GnomyFragmentFactory();
     private static final TransactionFiltersDialogInterface mockInterface =
             mock(TransactionFiltersDialogInterface.class);
@@ -322,8 +322,8 @@ public class TransactionFiltersDialogFragmentInstrumentedTest {
 
         onView(withId(R.id.filters_dialog_amount_switch))
                 .perform(setChecked(false));
-        // TODO: WHAT IS GOING ON HERE?
-        //  Espresso is activating account spinner for some very weird reason X.X.
+        // FIXME: WHAT IS GOING ON HERE? [#42]
+        //  Espresso is activating account spinner for some very weird reason X.X
         //  Some manual click outside the spinner is needed for the test to complete
         //  and not loop forever.
         boolean keepTying = true;

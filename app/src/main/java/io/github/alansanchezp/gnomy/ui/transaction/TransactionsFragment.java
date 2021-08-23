@@ -79,9 +79,9 @@ public class TransactionsFragment
         //noinspection rawtypes
         mAdapter = new GroupAdapter();
         mAdapter.setOnItemClickListener(this::onItemClickListener);
-        // TODO: Is this the best way to present a delete option to the user?
+        // XXX: [#52] Is this the best way to present a delete option to the user?
         mAdapter.setOnItemLongClickListener(this::onItemLongClickListener);
-        // TODO: Is alert icon gonna do any action? It doesn't seem like it is possible
+        // XXX: [#52] Is alert icon gonna do any action? It doesn't seem like it is possible
         //  to set a listener to it, so that might be a problem
     }
 
@@ -102,7 +102,7 @@ public class TransactionsFragment
 
         mViewModel.bindMonth(mSharedViewModel.activeMonth);
 
-        // TODO: IS THERE A BETTER WAY TO HANDLE THE INITIAL ACCOUNT?
+        // XXX: [#55] IS THERE A BETTER WAY TO HANDLE THE INITIAL ACCOUNT?
         // Handle "See transactions" from accounts fragment
         Bundle args = getArguments();
         if (args != null && args.size() != 0) {
@@ -172,7 +172,7 @@ public class TransactionsFragment
     @Override
     public void onFABClick(View v) {
         int transactionType = mViewModel.getCurrentFilters().getTransactionType();
-        // TODO: Replace PopupMenu with an expandable FAB
+        // TODO: [#32] Replace PopupMenu with an expandable FAB
         if (transactionType == MoneyTransactionFilters.ALL_TRANSACTION_TYPES) {
             PopupMenu popup = new PopupMenu(v.getContext(), v);
             popup.inflate(R.menu.transactions_fab_menu);
@@ -252,7 +252,7 @@ public class TransactionsFragment
         boolean isSimpleFilter = mViewModel.getCurrentFilters().isSimpleFilterWithMonth(
                 mSharedViewModel.activeMonth.getValue());
 
-        // TODO: Is it worth keeping Groupie for the few uses it has in the app?
+        // XXX: [#52] Is it worth keeping Groupie for the few uses it has in the app?
         //  Maybe a simple local class to handle items and
         //  headers in a recyclerview would be better
         if (!transactions.isEmpty()) {
